@@ -1,0 +1,87 @@
+{
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\26070\\AppData\\Roaming\\npm\\node_modules\\@modelcontextprotocol\\server-sequential-thinking\\dist\\index.js"
+      ],
+      "env": {},
+      "disabled": false,
+      "autoApprove": [
+        "sequentialthinking"
+      ]
+    },
+    "filesystem": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\26070\\AppData\\Roaming\\npm\\node_modules\\@modelcontextprotocol\\server-filesystem\\dist\\index.js",
+        "C:\\UEprojects\\JeffGame001"
+      ],
+      "env": {},
+      "disabled": false,
+      "autoApprove": [
+        "read_file",
+        "list_directory",
+        "read_multiple_files",
+        "read_text_file",
+        "create_directory",
+        "read_media_file",
+        "write_file",
+        "list_allowed_directories"
+      ],
+      "disabledTools": [
+        "edit_file"
+      ]
+    },
+    "memory": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\26070\\AppData\\Roaming\\npm\\node_modules\\@modelcontextprotocol\\server-memory\\dist\\index.js"
+      ],
+      "env": {},
+      "disabled": false,
+      "autoApprove": []
+    },
+    "fetch": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "uvx",
+        "mcp-server-fetch"
+      ],
+      "env": {
+        "SYSTEMROOT": "C:\\Windows"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "fetch"
+      ]
+    },
+    "godot": {
+      "command": "node",
+      "args": [
+        "C:\\Windows\\System32\\godot-mcp\\build\\index.js"
+      ],
+      "env": {
+        "DEBUG": "true"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "launch_editor",
+        "run_project",
+        "get_debug_output",
+        "stop_project",
+        "get_godot_version",
+        "list_projects",
+        "get_project_info",
+        "create_scene",
+        "add_node",
+        "load_sprite",
+        "export_mesh_library",
+        "save_scene",
+        "get_uid",
+        "update_project_uids"
+      ]
+    }
+  }
+}
