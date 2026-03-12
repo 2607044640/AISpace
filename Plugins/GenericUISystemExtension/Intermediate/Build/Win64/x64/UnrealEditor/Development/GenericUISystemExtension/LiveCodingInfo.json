@@ -1,0 +1,27 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.GenericUISystemExtension.cpp.obj": [
+			"GameActivatableWidgetExtension.gen.cpp.obj",
+			"GameUILayoutExtension.gen.cpp.obj",
+			"GenericUISystemExtension.init.gen.cpp.obj",
+			"GUIS_InputOverrideSubsystem.gen.cpp.obj",
+			"GUIS_UIAction_CloseUI.gen.cpp.obj",
+			"GUIS_UIAction_ToggleUI.gen.cpp.obj",
+			"UILayerPriorityHelper.gen.cpp.obj",
+			"UIStateSubsystem.gen.cpp.obj",
+			"PerModuleInline.gen.cpp.obj",
+			"GUIS_UIAction_CloseUI.cpp.obj",
+			"GUIS_UIAction_ToggleUI.cpp.obj",
+			"GUIS_UIAction_ToggleUITests.cpp.obj",
+			"GenericUISystemExtensionModule.cpp.obj",
+			"GUIS_InputOverrideSubsystem.cpp.obj",
+			"UIStateSubsystem.cpp.obj",
+			"UILayerPriorityHelper.cpp.obj",
+			"UILayerPriorityHelperTests.cpp.obj",
+			"GameActivatableWidgetExtension.cpp.obj",
+			"GameActivatableWidgetExtensionTests.cpp.obj",
+			"GameUILayoutExtension.cpp.obj"
+		]
+	}
+}

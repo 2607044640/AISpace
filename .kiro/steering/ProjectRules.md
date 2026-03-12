@@ -23,23 +23,115 @@ inclusion: always
 </completed_guides>
 
 <class_references>
-## Animation System
-- **AnimationSet.cs** (`Scripts/Animation/`)
+## Godot.Composition 架构
+
+### 输入系统
+- **BaseInputComponent.cs** (`addons/CoreComponents/`)
+  - 抽象基类，定义输入事件接口
+  - Events: `OnMovementInput`, `OnJumpJustPressed`
+  - 方法: `TriggerMovementInput()`, `TriggerJumpInput()`
+
+- **PlayerInputComponent.cs** (`addons/CoreComponents/`)
+  - 继承 BaseInputComponent
+  - 读取玩家键盘/手柄输入
+
+- **AIInputComponent.cs** (`addons/CoreComponents/Examples/`)
+  - 继承 BaseInputComponent
+  - AI 决策输入（巡逻、追击）
+
+### 核心组件
+- **MovementComponent.cs** (`addons/CoreComponents/`)
+  - 物理移动计算
+  - Export: Speed, JumpVelocity, Gravity, Camera
+  - 依赖: BaseInputComponent
+
+- **CharacterRotationComponent.cs** (`addons/CoreComponents/`)
+  - 角色朝向控制
+  - Export: CharacterModelPath, Camera, RotationSpeed
+  - 依赖: BaseInputComponent
+
+- **AnimationControllerComponent.cs** (`addons/CoreComponents/`)
+  - 动画状态机
+  - Export: CharacterModelPath, AnimationPlayerPath, AnimationBlendTime, AnimConfig
+  - 使用 AnimationNames 常量
+
+- **CameraControlComponent.cs** (`addons/CoreComponents/`)
+  - 第三人称相机控制（使用 PhantomCamera3D）
+  - Export: PCamPath, MouseSensitivity, MinPitch, MaxPitch
+  - API: `GetThirdPersonRotation()`, `SetThirdPersonRotation(Vector3)`
+
+### 动画系统
+- **AnimationNames.cs** (`addons/CoreComponents/Animation/`)
+  - 静态常量类，消除魔法字符串
+  - 常量: Idle, Run, Sprint, JumpStart, JumpLoop, etc.
+
+- **AnimationSet.cs** (`addons/CoreComponents/Animation/`)
   - Resource类，集中管理角色所有动画
   - 包含Idle/Walk/Run/Sprint/Jump等动画
   - `SetupLoopModes()` - 自动设置动画循环模式
+  - `GetAnimationSpeed()` - 获取动画速度
 
-- **CharacterAnimationConfig.cs** (`Scripts/Animation/`)
+- **CharacterAnimationConfig.cs** (`addons/CoreComponents/Animation/`)
   - Resource类，角色动画配置（类似UE Data Asset）
   - 引用AnimationSet
   - `ApplyToAnimationPlayer()` - 应用配置到AnimationPlayer
 
-## Player
+### 工具类
+- **ComponentExtensions.cs** (`addons/CoreComponents/`)
+  - 扩展方法，简化组件查找
+  - `GetComponentInChildren<T>()` - 查找组件（支持多态）
+  - `FindAndSubscribeInput()` - 查找并订阅输入组件
+  - `UnsubscribeInput()` - 取消订阅输入组件
+
+### 实体
 - **Player3D.cs** (`Scripts/`)
-  - CharacterBody3D，3D角色控制器
-  - Export变量：Speed, RunSpeed, JumpVelocity, AnimationBlendTime
-  - Export变量：IdleAnimation, RunAnimation, SprintAnimation, JumpAnimation
-  - Export变量：IdleAnimSpeed, RunAnimSpeed, SprintAnimSpeed, JumpAnimSpeed
-  - 支持Quick Test模式（直接设置动画）或AnimConfig模式
+  - [Entity] 纯容器（10行代码）
+  - 只调用 `InitializeEntity()`
+  - 所有逻辑在组件中
+
+## 第三方插件
+
+### PhantomCamera (`addons/phantom_camera/`)
+第三人称相机插件，GDScript 实现，提供 C# 包装类。
+
+**场景配置：**
+
+主场景（必需）：
+```
+Scene Root
+└── Camera3D
+    └── PhantomCameraHost (script: phantom_camera_host.gd)
+```
+
+Player 场景：
+```
+Player3D
+└── PhantomCamera3D (script: phantom_camera_3d.gd)
+    - follow_mode = 6 (ThirdPerson)
+    - follow_target = NodePath("..")
+    - follow_distance = 4.0
+    - spring_length = 4.0
+    - priority = 10
+```
+
+**C# 使用：**
+```csharp
+using PhantomCamera;
+
+// 获取并转换
+Node3D pcamNode = parent.GetNode<Node3D>("PhantomCamera3D");
+PhantomCamera3D pCam = pcamNode.AsPhantomCamera3D();
+
+// 控制旋转
+Vector3 rot = pCam.GetThirdPersonRotation();
+rot.Y -= mouseX * sensitivity;  // Yaw
+rot.X += mouseY * sensitivity;  // Pitch
+pCam.SetThirdPersonRotation(rot);
+```
+
+**关键 API：**
+- `AsPhantomCamera3D()` - 转换为包装类
+- `GetThirdPersonRotation()` / `SetThirdPersonRotation(Vector3)` - 欧拉角（弧度）
+- `GetThirdPersonRotationDegrees()` / `SetThirdPersonRotationDegrees(Vector3)` - 欧拉角（角度）
 
 </class_references>

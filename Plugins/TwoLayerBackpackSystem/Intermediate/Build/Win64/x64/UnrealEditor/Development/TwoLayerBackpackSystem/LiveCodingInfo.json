@@ -1,0 +1,16 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.TwoLayerBackpackSystem.cpp.obj": [
+			"BackpackInventoryComponent.gen.cpp.obj",
+			"BackpackWidget.gen.cpp.obj",
+			"GUIS_UIAction_ToggleBackpack.gen.cpp.obj",
+			"TwoLayerBackpackSystem.init.gen.cpp.obj",
+			"PerModuleInline.gen.cpp.obj",
+			"GUIS_UIAction_ToggleBackpack.cpp.obj",
+			"BackpackInventoryComponent.cpp.obj",
+			"BackpackWidget.cpp.obj",
+			"TwoLayerBackpackSystem.cpp.obj"
+		]
+	}
+}
