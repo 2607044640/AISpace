@@ -1,9 +1,0 @@
-{
-	"RemapUnityFiles": 
-	{
-		"Module.UnrealUISystemExtension.cpp.obj": [
-			"PerModuleInline.gen.cpp.obj",
-			"UnrealUISystemExtension.cpp.obj"
-		]
-	}
-}
