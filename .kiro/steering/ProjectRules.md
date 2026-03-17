@@ -3,7 +3,7 @@ inclusion: always
 ---
 
 <context>
-**Project:** 消消乐+扫雷混合游戏 (Match-3 + Minesweeper hybrid)
+**Project:** 3D + UI, base template project
 **Engine:** Godot 4.6.1 stable mono
 **Language:** C# only
 
@@ -109,9 +109,13 @@ Player3D
 └── PhantomCamera3D (script: phantom_camera_3d.gd)
     - follow_mode = 6 (ThirdPerson)
     - follow_target = NodePath("..")
+    - follow_offset = Vector3(0, 0.6, 0)  # 防止相机贴地穿模
     - follow_distance = 4.0
     - spring_length = 4.0
     - priority = 10
+    - collision_mask = 1  # 启用碰撞检测
+    - shape = SphereShape3D (radius: 0.5)
+    - margin = 0.5
 ```
 
 **C# 使用：**
@@ -127,11 +131,20 @@ Vector3 rot = pCam.GetThirdPersonRotation();
 rot.Y -= mouseX * sensitivity;  // Yaw
 rot.X += mouseY * sensitivity;  // Pitch
 pCam.SetThirdPersonRotation(rot);
+
+// 可选：动态设置跟随偏移
+pCam.FollowOffset = new Vector3(0, 0.6f, 0);
 ```
 
 **关键 API：**
 - `AsPhantomCamera3D()` - 转换为包装类
 - `GetThirdPersonRotation()` / `SetThirdPersonRotation(Vector3)` - 欧拉角（弧度）
 - `GetThirdPersonRotationDegrees()` / `SetThirdPersonRotationDegrees(Vector3)` - 欧拉角（角度）
+- `FollowOffset` - 相机跟随偏移（Vector3）
+
+**防穿模配置：**
+1. **场景文件**：设置 `follow_offset.y = 0.6` 避免相机贴地
+2. **碰撞检测**：配置 `collision_mask = 1`，`shape = SphereShape3D`，`margin = 0.5`
+3. **CSG 物体**：确保设置 `collision_layer = 1` 和 `use_collision = true`
 
 </class_references>

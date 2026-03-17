@@ -1,3 +1,7 @@
+---
+inclusion: manual
+---
+
 # Godot C# AI Implementation Guide
 
 ## Overview
