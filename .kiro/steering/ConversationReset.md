@@ -2,78 +2,27 @@
 inclusion: manual
 ---
 
-# Conversation Reset Protocol
+<instructions>
+Execute the Conversation Reset Protocol when the conversation context becomes too long. Save the current project state by reading, clearing, and rewriting the designated state files from scratch. Maintain all rule and steering files exclusively within `KiroWorkingSpace/.kiro/`.
+</instructions>
 
-## When Fresh Session Starts
+<target_files>
+Read these files to understand the state upon starting a fresh session. Update these exact files when resetting:
+1. `KiroWorkingSpace/.kiro/steering/docLastConversationState.md`
+2. `KiroWorkingSpace/.kiro/steering/ProjectRules.md`
+3. `KiroWorkingSpace/.kiro/MainRules.md`
+4. `KiroWorkingSpace/.kiro/game-plan.md`
+</target_files>
 
-### Step 1: Read State Files
-1. Read `.kiro/steering/docLastConversationState.md` (if exists)
-2. Read `#MainRules.md`
-3. Read `#game-plan.md`
+<workflow>
+1. Read the files listed in `<target_files>` to capture the current project state.
+2. Clear the existing contents of each file completely.
+3. Rewrite each file from scratch to reflect the most up-to-date context, rules, and objectives.
+</workflow>
 
-### Step 2: Verify Understanding
-- What was the last task?
-- What systems are working?
-- What's the next priority?
-- What scenes/scripts exist?
-
-### Step 3: Continue or Confirm
-- If state is clear → Continue from last task
-- If unclear → Ask user for clarification
-
----
-
-## When Conversation Gets Long
-
-### Step 1: Write State to File
-Write current state to `.kiro/steering/docLastConversationState.md`:
-- **Clear entire file contents**, rewrite from scratch (avoid Token accumulation)
-- Use template format below
-
-### Step 2: Update Documentation
-If major architecture changes occurred, update:
-1. `.kiro/steering/docLastConversationState.md` - Current state
-2. `.kiro/steering/ProjectRules.md` - in particular, Update ClassReferences
-
----
-
-## docLastConversationState.md Template
-
-```markdown
-# Last Conversation State
-*Updated: [Date]*
-
-## Project Status
-- **Engine:** Godot Engine
-- **Language:** GDScript (or C#)
-- **Project Type:** [Game type]
-- **Phase:** [Current development phase]
-
-## Active Goals
-**Next Tasks:**
-1. [Task with specific steps]
-2. [Next task]
-
-**Reason:** [Why this approach]
-
-## Critical Context
-**Key Scenes:**
-- `path/to/scene.tscn` - [Purpose]
-
-**Key Scripts:**
-- `path/to/script.gd` - [Purpose]
-
-**Breaking Changes:**
-- [Recent changes affecting code]
-
-**Architecture Pattern:**
-- [How systems connect]
-
-## Recent Conversation Summary
-1. [What was accomplished]
-2. [What was decided]
-3. [What's pending]
-
-## Documentation Updated
-- [List of updated files]
-```
+<examples>
+<example>
+<input>Conversation context is degrading due to length.</input>
+<expected_behavior>Read `docLastConversationState.md` to grasp current progress. Clear its contents. Write a new, concise summary of the latest completed tasks and pending blockers. Repeat this overwrite process for the remaining three files. Initialize fresh session.</expected_behavior>
+</example>
+</examples>

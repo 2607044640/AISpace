@@ -1,79 +1,60 @@
 ---
 inclusion: always
 ---
-
 <instructions>
-# Godot C# Development Rules
+  <initialization>
+    Read `#KiroWorkingSpace/ConversationReset.md` for protocol.
+    Read project's `docLastConversationState.md` and `ProjectRules.md` to restore context.
+  </initialization>
 
-## Session Start
-1. Read `#KiroWorkingSpace/ConversationReset.md` for protocol
-2. Read project's `docLastConversationState.md` to restore context
+  <execution_protocol>
+    Call `mcp_sequential_thinking_sequentialthinking` on EVERY request(At least once!).
+    Execute actions immediately: read files, run commands, make changes.
+    Implement incrementally and verify each step.
+    
+    Never blindly accept assumptions.Apply critical thinking throughout: Verify assumptions before implementing. Check existing code.
+    Question initial solutions. If analysis shows different approach is better, explain why and pivot.
+  </execution_protocol>
 
-## Execution Protocol
-- Call `mcp_sequential_thinking_sequentialthinking` on EVERY request
-- Take action immediately: read files, run commands, make changes
-- Implement incrementally, verify each step(important)
+  <workspace_management>
+    Use `.kiro/Scratchpad/` exclusively for your internal state tracking, complex task checklists, and cross-session bug logs.
+    DO NOT summarize, narrate, or explain these file updates to the user unless explicitly asked.
+    Save permanent docs, steering files, and specs outside the Scratchpad.
+    Store ALL architecture rules, steering files, and instructions exclusively in `KiroWorkingSpace/.kiro/`.
+  </workspace_management>
 
-## C# Compilation
-After editing `.cs` file:
-```cmd
-dotnet build "New Game Project Test Godot.sln"
-```
+  <scene_management>
+    Generate UI scenes: Use `.kiro/scripts/ui_builder/godot_ui_builder.py` (see `#GodotUIBuilder.md`).
+    Generate StateChart scenes: Use `.kiro/scripts/statechart_builder/godot_statechart_builder.py` (see `#GodotStateChartBuilder.md`).
+    Edit existing `.tscn` files directly to add nodes, modify properties, connect signals, and set Export variables.
+    Execute file edits yourself; do not ask the user to edit manually.
+  </scene_management>
 
-## Testing Game State
-Test game state capture:
-```cmd
-python .kiro/scripts/testing/detailed_game_state.py
-```
+  <development_workflow>
+    Build C# projects after editing `.cs` files:
+    `dotnet build "xxx.sln"`
 
-View comprehensive test results:
-```cmd
-python .kiro/scripts/testing/comprehensive_test.py
-```
+    Log editor output via Godot editor Output tab.
+    Log runtime output via PowerShell:
+    `Get-Content "$env:APPDATA\Godot\app_userdata\YourProjectName\logs\godot.log" -Tail 50`
 
-## Logging
+    Log in C# code:
+    `GD.Print("message");`
+    `GD.PrintErr("error");`
+    `GD.PushWarning("warning");`
+  </development_workflow>
 
-Editor Output: Godot editor → Output tab (not saved)
+  <testing>
+    Capture detailed game state: 
+    `python .kiro/scripts/testing/detailed_game_state.py`
+    
+    Run comprehensive tests: 
+    `python .kiro/scripts/testing/comprehensive_test.py`
+  </testing>
 
-Runtime logs:
-```powershell
-Get-Content "$env:APPDATA\Godot\app_userdata\<ProjectName>\logs\godot.log" -Tail 50
-```
-
-In code:
-```csharp
-GD.Print("message");        // Normal
-GD.PrintErr("error");       // Red
-GD.PushWarning("warning");  // Yellow
-```
-
-## Scene Files
-- Edit `.tscn`files(text-based scene definitions) directly to add nodes (lights, cameras, collision shapes)
-- Changes apply on next editor reload or game run
-
-## TempFolder
-Location: `.kiro/TempFolder/`
-
-Use for: Task checklists, analysis notes, bug tracking
-Format: `FeatureName_Purpose.md` with `[ ]`/`[x]` checkboxes
-Delete when complete.
-
-Never use for: Permanent docs, steering files, specs
-
-## Godot MCP Tools (14 available)
-
-Project: `get_godot_version`, `list_projects`, `get_project_info`, `launch_editor`, `run_project`, `stop_project`, `get_debug_output`
-
-Scene: `create_scene`, `add_node`, `save_scene`, `load_sprite`
-
-Advanced: `export_mesh_library` (需要MeshInstance3D), `get_uid`, `update_project_uids` (Godot 4.4+)
-
-Example:
-```javascript
-mcp_godot_create_scene({
-  projectPath: "C:\\Godot\\project",
-  scenePath: "new_scene.tscn",
-  rootNodeType: "Node2D"
-})
-```
+  <mcp_tools>
+    Project tools: `get_godot_version`, `list_projects`, `get_project_info`, `launch_editor`, `run_project`, `stop_project`, `get_debug_output`
+    Scene tools: `create_scene`, `add_node`, `save_scene`, `load_sprite`
+    Advanced tools: `export_mesh_library` (requires MeshInstance3D), `get_uid`, `update_project_uids`
+  </mcp_tools>
 </instructions>

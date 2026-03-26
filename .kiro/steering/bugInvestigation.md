@@ -1,17 +1,35 @@
 ---
 inclusion: manual
 ---
-# Bug Investigation Protocol
+<context>
+Purpose: Defines strict investigation steps and escalation paths for bug fixing.
+</context>
 
-## Three-Strike Rule
-Attempt to fix bug 3 times maximum. On 3rd failure:
-1. Stop attempting fixes
-2. Generate Gemini query using template below
-3. Present query in code block for user to copy
+<instructions>
+<investigation_workflow>
+Read error logs completely before attempting any fixes.
+Add targeted debug logging to isolate the failure point.
+Apply and test exactly one change per iteration.
+Verify compilation successfully passes after every modification.
+</investigation_workflow>
 
-## Gemini Query Template
+<escalation_triggers>
+Halt all code modification attempts and escalate immediately if you encounter:
+- 3 consecutive failed fix attempts for the same issue (Three-Strike Rule).
+- Unclear error messages lacking official documentation.
+- Suspected Godot engine or OS platform bugs.
+- Deadlocks or timing issues without an obvious root cause.
+</escalation_triggers>
 
-```
+<three_strike_execution>
+When an escalation trigger is met:
+1. Stop generating code fixes immediately.
+2. Fill out the template provided in <query_template> with the current context.
+3. Output the completed template inside a standard markdown code block so the user can copy it.
+</three_strike_execution>
+</instructions>
+
+<query_template>
 # Bug Report for Gemini
 
 ## Environment
@@ -20,41 +38,13 @@ Attempt to fix bug 3 times maximum. On 3rd failure:
 - OS: Windows
 
 ## Problem
-[One sentence description]
+[Provide a precise, one-sentence description of the issue]
 
 ## What I Tried
-1. [First attempt and result]
-2. [Second attempt and result]
-3. [Third attempt and result]
+1. [First attempt methodology and exact result]
+2. [Second attempt methodology and exact result]
+3. [Third attempt methodology and exact result]
 
 ## Current Code
 ```csharp
-[Paste relevant code section]
-```
-
-## Logs
-```
-[Paste relevant log output]
-```
-
-## Expected Behavior
-[What should happen]
-
-## Actual Behavior
-[What actually happens]
-
-## Question
-[Specific question for Gemini]
-```
-
-## Investigation Steps
-1. Read error logs first
-2. Add targeted debug logging
-3. Test one change at a time
-4. Check compilation after each edit
-
-## When to Escalate
-- Same error after 3 different approaches
-- Unclear error messages with no documentation
-- Suspected engine/platform bug
-- Deadlock or timing issues without clear cause
+[Insert the specific, relevant C# code block causing the issue]

@@ -1,150 +1,310 @@
 ---
-inclusion: always
+inclusion: manual
 ---
 
-<context>
-**Project:** 3D + UI, base template project
-**Engine:** Godot 4.6.1 stable mono
-**Language:** C# only
+# Godot Project Rules
 
-**Key Files:**
-- Main Scene: `My2DMap.tscn`
-- MCP Server: `Scripts/MCP/MCPServer.cs` (port 8765)
-- Game State: `Scripts/MCP/GameStateCapture.cs`
-- Test Scripts: `.kiro/scripts/testing/`
+<context>
+Godot 4.6.1 Mono (C#), 3D character controller with StateChart integration + UI组件系统
+Component architecture via Godot.Composition plugin
 </context>
 
-<completed_guides>
-文档位于 `KiroWorkingSpace/.kiro/steering/OtherInstructions/`：
+## UI组件Helper模式
 
-- **AnimationExport_Guide.md** - 动画自动导出指南
-- **GodotInputMap.md** - Input Map配置指南
-- **MixamoRetargeter_PluginUpdate.md** - Mixamo插件修复与改进
-</completed_guides>
+所有UI组件Helper遵循MarginContainerHelper的设计模式：
 
-<class_references>
-## Godot.Composition 架构
+**核心特性：**
+- `[Tool]` - 编辑器中实时预览
+- `[GlobalClass]` - 跨项目复用
+- 属性setter立即更新UI - 修改参数即刻生效
+- C# event Action模式 - 组件发出事件，父节点订阅
+- 零硬编码 - 所有内容通过`[Export]`暴露
 
-### 输入系统
-- **BaseInputComponent.cs** (`addons/CoreComponents/`)
-  - 抽象基类，定义输入事件接口
-  - Events: `OnMovementInput`, `OnJumpJustPressed`
-  - 方法: `TriggerMovementInput()`, `TriggerJumpInput()`
-
-- **PlayerInputComponent.cs** (`addons/CoreComponents/`)
-  - 继承 BaseInputComponent
-  - 读取玩家键盘/手柄输入
-
-- **AIInputComponent.cs** (`addons/CoreComponents/Examples/`)
-  - 继承 BaseInputComponent
-  - AI 决策输入（巡逻、追击）
-
-### 核心组件
-- **MovementComponent.cs** (`addons/CoreComponents/`)
-  - 物理移动计算
-  - Export: Speed, JumpVelocity, Gravity, Camera
-  - 依赖: BaseInputComponent
-
-- **CharacterRotationComponent.cs** (`addons/CoreComponents/`)
-  - 角色朝向控制
-  - Export: CharacterModelPath, Camera, RotationSpeed
-  - 依赖: BaseInputComponent
-
-- **AnimationControllerComponent.cs** (`addons/CoreComponents/`)
-  - 动画状态机
-  - Export: CharacterModelPath, AnimationPlayerPath, AnimationBlendTime, AnimConfig
-  - 使用 AnimationNames 常量
-
-- **CameraControlComponent.cs** (`addons/CoreComponents/`)
-  - 第三人称相机控制（使用 PhantomCamera3D）
-  - Export: PCamPath, MouseSensitivity, MinPitch, MaxPitch
-  - API: `GetThirdPersonRotation()`, `SetThirdPersonRotation(Vector3)`
-
-### 动画系统
-- **AnimationNames.cs** (`addons/CoreComponents/Animation/`)
-  - 静态常量类，消除魔法字符串
-  - 常量: Idle, Run, Sprint, JumpStart, JumpLoop, etc.
-
-- **AnimationSet.cs** (`addons/CoreComponents/Animation/`)
-  - Resource类，集中管理角色所有动画
-  - 包含Idle/Walk/Run/Sprint/Jump等动画
-  - `SetupLoopModes()` - 自动设置动画循环模式
-  - `GetAnimationSpeed()` - 获取动画速度
-
-- **CharacterAnimationConfig.cs** (`addons/CoreComponents/Animation/`)
-  - Resource类，角色动画配置（类似UE Data Asset）
-  - 引用AnimationSet
-  - `ApplyToAnimationPlayer()` - 应用配置到AnimationPlayer
-
-### 工具类
-- **ComponentExtensions.cs** (`addons/CoreComponents/`)
-  - 扩展方法，简化组件查找
-  - `GetComponentInChildren<T>()` - 查找组件（支持多态）
-  - `FindAndSubscribeInput()` - 查找并订阅输入组件
-  - `UnsubscribeInput()` - 取消订阅输入组件
-
-### 实体
-- **Player3D.cs** (`Scripts/`)
-  - [Entity] 纯容器（10行代码）
-  - 只调用 `InitializeEntity()`
-  - 所有逻辑在组件中
-
-## 第三方插件
-
-### PhantomCamera (`addons/phantom_camera/`)
-第三人称相机插件，GDScript 实现，提供 C# 包装类。
-
-**场景配置：**
-
-主场景（必需）：
-```
-Scene Root
-└── Camera3D
-    └── PhantomCameraHost (script: phantom_camera_host.gd)
-```
-
-Player 场景：
-```
-Player3D
-└── PhantomCamera3D (script: phantom_camera_3d.gd)
-    - follow_mode = 6 (ThirdPerson)
-    - follow_target = NodePath("..")
-    - follow_offset = Vector3(0, 0.6, 0)  # 防止相机贴地穿模
-    - follow_distance = 4.0
-    - spring_length = 4.0
-    - priority = 10
-    - collision_mask = 1  # 启用碰撞检测
-    - shape = SphereShape3D (radius: 0.5)
-    - margin = 0.5
-```
-
-**C# 使用：**
+**模板结构：**
 ```csharp
-using PhantomCamera;
-
-// 获取并转换
-Node3D pcamNode = parent.GetNode<Node3D>("PhantomCamera3D");
-PhantomCamera3D pCam = pcamNode.AsPhantomCamera3D();
-
-// 控制旋转
-Vector3 rot = pCam.GetThirdPersonRotation();
-rot.Y -= mouseX * sensitivity;  // Yaw
-rot.X += mouseY * sensitivity;  // Pitch
-pCam.SetThirdPersonRotation(rot);
-
-// 可选：动态设置跟随偏移
-pCam.FollowOffset = new Vector3(0, 0.6f, 0);
+[Tool]
+[GlobalClass]
+public partial class MyComponentHelper : HBoxContainer
+{
+    // 暴露配置参数
+    private string _labelText = "默认文本";
+    [Export] 
+    public string LabelText 
+    { 
+        get => _labelText;
+        set
+        {
+            _labelText = value;
+            UpdateLabel(); // setter立即更新UI
+        }
+    }
+    
+    // C# event Action（非Godot Signal）
+    public event Action<float> ValueChanged;
+    
+    // 内部引用
+    private Label _label;
+    
+    public override void _Ready()
+    {
+        _label = GetNodeOrNull<Label>("Label");
+        UpdateLabel();
+        
+        // 仅在运行时连接信号
+        if (!Engine.IsEditorHint())
+        {
+            // 连接Godot控件信号
+        }
+    }
+    
+    private void UpdateLabel()
+    {
+        if (_label != null)
+            _label.Text = LabelText;
+    }
+    
+    private void OnValueChanged(double value)
+    {
+        ValueChanged?.Invoke((float)value);
+    }
+    
+    public override void _ExitTree()
+    {
+        if (!Engine.IsEditorHint())
+        {
+            // 取消订阅，防止内存泄漏
+        }
+    }
+}
 ```
 
-**关键 API：**
-- `AsPhantomCamera3D()` - 转换为包装类
-- `GetThirdPersonRotation()` / `SetThirdPersonRotation(Vector3)` - 欧拉角（弧度）
-- `GetThirdPersonRotationDegrees()` / `SetThirdPersonRotationDegrees(Vector3)` - 欧拉角（角度）
-- `FollowOffset` - 相机跟随偏移（Vector3）
+**使用方式：**
+```csharp
+// 在父场景中
+[Export] public SliderComponentHelper MusicSlider { get; set; }
 
-**防穿模配置：**
-1. **场景文件**：设置 `follow_offset.y = 0.6` 避免相机贴地
-2. **碰撞检测**：配置 `collision_mask = 1`，`shape = SphereShape3D`，`margin = 0.5`
-3. **CSG 物体**：确保设置 `collision_layer = 1` 和 `use_collision = true`
+public override void _Ready()
+{
+    MusicSlider.ValueChanged += (value) => {
+        // 处理值改变
+    };
+}
 
-</class_references>
+public override void _ExitTree()
+{
+    MusicSlider.ValueChanged -= OnMusicVolumeChanged;
+}
+```
+
+## 可用UI组件
+
+**位置：** `3d-practice/addons/A1MyAddon/Helpers/`
+
+### SliderComponentHelper
+- 暴露：`LabelText`, `MinValue`, `MaxValue`, `Step`, `DefaultValue`, `TickCount`, `TicksOnBorders`
+- 事件：`event Action<float> ValueChanged`, `event Action ResetRequested`
+- 特性：HSlider + SpinBox双向同步，SpinBox带上下箭头
+
+### OptionComponentHelper
+- 暴露：`LabelText`, `Options[]`, `DefaultIndex`
+- 事件：`event Action<int, string> OptionSelected`, `event Action ResetRequested`
+- 特性：点击Button弹出PopupMenu
+
+### ToggleComponentHelper
+- 暴露：`LabelText`, `DefaultState`
+- 事件：`event Action<bool> Toggled`, `event Action ResetRequested`
+
+### DropdownComponentHelper
+- 暴露：`LabelText`, `Items[]`, `DefaultIndex`
+- 事件：`event Action<int, string> ItemSelected`, `event Action ResetRequested`
+- 特性：使用OptionButton控件
+
+## StateChart Power Switch Pattern
+
+Place components as children of AtomicState nodes. Call `AutoBindToParentState()` in `_Ready()`. StateChart controls component lifecycle via `SetProcess()`.
+
+```csharp
+public override void _Ready()
+{
+    _entity = this.GetEntity<Player3D>();
+    this.AutoBindToParentState(); // Binds to parent State node
+    
+    var input = _entity.GetRequiredComponentInChildren<BaseInputComponent>();
+    input.OnMovementInput += HandleMovementInput;
+}
+
+public override void _PhysicsProcess(double delta)
+{
+    // Only runs when parent state is active
+    ApplyGravity(delta);
+}
+```
+
+**Scene Structure:**
+```
+Entity (CharacterBody3D)
+├── StateChart
+│   └── Root (ParallelState)
+│       ├── Movement (CompoundState, initial=Ground)
+│       │   ├── Ground (AtomicState)
+│       │   │   └── GroundMovementComponent
+│       │   └── Fly (AtomicState)
+│       │       └── FlyMovementComponent
+│       └── Action (CompoundState, initial=Normal)
+├── InputComponent (shared)
+├── AnimationControllerComponent (listens to state signals)
+└── Other shared components
+```
+
+**Send Events:**
+```csharp
+parent.SendStateEvent("toggle_fly");
+```
+
+**Connect Signals in Editor:**
+- `GroundMode.state_entered` → `AnimationController.EnterGroundMode()`
+- `FlyMode.state_entered` → `AnimationController.EnterFlyMode()`
+
+## Component Architecture
+
+**Entity:**
+```csharp
+[Entity]
+public partial class Player3D : CharacterBody3D
+{
+    public override void _Ready()
+    {
+        InitializeEntity();
+    }
+}
+```
+
+**Component:**
+```csharp
+[Component(typeof(CharacterBody3D))]
+[GlobalClass]
+public partial class GroundMovementComponent : Node
+{
+    public override void _Ready()
+    {
+        InitializeComponent();
+        this.AutoBindToParentState();
+        
+        var input = this.GetEntity<Player3D>()
+            .GetRequiredComponentInChildren<BaseInputComponent>();
+        input.OnMovementInput += HandleMovementInput;
+    }
+    
+    public override void _ExitTree()
+    {
+        if (input != null)
+            input.OnMovementInput -= HandleMovementInput;
+    }
+}
+```
+
+**Rules:**
+- Entities: `[Entity]`, call `InitializeEntity()`, zero business logic
+- Components: `[Component(typeof(T))]`, call `InitializeComponent()`, single responsibility
+- Subscribe events in `_Ready()` (not `OnEntityReady()` for StateChart components)
+- Unsubscribe in `_ExitTree()` to prevent leaks
+- Use `this.GetEntity<T>()` to access entity from StateChart child components
+- Use `GetRequiredComponentInChildren<T>()` for component lookup
+
+## Animation System
+
+Single file: `CharacterAnimationConfig.cs`
+
+**Add Animation (2 steps):**
+```csharp
+// 1. Declare
+public const string NewAnim = "NewAnim";
+[Export] public Animation NewAnimAnimation;
+[Export] public float NewAnimSpeed = 1.0f;
+
+// 2. Register in ApplyAndInitialize()
+RegisterAnim(library, AnimationNames.NewAnim, NewAnimAnimation, NewAnimSpeed, isLoop: true);
+```
+
+## Input Abstraction
+
+```csharp
+BaseInputComponent (abstract)
+    ↓
+PlayerInputComponent (player)
+AIInputComponent (AI)
+```
+
+Components depend on `BaseInputComponent`, not concrete implementations.
+
+## Available Components
+
+**Location:** `3d-practice/addons/A1MyAddon/CoreComponents/`
+
+- `GroundMovementComponent` - Gravity, jump, ground physics
+- `FlyMovementComponent` - 3D flight, no gravity
+- `PlayerInputComponent` - Keyboard/gamepad input
+- `BaseInputComponent` - Abstract input base
+- `CharacterRotationComponent` - Face movement direction
+- `AnimationControllerComponent` - Animation playback
+- `CameraControlComponent` - PhantomCamera3D control
+
+## Code Patterns
+
+**Events:**
+```csharp
+// Emit
+public event Action<Vector2> OnMovementInput;
+OnMovementInput?.Invoke(inputVector);
+
+// Subscribe
+input.OnMovementInput += HandleMovementInput;
+
+// Unsubscribe
+input.OnMovementInput -= HandleMovementInput;
+```
+
+**StateChart:**
+```csharp
+parent.SendStateEvent("toggle_fly");
+```
+
+**Component Lookup:**
+```csharp
+var entity = this.GetEntity<Player3D>();
+var input = entity.GetRequiredComponentInChildren<BaseInputComponent>();
+```
+
+## Prohibited Patterns
+
+Never check state in components:
+```csharp
+if (_canMove) { /* logic */ } // WRONG - StateChart controls lifecycle
+```
+
+Never reference siblings directly:
+```csharp
+GetNode<Component>("../Sibling"); // WRONG - Use events
+```
+
+Never hardcode animation names:
+```csharp
+_animPlayer.Play("Idle"); // WRONG - Use AnimationNames.Idle
+```
+
+Never use Godot Signal for C# components:
+```csharp
+[Signal] public delegate void MyEventHandler(); // WRONG - Use C# event Action
+```
+
+## Build & Debug
+
+Build: `dotnet build "3dPractice.sln"`
+Runtime logs: `Get-Content "$env:APPDATA\Godot\app_userdata\3dPractice\logs\godot.log" -Tail 50`
+C# logging: `GD.Print("msg")`, `GD.PrintErr("err")`, `GD.PushWarning("warn")`
+
+## Known Issues
+
+Godot.Composition doesn't register base classes. Use `GetRequiredComponentInChildren<BaseInputComponent>()` instead of `[ComponentDependency]`.
+
+Flying animations missing: Configure fallback in editor: `FlyIdleAnimation` → `ninja_idle.res`. Code has fallback logic.
