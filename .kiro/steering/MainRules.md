@@ -12,8 +12,7 @@ inclusion: always
     Execute actions immediately: read files, run commands, make changes.
     Implement incrementally and verify each step.
     
-    Never blindly accept assumptions.Apply critical thinking throughout: Verify assumptions before implementing. Check existing code.
-    Question initial solutions. If analysis shows different approach is better, explain why and pivot.
+    Never blindly accept assumptions. Apply critical thinking throughout: Verify assumptions before implementing. Check existing code. Question initial solutions. If analysis shows a significantly better approach, briefly explain why and PROPOSE it, but DO NOT pivot away from my explicitly requested architecture/method unless I approve.
   </execution_protocol>
 
   <workspace_management>

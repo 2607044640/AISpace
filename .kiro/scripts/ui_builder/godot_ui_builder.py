@@ -304,12 +304,25 @@ class UINode:
         Args:
             name: 实例节点名称
             scene_path: 场景文件路径（如 "res://A1UIScenes/UIComponents/SliderElement.tscn"）
-            scene_uid: 场景UID（可选，如果不提供会使用占位符）
+            scene_uid: 场景UID（REQUIRED - use mcp_godot_get_uid to obtain correct UID）
+        
+        Example:
+            # Get UID first via MCP tool
+            uid_result = mcp_godot_get_uid(
+                projectPath="c:/Godot/3d-practice",
+                filePath="A1UIScenes/UIComponents/DropdownComponent.tscn"
+            )
+            # Then use it
+            container.add_instance("DisplayMode", "res://A1UIScenes/UIComponents/DropdownComponent.tscn", 
+                                  scene_uid="uid://0st2knyluaer")
         """
+        if scene_uid is None:
+            raise ValueError(f"scene_uid is REQUIRED for add_instance(). Use mcp_godot_get_uid to obtain the correct UID for {scene_path}")
+        
         node = UINode(name, "INSTANCE", auto_suffix=False)
         node.properties["_is_instance"] = True
         node.properties["_scene_path"] = scene_path
-        node.properties["_scene_uid"] = scene_uid or "uid://placeholder"
+        node.properties["_scene_uid"] = scene_uid
         return self._add_child(node)
     
     def add_separator(self, name: str, separation: Optional[int] = None,
@@ -480,6 +493,22 @@ class UIBuilder:
                     lines.append(f'[node name="{node.name}" instance=ExtResource("{scene_res_id}")]')
                 else:
                     lines.append(f'[node name="{node.name}" parent="{node.parent_path}" instance=ExtResource("{scene_res_id}")]')
+                
+                # ✅ 修复：输出实例节点的自定义属性（非内部属性）
+                for key, value in node.properties.items():
+                    # 跳过内部属性
+                    if key.startswith("_"):
+                        continue
+                    
+                    # 写入属性
+                    if isinstance(value, str):
+                        lines.append(f'{key} = "{value}"')
+                    elif isinstance(value, bool):
+                        lines.append(f'{key} = {"true" if value else "false"}')
+                    elif isinstance(value, (int, float)):
+                        lines.append(f"{key} = {value}")
+                    else:
+                        lines.append(f"{key} = {value}")
                 
                 lines.append("")
                 

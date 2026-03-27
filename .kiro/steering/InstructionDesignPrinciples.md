@@ -3,10 +3,17 @@ inclusion: manual
 ---
 
 <context>
-Meta-rules for creating, formatting, and storing AI instruction files and project documentation.
+Meta-rules for creating, formatting, summarizing, and storing AI instruction files and project documentation.
 </context>
 
 <instructions>
+<critical_constraints>
+- **Zero Hallucination:** NEVER fabricate, guess, or inject APIs, classes, methods, UIDs, or file paths not explicitly present in the source material. If a source example is incomplete, leave it incomplete.
+- **100% Technical Fidelity:** NEVER delete or alter code blocks, function signatures, or parameter lists (e.g., `vertical_margin`) when condensing text. 
+- **Preserve Guardrails:** Always retain "Wrong vs. Correct" examples and explicit boundary conditions (e.g., "Use ONLY on root-level"). These are core mechanics, not noise.
+- **Format-Driven Compression:** Achieve brevity by leveraging strict Markdown (tables, concise lists) and removing conversational filler, NEVER by discarding technical specifications.
+</critical_constraints>
+
 <file_management>
 - Store ALL rules, steering files, and instructions exclusively in `KiroWorkingSpace/.kiro/`.
 - NEVER store rule files in individual project folders.
@@ -28,7 +35,7 @@ Meta-rules for creating, formatting, and storing AI instruction files and projec
 </formatting>
 
 <anti_noise_checklist>
-Delete ruthlessly before saving:
+Delete ruthlessly before saving (without violating <critical_constraints>):
 - Generic AI advice, textbook principles, and common sense.
 - Contradictions and duplicated information across files.
 - Excessive role-playing ("You are the world's best...").
