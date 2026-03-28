@@ -174,8 +174,17 @@ class Pretty_Printer:
         if isinstance(value, (Color, Vector2, NodePath, ExtResourceRef)):
             return str(value)
         
+        # Handle Python lists -> PackedStringArray
+        if isinstance(value, list):
+            # Format as PackedStringArray("item1", "item2", ...)
+            items = ', '.join(f'"{item}"' for item in value)
+            return f'PackedStringArray({items})'
+        
         # Handle strings
         if isinstance(value, str):
+            # Check if already formatted as PackedStringArray
+            if value.startswith('PackedStringArray('):
+                return value
             return f'"{value}"'
         
         # Handle booleans

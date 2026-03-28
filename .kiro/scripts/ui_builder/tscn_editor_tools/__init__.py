@@ -7,8 +7,8 @@ Provides programmatic reading and modification of Godot .tscn scene files.
 from .parser import Parser
 from .node_tree import Node_Tree
 from .pretty_printer import Pretty_Printer
-from .reader import TscnReader
-from .editor import TscnEditor, UIDGenerator
+from .TscnReader import TscnReader
+from .TscnEditor import TscnEditor, UIDGenerator
 from .types import (
     Color,
     Vector2,

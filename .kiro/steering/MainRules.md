@@ -8,7 +8,7 @@ inclusion: always
   </initialization>
 
   <execution_protocol>
-    Call `mcp_sequential_thinking_sequentialthinking` on EVERY request(At least once!).
+    Call `mcp_sequential_thinking_sequentialthinking` on EVERY request(at least once).特别用户提到思考时！多调用思考！
     Execute actions immediately: read files, run commands, make changes.
     Implement incrementally and verify each step.
     
@@ -23,10 +23,18 @@ inclusion: always
   </workspace_management>
 
   <scene_management>
-    Generate UI scenes: Use `.kiro/scripts/ui_builder/godot_ui_builder.py` (see `#GodotUIBuilder.md`).
+    <ui_workflow_best_practices>
+      ✓ Use AI to build entire initial UI layout (UIBuilder generator)
+      ✕ Use AI to modify small details (wastes time, inaccurate)
+      ✓ User manually modifies small details in Godot editor
+      ✓ Use AI to batch-modify multiple properties (TscnEditor)
+    </ui_workflow_best_practices>
+    
+    Generate UI scenes: Use `.kiro/scripts/ui_builder/generators/godot_ui_builder.py` (see `#GodotUIBuilder.md`).
     Generate StateChart scenes: Use `.kiro/scripts/statechart_builder/godot_statechart_builder.py` (see `#GodotStateChartBuilder.md`).
-    Edit existing `.tscn` files directly to add nodes, modify properties, connect signals, and set Export variables.
-    Execute file edits yourself; do not ask the user to edit manually.
+    
+    Batch-modify existing scenes: Use TscnEditor (`.kiro/scripts/ui_builder/tscn_editor_tools/`).
+    NEVER use AI for single-property tweaks - user edits directly in Godot.
   </scene_management>
 
   <development_workflow>

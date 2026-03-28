@@ -4,9 +4,51 @@ inclusion: manual
 
 # Godot UI Builder
 
+<critical_rules>
+
+## File Organization
+
+**ALL generated Python scripts MUST be placed in:**
+`C:\Godot\KiroWorkingSpace\.kiro\scripts\temp\`
+
+- Create the `temp` folder if it doesn't exist
+- NEVER place generated scripts in project root or other locations
+- This keeps the workspace clean and organized
+
+## Mandatory Validation Workflow
+
+**After generating or modifying ANY .tscn file:**
+
+1. **Run the Scene** - Test the scene directly in the running Godot project:
+```python
+mcp_godot_run_project(projectPath="c:/Godot/3d-practice", scene="res://A1UIScenes/GameSettings.tscn")
+```
+
+2. **Check for Errors** - If scene fails to load or has issues:
+```python
+mcp_godot_get_debug_output()
+```
+
+3. **Fix Errors** - Common issues:
+   - Array format: Use `PackedStringArray("item1", "item2")`, NOT `['item1', 'item2']`
+   - Missing parent attribute: All nodes except first MUST have `parent="."` or `parent="path"`
+   - Invalid UID: Use `mcp_godot_get_uid()` to obtain correct UIDs
+   - Property format: Color(r,g,b,a), Vector2(x,y), NodePath("path")
+
+4. **Re-validate** - Repeat steps 1-3 until scene runs successfully
+
+5. **Stop the Scene** - Clean up after testing:
+```python
+mcp_godot_stop_project()
+```
+
+**NEVER skip validation.** Parse errors break the entire scene file.
+
+</critical_rules>
+
 ## Execution Protocol
 
-Write Python scripts using `.kiro/scripts/ui_builder/godot_ui_builder.py`. Execute to generate `.tscn` files.
+Write Python scripts using `.kiro/scripts/ui_builder/generators/godot_ui_builder.py`. Execute to generate `.tscn` files.
 
 **Never manually edit .tscn files.**
 **Never calculate NodePaths manually.** Use `get_relative_path_to()`.
@@ -260,9 +302,20 @@ ui.save("res://Scenes/Settings.tscn")
 
 ## TscnEditor Tools
 
+**Location:** `KiroWorkingSpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+
 **When to Use:**
 - **UIBuilder:** Generate new scenes from scratch
-- **TscnEditor:** Modify existing scenes programmatically
+- **TscnEditor:** Modify existing scenes programmatically (直接修改原文件)
+
+**Core Library Files:**
+- `parser.py` - Parses .tscn text format into structured data
+- `node_tree.py` - Internal tree representation with efficient indices
+- `pretty_printer.py` - Formats Node_Tree back to .tscn text
+- `TscnReader.py` - Read-only query API (TscnReader)
+- `TscnEditor.py` - Modification API (TscnEditor)
+- `types.py` - Type definitions (Node, Color, Vector2, etc.)
+- `__init__.py` - Package initialization
 
 ### Read Scene Structure
 
@@ -276,7 +329,10 @@ print(reader.print_tree_view())
 
 # Query nodes
 buttons = reader.find_nodes_by_type("Button")
-master_volume = reader.get_node_by_path("MainMargin_MarginContainer/MainVBox_VBoxContainer/Tabs_TabContainer/Audio/AudioMargin_MarginContainer/AudioContent_VBoxContainer/MasterVolume")
+
+# Access node via tree API
+game_content_node = reader.tree.get_node_by_path("Parent/Child")
+children = reader.tree.get_children("Parent/Child")
 
 # Check properties
 text = reader.get_node_property("BackButton_Button", "text")
@@ -291,6 +347,9 @@ editor = TscnEditor("3d-practice/A1UIScenes/SettingsMenuV2.tscn")
 
 # Update single property
 editor.update_property("Background_ColorRect", "color", Color(0.2, 0.2, 0.2, 1))
+
+# Update array properties (自动转换为 PackedStringArray)
+editor.update_property("NumberFormat", "Items", ["23", "43", "08293"])
 
 # Batch updates
 updates = [
@@ -307,10 +366,10 @@ editor.add_node("NewButton", "Button", "MainVBox_VBoxContainer",
 # Remove node
 editor.remove_node("OldButton")
 
-# Save changes
-editor.save()  # Overwrites original
+# Save changes (直接覆盖原文件)
+editor.save()  # Overwrites original - THIS IS THE DEFAULT BEHAVIOR
 # or
-editor.save("output.tscn")  # Save to new file
+editor.save("output.tscn")  # Save to new file only if needed
 ```
 
 ### Preserve All Metadata
@@ -319,10 +378,12 @@ TscnEditor preserves:
 - Node unique_id values
 - Scene UID in header
 - External resource UIDs
-- Property formatting (Color, Vector2, NodePath, ExtResource)
+- Property formatting (Color, Vector2, NodePath, ExtResource, PackedStringArray)
 - Node order and hierarchy
 
 **Round-trip guarantee:** Parse → Modify → Save → Parse produces equivalent structure.
+
+**Array Formatting:** Python lists are automatically converted to `PackedStringArray("item1", "item2")` format.
 
 ## Technical Notes
 
@@ -331,3 +392,4 @@ TscnEditor preserves:
 - **Separator:** Requires style resource. Use `style="res://path/to/style.tres"` or `style=None`.
 - **Component Helper Scripts:** All UI component scenes MUST attach their corresponding Helper script (SliderComponentHelper, ToggleComponentHelper, DropdownComponentHelper, OptionComponentHelper). Without the script, LabelText and other properties will not function.
 - **UID Verification:** Always use `mcp_godot_get_uid` to obtain correct UIDs. Never use placeholder or guessed UIDs.
+- **TscnEditor Default Behavior:** `editor.save()` directly overwrites the original file. This is intentional for in-place modifications.
