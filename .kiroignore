@@ -1,0 +1,14 @@
+# Kiro Ignore File - Exclude unnecessary files from indexing
+
+# Version control
+.git/
+
+# Deprecated and backup folders
+Deprecated/
+TODO addons/
+
+# Large binary files
+*.zip
+*.fbx
+*.blend
+*.blend1
