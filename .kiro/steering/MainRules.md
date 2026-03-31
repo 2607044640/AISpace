@@ -38,17 +38,8 @@ inclusion: always
   </scene_management>
 
   <development_workflow>
-    Build C# projects after editing `.cs` files:
-    `dotnet build "xxx.sln"`
-
-    Log editor output via Godot editor Output tab.
-    Log runtime output via PowerShell:
-    `Get-Content "$env:APPDATA\Godot\app_userdata\YourProjectName\logs\godot.log" -Tail 50`
-
-    Log in C# code:
-    `GD.Print("message");`
-    `GD.PrintErr("error");`
-    `GD.PushWarning("warning");`
+    C# build: Auto-triggered by hook on .cs file save.
+    Logs: Check Godot Output tab or `$env:APPDATA\Godot\app_userdata\ProjectName\logs\godot.log`
   </development_workflow>
 
   <testing>

@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Auto Build C# on Save",
+  "description": "每次保存 .cs 文件后自动运行 dotnet build 构建项目",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "*.cs"
+    ]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "dotnet build \"3d-practice/3dPractice.sln\"",
+    "timeout": 30
+  },
+  "workspaceFolderName": "KiroWorkingSpace",
+  "shortName": "auto-build-csharp"
+}
