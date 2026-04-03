@@ -5,29 +5,72 @@ inclusion: manual
 # Godot Project Rules
 
 <context>
-Godot 4.6.1 Mono (C#), 3D character controller with StateChart integration + UI组件系统
-Component architecture via Godot.Composition plugin
+Godot 4.6.1 Mono (C#), 3D character controller + UI system
+Component architecture via custom Godot.Composition source generator
+R3 reactive framework for event management
 </context>
 
-## UI组件Helper模式
+## R3 Reactive Framework (NEW)
 
-所有UI组件Helper遵循MarginContainerHelper的设计模式：
+**NuGet:** `R3` + `R3.Godot`
 
-**核心特性：**
-- `[Tool]` - 编辑器中实时预览
-- `[GlobalClass]` - 跨项目复用
-- 属性setter立即更新UI - 修改参数即刻生效
-- C# event Action模式 - 组件发出事件，父节点订阅
-- 零硬编码 - 所有内容通过`[Export]`暴露
+### Mandatory Pattern
 
-**模板结构：**
+```csharp
+using R3;
+
+public partial class MyUI : Control
+{
+    private readonly CompositeDisposable _disposables = new();
+    
+    public override void _Ready()
+    {
+        _button.PressedAsObservable()
+            .Subscribe(_ => HandleClick())
+            .AddTo(_disposables);
+    }
+    
+    public override void _ExitTree()
+    {
+        _disposables.Dispose();
+    }
+}
+```
+
+### Rules
+1. Every UI class must have `CompositeDisposable _disposables`
+2. Every `.Subscribe()` must end with `.AddTo(_disposables)`
+3. Call `_disposables.Dispose()` in `_ExitTree()`
+4. Use `ObserveOn(GodotProvider.MainThread)` after async
+5. Add `DistinctUntilChanged()` to high-frequency streams
+
+### Essential Operators
+- `DistinctUntilChanged()` - Prevent redundant updates
+- `ThrottleFirst(TimeSpan)` - Button debounce
+- `Debounce(TimeSpan)` - Search input delay
+- `CombineLatest` - Multi-condition logic
+- `Where(predicate)` - Filter events
+
+See `DesignPatterns.md` for complete reference.
+
+## UI Component Helper Pattern
+
+All UI components follow MarginContainerHelper design:
+
+**Core Features:**
+- `[Tool]` - Editor live preview
+- `[GlobalClass]` - Cross-project reuse
+- Property setter updates UI immediately
+- C# `event Action` (NOT Godot Signal)
+- Zero hardcoding via `[Export]`
+
+**Template:**
 ```csharp
 [Tool]
 [GlobalClass]
 public partial class MyComponentHelper : HBoxContainer
 {
-    // 暴露配置参数
-    private string _labelText = "默认文本";
+    private string _labelText = "Default";
     [Export] 
     public string LabelText 
     { 
@@ -35,14 +78,12 @@ public partial class MyComponentHelper : HBoxContainer
         set
         {
             _labelText = value;
-            UpdateLabel(); // setter立即更新UI
+            UpdateLabel(); // Immediate update
         }
     }
     
-    // C# event Action（非Godot Signal）
     public event Action<float> ValueChanged;
     
-    // 内部引用
     private Label _label;
     
     public override void _Ready()
@@ -50,10 +91,9 @@ public partial class MyComponentHelper : HBoxContainer
         _label = GetNodeOrNull<Label>("Label");
         UpdateLabel();
         
-        // 仅在运行时连接信号
         if (!Engine.IsEditorHint())
         {
-            // 连接Godot控件信号
+            // Connect signals
         }
     }
     
@@ -63,80 +103,39 @@ public partial class MyComponentHelper : HBoxContainer
             _label.Text = LabelText;
     }
     
-    private void OnValueChanged(double value)
-    {
-        ValueChanged?.Invoke((float)value);
-    }
-    
     public override void _ExitTree()
     {
         if (!Engine.IsEditorHint())
         {
-            // 取消订阅，防止内存泄漏
+            // Unsubscribe
         }
     }
 }
 ```
 
-**使用方式：**
-```csharp
-// 在父场景中
-[Export] public SliderComponentHelper MusicSlider { get; set; }
+## Available UI Components
 
-public override void _Ready()
-{
-    MusicSlider.ValueChanged += (value) => {
-        // 处理值改变
-    };
-}
+**Location:** `3d-practice/addons/A1MyAddon/Helpers/`
 
-public override void _ExitTree()
-{
-    MusicSlider.ValueChanged -= OnMusicVolumeChanged;
-}
-```
+- `SliderComponentHelper` - HSlider + SpinBox sync
+- `OptionComponentHelper` - Button + PopupMenu
+- `ToggleComponentHelper` - CheckBox wrapper
+- `DropdownComponentHelper` - OptionButton wrapper
 
-## 可用UI组件
-
-**位置：** `3d-practice/addons/A1MyAddon/Helpers/`
-
-### SliderComponentHelper
-- 暴露：`LabelText`, `MinValue`, `MaxValue`, `Step`, `DefaultValue`, `TickCount`, `TicksOnBorders`
-- 事件：`event Action<float> ValueChanged`, `event Action ResetRequested`
-- 特性：HSlider + SpinBox双向同步，SpinBox带上下箭头
-
-### OptionComponentHelper
-- 暴露：`LabelText`, `Options[]`, `DefaultIndex`
-- 事件：`event Action<int, string> OptionSelected`, `event Action ResetRequested`
-- 特性：点击Button弹出PopupMenu
-
-### ToggleComponentHelper
-- 暴露：`LabelText`, `DefaultState`
-- 事件：`event Action<bool> Toggled`, `event Action ResetRequested`
-
-### DropdownComponentHelper
-- 暴露：`LabelText`, `Items[]`, `DefaultIndex`
-- 事件：`event Action<int, string> ItemSelected`, `event Action ResetRequested`
-- 特性：使用OptionButton控件
+All emit `event Action` and `event Action ResetRequested`.
 
 ## StateChart Power Switch Pattern
 
-Place components as children of AtomicState nodes. Call `AutoBindToParentState()` in `_Ready()`. StateChart controls component lifecycle via `SetProcess()`.
+Components as children of AtomicState nodes. Call `AutoBindToParentState()` in `_Ready()`. StateChart controls lifecycle via `SetProcess()`.
 
 ```csharp
 public override void _Ready()
 {
     _entity = this.GetEntity<Player3D>();
-    this.AutoBindToParentState(); // Binds to parent State node
+    this.AutoBindToParentState();
     
     var input = _entity.GetRequiredComponentInChildren<BaseInputComponent>();
     input.OnMovementInput += HandleMovementInput;
-}
-
-public override void _PhysicsProcess(double delta)
-{
-    // Only runs when parent state is active
-    ApplyGravity(delta);
 }
 ```
 
@@ -145,15 +144,15 @@ public override void _PhysicsProcess(double delta)
 Entity (CharacterBody3D)
 ├── StateChart
 │   └── Root (ParallelState)
-│       ├── Movement (CompoundState, initial=Ground)
+│       ├── Movement (CompoundState)
 │       │   ├── Ground (AtomicState)
 │       │   │   └── GroundMovementComponent
 │       │   └── Fly (AtomicState)
 │       │       └── FlyMovementComponent
-│       └── Action (CompoundState, initial=Normal)
-├── InputComponent (shared)
-├── AnimationControllerComponent (listens to state signals)
-└── Other shared components
+│       └── Action (CompoundState)
+├── InputComponent
+├── AnimationControllerComponent
+└── Other components
 ```
 
 **Send Events:**
@@ -161,11 +160,7 @@ Entity (CharacterBody3D)
 parent.SendStateEvent("toggle_fly");
 ```
 
-**Connect Signals in Editor:**
-- `GroundMode.state_entered` → `AnimationController.EnterGroundMode()`
-- `FlyMode.state_entered` → `AnimationController.EnterFlyMode()`
-
-## Component Architecture
+## Component Architecture (Godot.Composition)
 
 **Entity:**
 ```csharp
@@ -189,53 +184,47 @@ public partial class GroundMovementComponent : Node
     {
         InitializeComponent();
         this.AutoBindToParentState();
-        
-        var input = this.GetEntity<Player3D>()
-            .GetRequiredComponentInChildren<BaseInputComponent>();
-        input.OnMovementInput += HandleMovementInput;
     }
     
     public override void _ExitTree()
     {
-        if (input != null)
-            input.OnMovementInput -= HandleMovementInput;
+        // Unsubscribe events
     }
 }
 ```
 
 **Rules:**
-- Entities: `[Entity]`, call `InitializeEntity()`, zero business logic
-- Components: `[Component(typeof(T))]`, call `InitializeComponent()`, single responsibility
-- Subscribe events in `_Ready()` (not `OnEntityReady()` for StateChart components)
-- Unsubscribe in `_ExitTree()` to prevent leaks
-- Use `this.GetEntity<T>()` to access entity from StateChart child components
-- Use `GetRequiredComponentInChildren<T>()` for component lookup
+- Entities: `[Entity]`, call `InitializeEntity()`, zero logic
+- Components: `[Component(typeof(T))]`, call `InitializeComponent()`
+- Subscribe in `_Ready()` (NOT `OnEntityReady()` for StateChart)
+- Unsubscribe in `_ExitTree()`
+- Use `this.GetEntity<T>()` from StateChart children
+- Use `GetRequiredComponentInChildren<T>()` for lookup
 
 ## Animation System
 
 Single file: `CharacterAnimationConfig.cs`
 
-**Add Animation (2 steps):**
+**Add Animation:**
 ```csharp
 // 1. Declare
 public const string NewAnim = "NewAnim";
 [Export] public Animation NewAnimAnimation;
 [Export] public float NewAnimSpeed = 1.0f;
 
-// 2. Register in ApplyAndInitialize()
+// 2. Register
 RegisterAnim(library, AnimationNames.NewAnim, NewAnimAnimation, NewAnimSpeed, isLoop: true);
 ```
 
 ## Input Abstraction
 
-```csharp
+```
 BaseInputComponent (abstract)
     ↓
-PlayerInputComponent (player)
-AIInputComponent (AI)
+PlayerInputComponent | AIInputComponent
 ```
 
-Components depend on `BaseInputComponent`, not concrete implementations.
+Components depend on `BaseInputComponent`, not concrete types.
 
 ## Available Components
 
@@ -253,14 +242,10 @@ Components depend on `BaseInputComponent`, not concrete implementations.
 
 **Events:**
 ```csharp
-// Emit
 public event Action<Vector2> OnMovementInput;
 OnMovementInput?.Invoke(inputVector);
 
-// Subscribe
 input.OnMovementInput += HandleMovementInput;
-
-// Unsubscribe
 input.OnMovementInput -= HandleMovementInput;
 ```
 
@@ -277,34 +262,38 @@ var input = entity.GetRequiredComponentInChildren<BaseInputComponent>();
 
 ## Prohibited Patterns
 
-Never check state in components:
+❌ State checks in components:
 ```csharp
 if (_canMove) { /* logic */ } // WRONG - StateChart controls lifecycle
 ```
 
-Never reference siblings directly:
+❌ Direct sibling references:
 ```csharp
 GetNode<Component>("../Sibling"); // WRONG - Use events
 ```
 
-Never hardcode animation names:
+❌ Hardcoded animation names:
 ```csharp
 _animPlayer.Play("Idle"); // WRONG - Use AnimationNames.Idle
 ```
 
-Never use Godot Signal for C# components:
+❌ Godot Signal for C# components:
 ```csharp
-[Signal] public delegate void MyEventHandler(); // WRONG - Use C# event Action
+[Signal] public delegate void MyEventHandler(); // WRONG - Use event Action
+```
+
+❌ Missing R3 AddTo:
+```csharp
+_button.PressedAsObservable().Subscribe(_ => DoSomething()); // MEMORY LEAK
 ```
 
 ## Build & Debug
 
 Build: `dotnet build "3dPractice.sln"`
-Runtime logs: `Get-Content "$env:APPDATA\Godot\app_userdata\3dPractice\logs\godot.log" -Tail 50`
-C# logging: `GD.Print("msg")`, `GD.PrintErr("err")`, `GD.PushWarning("warn")`
+Logs: `Get-Content "$env:APPDATA\Godot\app_userdata\3dPractice\logs\godot.log" -Tail 50`
+C# logging: `GD.Print()`, `GD.PrintErr()`, `GD.PushWarning()`
 
 ## Known Issues
 
-Godot.Composition doesn't register base classes. Use `GetRequiredComponentInChildren<BaseInputComponent>()` instead of `[ComponentDependency]`.
-
-Flying animations missing: Configure fallback in editor: `FlyIdleAnimation` → `ninja_idle.res`. Code has fallback logic.
+- Godot.Composition doesn't register base classes - use `GetRequiredComponentInChildren<BaseInputComponent>()`
+- Flying animations missing - configure fallback in editor
