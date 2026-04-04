@@ -47,7 +47,15 @@ inclusion: always
   </scene_management>
 
   <development_workflow>
-    C# build: Auto-triggered by hook on .cs file save.
+    <mandatory_compilation>
+      ALWAYS compile after writing ANY C# code.
+      ALWAYS compile when verification is needed during development.
+      NEVER skip compilation checks - catch errors immediately.
+      
+      Command: `dotnet build` (run in 3d-practice directory)
+      Note: dotnet build auto-detects .sln file in current directory.
+    </mandatory_compilation>
+    
     Logs: Check Godot Output tab or `$env:APPDATA\Godot\app_userdata\ProjectName\logs\godot.log`
   </development_workflow>
 

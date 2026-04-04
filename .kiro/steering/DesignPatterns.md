@@ -91,12 +91,12 @@ public partial class MyUI : Control
     
     public override void _Ready()
     {
-        // Single-parameter event
-        _slider.ValueChangedAsObservable()
+        // Single-parameter event (using R3.Godot extension)
+        _slider.OnValueChangedAsObservable()
             .Subscribe(v => HandleValue(v))
             .AddTo(_disposables);
         
-        // Multi-parameter event (manual conversion)
+        // Multi-parameter event (manual conversion required)
         Observable.FromEvent<Action<int, string>, (int, string)>(
             conversion: h => (i, s) => h((i, s)),
             addHandler: h => _dropdown.ItemSelected += h,
@@ -108,8 +108,8 @@ public partial class MyUI : Control
         })
         .AddTo(_disposables);
         
-        // Button click
-        _button.PressedAsObservable()
+        // Button click (using R3.Godot extension)
+        _button.OnPressedAsObservable()
             .Subscribe(_ => HandleClick())
             .AddTo(_disposables);
     }
@@ -144,8 +144,8 @@ isAlive.Subscribe(alive => _deathOverlay.Visible = !alive).AddTo(_disposables);
 | Operator | Use Case | Example |
 |----------|----------|---------|
 | `DistinctUntilChanged()` | Prevent redundant UI updates | `isGrounded.DistinctUntilChanged()` - only trigger on state change |
-| `ThrottleFirst(TimeSpan)` | Button debounce | `_saveButton.PressedAsObservable().ThrottleFirst(0.5s)` |
-| `Debounce(TimeSpan)` | Search input delay | `_searchBox.TextChangedAsObservable().Debounce(0.3s)` |
+| `ThrottleFirst(TimeSpan)` | Button debounce | `_saveButton.OnPressedAsObservable().ThrottleFirst(0.5s)` |
+| `Debounce(TimeSpan)` | Search input delay | `_searchBox.OnTextChangedAsObservable().Debounce(0.3s)` |
 | `Where(predicate)` | Filter events | `.Where(hp => hp < 20)` - only when low health |
 | `CombineLatest` | Multi-condition logic | Enable submit only if name valid AND age >= 18 |
 | `Select` | Transform value | `.Select(v => v * 100)` - convert to percentage |
@@ -157,8 +157,8 @@ isAlive.Subscribe(alive => _deathOverlay.Visible = !alive).AddTo(_disposables);
 **Multi-condition UI:**
 ```csharp
 Observable.CombineLatest(
-    _nameInput.TextChangedAsObservable(),
-    _ageInput.ValueChangedAsObservable(),
+    _nameInput.OnTextChangedAsObservable(),
+    _ageInput.OnValueChangedAsObservable(),
     (name, age) => !string.IsNullOrEmpty(name) && age >= 18
 )
 .Subscribe(isValid => _submitButton.Disabled = !isValid)
@@ -193,23 +193,26 @@ Observable.EveryUpdate()
 
 ### R3.Godot Extensions
 
-Install `R3.Godot` for built-in helpers:
+R3.Godot plugin provides built-in helpers (note the `On` prefix):
 
 ```csharp
-_button.PressedAsObservable()           // Button.Pressed event
-_slider.ValueChangedAsObservable()      // Range.ValueChanged event
-_lineEdit.TextChangedAsObservable()     // LineEdit.TextChanged event
-Observable.EveryUpdate()                // Runs every _Process frame
-Observable.EveryPhysicsUpdate()         // Runs every _PhysicsProcess frame
+_button.OnPressedAsObservable()           // Button.Pressed event
+_toggle.OnToggledAsObservable()           // BaseButton.Toggled event (returns current state on subscribe)
+_slider.OnValueChangedAsObservable()      // Range.ValueChanged event (returns current value on subscribe)
+_lineEdit.OnTextChangedAsObservable()     // LineEdit.TextChanged event
+_lineEdit.OnTextSubmittedAsObservable()   // LineEdit.TextSubmitted event
+_optionButton.OnItemSelectedAsObservable() // OptionButton.ItemSelected event (returns current selection on subscribe)
+Observable.EveryUpdate()                  // Runs every _Process frame
+Observable.EveryPhysicsUpdate()           // Runs every _PhysicsProcess frame
 ```
 
-**Prefer extensions over `FromEvent` when available.**
+**Prefer extensions over `FromEvent` when available. Extensions with "current value on subscribe" emit the current state immediately, ensuring UI consistency.**
 
 ### Advanced Optimization
 
 **AsUnitObservable()** - Convert value stream to action stream:
 ```csharp
-_slider.ValueChangedAsObservable()
+_slider.OnValueChangedAsObservable()
     .AsUnitObservable()  // Discard value, only care that it changed
     .Subscribe(_ => SaveSettings())
     .AddTo(_disposables);
@@ -229,12 +232,12 @@ Observable.FromAsync(async ct => await FetchDataAsync(ct))
 
 ❌ **Missing AddTo:**
 ```csharp
-_button.PressedAsObservable().Subscribe(_ => DoSomething()); // MEMORY LEAK
+_button.OnPressedAsObservable().Subscribe(_ => DoSomething()); // MEMORY LEAK
 ```
 
 ✅ **Correct:**
 ```csharp
-_button.PressedAsObservable().Subscribe(_ => DoSomething()).AddTo(_disposables);
+_button.OnPressedAsObservable().Subscribe(_ => DoSomething()).AddTo(_disposables);
 ```
 
 ❌ **ReactiveProperty for physics:**
