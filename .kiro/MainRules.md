@@ -7,15 +7,8 @@ Read project's `docLastConversationState.md` and `ProjectRules.md` to restore co
 </initialization>
 
 <execution_protocol>
-<epistemic_validation>
-Call `mcp_sequential_thinking_sequentialthinking` on EVERY request (multiple times if user explicitly asks to "think").
-During sequential thinking, strictly execute these steps before any action:
-1. Knowledge Inventory: List explicit, known facts regarding the request.
-2. Blind Spot Identification: Pinpoint missing, unfamiliar, or uncertain concepts.
-3. Confidence Scoring: Assign a score (1-10).
-4. Search Trigger: If Confidence < 7 OR core concepts are identified as blind spots, NEVER guess. You MUST use web search or documentation lookup tools to retrieve missing facts before proceeding.
-5. Execution: If Confidence >= 7 (or after successful search), proceed with actions.
-</epistemic_validation>
+`mcp_sequential_thinking_sequentialthinking` on EVERY request (multiple times if user explicitly asks to "think").
+`mcp_sequential_thinking_sequentialthinking` on EVERY request (multiple times if user explicitly asks to "think").
 
 Execute actions immediately: read files, run commands, make changes.
 Implement incrementally and verify each step.
