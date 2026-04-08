@@ -58,6 +58,42 @@ inclusion: always
     
     Logs: Check Godot Output tab or `$env:APPDATA\Godot\app_userdata\ProjectName\logs\godot.log`
   </development_workflow>
+  
+  <documentation_standards>
+    - **Trivial Functions** (e.g., Godot lifecycle hooks like `_ExitTree`, `_PhysicsProcess`, simple getters/setters): Omit documentation entirely. DO NOT waste lines explaining the obvious.
+    - **Simple Functions**: Highly flexible. Write a single-sentence `<summary>`, use inline comments inside the function, or write nothing at all if self-evident. DO NOT force the 3-part structure.
+    - **Complex/Logic-Heavy Functions**: MUST follow this strict 3-part structure (Order: Purpose -> Example -> Algorithm):
+      1. **目的 (Purpose):** State WHAT the function does in the exact context of this project/game.
+      2. **示例 (Example):** Provide a concrete scenario (Input -> Output or State Change).
+      3. **算法 (Algorithm):** List the logical execution steps that map strictly 1:1 to the code blocks below it.
+    
+    <anti_noise_constraints>
+      - NEVER include textbook math proofs, API tutorials, or general programming concepts.
+      - Delete ruthlessly: if an explanation applies to programming in general rather than this specific feature, REMOVE it.
+    </anti_noise_constraints>
+
+    <examples>
+      <example>
+        <description>Complex logic function (Standard abstract 3-part template).</description>
+        <good>
+        /// <summary>
+        /// 功能名称
+        /// 目的：解决XX问题，确保XX
+        /// 示例：输入 A 得到 B
+        /// 算法：1. 获取X -> 2. 计算Y -> 3. 返回Z
+        /// </summary>
+        </good>
+      </example>
+      
+      <example>
+        <description>Simple or trivial functions (Flexible formatting or completely omitted).</description>
+        <good>
+        // Options: Omit entirely, write a simple inline comment, or use a 1-line summary.
+        /// <summary>单句描述即可，或者完全不写。</summary>
+        </good>
+      </example>
+    </examples>
+  </documentation_standards>
 
   <testing>
     Capture detailed game state: 
