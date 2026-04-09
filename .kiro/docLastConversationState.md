@@ -1,173 +1,239 @@
-# Last Conversation State
-*Updated: 2026-04-09*
-## Project Status
-- **Engine:** Godot 4.6.1 stable mono
-- **Language:** C# only
-- **Project:** 3D character controller + Grid inventory system
-- **Phase:** Grid-based backpack system fully implemented
-## Completed This Session
-### Grid Inventory System (Complete)
-**Architecture:** 6-layer component system with R3 reactive streams and StateChart integration
-**Created Files:**
-1. `3d-practice/B1Scripts/Components/BackpackGridComponent.cs` - Data layer (1D array grid logic)
-2. `3d-practice/B1Scripts/Resources/ItemDataResource.cs` - Resource layer (Godot Resource for items)
-3. `3d-practice/B1Scripts/Components/GridShapeComponent.cs` - Shape layer (runtime rotation)
-4. `3d-practice/B1Scripts/Components/DraggableItemComponent.cs` - Input layer (GUI → StateChart bridge)
-5. `3d-practice/B1Scripts/Components/FollowMouseUIComponent.cs` - Physics layer (mouse tracking)
-6. `3d-practice/B1Scripts/Components/BackpackGridUIComponent.cs` - View layer (coordinate conversion)
-**Documentation:**
-- `KiroWorkingSpace/.kiro/steering/Godot/GridInventorySystem_Context.md` - Compressed domain rules
-### Component Details
-**BackpackGridComponent (Data Layer):**
-- 1D array storage: `ItemData[] _gridData` (index = y * Width + x)
-- Methods: `CanPlaceItem()`, `TryPlaceItem()`, `RemoveItem()`, `GetItemAt()`, `ClearGrid()`
-- R3 Subjects: `OnItemPlacedAsObservable`, `OnItemRemovedAsObservable`
-- Supports arbitrary item shapes (Tetris-like)
-**ItemDataResource (Resource Layer):**
-- Inherits `Resource`, marked `[GlobalClass]`
-- Export: `ItemID`, `ItemName`, `Icon`, `BaseShape` (Godot.Collections.Array<Vector2I>)
-- Editor-creatable .tres files
-- Helper methods: `GetCellCount()`, `GetBoundingSize()`, `IsShapeValid()`
-**GridShapeComponent (Shape Layer):**
-- Runtime shape: `Vector2I[] CurrentLocalCells`
-- Rotation matrix (clockwise 90°): `(x, y) → (-y, x)`
-- `Rotate90()` applies rotation + `NormalizeShape()` (ensures origin at 0,0)
-- R3 Subject: `OnShapeChangedAsObservable` (Subject<Unit>)
-**DraggableItemComponent (Input Layer):**
-- Export: `Control ClickableArea`, `Node StateChart`
-- Subscribe to `ClickableArea.GuiInput` event
-- Mouse left press → `StateChart.Call("send_event", "drag_start")` + R3 event
-- Mouse left release → `StateChart.Call("send_event", "drag_end")` + R3 event
-- Mouse right press → `OnRotateRequestedAsObservable.OnNext(Unit.Default)`
-- **Bug Fixed:** Use `StateChart.Call()` directly, NOT `GetParent()?.Call()`
-**FollowMouseUIComponent (Physics Layer):**
-- Export: `Control TargetUI`, `Vector2 GrabOffset`
-- Uses `AutoBindToParentState()` (Power Switch mode)
-- Connect `state_entered` → ZIndex +100
-- Connect `state_exited` → restore ZIndex
-- `_Process()`: `TargetUI.GlobalPosition = GetGlobalMousePosition() + GrabOffset`
-- Must be child of Dragging AtomicState
-**BackpackGridUIComponent (View Layer):**
-- Inherits `Control` (not Node)
-- Export: `BackpackGridComponent LogicGrid`, `Vector2 CellSize`, `bool DrawDebugLines`, `Color GridColor`
-- Auto-sizes UI: `Size = Width * CellSize.X, Height * CellSize.Y`
-- Coordinate conversion:
-  - `GlobalToGridPosition()` - Global pixels → Grid coords
-  - `GridToLocalPosition()` - Grid coords → Local pixels
-  - `GetCellCenterPosition()` - Grid coords → Center pixels
-  - `LocalToGridPosition()` - Local pixels → Grid coords
-- `_Draw()` renders debug grid lines
-- Helper methods: `GetCellRect()`, `GetShapeRect()`, `IsValidGridPosition()`
-### Technical Achievements
-**R3 Integration:**
-- All components use `Subject<T>` for reactive events
-- Proper disposal in `_ExitTree()`
-- `Subject<Unit>` for parameterless events
-**StateChart Integration:**
-- DraggableItemComponent bridges GUI input to StateChart
-- FollowMouseUIComponent uses Power Switch pattern
-- Recommended structure: Root → Idle/Dragging states
-**Coordinate System:**
-- 1D array with formula: `index = y * Width + x`
-- Rotation matrix: `(x,y) → (-y,x)` for 90° clockwise
-- Normalization ensures origin at (0,0) after rotation
-**Architecture Patterns:**
-- Separation of concerns (6 distinct layers)
-- Pure data logic (BackpackGridComponent)
-- Pure view logic (BackpackGridUIComponent)
-- Event-driven communication (R3 Subjects)
-- StateChart lifecycle management
-## Active Files
-**Created:**
-- `3d-practice/B1Scripts/Components/BackpackGridComponent.cs`
-- `3d-practice/B1Scripts/Resources/ItemDataResource.cs`
-- `3d-practice/B1Scripts/Components/GridShapeComponent.cs`
-- `3d-practice/B1Scripts/Components/DraggableItemComponent.cs`
-- `3d-practice/B1Scripts/Components/FollowMouseUIComponent.cs`
-- `3d-practice/B1Scripts/Components/BackpackGridUIComponent.cs`
-- `KiroWorkingSpace/.kiro/steering/Godot/GridInventorySystem_Context.md`
-**Modified:**
-- `3d-practice/B1Scripts/Components/DraggableItemComponent.cs` - Bug fix (StateChart.Call)
-## Next Session Tasks
-### Immediate (Backpack System)
-1. Create item visual component (displays icon + shape overlay)
-2. Implement drag preview (semi-transparent item following mouse)
-3. Add placement validation visual feedback (green/red highlight)
-4. Create backpack UI scene (BackpackGridUIComponent + item slots)
-5. Implement item pickup/drop logic
-6. Add item rotation on right-click during drag
-7. Test with various item shapes (1x1, 2x1, L-shape, T-shape)
-### Integration
-1. Connect backpack to player inventory data
-2. Add item database (ItemDataResource .tres files)
-3. Implement item stacking (for 1x1 items)
-4. Add item tooltips (hover info)
-5. Create item context menu (use, drop, split)
-### Polish
-1. Add drag/drop sound effects
-2. Implement smooth item snap animation
-3. Add particle effects for item pickup
-4. Create item rarity visual indicators
-5. Implement auto-sort functionality
-## Critical Context
-### Grid System Design Decisions
-**Why 1D array?**
-- Cache-friendly memory layout
-- Simple index calculation
-- Easier serialization
-- Standard game dev practice
-**Why rotation matrix instead of angle?**
-- Discrete 90° rotations only
-- No floating-point errors
-- Instant calculation
-- Predictable results
-**Why separate shape component?**
-- Runtime rotation support
-- Decouples data from behavior
-- Reusable across item types
-- Supports dynamic shape changes
-**Why R3 Subject<Unit>?**
-- Parameterless events (just notification)
-- Subscribers read current state directly
-- Consistent with R3 patterns
-- Zero allocation
-### StateChart Integration Pattern
-**Recommended Structure:**
+<last_conversation_state>
+<metadata>
+<update_date>2026-04-09</update_date>
+<engine>Godot 4.6.1 stable mono</engine>
+<language>C# only</language>
+<project>3D character controller + Complete Grid Inventory System with Synergies</project>
+<phase>Full backpack system with MVC, UI animations, and Backpack Battles-style synergies</phase>
+</metadata>
+
+<architecture_overview>
+<system>9-layer complete inventory system with R3, StateChart, MVC, and synergy mechanics</system>
+<layers>
+1. Data Layer: BackpackGridComponent (1D array grid logic)
+2. Resource Layer: ItemDataResource, SynergyDataResource (Godot Resources)
+3. Shape Layer: GridShapeComponent (Runtime rotation with R3)
+4. View Layer: BackpackGridUIComponent (Pixel ↔ Grid coordinate conversion)
+5. Controller Layer: BackpackInteractionController (MVC drag state management)
+6. Input Layer: DraggableItemComponent (GUI to StateChart bridge)
+7. Physics Layer: FollowMouseUIComponent (Mouse tracking via Power Switch)
+8. Animation Layer: UITweenInteractComponent (Micro-interactions with logic/visual separation)
+9. Synergy Layer: SynergyComponent (Backpack Battles-style item synergies)
+</layers>
+</architecture_overview>
+
+<file_inventory>
+<components>
+- BackpackGridComponent.cs (Data layer, 1D array grid)
+- BackpackGridUIComponent.cs (View layer, coordinate converter)
+- BackpackInteractionController.cs (Controller, drag state, pickup/drop/snap)
+- ItemDataResource.cs (Item static config)
+- GridShapeComponent.cs (Runtime shape + rotation)
+- DraggableItemComponent.cs (Input handler)
+- FollowMouseUIComponent.cs (Mouse follower)
+- UITweenInteractComponent.cs (UI micro-interactions)
+- SynergyDataResource.cs (Synergy config)
+- SynergyComponent.cs (Synergy detection)
+</components>
+<documentation>
+- KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackSystem_Context.md (Complete technical reference)
+</documentation>
+</file_inventory>
+
+<component_specifications>
+<component name="BackpackGridComponent">
+<type>Data Layer</type>
+<state>ItemData[] _gridData (1D array, index = y * Width + x)</state>
+<methods>CanPlaceItem(), TryPlaceItem(), RemoveItem(), GetItemAt(), ClearGrid()</methods>
+<r3>OnItemPlacedAsObservable, OnItemRemovedAsObservable (Subject<(ItemData, Vector2I)>)</r3>
+</component>
+
+<component name="BackpackGridUIComponent">
+<type>View Layer (Control)</type>
+<exports>BackpackGridComponent LogicGrid, Vector2 CellSize (64x64), bool DrawDebugLines, Color GridColor</exports>
+<methods>
+- GlobalToGridPosition(Vector2): (globalPos - GlobalPosition) / CellSize → FloorToInt → Clamp
+- GridToLocalPosition(Vector2I): gridPos * CellSize
+- GetCellCenterPosition(Vector2I): GridToLocalPosition + CellSize/2
+- LocalToGridPosition(Vector2): localPos / CellSize → FloorToInt → Clamp
+- IsValidGridPosition(), GetCellRect(), GetShapeRect(), RefreshGrid()
+</methods>
+<auto_sizing>CustomMinimumSize = Size = (Width * CellSize.X, Height * CellSize.Y)</auto_sizing>
+<visualization>_Draw() renders grid lines when DrawDebugLines=true</visualization>
+</component>
+
+<component name="BackpackInteractionController">
+<type>Controller Layer (MVC)</type>
+<exports>BackpackGridComponent LogicGrid, BackpackGridUIComponent ViewGrid</exports>
+<state>Dictionary<Node, ItemDragState> (OriginalGlobalPos, OriginalGridPos, ShapeComponent, ItemControl)</state>
+<methods>
+- RegisterItem(Node): Subscribe to DraggableItemComponent events with .AddTo(itemEntity)
+- HandleItemPickedUp(): Record state + LogicGrid.RemoveItem() (防自我占用)
+- HandleItemDropped(): 
+  * Get mouse: ViewGrid.GetGlobalMousePosition() (NOT GetViewport().GetMousePosition())
+  * Check range: ViewGrid.GetGlobalRect().HasPoint(mousePos)
+  * Try place: LogicGrid.TryPlaceItem()
+  * Success: PerformSnapToGrid() (吸附: ViewGrid.GlobalPosition + ViewGrid.GridToLocalPosition(gridPos))
+  * Failure: PerformBounceBack() (回弹: restore OriginalGlobalPos + force TryPlaceItem(OriginalGridPos))
+- HandleItemRotated(): ShapeComponent.Rotate90()
+</methods>
+</component>
+
+<component name="ItemDataResource">
+<type>Resource Layer</type>
+<exports>string ItemID, string ItemName, Texture2D Icon, Array<Vector2I> BaseShape</exports>
+<default>BaseShape = { Vector2I.Zero }</default>
+<methods>GetCellCount(), GetBoundingSize(), IsShapeValid()</methods>
+</component>
+
+<component name="GridShapeComponent">
+<type>Shape Layer</type>
+<state>Vector2I[] CurrentLocalCells</state>
+<methods>
+- Rotate90(): Apply (x,y) → (-y,x) + NormalizeShape()
+- NormalizeShape(): Ensure min(X,Y) = 0
+- ResetShape(), GetBoundingSize(), ContainsCell(), GetCenter()
+</methods>
+<r3>OnShapeChangedAsObservable (Subject<Unit>)</r3>
+</component>
+
+<component name="DraggableItemComponent">
+<type>Input Layer</type>
+<exports>Control ClickableArea, Node StateChart</exports>
+<events>
+- Left Press: StateChart.Call("send_event", "drag_start") + OnDragStartedAsObservable.OnNext(Unit.Default)
+- Left Release: StateChart.Call("send_event", "drag_end") + OnDragEndedAsObservable.OnNext(Unit.Default)
+- Right Press: OnRotateRequestedAsObservable.OnNext(Unit.Default)
+</events>
+<cleanup>Unsubscribe GuiInput in _ExitTree()</cleanup>
+</component>
+
+<component name="FollowMouseUIComponent">
+<type>Physics Layer</type>
+<exports>Control TargetUI, Vector2 GrabOffset</exports>
+<lifecycle>
+- AutoBindToParentState() in _Ready() (Power Switch)
+- state_entered: ZIndex +100
+- state_exited: Restore original ZIndex
+- _Process(): TargetUI.GlobalPosition = GetGlobalMousePosition() + GrabOffset
+</lifecycle>
+<placement>MUST be child of Dragging AtomicState</placement>
+</component>
+
+<component name="UITweenInteractComponent">
+<type>Animation Layer</type>
+<exports>Control InteractionArea, Control VisualTarget, Vector2 HoverScale (1.05), Vector2 PressScale (0.95), float TweenDuration (0.15)</exports>
+<principle>Logic/Visual Separation: InteractionArea (Scale=1,1, 坐标计算) + VisualTarget (可缩放, 视觉反馈)</principle>
+<states>Normal(1,1) → Hover(1.05) → Press(0.95)</states>
+<animation>
+- Kill current tween: _currentTween?.Kill()
+- Create: GetTree().CreateTween()
+- Configure: SetEase(EaseType.Out), SetTrans(TransitionType.Sine)
+- Animate: TweenProperty(VisualTarget, "scale", targetScale, TweenDuration)
+- PivotOffset: VisualTarget.Size / 2 (中心缩放)
+</animation>
+</component>
+
+<component name="SynergyDataResource">
+<type>Resource Layer</type>
+<exports>string[] ProvidedTags, Array<Vector2I> StarOffsets, string RequiredTag, string SynergyEffect</exports>
+<example>
+- ProvidedTags: ["Food", "Fruit"]
+- StarOffsets: [(1,0), (-1,0)]
+- RequiredTag: "Food"
+- SynergyEffect: "每颗星星 +10% 攻击速度"
+</example>
+<methods>HasTag(), GetStarCount(), IsValid()</methods>
+</component>
+
+<component name="SynergyComponent">
+<type>Synergy Layer</type>
+<exports>SynergyDataResource SynergyData, GridShapeComponent Shape</exports>
+<state>HashSet<Vector2I> ActiveStars, int _rotationCount (0-3)</state>
+<r3>OnSynergyChangedAsObservable (Subject<HashSet<Vector2I>>)</r3>
+<rotation_tracking>Subscribe to Shape.OnShapeChangedAsObservable → _rotationCount++</rotation_tracking>
+<methods>
+- CheckSynergies(BackpackGridComponent, Vector2I):
+  1. Clear ActiveStars
+  2. Foreach StarOffset: Apply rotation → Calculate world pos → Query item → Check tag → Update ActiveStars
+  3. Emit OnSynergyChangedAsObservable
+- ApplyRotationToOffset(Vector2I, int): Loop apply (x,y) → (-y,x) for rotationCount times
+</methods>
+</component>
+</component_specifications>
+
+<scene_structure>
 ```
-ItemEntity (Control)
-├── StateChart
-│   └── Root (CompoundState, initial="Idle")
-│       ├── Idle (AtomicState)
-│       │   └── Transition: event="drag_start" → Dragging
-│       └── Dragging (AtomicState)
-│           ├── FollowMouseUIComponent
-│           └── Transition: event="drag_end" → Idle
-├── DraggableItemComponent
-├── GridShapeComponent
-└── [Visual children]
+BackpackPanel (BackpackGridUIComponent)
+├── BackpackInteractionController
+├── BackpackGridComponent (LogicGrid)
+└── Items Container
+    └── ItemEntity (Control) ← InteractionArea [Scale=1,1]
+        ├── StateChart
+        │   └── Root (CompoundState, initial="Idle")
+        │       ├── Idle (AtomicState)
+        │       │   └── Transition: event="drag_start" → Dragging
+        │       └── Dragging (AtomicState)
+        │           ├── FollowMouseUIComponent
+        │           └── Transition: event="drag_end" → Idle
+        ├── DraggableItemComponent
+        ├── GridShapeComponent
+        ├── SynergyComponent
+        ├── UITweenInteractComponent
+        └── VisualContainer (Control) ← VisualTarget [Scale可变]
+            ├── ItemIcon (TextureRect)
+            └── StarContainer (Control)
+                ├── Star1 (TextureRect) ← 灰色/亮色切换
+                └── Star2 (TextureRect)
 ```
-**Event Flow:**
-1. User clicks → DraggableItemComponent.GuiInput
-2. Component sends "drag_start" → StateChart
-3. StateChart activates Dragging state
-4. FollowMouseUIComponent auto-enabled (Power Switch)
-5. Item follows mouse + ZIndex elevated
-6. User releases → "drag_end" → back to Idle
-7. FollowMouseUIComponent auto-disabled
-## Build Status
-✅ All 6 components compiled successfully
-✅ No errors
-⚠️ 5 warnings (phantom_camera plugin, not project code)
-## Architecture Principles Applied
-1. **Separation of Concerns:** 6 distinct layers, each with single responsibility
-2. **Reactive Programming:** R3 Subjects for event streams
-3. **State Management:** StateChart controls component lifecycle
-4. **Coordinate Abstraction:** View layer handles all pixel↔grid conversions
-5. **Resource-Driven Design:** ItemDataResource for editor-friendly configuration
-6. **Power Switch Pattern:** Components auto-enable/disable with states
-## Next Session Start
-1. Read this file to restore context
-2. Review `GridInventorySystem_Context.md` for technical rules
-3. Create item visual component
-4. Build backpack UI scene
-5. Test drag-and-drop with debug grid
+</scene_structure>
+
+<critical_fixes>
+<fix>BackpackInteractionController: Use ViewGrid.GetGlobalMousePosition() NOT GetViewport().GetMousePosition() (handles Camera2D/CanvasLayer transforms)</fix>
+<fix>DraggableItemComponent: Use StateChart.Call() directly, NOT GetParent()?.Call()</fix>
+<fix>UITweenInteractComponent: NEVER scale InteractionArea (破坏坐标系统), only scale VisualTarget</fix>
+</critical_fixes>
+
+<design_decisions>
+<decision topic="1D Array">Cache-friendly, simplified indexing (y*Width+x), easier serialization</decision>
+<decision topic="Rotation Matrix">Discrete 90° rotations (x,y→-y,x) eliminate float errors, instant integer coords</decision>
+<decision topic="MVC Controller">Centralized drag state management, prevents scattered logic, enables easy testing</decision>
+<decision topic="Logic/Visual Separation">InteractionArea maintains stable coordinates for grid calculations, VisualTarget provides animations without affecting layout</decision>
+<decision topic="Synergy Rotation Tracking">Subscribe to Shape changes to auto-update rotation count, ensures star positions always match item orientation</decision>
+<decision topic="R3 Subject<Unit>">Parameterless events for pure notification, subscribers query current state directly</decision>
+</design_decisions>
+
+<build_status>
+<status>Compiled successful</status>
+<warnings>5 warnings (PhantomCamera nullability, unused events)</warnings>
+</build_status>
+
+<next_session_tasks>
+<immediate>
+1. Implement SynergyComponent.CheckItemHasTag() (requires ItemData → Node mapping)
+2. Create item visual prefab scene with proper node structure
+3. Build backpack UI scene with BackpackGridUIComponent
+4. Create test ItemDataResource and SynergyDataResource .tres files
+5. Test complete drag-drop-rotate-synergy workflow
+</immediate>
+<integration>
+1. Implement ItemData → Node mapping in BackpackInteractionController
+2. Add synergy visual feedback (star color changes)
+3. Implement synergy effect application system
+4. Add drag preview with placement validation (green/red highlight)
+</integration>
+<polish>
+1. Add sound effects (pickup, drop, rotate, synergy activate)
+2. Implement smooth snap animation with Tween
+3. Add particle effects for synergy activation
+4. Implement auto-sort functionality
+5. Add item tooltips with synergy info
+</polish>
+<start_procedure>
+1. Read this file + GodotBackpackSystem_Context.md
+2. Review scene structure requirements
+3. Create item prefab with all components
+4. Test in isolation before integration
+</start_procedure>
+</next_session_tasks>
+</last_conversation_state>
