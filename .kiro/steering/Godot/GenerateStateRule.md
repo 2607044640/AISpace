@@ -10,7 +10,7 @@ Meta-rule to synthesize the current session's work into a highly compressed, reu
 
 <critical_constraints>
 - Output file path MUST strictly be: C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\
-- Target filename format: `<DomainName>_Context.md` (e.g., `SettingUI_Context.md`).
+- Target filename format: `Godot<DomainName>_Context.md` using PascalCase (e.g., `GodotBackpackSystem_Context.md`, `GodotInputMap_Context.md`, `GodotSettingsSystem_Context.md`).
 - Ensure zero hallucination of APIs, paths, or UIDs.
 - Preserve all explicit boundary conditions and technical specifications.
 - Format output using concise, imperative language and nested XML tags.
