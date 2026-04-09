@@ -6,6 +6,19 @@ Purpose: Defines strict investigation steps and escalation paths for bug fixing.
 </context>
 
 <instructions>
+
+
+  <execution_protocol>
+    Call `mcp_sequential_thinking_sequentialthinking`
+    
+     During sequential thinking, strictly execute these steps before any action:
+      1. Knowledge Inventory: List explicit, known facts regarding the request.
+      2. Blind Spot Identification: Pinpoint missing, unfamiliar, or uncertain concepts.
+      3. Confidence Scoring: Assign a score (1-10).
+      4. Search Trigger: If Confidence < 7 OR core concepts are identified as blind spots, NEVER guess. You MUST use web search or documentation lookup tools to retrieve missing facts before proceeding.
+      5. Execution: If Confidence >= 7 (or after successful search), proceed with actions.
+  </execution_protocol>
+
 <investigation_workflow>
 Read error logs completely before attempting any fixes.
 Add targeted debug logging to isolate the failure point.

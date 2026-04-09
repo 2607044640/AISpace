@@ -6,6 +6,20 @@ inclusion: manual
 
 <critical_rules>
 
+  <scene_management>
+    <ui_workflow_best_practices>
+      ✓ Use AI to build entire initial UI layout (UIBuilder generator)
+      ✕ Use AI to modify small details (wastes time, inaccurate)
+      ✓ User manually modifies small details in Godot editor
+      ✓ Use AI to batch-modify multiple properties (TscnEditor)
+    </ui_workflow_best_practices>
+    
+    Generate UI scenes: Use `.kiro/scripts/ui_builder/generators/godot_ui_builder.py` (see `#GodotUIBuilder.md`).
+    Generate StateChart scenes: Use `.kiro/scripts/statechart_builder/godot_statechart_builder.py` (see `#GodotStateChartBuilder.md`).
+    
+    Batch-modify existing scenes: Use TscnEditor (`.kiro/scripts/ui_builder/tscn_editor_tools/`).
+    NEVER use AI for single-property tweaks - user edits directly in Godot.
+  </scene_management>
 ## File Organization
 
 **ALL generated Python scripts MUST be placed in:**

@@ -8,10 +8,9 @@ Execute the Conversation Reset Protocol when the conversation context becomes to
 
 <target_files>
 Read these files to understand the state upon starting a fresh session. Update these exact files when resetting:
-1. `KiroWorkingSpace/.kiro/steering/docLastConversationState.md`
-2. `KiroWorkingSpace/.kiro/steering/ProjectRules.md`
-3. `KiroWorkingSpace/.kiro/MainRules.md`
-4. `KiroWorkingSpace/.kiro/game-plan.md`
+1. `KiroWorkingSpace/.kiro/docLastConversationState.md`
+2. `KiroWorkingSpace/.kiro/ProjectRules.md`
+3. `KiroWorkingSpace/.kiro/game-plan.md`
 </target_files>
 
 <workflow>

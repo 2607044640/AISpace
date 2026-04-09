@@ -1,3 +1,6 @@
+---
+inclusion: manual
+---
 # Godot ThemeGen Rules
 
 ## Overview

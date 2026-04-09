@@ -33,7 +33,13 @@ Apply the anti-noise checklist to the temporary list:
 </step_2_compliance_and_compression>
 
 <step_3_file_generation>
-Generate the final rule file. Prepend the file with `--- inclusion: manual ---`. Use the highly compressed data to populate the required XML structure.
+Generate the final rule file. MUST prepend with YAML front matter:
+```
+---
+inclusion: manual
+---
+```
+Use the highly compressed data to populate the required XML structure.
 </step_3_file_generation>
 
 </workflow>

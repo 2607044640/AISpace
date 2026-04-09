@@ -13,6 +13,7 @@ Grid-based inventory system with drag-and-drop, rotation, and StateChart integra
 Data Layer:    BackpackGridComponent (1D array grid logic)
 Resource Layer: ItemDataResource (static item config)
 Shape Layer:   GridShapeComponent (runtime shape + rotation)
+View Layer:    BackpackGridUIComponent (coordinate converter + visualizer)
 Input Layer:   DraggableItemComponent (GUI input → StateChart bridge)
 Physics Layer: FollowMouseUIComponent (mouse tracking via Power Switch)
 ```
@@ -25,6 +26,7 @@ Physics Layer: FollowMouseUIComponent (mouse tracking via Power Switch)
 - `BackpackGridComponent : Node` - Grid data manager (Width x Height → 1D array)
 - `ItemDataResource : Resource` - Godot resource (ItemID, ItemName, Icon, BaseShape)
 - `GridShapeComponent : Node` - Shape manager (CurrentLocalCells, Rotate90)
+- `BackpackGridUIComponent : Control` - View layer (pixel ↔ grid coordinate conversion, debug visualization)
 - `DraggableItemComponent : Node` - Input handler (GuiInput → StateChart events)
 - `FollowMouseUIComponent : Node` - Mouse follower (挂载在 Dragging AtomicState 下)
 
@@ -74,6 +76,18 @@ Physics Layer: FollowMouseUIComponent (mouse tracking via Power Switch)
 - `_Process()`: `TargetUI.GlobalPosition = GetGlobalMousePosition() + GrabOffset`
 - Save `_originalZIndex` for restoration
 
+**BackpackGridUIComponent:**
+- Inherits `Control`, marked `[GlobalClass]`
+- Export: `BackpackGridComponent LogicGrid`, `Vector2 CellSize` (default 64x64), `bool DrawDebugLines`, `Color GridColor`
+- Auto-sizing: `CustomMinimumSize = Size = new Vector2(Width * CellSize.X, Height * CellSize.Y)`
+- Coordinate conversion methods:
+  - `GlobalToGridPosition(Vector2)`: `(globalPos - GlobalPosition) / CellSize` → FloorToInt → Clamp
+  - `GridToLocalPosition(Vector2I)`: `gridPos * CellSize`
+  - `GetCellCenterPosition(Vector2I)`: `GridToLocalPosition + CellSize / 2`
+  - `LocalToGridPosition(Vector2)`: `localPos / CellSize` → FloorToInt → Clamp
+- `_Draw()`: DrawLine for horizontal/vertical grid lines when `DrawDebugLines = true`
+- Helper methods: `IsValidGridPosition()`, `GetCellRect()`, `GetShapeRect()`, `RefreshGrid()`, `SetCellSize()`, `ToggleDebugLines()`
+
 </modifications>
 
 <directives>
@@ -122,6 +136,23 @@ Physics Layer: FollowMouseUIComponent (mouse tracking via Power Switch)
 - MUST mark with `[GlobalClass]` for editor visibility.
 - MUST use `Godot.Collections.Array<T>` for exported arrays (better editor support).
 - MUST provide default values for all exported properties.
+
+**Coordinate Conversion:**
+- MUST use `globalPos - GlobalPosition` for global-to-local conversion (Control has no ToLocal method).
+- MUST use `Mathf.FloorToInt()` for pixel-to-grid conversion (truncate towards negative infinity).
+- MUST clamp grid coordinates to valid range [0, Width) x [0, Height).
+- MUST multiply by CellSize for grid-to-pixel conversion.
+
+**UI Sizing:**
+- MUST set both `CustomMinimumSize` and `Size` in `_Ready()`.
+- MUST calculate total size as `Width * CellSize.X` and `Height * CellSize.Y`.
+- MUST call `RefreshGrid()` after changing CellSize or LogicGrid dimensions.
+
+**Grid Visualization:**
+- MUST use `DrawLine()` in `_Draw()` for grid lines.
+- MUST draw (Width+1) vertical lines and (Height+1) horizontal lines.
+- MUST call `QueueRedraw()` after property changes affecting visualization.
+- MUST respect `DrawDebugLines` flag before drawing.
 
 **Documentation:**
 - MUST include 3-part structure for complex logic: 目的 → 示例 → 算法.

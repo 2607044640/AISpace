@@ -3,21 +3,13 @@ inclusion: always
 ---
 <instructions>
   <initialization>
-    Read `#KiroWorkingSpace/ConversationReset.md` for protocol.
+    Read `#KiroWorkingSpace/.kiro/steering/ConversationReset.md` for protocol.
     Read project's `docLastConversationState.md` and `ProjectRules.md` to restore context.
   </initialization>
 
   <execution_protocol>
-    <epistemic_validation>
-      Call `mcp_sequential_thinking_sequentialthinking` on EVERY request (multiple times if user explicitly asks to "think").
-      During sequential thinking, strictly execute these steps before any action:
-      1. Knowledge Inventory: List explicit, known facts regarding the request.
-      2. Blind Spot Identification: Pinpoint missing, unfamiliar, or uncertain concepts.
-      3. Confidence Scoring: Assign a score (1-10).
-      4. Search Trigger: If Confidence < 7 OR core concepts are identified as blind spots, NEVER guess. You MUST use web search or documentation lookup tools to retrieve missing facts before proceeding.
-      5. Execution: If Confidence >= 7 (or after successful search), proceed with actions.
-    </epistemic_validation>
-    
+    Call `mcp_sequential_thinking_sequentialthinking` on EVERY request (multiple times if user explicitly asks to "think").
+     
     Execute actions immediately: read files, run commands, make changes.
     Implement incrementally and verify each step.
     
@@ -28,23 +20,11 @@ inclusion: always
     Use `.kiro/Scratchpad/` exclusively for your internal state tracking, complex task checklists, and cross-session bug logs.
     DO NOT summarize, narrate, or explain these file updates to the user unless explicitly asked.
     Save permanent docs, steering files, and specs outside the Scratchpad.
-    Store ALL architecture rules, steering files, and instructions exclusively in `KiroWorkingSpace/.kiro/`.
+    
+    Project structure:
+    - Architecture rules, scripts, and steering files: `KiroWorkingSpace/.kiro/`
+    - Godot project code: `3d-practice/`
   </workspace_management>
-
-  <scene_management>
-    <ui_workflow_best_practices>
-      ✓ Use AI to build entire initial UI layout (UIBuilder generator)
-      ✕ Use AI to modify small details (wastes time, inaccurate)
-      ✓ User manually modifies small details in Godot editor
-      ✓ Use AI to batch-modify multiple properties (TscnEditor)
-    </ui_workflow_best_practices>
-    
-    Generate UI scenes: Use `.kiro/scripts/ui_builder/generators/godot_ui_builder.py` (see `#GodotUIBuilder.md`).
-    Generate StateChart scenes: Use `.kiro/scripts/statechart_builder/godot_statechart_builder.py` (see `#GodotStateChartBuilder.md`).
-    
-    Batch-modify existing scenes: Use TscnEditor (`.kiro/scripts/ui_builder/tscn_editor_tools/`).
-    NEVER use AI for single-property tweaks - user edits directly in Godot.
-  </scene_management>
 
   <development_workflow>
     <mandatory_compilation>
@@ -56,7 +36,7 @@ inclusion: always
       Note: dotnet build auto-detects .sln file in current directory.
     </mandatory_compilation>
     
-    Logs: Check Godot Output tab or `$env:APPDATA\Godot\app_userdata\ProjectName\logs\godot.log`
+    Logs: Check Godot Output tab or `$env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log`
   </development_workflow>
   
   <documentation_standards>
@@ -71,41 +51,11 @@ inclusion: always
       - NEVER include textbook math proofs, API tutorials, or general programming concepts.
       - Delete ruthlessly: if an explanation applies to programming in general rather than this specific feature, REMOVE it.
     </anti_noise_constraints>
-
-    <examples>
-      <example>
-        <description>Complex logic function (Standard abstract 3-part template).</description>
-        <good>
-        /// <summary>
-        /// 功能名称
-        /// 目的：解决XX问题，确保XX
-        /// 示例：输入 A 得到 B
-        /// 算法：1. 获取X -> 2. 计算Y -> 3. 返回Z
-        /// </summary>
-        </good>
-      </example>
-      
-      <example>
-        <description>Simple or trivial functions (Flexible formatting or completely omitted).</description>
-        <good>
-        // Options: Omit entirely, write a simple inline comment, or use a 1-line summary.
-        /// <summary>单句描述即可，或者完全不写。</summary>
-        </good>
-      </example>
-    </examples>
   </documentation_standards>
 
-  <testing>
-    Capture detailed game state: 
-    `python .kiro/scripts/testing/detailed_game_state.py`
-    
-    Run comprehensive tests: 
-    `python .kiro/scripts/testing/comprehensive_test.py`
-  </testing>
-
   <mcp_tools>
-    Project tools: `get_godot_version`, `list_projects`, `get_project_info`, `launch_editor`, `run_project`, `stop_project`, `get_debug_output`
-    Scene tools: `create_scene`, `add_node`, `save_scene`, `load_sprite`
-    Advanced tools: `export_mesh_library` (requires MeshInstance3D), `get_uid`, `update_project_uids`
+    Project tools: `mcp_godot_get_godot_version`, `mcp_godot_list_projects`, `mcp_godot_get_project_info`, `mcp_godot_launch_editor`, `mcp_godot_run_project`, `mcp_godot_stop_project`, `mcp_godot_get_debug_output`
+    Scene tools: `mcp_godot_create_scene`, `mcp_godot_add_node`, `mcp_godot_save_scene`, `mcp_godot_load_sprite`
+    Advanced tools: `mcp_godot_export_mesh_library` (requires MeshInstance3D), `mcp_godot_get_uid`, `mcp_godot_update_project_uids`
   </mcp_tools>
 </instructions>
