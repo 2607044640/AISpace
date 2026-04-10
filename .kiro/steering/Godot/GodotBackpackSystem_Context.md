@@ -1,7 +1,7 @@
 ---
 inclusion: manual
 ---
-
+  
 <context>
 Grid-based inventory system with drag-and-drop, rotation, StateChart integration, and Backpack Battles-style synergy system. Supports arbitrary item shapes (Tetris-like) with reactive event streams (R3), MVC architecture, and UI micro-interactions.
 </context>

@@ -1,4 +1,7 @@
-# Kiro Ignore File - Exclude unnecessary files from indexing
+# =========================================================
+# AI Context Filter - KiroWorkingSpace
+# Purpose: Exclude noise files from AI context while keeping Git tracking intact
+# =========================================================
 
 # Version control
 .git/
@@ -12,3 +15,23 @@ TODO addons/
 *.fbx
 *.blend
 *.blend1
+
+# =========================================================
+# AI-Specific Noise Reduction
+# =========================================================
+
+# Godot UID files
+*.uid
+
+# Media files AI cannot parse
+*.svg
+*.gif
+*.unitypackage
+
+# Native binaries
+*.so
+*.dll
+*.dylib
+*.framework/
+*.xcframework/
+*.a
