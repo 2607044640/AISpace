@@ -1,61 +1,97 @@
----
-inclusion: always
----
-<instructions>
-  <initialization>
-    Read `#KiroWorkingSpace/.kiro/steering/ConversationReset.md` for protocol.
-    Read project's `docLastConversationState.md` and `ProjectRules.md` to restore context.
-  </initialization>
+<layer_1_quick_start>
+  <quick_reference>
+    - Compilation Command: `dotnet build` (Execution directory: `3d-practice/`)
+    - Godot Log Path: `$env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log`
+    - Architecture & Steering Path: `KiroWorkingSpace/.kiro/`
+    - Project Code Path: `3d-practice/`
+    - Internal State Tracking: `KiroWorkingSpace/.kiro/Scratchpad/`
+  </quick_reference>
 
-  <execution_protocol>
-    Call `mcp_sequential_thinking_sequentialthinking` on EVERY request (multiple times if user explicitly asks to "think").
-     
-    Execute actions immediately: read files, run commands, make changes.
-    Implement incrementally and verify each step.
-    
-    Never blindly accept assumptions. Apply critical thinking throughout: Verify assumptions before implementing. Check existing code. Question initial solutions. If analysis shows a significantly better approach, briefly explain why and PROPOSE it, but DO NOT pivot away from my explicitly requested architecture/method unless I approve.
-  </execution_protocol>
+  <quickstart_workflow>
+    1. Read `ConversationReset.md`, `docLastConversationState.md`, and `ProjectRules.md` to establish context.
+    2. Execute `mcp_sequential_thinking_sequentialthinking` on every request.
+    3. Verify assumptions and existing code state.
+    4. Execute implementation incrementally (read files, run commands, make changes).
+    5. Run `dotnet build` immediately after any C# modifications.
+    6. Update internal state, checklists, and bug logs in `.kiro/Scratchpad/` silently.
+  </quickstart_workflow>
 
-  <workspace_management>
-    Use `.kiro/Scratchpad/` exclusively for your internal state tracking, complex task checklists, and cross-session bug logs.
-    DO NOT summarize, narrate, or explain these file updates to the user unless explicitly asked.
-    Save permanent docs, steering files, and specs outside the Scratchpad.
-    
-    Project structure:
-    - Architecture rules, scripts, and steering files: `KiroWorkingSpace/.kiro/`
-    - Godot project code: `3d-practice/`
-  </workspace_management>
+  <decision_tree>
+    * Is the function trivial (lifecycle hooks, simple getters)? -> Omit documentation entirely. (Why: Prevents noise and wasted lines explaining self-evident code.)
+    * Is the function simple? -> Use single-sentence summary or inline comments. (Why: Maintains flexibility without forcing rigid structures.)
+    * Is the function complex or logic-heavy? -> Apply mandatory 3-part structure (目的/Purpose, 示例/Example, 算法/Algorithm). (Why: Ensures logic execution steps map strictly 1:1 to code.)
+    * Does analysis show a significantly better architectural approach? -> Propose approach but wait for user approval before pivoting. (Why: Prevents unauthorized deviations from explicitly requested architecture.)
+  </decision_tree>
 
-  <development_workflow>
-    <mandatory_compilation>
-      ALWAYS compile after writing ANY C# code.
-      ALWAYS compile when verification is needed during development.
-      NEVER skip compilation checks - catch errors immediately.
-      
-      Command: `dotnet build` (run in 3d-practice directory)
-      Note: dotnet build auto-detects .sln file in current directory.
-    </mandatory_compilation>
-    
-    Logs: Check Godot Output tab or `$env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log`
-  </development_workflow>
-  
-  <documentation_standards>
-    - **Trivial Functions** (e.g., Godot lifecycle hooks like `_ExitTree`, `_PhysicsProcess`, simple getters/setters): Omit documentation entirely. DO NOT waste lines explaining the obvious.
-    - **Simple Functions**: Highly flexible. Write a single-sentence `<summary>`, use inline comments inside the function, or write nothing at all if self-evident. DO NOT force the 3-part structure.
-    - **Complex/Logic-Heavy Functions**: MUST follow this strict 3-part structure (Order: Purpose -> Example -> Algorithm):
-      1. **目的 (Purpose):** State WHAT the function does in the exact context of this project/game.
-      2. **示例 (Example):** Provide a concrete scenario (Input -> Output or State Change).
-      3. **算法 (Algorithm):** List the logical execution steps that map strictly 1:1 to the code blocks below it.
-    
-    <anti_noise_constraints>
-      - NEVER include textbook math proofs, API tutorials, or general programming concepts.
-      - Delete ruthlessly: if an explanation applies to programming in general rather than this specific feature, REMOVE it.
-    </anti_noise_constraints>
-  </documentation_standards>
+  <top_anti_patterns>
+    * Skipping `dotnet build` after C# edits. (Why: Fails to catch errors immediately during development.)
+    * Summarizing or narrating `.kiro/Scratchpad/` updates to the user. (Why: Pollutes conversation output with internal tracking data.)
+    * Documenting general programming concepts or textbook math. (Why: Violates strict anti-noise constraints; documentation must strictly apply to the specific project/game.)
+  </top_anti_patterns>
+</layer_1_quick_start>
 
-  <mcp_tools>
-    Project tools: `mcp_godot_get_godot_version`, `mcp_godot_list_projects`, `mcp_godot_get_project_info`, `mcp_godot_launch_editor`, `mcp_godot_run_project`, `mcp_godot_stop_project`, `mcp_godot_get_debug_output`
-    Scene tools: `mcp_godot_create_scene`, `mcp_godot_add_node`, `mcp_godot_save_scene`, `mcp_godot_load_sprite`
-    Advanced tools: `mcp_godot_export_mesh_library` (requires MeshInstance3D), `mcp_godot_get_uid`, `mcp_godot_update_project_uids`
-  </mcp_tools>
-</instructions>
+<layer_2_detailed_guide>
+  <api_reference>
+    - `mcp_sequential_thinking_sequentialthinking`
+    - `mcp_godot_get_godot_version`
+    - `mcp_godot_list_projects`
+    - `mcp_godot_get_project_info`
+    - `mcp_godot_launch_editor`
+    - `mcp_godot_run_project`
+    - `mcp_godot_stop_project`
+    - `mcp_godot_get_debug_output`
+    - `mcp_godot_create_scene`
+    - `mcp_godot_add_node`
+    - `mcp_godot_save_scene`
+    - `mcp_godot_load_sprite`
+    - `mcp_godot_export_mesh_library` (Requires: MeshInstance3D)
+    - `mcp_godot_get_uid`
+    - `mcp_godot_update_project_uids`
+  </api_reference>
+
+  <core_rules>
+    <rule>
+      <description>Call mcp_sequential_thinking_sequentialthinking on EVERY request.</description>
+      <rationale>Ensures structured analysis prior to any action execution, verifying assumptions before implementation.</rationale>
+    </rule>
+    <rule>
+      <description>Store ALL rules, steering files, and architecture documents exclusively in KiroWorkingSpace/.kiro/.</description>
+      <rationale>Maintains strict separation between system/instruction files and the Godot project source code.</rationale>
+    </rule>
+    <rule>
+      <description>Execute dotnet build from the 3d-practice/ directory after writing ANY C# code or when verification is needed.</description>
+      <rationale>Catches C# compilation errors immediately; relies on auto-detection of the .sln file in the directory.</rationale>
+    </rule>
+    <rule>
+      <description>Use .kiro/Scratchpad/ exclusively for internal state tracking, complex task checklists, and cross-session bug logs.</description>
+      <rationale>Isolates working memory from permanent documentation and prevents conversational bloat.</rationale>
+    </rule>
+    <rule>
+      <description>Enforce the 3-part documentation structure (目的, 示例, 算法) exclusively on complex/logic-heavy functions.</description>
+      <rationale>Standardizes complex logic explanation while preventing documentation bloat on simple or trivial functions.</rationale>
+    </rule>
+  </core_rules>
+</layer_2_detailed_guide>
+
+<layer_3_advanced>
+  <troubleshooting>
+    <error symptom="Unexpected Godot runtime behavior or unhandled exceptions during execution.">
+      <cause>Silenced runtime errors or logic bugs not caught by dotnet build compilation.</cause>
+      <fix>Check Godot Output tab or parse $env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log for raw engine logs.</fix>
+    </error>
+    <error symptom="Implementation fails to integrate properly with existing systems or violates user architecture.">
+      <cause>Blindly accepting assumptions or pivoting architecture without explicit user approval.</cause>
+      <fix>Re-read docLastConversationState.md, execute sequential thinking, and request authorization before altering architecture.</fix>
+    </error>
+    <error symptom="mcp_godot_export_mesh_library execution failure.">
+      <cause>Missing required node type in the target scene.</cause>
+      <fix>Ensure the target node is specifically a MeshInstance3D before invoking the export tool.</fix>
+    </error>
+  </troubleshooting>
+
+  <best_practices>
+    - Delete documentation ruthlessly if the explanation applies to programming in general rather than the specific feature.
+    - Implement functionality incrementally and verify each individual step.
+    - Save permanent documentation, steering files, and specifications strictly outside of the Scratchpad directory.
+  </best_practices>
+</layer_3_advanced>

@@ -2,92 +2,121 @@
 inclusion: manual
 ---
 
-# Godot Stateless State Machine Guide
+<layer_1_quick_start>
+  <quick_reference>
+    - **Installation Target**: `dotnet add package Stateless`
+    - **Compatibility**: Version 5.x+ (.NET Standard 2.0, Godot 4.x compatible)
+    - **Visualization Command**: `UmlDotGraph.Format(_machine.GetInfo())`
+  </quick_reference>
 
-<critical_decision_criteria>
+  <decision_tree>
+    - **IF** component is Control Layer (e.g., MovementComponent) **AND** has 8+ states **AND** relies on event-driven inputs -> **USE Stateless** (Why: Handles complex architectural flow and multiple component reactions securely).
+    - **IF** logic uses simple threshold checks (`value > threshold`) -> **NEVER use Stateless** (Why: Over-engineers logic and adds per-frame overhead for zero benefit).
+    - **IF** component is Display/Presentation Layer (e.g., AnimationConfig, UI) -> **NEVER use Stateless** (Why: View layer must react to state, not manage it).
+  </decision_tree>
 
-## When to Use Stateless
+  <end_to_end_example>
+    <code><![CDATA[
+// Initialize event-driven state machine
+private StateMachine<State, Trigger> _machine;
 
-Use Stateless ONLY when ALL conditions are met:
-- Complex state flow (8+ states with intricate transitions)
-- Event-driven architecture (input events, not continuous polling)
-- Need state flow visualization or compile-time safety
-- Multiple components react to state changes
+public override void OnEntityReady()
+{
+    _machine = new StateMachine<State, Trigger>(State.Idle);
+    
+    _machine.Configure(State.Idle)
+        .Permit(Trigger.StartMove, State.Walking);
 
-## When NOT to Use Stateless
-
-Do NOT use Stateless for:
-- Simple threshold checks (velocity > sprintSpeed)
-- Animation selection based on current values
-- Display/presentation layers (AnimationConfig, UI)
-- Any logic that polls values every frame
-
-**Rule:** If your logic checks `if (value > threshold)` every frame, use simple if/else instead.
-
-</critical_decision_criteria>
-
-<architectural_placement>
-
-## Correct Location: Control Layer
-
-Place state machines in components that CONTROL behavior:
-- MovementComponent (controls speed, physics)
-- PlayerController (handles input, coordinates actions)
-- AIController (decides enemy behavior)
-
-## Incorrect Location: Display Layer
-
-NEVER place state machines in components that DISPLAY state:
-- AnimationConfig (selects animations based on velocity)
-- UI components (show current state)
-- Audio components (play sounds based on events)
-
-**Principle:** State machines belong where decisions are made, not where results are shown.
-
-</architectural_placement>
-
-<core_concepts>
-
-## Event-Driven vs Polling
-
-### Event-Driven (Correct)
-
-```csharp
-// Input event triggers state change
-_inputComponent.OnSprintPressed += () => _stateMachine.Fire(Trigger.StartSprint);
-
-// State change directly controls behavior
-_stateMachine.Configure(State.Sprinting)
-    .OnEntry(() => {
-        Speed = 10.0f;              // Set speed
-        PlayAnimation("Sprint");     // Command animation
-    });
-```
-
-**Flow:** Input Event → State Change → Behavior Changes
-
-### Polling (Incorrect)
-
-```csharp
-// ❌ WRONG: Checking value every frame
-void Update() {
-    if (speed > sprintThreshold) {
-        _stateMachine.Fire(Trigger.StartSprint);  // Backwards logic
-    }
+    // Bind strictly to events; NEVER poll in _PhysicsProcess
+    _inputComponent.OnMovePressed += () => {
+        if (_machine.CanFire(Trigger.StartMove)) 
+            _machine.Fire(Trigger.StartMove);
+    };
 }
-```
+    ]]></code>
+  </end_to_end_example>
 
-**Problem:** This is just if/else with extra steps. No benefit over simple conditionals.
+  <top_anti_patterns>
+    <rule>
+      <description>NEVER poll values every frame to trigger state changes.</description>
+      <rationale>Introduces backwards logic, destroys the benefits of event-driven architecture, and adds unnecessary per-frame overhead.</rationale>
+      <example>
+        <![CDATA[
+// INCORRECT (Polling)
+void Update() {
+    if (speed > sprintThreshold) _machine.Fire(Trigger.StartSprint); 
+}
 
-</core_concepts>
+// CORRECT (Event-Driven)
+_inputComponent.OnSprintPressed += () => _machine.Fire(Trigger.StartSprint);
+        ]]>
+      </example>
+    </rule>
+    <rule>
+      <description>NEVER implement state machines in Display Layer components (e.g., AnimationConfig).</description>
+      <rationale>Violates separation of concerns. State machines belong where logic decisions are made, not where the result is drawn.</rationale>
+      <example>
+        <![CDATA[
+// INCORRECT (In AnimationConfig)
+if (speed > SprintThreshold) _machine.Fire(Trigger.StartSprint);
 
-<integration_with_component_architecture>
+// CORRECT (In AnimationConfig - Simple If/Else)
+if (speed > SprintThreshold) return ("Sprint", 1.0f);
+        ]]>
+      </example>
+    </rule>
+    <rule>
+      <description>NEVER utilize Stateless for simple binary states or low-complexity behavior.</description>
+      <rationale>Writing 80 lines of boilerplate for 3 states wastes ~200 bytes of memory and severely damages readability compared to a 10-line boolean method.</rationale>
+      <example>
+        <![CDATA[
+// INCORRECT
+_machine = new StateMachine<DoorState, DoorTrigger>(DoorState.Closed);
+_machine.Configure(DoorState.Closed).Permit(DoorTrigger.Open, DoorState.Opening); // ...60 more lines
 
-## Component-Based Implementation
+// CORRECT
+_isOpen = !_isOpen;
+PlayAnimation(_isOpen ? "Open" : "Close");
+        ]]>
+      </example>
+    </rule>
+  </top_anti_patterns>
+</layer_1_quick_start>
 
-Stateless integrates with the project's component architecture:
+<layer_2_detailed_guide>
+  <api_reference>
+    - `StateMachine<TState, TTrigger>(TState initialState)`: Instantiates a new state machine.
+    - `Configure(TState state)`: Begins configuration for the specified state.
+    - `OnEntry(Action action)`: Executes lambda/method upon entering the state.
+    - `OnExit(Action action)`: Executes lambda/method upon exiting the state.
+    - `Permit(TTrigger trigger, TState destinationState)`: Defines an unconditional transition.
+    - `PermitIf(TTrigger trigger, TState destinationState, Func<bool> guard)`: Defines a conditional transition.
+    - `Ignore(TTrigger trigger)`: Silently ignores the trigger in the configured state.
+    - `PermitReentry(TTrigger trigger)`: Allows self-transition, triggering both OnExit and OnEntry.
+    - `CanFire(TTrigger trigger)`: Returns a boolean confirming if the trigger is currently valid.
+    - `Fire(TTrigger trigger)`: Executes the transition.
+    - `Fire(TTrigger trigger, TParameter param)`: Executes transition with passed parameters.
+    - `SubstateOf(TState parentState)`: Maps hierarchical state relationships.
+    - `State`: Property returning the machine's current state.
+  </api_reference>
 
-```csharp
+  <implementation_guide>
+    1. **Define Enums**: Create strict `State` and `Trigger` enumerations representing component behaviors.
+    2. **Instantiate**: Create the `StateMachine<State, Trigger>` instance inside `InitializeStateMachine()` using a default starting state.
+    3. **Configure Graph**: Map states using `.Configure()`, dictate flow with `.Permit()`, and assign isolated behavior parameters via `.OnEntry()`.
+    4. **Bind System Events**: Subscribe to input or external system events during `OnEntityReady()` to act as discrete `.Fire()` triggers. Validate with `.CanFire()` before execution.
+    5. **Apply Logic**: Consume the updated variables (e.g., `_currentSpeed`) directly inside `_PhysicsProcess()` without utilizing internal conditional chains.
+  </implementation_guide>
+
+  <technical_specifications>
+    - **Memory Allocation**: ~200 bytes per `StateMachine` instance.
+    - **Performance Overhead (Event-Driven)**: 0 per-frame comparisons (Cost is relegated strictly to trigger events).
+    - **Performance Overhead (Polling Pattern)**: 8+ comparisons plus state validity checks per frame (PROHIBITED).
+  </technical_specifications>
+
+  <code_templates>
+    <template name="ControlLayerMovementStateMachine">
+      <code><![CDATA[
 [GlobalClass]
 [Component(typeof(CharacterBody3D))]
 public partial class GroundMovementComponent : Node
@@ -162,7 +191,7 @@ public partial class GroundMovementComponent : Node
     
     public override void _PhysicsProcess(double delta)
     {
-        // No if/else chains - just apply state-controlled speed
+        // Zero if/else chains - rely purely on state-controlled variables
         Vector3 velocity = parent.Velocity;
         Vector3 direction = CalculateDirection();
         
@@ -179,7 +208,6 @@ public partial class GroundMovementComponent : Node
         _inputComponent.OnSprintReleased -= HandleSprintReleased;
     }
     
-    // Event for animation component to subscribe
     public event Action<string> OnAnimationRequested;
     
     private void EmitAnimationCommand(string animName)
@@ -187,269 +215,60 @@ public partial class GroundMovementComponent : Node
         OnAnimationRequested?.Invoke(animName);
     }
 }
-```
+      ]]></code>
+    </template>
+  </code_templates>
 
-**Key Points:**
-- State machine in MovementComponent (control layer)
-- Triggered by input events, not velocity checks
-- Directly controls speed via `_currentSpeed`
-- Emits events for AnimationComponent to subscribe
-- Follows "Call Down, Signal Up" pattern
+  <core_rules>
+    <rule>
+      <description>ALWAYS place state machines strictly in components that control system behavior (MovementComponent, AIController).</description>
+      <rationale>Maintains pure MVC-style component separation. Decisions dictate state, rendering visually reflects state.</rationale>
+      <example>
+        <![CDATA[
+// CORRECT 
+public class PlayerController : Node { private StateMachine _machine; }
 
-</integration_with_component_architecture>
+// INCORRECT
+public class UIHealthBar : Node { private StateMachine _machine; }
+        ]]>
+      </example>
+    </rule>
+  </core_rules>
+</layer_2_detailed_guide>
 
-<api_reference>
+<layer_3_advanced>
+  <troubleshooting>
+    <error symptom="High frame-time spikes or unintended rapid state switching in _PhysicsProcess.">
+      <cause>Implementation is manually checking input values or velocity variables every frame to fire triggers (Polling).</cause>
+      <fix>Eradicate `_machine.Fire()` from `_PhysicsProcess()`. Bind firing events strictly to explicit state changes emitted by Input Components or external signals.</fix>
+    </error>
+    <error symptom="InvalidOperationException during state machine execution.">
+      <cause>Attempted to fire a trigger that lacks a `.Permit()` mapping from the currently active state.</cause>
+      <fix>Wrap all trigger execution calls in the guard clause: `if (_machine.CanFire(Trigger.Event)) { _machine.Fire(Trigger.Event); }`.</fix>
+    </error>
+  </troubleshooting>
 
-## StateMachine Configuration
-
-```csharp
-var machine = new StateMachine<TState, TTrigger>(initialState);
-
-machine.Configure(State.Idle)
-    .OnEntry(() => { /* Execute on enter */ })
-    .OnExit(() => { /* Execute on exit */ })
-    .Permit(Trigger.Start, State.Running)           // Allow transition
-    .PermitIf(Trigger.Jump, State.Jumping, () => isGrounded)  // Conditional
-    .Ignore(Trigger.Attack)                         // Ignore trigger
-    .PermitReentry(Trigger.Reset);                  // Allow self-transition
-```
-
-## Firing Triggers
-
-```csharp
-// Check if trigger is valid
-if (machine.CanFire(Trigger.Start))
-    machine.Fire(Trigger.Start);
-
-// Fire with parameter
-machine.Fire(triggerWithParam, paramValue);
-
-// Get current state
-var currentState = machine.State;
-```
-
-## Hierarchical States
-
-```csharp
-machine.Configure(State.Alive)
-    .SubstateOf(State.Playing)
-    .Permit(Trigger.Die, State.Dead);
-
-machine.Configure(State.Dead)
-    .SubstateOf(State.Playing)
-    .OnEntry(() => PlayDeathAnimation());
-```
-
-</api_reference>
-
-<anti_patterns>
-
-## Anti-Pattern 1: Polling in Display Layer
-
-❌ **Wrong:**
-```csharp
-// In AnimationConfig
-private (string, float) GetGroundAnimation(Vector3 velocity)
-{
-    float speed = velocity.Length();
-    
-    // Polling velocity every frame
-    if (speed > SprintThreshold)
-        _machine.Fire(Trigger.StartSprint);  // Backwards!
-    
-    return _machine.State switch {
-        State.Sprinting => ("Sprint", 1.0f),
-        State.Running => ("Run", 1.0f),
-        _ => ("Idle", 1.0f)
-    };
-}
-```
-
-**Problems:**
-- Checks velocity every frame (polling)
-- State machine in wrong layer (display, not control)
-- More complex than simple if/else
-- No benefit over original code
-
-✅ **Correct:**
-```csharp
-// In AnimationConfig - Simple if/else
-private (string, float) GetGroundAnimation(Vector3 velocity)
-{
-    float speed = velocity.Length();
-    
-    if (speed > SprintThreshold) return ("Sprint", 1.0f);
-    if (speed > MoveThreshold) return ("Run", 1.0f);
-    return ("Idle", 1.0f);
-}
-```
-
-**Benefits:**
-- Clear and concise
-- No unnecessary abstraction
-- Appropriate for simple threshold checks
-
-## Anti-Pattern 2: State Machine Without Events
-
-❌ **Wrong:**
-```csharp
-public override void _PhysicsProcess(double delta)
-{
-    // Checking conditions every frame
-    if (Input.IsActionPressed("sprint") && _machine.CanFire(Trigger.Sprint))
-        _machine.Fire(Trigger.Sprint);
-    
-    if (!Input.IsActionPressed("sprint") && _machine.CanFire(Trigger.Walk))
-        _machine.Fire(Trigger.Walk);
-}
-```
-
-**Problem:** Polling input every frame defeats the purpose of event-driven state machine.
-
-✅ **Correct:**
-```csharp
-public override void OnEntityReady()
-{
-    // Subscribe to input events
-    _inputComponent.OnSprintPressed += () => {
-        if (_machine.CanFire(Trigger.Sprint))
-            _machine.Fire(Trigger.Sprint);
-    };
-    
-    _inputComponent.OnSprintReleased += () => {
-        if (_machine.CanFire(Trigger.Walk))
-            _machine.Fire(Trigger.Walk);
-    };
-}
-```
-
-**Benefits:**
-- Event-driven (fires only when input changes)
-- No per-frame overhead
-- Clear separation of concerns
-
-## Anti-Pattern 3: Over-Engineering Simple Logic
-
-❌ **Wrong:**
-```csharp
-// 80 lines of state machine for 3 states
-private enum DoorState { Closed, Opening, Open, Closing }
-private enum DoorTrigger { Open, Close, FinishAnimation }
-
-private void InitializeDoorStateMachine() {
-    _machine = new StateMachine<DoorState, DoorTrigger>(DoorState.Closed);
-    _machine.Configure(DoorState.Closed)
-        .Permit(DoorTrigger.Open, DoorState.Opening);
-    // ... 60 more lines
-}
-```
-
-✅ **Correct:**
-```csharp
-// 10 lines of simple logic
-private bool _isOpen = false;
-
-private void ToggleDoor() {
-    _isOpen = !_isOpen;
-    PlayAnimation(_isOpen ? "Open" : "Close");
-}
-```
-
-**Rule:** Use the simplest solution that works. State machines are not always better.
-
-</anti_patterns>
-
-<decision_flowchart>
-
-## Should I Use Stateless?
-
-```
-Start
-  ↓
-Is this a control layer component? (MovementComponent, Controller)
-  ↓ No → Use simple if/else
-  ↓ Yes
-  ↓
-Are there 8+ states with complex transitions?
-  ↓ No → Use simple if/else
-  ↓ Yes
-  ↓
-Can state changes be triggered by discrete events? (not polling)
-  ↓ No → Use simple if/else
-  ↓ Yes
-  ↓
-Do multiple components need to react to state changes?
-  ↓ No → Consider if/else (might be simpler)
-  ↓ Yes
-  ↓
-Use Stateless ✓
-```
-
-**Default Answer:** When in doubt, use simple if/else. You can always refactor later.
-
-</decision_flowchart>
-
-<performance_considerations>
-
-## Overhead Comparison
-
-| Approach | Per-Frame Cost | Memory | Maintainability |
-|----------|----------------|--------|-----------------|
-| Simple if/else | 4 comparisons | 0 bytes | High (for simple logic) |
-| Stateless (correct) | 0 (event-driven) | ~200 bytes | High (for complex logic) |
-| Stateless (polling) | 8+ comparisons + state checks | ~200 bytes | Low (over-engineered) |
-
-**Guideline:** Stateless should REDUCE per-frame overhead by eliminating polling, not increase it.
-
-</performance_considerations>
-
-<visualization>
-
-## State Diagram Generation
-
-Stateless can generate DOT graphs for visualization:
-
-```csharp
+  <best_practices>
+    <rule>
+      <description>ALWAYS adhere to the "Call Down, Signal Up" pattern for triggering visual outputs.</description>
+      <rationale>Ensures strict decoupling. State machines emit signals mapping to their current logic; isolated animation or audio components subscribe to those signals.</rationale>
+      <example>
+        <![CDATA[
+// SIGNAL UP
+public event Action<string> OnAnimationRequested;
+_machine.Configure(State.Idle).OnEntry(() => OnAnimationRequested?.Invoke("Idle"));
+        ]]>
+      </example>
+    </rule>
+    <rule>
+      <description>ALWAYS export and document complex machine logic using the integrated DOT graph utility.</description>
+      <rationale>Ensures precise state flow mapping is preserved for project team members and visually verified via WebGraphViz.</rationale>
+      <example>
+        <![CDATA[
 string dotGraph = UmlDotGraph.Format(_machine.GetInfo());
 System.IO.File.WriteAllText("state_diagram.dot", dotGraph);
-```
-
-Convert to image: http://www.webgraphviz.com
-
-**Use Case:** Document complex state flows for team understanding.
-
-</visualization>
-
-<nuget_package>
-
-## Installation
-
-```bash
-dotnet add package Stateless
-```
-
-**Version:** 5.x+ (supports .NET Standard 2.0, compatible with Godot 4.x)
-
-**Repository:** https://github.com/dotnet-state-machine/stateless
-
-</nuget_package>
-
-<summary>
-
-## Quick Reference
-
-**Use Stateless when:**
-- Complex state flow (8+ states)
-- Event-driven transitions
-- In control layer components
-- Need visualization/compile-time safety
-
-**Use simple if/else when:**
-- Simple threshold checks
-- Display/presentation layers
-- Polling-based logic
-- Fewer than 5 states
-
-**Golden Rule:** Stateless should make code SIMPLER, not more complex. If it adds 200 lines for no benefit, you're using it wrong.
-
-</summary>
+        ]]>
+      </example>
+    </rule>
+  </best_practices>
+</layer_3_advanced>

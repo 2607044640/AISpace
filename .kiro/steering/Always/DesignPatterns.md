@@ -1,92 +1,134 @@
----
-inclusion: always
----
+<layer_1_quick_start>
 
-<GodotDesignPatterns>
+  <quick_reference>
+    - **Package Requirements:** Install `R3` and `R3.Godot` via NuGet.
+    - **Rule Storage:** Save and enforce all architectural rules in `KiroWorkingSpace/.kiro/`.
+    - **Component Parent Access:** Rely on the auto-generated `parent` property.
+    - **Component Dependency Access:** Rely on auto-generated camelCase properties (e.g., `inputComponent`).
+  </quick_reference>
 
-<CoreArchitecture>
-- ENFORCE "Composition over Inheritance". Avoid deep hierarchies.
-- Break entities into single-responsibility Components.
-- Treat Root node ONLY as a Mediator coordinating components.
-</CoreArchitecture>
+  <decision_tree>
+    - If managing high-frequency physics data (e.g., Velocity):
+      - **ALWAYS** use standard properties and poll via `Observable.EveryPhysicsUpdate()`. (Why: `ReactiveProperty<T>` introduces severe allocation overhead on every frame).
+    - If modifying UI from an asynchronous stream:
+      - **ALWAYS** append `.ObserveOn(GodotProvider.MainThread)`. (Why: Godot UI operations are thread-restricted; bypassing causes immediate crashes).
+    - If handling instant button presses or immediate actions:
+      - **ALWAYS** use `.ThrottleFirst(TimeSpan)`. (Why: Prevents double-clicks while acting instantly. **NEVER** use standard `.Throttle()`).
+    - If processing continuous streams linked to I/O or heavy computation (e.g., sliders, resize):
+      - **ALWAYS** use `.Debounce(TimeSpan)`. (Why: Prevents performance locking by waiting for stream settlement).
+  </decision_tree>
 
-<DecouplingRules>
-- Call Down, Signal Up: Parents call child methods. Children emit C# `event/Action` upwards.
-- Isolate Siblings: Components MUST NOT reference each other directly.
-- Inject Dependencies: ALWAYS use `[Export]`, NEVER hardcode `GetNode<T>()`.
-- Extract Magic Values: Hardcode ZERO specific content (e.g., animation names). Expose via `[Export]`.
-</DecouplingRules>
+  <minimal_workflow>
+    1. Declare an Entity using `[Entity]` and call `InitializeEntity()` inside `_Ready()`.
+    2. Create independent Components using `[Component(typeof(ParentType))]` and call `InitializeComponent()` inside `_Ready()`.
+    3. Declare inter-component needs using `[ComponentDependency(typeof(OtherComponent))]`.
+    4. Subscribe to events strictly inside `OnEntityReady()` and map updates to `.AddTo(_disposables)`.
+    5. Clean up by calling `_disposables.Dispose()` strictly inside `_ExitTree()`.
+  </minimal_workflow>
 
-<BehavioralRules>
-- Implement FSMs instead of monolithic `_PhysicsProcess` with endless `if-else`.
-- Decouple logic triggers: e.g., Movement MUST emit `OnJumped`, NEVER call AudioPlayer directly.
-- Add `[GlobalClass]` to core components for cross-project reuse.
-</BehavioralRules>
+  <top_anti_patterns>
+    - Tightly coupling nodes using `GetNode<T>()`. (Why: Creates rigid hierarchies. Dependencies **MUST** be injected via `[Export]`).
+    - Calling sibling component methods directly. (Why: Breaks isolation. Sibling operations **MUST** signal upward via C# `event/Action` to the Mediator).
+    - Stuffing endless `if-else` logic into `_PhysicsProcess`. (Why: Produces unmaintainable spaghetti logic. State **MUST** be managed by Finite State Machines).
+    - Hardcoding magic values or animation names. (Why: Removes designer control. Variables **MUST** be exposed to the editor via `[Export]`).
+    - Subscribing to component events inside `_Ready()`. (Why: Guarantees null-reference exceptions because dependency injection is incomplete. **MUST** use `OnEntityReady()`).
+  </top_anti_patterns>
 
-</GodotDesignPatterns>
+</layer_1_quick_start>
 
-<GodotCompositionRules>
+<layer_2_detailed_guide>
 
-<EntityRules>
-- Declare as `partial class` with `[Entity]` attribute.
-- Call `InitializeEntity()` in `_Ready()`.
-- Contain ZERO business logic.
-</EntityRules>
+  <api_reference>
+    | C# Attributes | Target | Purpose |
+    |---|---|---|
+    | `[Entity]` | Entity Classes | Marks a node as a root Mediator. |
+    | `[Component(typeof(T))]` | Component Classes | Binds a single-responsibility component to a parent entity type. |
+    | `[ComponentDependency(typeof(T))]` | Component Classes | Explicitly requests another component on the same entity. |
+    | `[Export]` | Properties | Exposes node references and magic values to the Godot Inspector. |
+    | `[GlobalClass]` | Core Components | Exposes mechanics to the Godot Editor for cross-project reuse. |
 
-<ComponentRules>
-- Declare as `partial class` with `[Component(typeof(ParentType))]`.
-- Call `InitializeComponent()` in `_Ready()`.
-- Declare dependencies using `[ComponentDependency(typeof(OtherComponent))]`.
-- Subscribe to events strictly in `OnEntityReady()`, NEVER in `_Ready()`.
-- Unsubscribe in `_ExitTree()` to prevent memory leaks.
-</ComponentRules>
+    | R3 Reactive Operators | Input -> Output | Action |
+    |---|---|---|
+    | `Where(predicate)` | `T -> T` | Filters stream payloads based on a condition. |
+    | `CombineLatest` | `IObservable[] -> T[]` | Triggers logic upon multiple stream conditions resolving. |
+    | `Select` | `T -> U` | Transforms a stream payload to a new type. |
+    | `Pairwise()` | `T -> (T prev, T curr)` | Emits the previous and current state simultaneously. |
+    | `Chunk(TimeSpan)` | `T -> T[]` | Batches high-volume stream events. |
+    | `.DistinctUntilChanged()`| `T -> T` | Blocks identical consecutive payloads. |
+    | `.AsUnitObservable()` | `T -> Unit` | Discards payload data when only the trigger timing matters. |
 
-<ComponentCommunication>
-- Access entity via auto-generated `parent` property.
-- Access dependencies via auto-generated camelCase properties (e.g., `inputComponent`).
-- Emit events using `public event Action<T> OnSomething;`.
-- NEVER call sibling component methods directly.
-</ComponentCommunication>
+    | R3.Godot Integration | Source | Target Stream |
+    |---|---|---|
+    | `Observable.EveryUpdate()` | Global | Mapped to Godot `_Process`. |
+    | `Observable.EveryPhysicsUpdate()`| Global | Mapped to Godot `_PhysicsProcess`. |
+    | `.OnPressedAsObservable()` | Button Nodes | Triggers on button click. |
+    | `.OnToggledAsObservable()` | Toggle Nodes | Emits state immediately upon subscription. |
+    | `.OnValueChangedAsObservable()`| Sliders/Inputs | Emits state immediately upon subscription. |
+    | `.OnItemSelectedAsObservable()`| Dropdowns | Emits state immediately upon subscription. |
+  </api_reference>
 
-</GodotCompositionRules>
+  <core_rules>
+    <rule>
+      <description>**ALWAYS** design systems using "Composition over Inheritance".</description>
+      <rationale>Deep class hierarchies become brittle and rigid. Flat, component-based entities scale safely.</rationale>
+    </rule>
+    <rule>
+      <description>Entities **MUST** act exclusively as Mediators and contain ZERO business logic.</description>
+      <rationale>Keeps the root node strictly focused on coordinating C# `event/Action` signals emitted from child components.</rationale>
+    </rule>
+    <rule>
+      <description>**NEVER** allow sibling components to reference each other directly.</description>
+      <rationale>Maintains strict "Call Down, Signal Up" architecture. Component independence prevents cascading failures.</rationale>
+    </rule>
+    <rule>
+      <description>**ALWAYS** instantiate a `CompositeDisposable _disposables = new();` inside EVERY reactive UI or Component class.</description>
+      <rationale>Centralizes tracking of all active event subscriptions to ensure guaranteed teardown.</rationale>
+    </rule>
+    <rule>
+      <description>**ALWAYS** subscribe to events inside `OnEntityReady()` and **NEVER** inside `_Ready()`.</description>
+      <rationale>Ensures all sibling components and dependencies are fully initialized before inter-component communication begins.</rationale>
+    </rule>
+    <rule>
+      <description>**ALWAYS** use `.DistinctUntilChanged()` on two-way bindings and high-frequency UI updates.</description>
+      <rationale>Creates a circular guard that prevents infinite loop cascades and redundant visual redraws.</rationale>
+    </rule>
+    <rule>
+      <description>**ALWAYS** use ValueTuples `(a, b)` instead of anonymous objects `new { a, b }` inside `EveryUpdate` loops.</description>
+      <rationale>Enforces Zero-GC (Garbage Collection) operation by allocating on the stack, preventing frame stuttering.</rationale>
+    </rule>
+  </core_rules>
 
-<ReactiveExtensions>
+</layer_2_detailed_guide>
 
-<Dependencies>
-- Install NuGet packages: `R3` and `R3.Godot`.
-</Dependencies>
+<layer_3_advanced>
 
-<MandatoryRules>
-- **DisposeBag:** Initialize `CompositeDisposable _disposables = new();` in EVERY UI/Component class.
-- **AddTo:** Append `.AddTo(_disposables)` to EVERY `.Subscribe()` chain.
-- **Dispose:** Call `_disposables.Dispose()` strictly inside `_ExitTree()`.
-- **Thread Safety:** ALWAYS chain `.ObserveOn(GodotProvider.MainThread)` after async operations before updating UI.
-- **Input Responsiveness:** ALWAYS use `.ThrottleFirst(TimeSpan)` on buttons/instant actions. NEVER use `.Throttle()`.
-- **High-Cost Operations:** ALWAYS use `.Debounce(TimeSpan)` on high-frequency streams (slider move, resize) linked to I/O or heavy computation.
-- **Circular Guard:** ALWAYS use `.DistinctUntilChanged()` in two-way bindings and high-frequency streams to prevent infinite loops and redundant redraws.
-- **Zero-GC Sampling:** In `EveryUpdate` loops, ALWAYS use ValueTuples `(a, b)` instead of anonymous objects `new { a, b }`.
-</MandatoryRules>
+  <troubleshooting>
+    <error symptom="Memory leaks and degraded performance over time.">
+      <cause>Reactive subscriptions or C# events were not cleanly detached upon node removal, leaving zombie objects in memory.</cause>
+      <fix>**ALWAYS** call `_disposables.Dispose()` strictly inside the `_ExitTree()` override of the component.</fix>
+    </error>
+    <error symptom="Infinite UI loops or massive CPU spikes during state updates.">
+      <cause>A two-way binding or high-frequency data stream is continuously echoing state changes back and forth without a termination condition.</cause>
+      <fix>Insert `.DistinctUntilChanged()` into the subscription chain to aggressively drop duplicate payloads before they trigger logic.</fix>
+    </error>
+    <error symptom="Cross-thread crash or UI freezing exception when using async streams.">
+      <cause>An asynchronous task attempted to manipulate a Godot Node property directly from a background worker thread.</cause>
+      <fix>Append `.ObserveOn(GodotProvider.MainThread)` immediately before the `.Subscribe()` block to force UI execution back to the main thread.</fix>
+    </error>
+    <error symptom="Micro-stutters or frame drops during gameplay (GC Spikes).">
+      <cause>Memory is being dynamically allocated on the heap during an `Observable.EveryUpdate()` or `Observable.EveryPhysicsUpdate()` loop using anonymous objects.</cause>
+      <fix>Strip out anonymous objects (`new { x, y }`) and replace them strictly with struct-based ValueTuples (`(x, y)`).</fix>
+    </error>
+    <error symptom="NullReferenceException thrown during `InitializeComponent()` or `_Ready()`.">
+      <cause>A component attempted to access a dependency or subscribe to a sibling event before the entity's component tree finished loading.</cause>
+      <fix>Move all subscription and communication logic strictly into `OnEntityReady()`.</fix>
+    </error>
+  </troubleshooting>
 
-<CoreMechanics>
-- **Discrete State:** Use `ReactiveProperty<T>`. UI subscribes exactly ONCE for auto-updates.
-- **Physics Data:** NEVER use `ReactiveProperty<T>` for high-frequency physics (e.g., Velocity). Use standard properties and poll via `Observable.EveryUpdate()`.
-- **Loop Mapping:** Map `Observable.EveryUpdate()` to `_Process`. Map `Observable.EveryPhysicsUpdate()` to `_PhysicsProcess`.
-- **Payload Discarding:** Use `.AsUnitObservable()` when only the trigger event matters.
-</CoreMechanics>
+  <best_practices>
+    - **Payload Discarding:** Streamline logic by chaining `.AsUnitObservable()` when the pipeline only needs to know *when* an event happened, not *what* the payload contained.
+    - **State Abstraction:** Use `ReactiveProperty<T>` for discrete, non-continuous state changes so UI elements automatically sync via single-subscription.
+    - **Editor Parity:** Take full advantage of `R3.Godot` extensions like `OnToggledAsObservable()` because they immediately emit current state upon subscription, ensuring UI aligns instantly with backend state.
+  </best_practices>
 
-<GodotExtensions>
-- Prefer `R3.Godot` extensions (e.g., `_button.OnPressedAsObservable()`) over manual event binding.
-- Rely on extensions that emit current state immediately for UI consistency: `OnToggledAsObservable()`, `OnValueChangedAsObservable()`, `OnItemSelectedAsObservable()`.
-</GodotExtensions>
-
-<EssentialOperators>
-| Operator | Use Case |
-|---|---|
-| `Where(predicate)` | Filter events |
-| `CombineLatest` | Multi-condition logic |
-| `Select` | Transform value |
-| `Pairwise()` | Get (previous, current) |
-| `Chunk(TimeSpan)` | Batch events |
-</EssentialOperators>
-
-</ReactiveExtensions>
+</layer_3_advanced>
