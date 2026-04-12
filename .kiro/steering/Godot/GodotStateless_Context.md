@@ -81,6 +81,37 @@ PlayAnimation(_isOpen ? "Open" : "Close");
       </example>
     </rule>
   </top_anti_patterns>
+
+  <decision_flowchart>
+    <![CDATA[
+    Should I Use Stateless?
+    
+    START
+      ↓
+    [Is this a Control Layer component?]
+    (MovementComponent, AIController, PlayerController)
+      ↓ NO  → Use simple if/else
+      ↓ YES
+      ↓
+    [Are there 8+ states with complex transitions?]
+      ↓ NO  → Use simple if/else
+      ↓ YES
+      ↓
+    [Can state changes be triggered by discrete events?]
+    (Input events, signals - NOT polling every frame)
+      ↓ NO  → Use simple if/else
+      ↓ YES
+      ↓
+    [Do multiple components need to react to state changes?]
+      ↓ NO  → Consider if/else (might be simpler)
+      ↓ YES
+      ↓
+    ✓ USE STATELESS
+    
+    Default Rule: When in doubt, use simple if/else.
+                  You can always refactor later.
+    ]]>
+  </decision_flowchart>
 </layer_1_quick_start>
 
 <layer_2_detailed_guide>
@@ -113,6 +144,32 @@ PlayAnimation(_isOpen ? "Open" : "Close");
     - **Performance Overhead (Event-Driven)**: 0 per-frame comparisons (Cost is relegated strictly to trigger events).
     - **Performance Overhead (Polling Pattern)**: 8+ comparisons plus state validity checks per frame (PROHIBITED).
   </technical_specifications>
+
+  <performance_considerations>
+    | Approach | Per-Frame Cost | Memory Overhead | Maintainability | Best Use Case |
+    |----------|----------------|-----------------|-----------------|---------------|
+    | **Simple if/else** | 4 comparisons | 0 bytes | High (for simple logic) | Threshold checks, 2-5 states |
+    | **Stateless (Event-Driven)** | 0 comparisons | ~200 bytes | High (for complex logic) | 8+ states, event-driven flow |
+    | **Stateless (Polling)** ❌ | 8+ comparisons + state checks | ~200 bytes | Low (over-engineered) | NEVER use this pattern |
+
+    **Key Insight:** Stateless should REDUCE per-frame overhead by eliminating polling, not increase it. If you're checking conditions every frame to fire triggers, you're using it wrong.
+
+    **Example Comparison:**
+    ```csharp
+    // Simple if/else: 4 comparisons per frame
+    if (speed > sprintThreshold) return "Sprint";
+    if (speed > walkThreshold) return "Walk";
+    return "Idle";
+
+    // Stateless (Event-Driven): 0 comparisons per frame
+    _inputComponent.OnSprintPressed += () => _machine.Fire(Trigger.Sprint);
+    // State machine sets _currentSpeed once, _PhysicsProcess just applies it
+
+    // Stateless (Polling) ❌: 8+ comparisons per frame
+    if (speed > sprintThreshold && _machine.CanFire(Trigger.Sprint))
+        _machine.Fire(Trigger.Sprint); // WRONG!
+    ```
+  </performance_considerations>
 
   <code_templates>
     <template name="ControlLayerMovementStateMachine">

@@ -2,7 +2,7 @@
   <quick_reference>
     - **Rule/Arch Storage**: `KiroWorkingSpace/.kiro/` (ALL steering/instruction files).
     - **Build Command**: `dotnet build` (Execute from 3d-practice root).
-    - **Log Audit**: `Get-Content "$env:APPDATA\Godot\app_userdata\3dPractice\logs\godot.log" -Tail 50`.
+    - **Log Audit**: `Get-Content "$env:APPDATA\Godot\app_userdata\Tesseract_Backpack\logs\godot.log" -Tail 50`.
   </quick_reference>
 
   <architecture_layers>

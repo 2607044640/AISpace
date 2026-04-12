@@ -9,9 +9,12 @@ Grid-based inventory system with drag-and-drop, rotation, StateChart integration
 <layer_1_quick_start>
   <quick_reference>
     - **Rule Storage:** Store ALL rules in `KiroWorkingSpace/.kiro/`.
-    - **Components Path:** `3d-practice/B1Scripts/Components/`
-    - **Controllers Path:** `3d-practice/B1Scripts/Controllers/`
-    - **Resources Path:** `3d-practice/B1Scripts/Resources/`
+    - **Addon Root:** `3d-practice/addons/A1TetrisBackpack/`
+    - **Core Path:** `3d-practice/addons/A1TetrisBackpack/Core/` (BackpackGridComponent, BackpackInteractionController, BackpackGridUIComponent)
+    - **Items Path:** `3d-practice/addons/A1TetrisBackpack/Items/` (ItemDataResource, GridShapeComponent, AutoShapeBuilderComponent)
+    - **Interaction Path:** `3d-practice/addons/A1TetrisBackpack/Interaction/` (DraggableItemComponent, FollowMouseUIComponent)
+    - **Synergies Path:** `3d-practice/addons/A1TetrisBackpack/Synergies/` (SynergyDataResource, SynergyComponent)
+    - **MicroUI Path:** `3d-practice/addons/A1TetrisBackpack/MicroUI/` (UITweenInteractComponent)
     - **Core Dependencies:** R3 (Cysharp) for reactive streams, GodotStateCharts for state management.
   </quick_reference>
 
