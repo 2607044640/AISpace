@@ -2,6 +2,11 @@
 inclusion: manual
 ---
 ```xml
+<critical_rule>
+  <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+  <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+  <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+</critical_rule>
 <layer_1_quick_start>
   <quick_reference>
     <ul>

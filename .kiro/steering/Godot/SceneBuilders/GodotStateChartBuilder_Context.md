@@ -1,8 +1,16 @@
+---
+inclusion: manual
+---
 <godot_statechart_module_rules>
+  <critical_rule>
+    <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+  </critical_rule>
   <layer_1_quick_start>
     <quick_reference>
       <item>Location: `KiroWorkingSpace/builder/modules/statechart.py`</item>
-      <item>Dependency: MUST read `#Godot_TscnBuilder_Core_Context.md` and requires `godot_state_charts` addon.</item>
+      <item>Dependency: MUST read `#GodotTscnBuilder_Context.md` and requires `godot_state_charts` addon.</item>
       <item>Initialization: `sc = StateChartModule(scene, parent=".")` followed by `sc.add_statechart("StateChart")`.</item>
       <item>Finalization: `sc.resolve_initial_states()` MUST be called before `scene.save()`.</item>
     </quick_reference>

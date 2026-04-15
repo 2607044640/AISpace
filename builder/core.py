@@ -330,7 +330,21 @@ class TscnBuilder:
                     continue
                 
                 if isinstance(value, str):
-                    lines.append(f"{key} = {value}")
+                    # Check if value is already a formatted Godot expression
+                    # (NodePath, ExtResource, Color, Vector2, etc.)
+                    if (value.startswith('NodePath(') or 
+                        value.startswith('ExtResource(') or 
+                        value.startswith('SubResource(') or
+                        value.startswith('Color(') or
+                        value.startswith('Vector2(') or
+                        value.startswith('Vector3(') or
+                        value.startswith('&"')):  # StringName
+                        lines.append(f"{key} = {value}")
+                    else:
+                        # Regular string - needs quotes
+                        lines.append(f'{key} = "{value}"')
+                elif isinstance(value, bool):
+                    lines.append(f"{key} = {str(value).lower()}")
                 elif isinstance(value, (int, float)):
                     lines.append(f"{key} = {value}")
                 else:

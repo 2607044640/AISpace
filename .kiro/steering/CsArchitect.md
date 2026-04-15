@@ -6,7 +6,8 @@ inclusion: manual
   <layer_1_quick_start>
     <quick_reference>
       - **Trigger Context:** Code structure evaluation, refactoring, or tool assessment for Godot C# (.NET).
-      - **Supplementary Data:** Cross-reference `#PluginRecord.md` (Do NOT use as the primary source).
+      - **Supplementary Data:** Cross-reference `#PluginRecommendations.md` - contains ONLY plugins NOT currently used in project.
+      - **Working Memory:** Use `.kiro/Scratchpad/` for code analysis notes and plugin search records.
     </quick_reference>
     <decision_tree>
       - If Godot string-based signals are detected: ALWAYS refactor to C# strongly-typed events. (Why: Lacks compile-time safety, prone to runtime errors).
@@ -31,11 +32,53 @@ inclusion: manual
 
   <layer_2_detailed_guide>
     <implementation_guide>
-      - **Step 1: Diagnose:** Scan the provided C# codebase for tight coupling, SOLID violations, redundant boilerplate, and implicit technical debt.
-      - **Step 2: Deduplicate:** Identify custom implementations of standard patterns (e.g., reinvented state machines, messy async polling) that should be replaced by established libraries.
-      - **Step 3: Discover:** Search extensively via web for C# Godot plugins and NuGet packages. Cross-reference candidates with `#PluginRecord.md`.
-      - **Step 4: Filter:** Reject candidates unless they have >100 GitHub Stars AND an update within the last year (unless deemed feature-complete).
-      - **Step 5: Prescribe & Demonstrate:** Recommend 1-3 verified tools (including links, star counts, update dates, and rationale). Output 100% accurate C# code blocks showing the refactored integration.
+      - **Step 0: Deep Analysis & Record:**
+        - Read extensive codebase sections to identify optimization opportunities, code smells, and architectural issues.
+        - ALWAYS create or update `.kiro/Scratchpad/CodeAnalysis_[YYYYMMDD].md` with detailed findings.
+        - Record: Tight coupling locations, SOLID violations, redundant patterns, performance bottlenecks, reinvented wheels.
+        - Update this file continuously as you discover more issues during code reading.
+        - (Why: Like a detective's notebook - prevents forgetting insights across sessions and builds a comprehensive problem map.)
+      
+      - **Step 1: Diagnose:**
+        - Scan the provided C# codebase for tight coupling, SOLID violations, redundant boilerplate, and implicit technical debt.
+        - Prioritize findings from Step 0 analysis file.
+      
+      - **Step 2: Deduplicate:**
+        - Identify custom implementations of standard patterns (e.g., reinvented state machines, messy async polling) that should be replaced by established libraries.
+      
+      - **Step 3: Web Search & Record:**
+        - Search extensively via web for C# Godot plugins and NuGet packages matching identified pain points.
+        - ALWAYS create or update `.kiro/Scratchpad/PluginSearch_[YYYYMMDD].md` after EACH search or fetch operation.
+        - Record for each candidate: Plugin name, GitHub link, Stars count, Last update date (YYYY-MM), Brief description, Pain point it solves.
+        - Filter during recording: Only document if Stars > 100 AND updated within 1 year (unless deemed feature-complete).
+        - Update search timestamp in the file: "Last searched: YYYY-MM-DD".
+        - (Why: Like a shopping research log - prevents re-searching same things, builds institutional knowledge, tracks evaluation history.)
+      
+      - **Step 3.5: Check Local Registry:**
+        - ALWAYS read `#PluginRecommendations.md` AFTER completing web search.
+        - IMPORTANT: This registry contains ONLY plugins NOT currently used in the project - it's a "wishlist" of vetted alternatives.
+        - Compare new findings with existing registry entries.
+        - Identify: Better alternatives, overlapping solutions, gaps in current registry, outdated entries.
+        - Cross-check: Ensure you're not recommending something inferior to what's already documented.
+        - (Why: Like checking your pantry before grocery shopping - avoids duplication, discovers hidden gems already vetted, prevents recommending inferior alternatives.)
+      
+      - **Step 4: Filter & Evaluate:**
+        - Reject candidates unless they have >100 GitHub Stars AND an update within the last year (unless deemed feature-complete).
+        - Prioritize plugins that directly solve user's stated pain point.
+        - Avoid recommending 2D tools for 3D projects or online services for offline games.
+      
+      - **Step 5: Explain & Demonstrate:**
+        - Use simple, intuitive language with real-world analogies when explaining concepts.
+        - ALWAYS structure each recommendation explanation as:
+          1. **What it does:** One-sentence summary of core functionality.
+          2. **What it helps:** Concrete benefit (extensibility, maintainability, performance, safety).
+          3. **What pain it solves:** Specific problem it eliminates from the codebase.
+        - ALWAYS show code comparison with complete context:
+          - **Before:** Current painful approach (include full method/class if needed for clarity).
+          - **After:** Optimized implementation using recommended library (include necessary `using` directives).
+          - **Highlight:** Point out specific improvements - lines reduced, type safety added, extensibility gained, boilerplate eliminated.
+        - Recommend 1-3 verified tools with links, star counts, update dates, and architectural rationale.
+        - (Why: Like showing before/after renovation photos - makes value immediately obvious and builds confidence in the recommendation.)
     </implementation_guide>
     <code_templates>
       <template name="Godot Native C# Events Migration">
@@ -66,6 +109,18 @@ machine.Configure(State.Idle)
         <rationale>Leveraging `async/await`, delegates, generics, and Source Generators creates idiomatic, performant, and safe C# code.</rationale>
       </rule>
       <rule>
+        <description>ALWAYS create or update `.kiro/Scratchpad/CodeAnalysis_[YYYYMMDD].md` during deep code analysis.</description>
+        <rationale>Preserves architectural insights across sessions. Prevents re-discovering same issues. Builds comprehensive problem documentation.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS create or update `.kiro/Scratchpad/PluginSearch_[YYYYMMDD].md` after web searches or fetches.</description>
+        <rationale>Tracks evaluation history. Prevents redundant searches. Documents why certain plugins were rejected or accepted.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS consult `#PluginRecommendations.md` AFTER web search and BEFORE making final recommendations.</description>
+        <rationale>Leverages existing vetted solutions. Prevents recommending inferior alternatives. Identifies gaps in current registry.</rationale>
+      </rule>
+      <rule>
         <description>ALWAYS recommend lightweight, single-purpose libraries.</description>
         <rationale>Monolithic frameworks introduce unnecessary complexity and dependency bloat.</rationale>
       </rule>
@@ -77,6 +132,10 @@ machine.Configure(State.Idle)
         <description>ALWAYS include necessary `using` directives and exact type casting in refactored C# code blocks.</description>
         <rationale>Maintains 100% technical fidelity for direct copy-paste implementation.</rationale>
       </rule>
+      <rule>
+        <description>ALWAYS explain recommendations using simple language, analogies, and "What/Helps/Solves" structure.</description>
+        <rationale>Makes technical decisions accessible. Builds understanding, not just compliance. Enables informed decision-making.</rationale>
+      </rule>
     </core_rules>
   </layer_2_detailed_guide>
 
@@ -84,6 +143,10 @@ machine.Configure(State.Idle)
     <best_practices>
       - **Library Prescriptions:** When recommending libraries, explicitly state the GitHub Stars, Last Update Date, and architectural rationale to build developer trust.
       - **Modernization:** Actively look to replace any messy async polling with native C# `async/await` patterns tailored for Godot.
+      - **Explanation Style:** Use analogies and real-world comparisons. Example: "State machines are like traffic lights - they control which actions can happen based on current state, preventing cars (code) from crashing into each other."
+      - **Code Comparison Depth:** Show complete before/after context, not just snippets. Include class structure, using directives, and integration points so developers see the full picture.
+      - **Pain Point Focus:** Always tie recommendations back to specific pain points. Don't recommend tools just because they're popular - explain exactly what problem they solve in the user's context.
+      - **Scratchpad Discipline:** Treat `.kiro/Scratchpad/` files as living documents. Update them incrementally as you learn more, don't wait until the end of analysis.
     </best_practices>
   </layer_3_advanced>
 </kiro_rule>

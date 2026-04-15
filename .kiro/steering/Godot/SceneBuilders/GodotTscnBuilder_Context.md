@@ -30,13 +30,13 @@ from builder.modules.ui import UIModule
 # 1. Create scene
 scene = TscnBuilder(root_name="SettingsUI", root_type="Control")
 
-# 2. Build UI
+# 2. Build UI (standard nodes - use descriptive names)
 ui = UIModule(scene)
 ui.setup_fullscreen_control()
 ui.add_button("ApplyButton", parent=".", text="Apply")
 ui.add_progress_bar("VolumeSlider", parent=".", value=80)
 
-# 3. Add C# Controller
+# 3. Add C# Controller (custom script - use class name directly)
 controller_res_id = scene.add_ext_resource(
     resource_type="Script", 
     path="res://B1Scripts/UI/SettingsController.cs", 
@@ -67,11 +67,11 @@ scene.save("SettingsUI.tscn")
   <api_reference>
     - `TscnBuilder(root_name, root_type, scene_uid=None)`: Initializes core scene.
     - `scene.initialize_root(**properties)`: Assigns properties to the root node (e.g., `layout_mode=3`).
-    - `scene.add_node(name, node_type, parent, **properties)`: Injects a generic node. `parent="."` targets the root.
-    - `scene.get_node(name)`: Retrieves a node reference from the internal registry.
+    - `scene.add_node(name, node_type, parent, **properties)`: Injects a generic node. `parent="."` targets the root. **Naming convention:** For nodes with custom C# scripts, use the script class name directly (e.g., "BackpackGridComponent", "SettingsController"). For standard UI nodes (Label, VBox, ColorRect, Button, etc.), use descriptive names.
+    - `scene.get_node(name)`: Retrieves a node reference from the internal registry using the full node name.
     - `scene.add_ext_resource(resource_type, path, uid, resource_id=None)`: Registers external dependencies, deduplicating automatically. Returns resource ID.
     - `scene.add_sub_resource(resource_type, resource_id, **properties)`: Registers inline resources (e.g., Shapes, Materials).
-    - `scene.assign_node_path(target_node_name, property_name, path_to_node_name)`: Calculates relative NodePath and injects as an `[Export]` property assignment.
+    - `scene.assign_node_path(target_node_name, property_name, path_to_node_name)`: Calculates relative NodePath and injects as an `[Export]` property assignment. Use full node names.
     - `scene.assign_multiple_node_paths(target_node_name, dict_mapping)`: Batch processes NodePath assignments.
     - `scene.generate_tree_view()`: Returns ASCII tree representation for CLI inspection/validation.
     - `scene.save(filepath)`: Writes the formatted `.tscn` file to disk.
@@ -86,6 +86,12 @@ scene.save("SettingsUI.tscn")
     - **Step 3:** Inject any backing C# logic controllers as nodes using `add_ext_resource` and `add_node`.
     - **Step 4:** Perform dependency injection by mapping UI nodes to C# `[Export]` properties using `assign_multiple_node_paths()`.
     - **Step 5:** Execute `scene.save()` to write the output.
+    - **Step 6 (MANDATORY):** Test the generated scene using Godot MCP tools:
+      - Run: `mcp_godot_run_project(projectPath="c:/Godot/3d-practice", scene="Scenes/YourScene.tscn")`
+      - Check output: `mcp_godot_get_debug_output()`
+      - Stop: `mcp_godot_stop_project()`
+      - Verify NO errors about "未设置" (not set) or NullReferenceException for [Export] properties
+      - If errors found, fix the GENERATOR SCRIPT (not the .tscn file manually)
   </implementation_guide>
 
   <technical_specifications>
@@ -201,21 +207,9 @@ ui.add_instance(
 
 <layer_3_advanced>
   <troubleshooting>
-    <error symptom="Generated .tscn file fails to load in Godot with 'Invalid NodePath' errors.">
-      <cause>NodePath assignments were made before the target nodes were added to the scene, or node names contain typos.</cause>
-      <fix>Ensure all nodes are created via `scene.add_node()` BEFORE calling `scene.assign_node_path()`. Verify exact node name spelling using `scene.generate_tree_view()`.</fix>
-    </error>
-    <error symptom="C# script throws NullReferenceException when accessing nodes via [Export] NodePath properties.">
-      <cause>The NodePath was calculated incorrectly, or the target node doesn't exist in the scene hierarchy.</cause>
-      <fix>Use `scene.generate_tree_view()` to inspect the actual hierarchy. Verify the `path_to_node_name` parameter in `assign_node_path()` matches the exact node name.</fix>
-    </error>
     <error symptom="External resources (scripts, scenes) fail to load with 'Resource not found' errors.">
-      <cause>Incorrect UID or path provided to `add_ext_resource()`, or the resource file doesn't exist.</cause>
-      <fix>For scene instances, ALWAYS use `mcp_godot_get_uid()` to retrieve the correct UID. Verify the file path is correct and uses `res://` protocol.</fix>
-    </error>
-    <error symptom="Scene hierarchy is incorrect - nodes appear in wrong parent or are orphaned.">
-      <cause>The `parent` parameter was omitted or specified incorrectly in `add_node()` calls.</cause>
-      <fix>ALWAYS explicitly specify `parent="NodeName"` for every node. Use `parent="."` for root-level children. Verify hierarchy with `scene.generate_tree_view()`.</fix>
+      <cause>Incorrect UID or path provided to `add_ext_resource()`, or the resource file doesn't exist at the specified location.</cause>
+      <fix>For scene instances, ALWAYS use `mcp_godot_get_uid()` to retrieve the correct UID. Verify the file path is correct and uses `res://` protocol. Check that the file actually exists in the project.</fix>
     </error>
   </troubleshooting>
 
@@ -224,7 +218,110 @@ ui.add_instance(
     - **Explicit Parent References:** Never chain node creation methods blindly. Always dictate the exact parent using `parent="NodeName"` to ensure the scene tree reflects structural intent.
     - **Node Registry Cross-Referencing:** Utilize the internal node registry. Since all nodes are tracked by name, path assignments and hierarchical lookups are inherently stable.
     - **Validate Before Save:** Always call `scene.generate_tree_view()` before `scene.save()` to visually inspect the hierarchy and catch structural errors early.
+    - **Node Naming Convention (MANDATORY):**
+      - **For nodes with custom C# scripts:** Use the script class name directly as the node name (e.g., `scene.add_node("BackpackGridComponent", "Node", ...)`, `scene.add_node("SettingsController", "Node", ...)`). This makes the node type immediately visible in the scene tree without needing to hover or check properties.
+      - **DO NOT use abbreviated names:** Never use shortened names like "LogicGrid", "Controller", "Draggable", etc. Always use the full class name.
+      - **For standard UI nodes:** Use descriptive names without class suffixes (e.g., "ApplyButton", "MainVBox", "Background") since these nodes have recognizable icons in the Godot editor (Label, VBox, ColorRect, Button, StateChart, etc.).
+      - **Rationale:** Full class names in the scene tree provide immediate context about what each node does, eliminating the need to inspect properties or hover for tooltips. This significantly improves scene readability and maintenance.
   </best_practices>
+
+  <common_generator_script_errors>
+    <error_pattern name="Forgetting to bind [Export] properties for UI component nodes">
+      <symptom>C# script reports "[ComponentName]: [PropertyName] 未设置！" during _Ready()</symptom>
+      <cause>Generator script only binds NodePaths for Controller nodes, but forgets that UI component nodes (like BackpackGridUIComponent) also have [Export] properties that need binding.</cause>
+      <example>
+        # INCORRECT - Only binding Controller
+        scene.add_node("BackpackPanel", "Control", parent=".", script=ExtResource("backpack_ui_script"))
+        scene.add_node("BackpackGridComponent", "Node", parent="BackpackPanel", script=ExtResource("logic_grid_script"))
+        scene.add_node("BackpackInteractionController", "Node", parent="BackpackPanel", script=ExtResource("controller_script"))
+        
+        # Only binding BackpackInteractionController, forgetting BackpackPanel!
+        scene.assign_multiple_node_paths("BackpackInteractionController", {
+            "LogicGrid": "BackpackGridComponent",
+            "ViewGrid": "BackpackPanel"
+        })
+        
+        # CORRECT - Bind ALL nodes with [Export] properties
+        scene.assign_node_path("BackpackPanel", "LogicGrid", "BackpackGridComponent")  # Don't forget this!
+        scene.assign_multiple_node_paths("BackpackInteractionController", {
+            "LogicGrid": "BackpackGridComponent",
+            "ViewGrid": "BackpackPanel"
+        })
+      </example>
+      <prevention>
+        1. List ALL nodes that have C# scripts attached
+        2. For EACH script, check for [Export] properties
+        3. For EACH [Export] property, call assign_node_path()
+        4. Test with mcp_godot_run_project() to verify NO "未设置" errors
+      </prevention>
+      <date_discovered>2026-04-15</date_discovered>
+    </error_pattern>
+    
+    <error_pattern name="Calling assign_node_path() before creating target nodes">
+      <symptom>Generated .tscn file fails to load in Godot with 'Invalid NodePath' errors, or Python script crashes with KeyError</symptom>
+      <cause>Trying to bind NodePaths before the target nodes exist in the scene registry.</cause>
+      <example>
+        # INCORRECT - Binding before nodes exist
+        scene.assign_node_path("Controller", "ApplyButton", "ApplyButton")  # ApplyButton doesn't exist yet!
+        ui.add_button("ApplyButton", parent="MainVBox", text="Apply")
+        
+        # CORRECT - Create nodes first, then bind
+        ui.add_button("ApplyButton", parent="MainVBox", text="Apply")
+        scene.assign_node_path("Controller", "ApplyButton", "ApplyButton")
+      </example>
+      <prevention>
+        1. Create ALL nodes first using add_node() or ui.add_*()
+        2. THEN do all NodePath bindings at the end
+        3. Use scene.generate_tree_view() to verify all nodes exist before binding
+      </prevention>
+      <date_discovered>2026-04-15</date_discovered>
+    </error_pattern>
+    
+    <error_pattern name="Wrong node name in assign_node_path() parameters">
+      <symptom>C# script throws NullReferenceException when accessing nodes via [Export] properties, or reports "未设置" errors</symptom>
+      <cause>Typo in node name, or using wrong parameter (target_node_name vs path_to_node_name confused).</cause>
+      <example>
+        # INCORRECT - Typo in node name
+        scene.add_node("ApplyButton", "Button", parent="MainVBox")
+        scene.assign_node_path("SettingsController", "ApplyButton", "ApplyButon")  # Typo!
+        
+        # INCORRECT - Parameters reversed
+        scene.assign_node_path("ApplyButton", "SettingsController", "ApplyButton")  # Wrong order!
+        
+        # CORRECT
+        scene.assign_node_path("SettingsController", "ApplyButton", "ApplyButton")
+      </example>
+      <prevention>
+        1. Use scene.generate_tree_view() to see exact node names
+        2. Remember: assign_node_path(WHO_HAS_EXPORT, PROPERTY_NAME, WHERE_TO_POINT)
+        3. Use full script class names for custom script nodes (e.g., "SettingsController", not "Controller")
+        4. Test with mcp_godot_run_project() to catch errors early
+      </prevention>
+      <date_discovered>2026-04-15</date_discovered>
+    </error_pattern>
+    
+    <error_pattern name="Omitting or wrong parent parameter in add_node()">
+      <symptom>Scene hierarchy is incorrect - nodes appear in wrong parent or are orphaned</symptom>
+      <cause>The `parent` parameter was omitted or specified incorrectly in `add_node()` calls.</cause>
+      <example>
+        # INCORRECT - Omitting parent
+        scene.add_node("ApplyButton", "Button", text="Apply")  # Where does this go?
+        
+        # INCORRECT - Wrong parent name
+        scene.add_node("ApplyButton", "Button", parent="MainBox", text="Apply")  # Typo: should be MainVBox
+        
+        # CORRECT
+        scene.add_node("ApplyButton", "Button", parent="MainVBox", text="Apply")
+        scene.add_node("CancelButton", "Button", parent=".", text="Cancel")  # Root child
+      </example>
+      <prevention>
+        1. ALWAYS explicitly specify parent="NodeName" for every node
+        2. Use parent="." for root-level children
+        3. Verify hierarchy with scene.generate_tree_view() before save()
+      </prevention>
+      <date_discovered>2026-04-15</date_discovered>
+    </error_pattern>
+  </common_generator_script_errors>
 
   <common_tasks_quick_index>
     <task name="Generate Settings UI">See `<end_to_end_example>` in layer_1_quick_start</task>
@@ -232,6 +329,7 @@ ui.add_instance(
     <task name="Use UI Prefabs">See `<code_templates>` → "UI Prefab Instantiation" in layer_2_detailed_guide</task>
     <task name="Debug Scene Hierarchy">Use `scene.generate_tree_view()` method (see api_reference)</task>
     <task name="Center UI Layout">See `<core_rules>` → Rule 4 in layer_2_detailed_guide</task>
+    <task name="Fix '[Export] property 未设置' errors">See `<common_generator_script_errors>` in layer_3_advanced</task>
   </common_tasks_quick_index>
 </layer_3_advanced>
 ```
