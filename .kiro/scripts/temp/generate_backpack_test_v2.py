@@ -268,28 +268,19 @@ scene.assign_multiple_node_paths("FollowMouseUIComponent", {
     "TargetUI": "TestItem"
 })
 
-# UITweenInteractComponent 绑定
-scene.assign_multiple_node_paths("UITweenInteractComponent", {
-    "InteractionArea": "TestItem",
-    "VisualTarget": "VisualContainer"
-})
-
-# SynergyComponent 绑定
-scene.assign_node_path("SynergyComponent", "Shape", "GridShapeComponent")
-
 # ============================================================
-# 20. 解析 StateChart 初始状态
+# 18. 解析 StateChart 初始状态
 # ============================================================
 sc.resolve_initial_states()
 
 # ============================================================
-# 21. 生成树形视图（调试用）
+# 19. 生成树形视图（调试用）
 # ============================================================
 print("\n=== Scene Tree ===")
 print(scene.generate_tree_view())
 
 # ============================================================
-# 22. 保存场景
+# 20. 保存场景
 # ============================================================
 output_path = "C:/Godot/3d-practice/Scenes/BackpackTest.tscn"
 scene.save(output_path)
