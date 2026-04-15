@@ -246,7 +246,7 @@ instructions_node = scene.get_node("Instructions")
 instructions_node.set_property("theme_override_font_sizes/font_size", 16)
 
 # ============================================================
-# 19. 绑定所有 NodePath
+# 17. 绑定所有 NodePath
 # ============================================================
 # BackpackPanel 绑定（修复：BackpackGridUIComponent 需要 LogicGrid 引用）
 scene.assign_node_path("BackpackPanel", "LogicGrid", "BackpackGridComponent")
