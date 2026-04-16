@@ -28,6 +28,23 @@ scene.initialize_root(
 )
 
 # ============================================================
+# 1.5. 添加自动停止测试脚本
+# ============================================================
+auto_stop_res = scene.add_ext_resource(
+    resource_type="Script",
+    path="res://Scenes/AutoStopTest.cs",
+    uid="uid://auto_stop_test_001"
+)
+
+scene.add_node("AutoStopTest", "Node", parent=".",
+    script=f'ExtResource("{auto_stop_res}")'
+)
+
+# 设置 5 秒后自动停止
+auto_stop_node = scene.get_node("AutoStopTest")
+auto_stop_node.set_property("StopAfterSeconds", 5.0)
+
+# ============================================================
 # 2. 添加背景
 # ============================================================
 scene.add_node("Background", "ColorRect", parent=".",
@@ -93,6 +110,7 @@ scene.add_node("BackpackPanel", "Control", parent="MainVBox",
     layout_mode=2,
     size_flags_horizontal=4,
     size_flags_vertical=4,
+    mouse_filter=2,  # IGNORE - 不拦截鼠标输入，让子节点接收
     script=f'ExtResource("{backpack_grid_ui_res}")'
 )
 
@@ -136,25 +154,33 @@ scene.add_node("BackpackInteractionController", "Node", parent="BackpackPanel",
 # 8. 创建物品容器
 # ============================================================
 scene.add_node("ItemsContainer", "Control", parent="BackpackPanel",
-    layout_mode=2
+    layout_mode=2,
+    mouse_filter=2  # IGNORE - 不拦截鼠标输入，让子节点接收
 )
 
 # ============================================================
 # 9. 创建测试物品
 # ============================================================
+# 【关键】TestItem 必须设置 mouse_filter=0 (STOP) 才能接收输入
 scene.add_node("TestItem", "Control", parent="ItemsContainer",
     custom_minimum_size="Vector2(64, 64)",
-    layout_mode=2,
-    position="Vector2(128, 128)"
+    layout_mode=0,  # 使用非受控布局
+    offset_left=128.0,
+    offset_top=128.0,
+    offset_right=192.0,  # 128 + 64 = 192
+    offset_bottom=192.0,  # 128 + 64 = 192
+    mouse_filter=0  # STOP - 接收并处理鼠标输入
 )
 
 # 添加可点击背景（用于接收鼠标输入）
+# 【关键修复】设置 mouse_filter=2 (IGNORE) 让点击穿透到父节点 TestItem
 scene.add_node("ClickableBackground", "ColorRect", parent="TestItem",
     layout_mode=1,
     anchors_preset=15,
     anchor_right=1.0,
     anchor_bottom=1.0,
-    color="Color(0.2, 0.2, 0.2, 0.5)"
+    color="Color(0.2, 0.2, 0.2, 0.5)",
+    mouse_filter=2  # IGNORE - 让鼠标事件穿透到父节点
 )
 
 # ============================================================
@@ -218,19 +244,23 @@ scene.add_node("GridShapeComponent", "Node", parent="TestItem",
 # ============================================================
 # 14. 创建 VisualContainer
 # ============================================================
+# 【安全措施】设置 mouse_filter=2 (IGNORE) 防止阻挡输入
 scene.add_node("VisualContainer", "Control", parent="TestItem",
     layout_mode=2,
     size_flags_horizontal=4,
-    size_flags_vertical=4
+    size_flags_vertical=4,
+    mouse_filter=2  # IGNORE - 纯视觉容器，不拦截鼠标
 )
 
 # ============================================================
 # 15. 添加物品图标 (ColorRect 占位符)
 # ============================================================
+# 【关键】ItemIcon 也必须设置 mouse_filter=2 (IGNORE)
 scene.add_node("ItemIcon", "ColorRect", parent="VisualContainer",
     layout_mode=2,
     custom_minimum_size="Vector2(64, 64)",
-    color="Color(0.3, 0.6, 0.9, 1)"
+    color="Color(0.3, 0.6, 0.9, 1)",
+    mouse_filter=2  # IGNORE - 纯视觉，不拦截鼠标
 )
 
 # ============================================================

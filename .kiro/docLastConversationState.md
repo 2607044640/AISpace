@@ -1,13 +1,13 @@
 # 上次对话状态
 
 ## 元数据
-- **更新日期**: 2026-04-15
+- **更新日期**: 2026-04-17
 - **引擎**: Godot 4.6.1 stable mono
 - **语言**: C# only
 - **项目**: 3D 角色控制器 + 完整网格背包系统（带协同效果）
-- **阶段**: TscnBuilder 场景生成器开发与测试
+- **阶段**: 拖拽问题已修复，准备深度研究项目
 
-## 当前任务：TscnBuilder 测试与修复
+## 当前任务：深度项目研究
 
 ### 已完成
 1. ✅ **TscnBuilder Core 修复**: 修复了字符串属性格式化 bug（区分普通字符串和 Godot 表达式）
@@ -16,20 +16,17 @@
    - 添加了 `<common_generator_script_errors>` 部分，记录生成器脚本的常见错误模式
    - 添加了节点命名规范：有自定义 C# 脚本的节点添加类名后缀
 3. ✅ **BackpackTest 场景生成**: 使用 TscnBuilder 生成了测试场景
-4. ✅ **Bug 诊断**: 通过 `mcp_godot_run_project` 测试发现 NodePath 绑定缺失问题
+4. ✅ **Bug #1 修复 (NodePath 绑定)**: BackpackPanel 的 LogicGrid 绑定已添加
+5. ✅ **Bug #2 修复 (GuiInput 事件)**: 子 Control 节点 MouseFilter 设置为 IGNORE
+6. ✅ **拖拽问题修复**: 用户确认拖拽功能已正常工作
 
-### 当前问题
-**BackpackTest 场景 NodePath 绑定缺失**：
-- `BackpackPanel` (BackpackGridUIComponent) 缺少 `LogicGrid` 属性绑定
-- 其他组件的绑定都已正确生成
-- 根本原因：生成器脚本只绑定了 Controller，忘记了 BackpackPanel 自己也需要绑定
-
-### 修复方案（待用户执行）
-在 `KiroWorkingSpace/.kiro/scripts/temp/generate_backpack_test_v2.py` 第 289 行之前添加：
-```python
-# BackpackPanel 绑定
-scene.assign_node_path("BackpackPanel_BackpackGridUIComponent", "LogicGrid", "LogicGrid_BackpackGridComponent")
-```
+### 当前状态
+✅ 所有组件初始化成功
+✅ 所有 NodePath 绑定正确
+✅ 输入事件传播路径已修复
+✅ 拖拽功能正常工作
+✅ 项目架构深度研究完成
+❓ 用户询问 mouse_filter 在 Godot 编辑器中的设置方法
 
 ### 节点命名规范（新增）
 **有自定义 C# 脚本的节点**（添加脚本类名后缀）：

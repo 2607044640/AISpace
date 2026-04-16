@@ -27,11 +27,13 @@
   </minimal_workflow>
 
   <top_anti_patterns>
-    - Tightly coupling nodes using `GetNode<T>()`. (Why: Creates rigid hierarchies. Dependencies **MUST** be injected via `[Export]`).
-    - Calling sibling component methods directly. (Why: Breaks isolation. Sibling operations **MUST** signal upward via C# `event/Action` to the Mediator).
-    - Stuffing endless `if-else` logic into `_PhysicsProcess`. (Why: Produces unmaintainable spaghetti logic. State **MUST** be managed by Finite State Machines).
-    - Hardcoding magic values or animation names. (Why: Removes designer control. Variables **MUST** be exposed to the editor via `[Export]`).
-    - Subscribing to component events inside `_Ready()`. (Why: Guarantees null-reference exceptions because dependency injection is incomplete. **MUST** use `OnEntityReady()`).
+    - Using hardcoded relative paths: `GetNode("../../../NodeName")`. Use `[Export] NodePath = "%NodeName"` instead.
+    - Declaring NodePath without defaults: `[Export] public NodePath Target { get; set; }`. Use `= "%Target"` default.
+    - Tightly coupling nodes using `GetNode<T>()` without [Export]. Dependencies must be injected via `[Export]` with `%` defaults.
+    - Calling sibling component methods directly. Signal upward via C# `event/Action` to the Mediator.
+    - Stuffing `if-else` logic into `_PhysicsProcess`. Use Finite State Machines.
+    - Hardcoding magic values or animation names. Expose via `[Export]`.
+    - Subscribing to events inside `_Ready()`. Use `OnEntityReady()` instead.
   </top_anti_patterns>
 
 </layer_1_quick_start>
@@ -70,31 +72,41 @@
   <core_rules>
     <rule>
       <description>**ALWAYS** design systems using "Composition over Inheritance".</description>
-      <rationale>Deep class hierarchies become brittle and rigid. Flat, component-based entities scale safely.</rationale>
     </rule>
     <rule>
       <description>Entities **MUST** act exclusively as Mediators and contain ZERO business logic.</description>
-      <rationale>Keeps the root node strictly focused on coordinating C# `event/Action` signals emitted from child components.</rationale>
     </rule>
     <rule>
       <description>**NEVER** allow sibling components to reference each other directly.</description>
-      <rationale>Maintains strict "Call Down, Signal Up" architecture. Component independence prevents cascading failures.</rationale>
+    </rule>
+    <rule>
+      <description>**ALWAYS** use Scene Unique Names (%) for NodePath properties with default values.</description>
+      <example>
+        [Export] public NodePath StateChartNode { get; set; } = "%StateChart";
+        [Export] public NodePath TargetUI { get; set; } = "%TestItem";
+        
+        public override void _Ready()
+        {
+            var stateChart = GetNodeOrNull<Node>(StateChartNode);
+            if (stateChart == null)
+            {
+                GD.PushError($"[{Name}] StateChart not found: {StateChartNode}");
+                return;
+            }
+        }
+      </example>
     </rule>
     <rule>
       <description>**ALWAYS** instantiate a `CompositeDisposable _disposables = new();` inside EVERY reactive UI or Component class.</description>
-      <rationale>Centralizes tracking of all active event subscriptions to ensure guaranteed teardown.</rationale>
     </rule>
     <rule>
       <description>**ALWAYS** subscribe to events inside `OnEntityReady()` and **NEVER** inside `_Ready()`.</description>
-      <rationale>Ensures all sibling components and dependencies are fully initialized before inter-component communication begins.</rationale>
     </rule>
     <rule>
       <description>**ALWAYS** use `.DistinctUntilChanged()` on two-way bindings and high-frequency UI updates.</description>
-      <rationale>Creates a circular guard that prevents infinite loop cascades and redundant visual redraws.</rationale>
     </rule>
     <rule>
       <description>**ALWAYS** use ValueTuples `(a, b)` instead of anonymous objects `new { a, b }` inside `EveryUpdate` loops.</description>
-      <rationale>Enforces Zero-GC (Garbage Collection) operation by allocating on the stack, preventing frame stuttering.</rationale>
     </rule>
   </core_rules>
 

@@ -2,8 +2,17 @@
 UI Module - Appends Control nodes, layouts, and anchors to TscnBuilder
 """
 
-from typing import Optional, Tuple
-from ..core import TscnBuilder, TscnNode
+from typing import Optional, Tuple, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from core import TscnBuilder, TscnNode
+else:
+    import sys
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    import core
+    TscnBuilder = core.TscnBuilder
+    TscnNode = core.TscnNode
 
 
 class UIModule:

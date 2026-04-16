@@ -118,6 +118,9 @@ class TscnBuilder:
             Created TscnNode
         """
         node = TscnNode(name, node_type)
+        
+        # Don't auto-mark all nodes as unique - only mark nodes that need to be found
+        # (StateChart states, nodes referenced by [Export] properties, etc.)
         for key, value in properties.items():
             node.set_property(key, value)
         
@@ -140,10 +143,10 @@ class TscnBuilder:
         return self._node_registry.get(name)
     
     def assign_node_path(self, target_node_name: str, property_name: str, path_to_node_name: str):
-        """Calculate relative NodePath and assign to target node's property
+        """Calculate NodePath using Scene Unique Name and assign to target node's property
         
         This is the killer feature for C# architecture: automatically bind UI nodes
-        to Controller [Export] properties without manual NodePath calculation.
+        to Controller [Export] properties using robust % syntax.
         
         Args:
             target_node_name: Node that has the [Export] property (e.g., "SettingsController")
@@ -163,7 +166,7 @@ class TscnBuilder:
             
             # Generated TSCN will have:
             # [node name="SettingsController" ...]
-            # ApplyButton = NodePath("../MainVBox/ApplyButton")
+            # ApplyButton = NodePath("%ApplyButton")  # Uses Scene Unique Name!
         """
         target_node = self.get_node(target_node_name)
         path_to_node = self.get_node(path_to_node_name)
@@ -173,11 +176,14 @@ class TscnBuilder:
         if path_to_node is None:
             raise ValueError(f"Path-to node '{path_to_node_name}' not found in registry")
         
-        # Use existing reliable relative path calculation
-        relative_path = target_node.get_relative_path_to(path_to_node)
+        # Auto-mark the referenced node as unique so it can be found via %
+        # This ensures only nodes that need to be found are marked as unique
+        if not path_to_node.properties.get("unique_name_in_owner"):
+            path_to_node.set_property("unique_name_in_owner", True)
         
-        # Set property as Godot NodePath string
-        target_node.set_property(property_name, f'NodePath("{relative_path}")')
+        # Use Scene Unique Name syntax for robust, hierarchy-independent path resolution
+        # This is much more stable than relative paths like "../../../NodeName"
+        target_node.set_property(property_name, f'NodePath("%{path_to_node_name}")')
     
     def assign_multiple_node_paths(self, target_node_name: str, bindings: dict):
         """Batch assign multiple NodePaths to a target node

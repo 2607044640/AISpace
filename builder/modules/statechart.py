@@ -2,8 +2,17 @@
 StateChart Module - Appends StateChart, CompoundState, and AtomicState nodes to TscnBuilder
 """
 
-from typing import Optional
-from ..core import TscnBuilder, TscnNode
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from core import TscnBuilder, TscnNode
+else:
+    import sys
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    import core
+    TscnBuilder = core.TscnBuilder
+    TscnNode = core.TscnNode
 
 
 class StateChartModule:
@@ -71,7 +80,8 @@ class StateChartModule:
         node = self.builder.add_node(
             name, "Node",
             parent=parent,
-            script=f'ExtResource("{res_id}")'
+            script=f'ExtResource("{res_id}")',
+            unique_name_in_owner=True  # Mark as scene unique for robust NodePath resolution
         )
         
         if initial_state:
@@ -86,7 +96,8 @@ class StateChartModule:
         return self.builder.add_node(
             name, "Node",
             parent=parent,
-            script=f'ExtResource("{res_id}")'
+            script=f'ExtResource("{res_id}")',
+            unique_name_in_owner=True  # Mark as scene unique for robust NodePath resolution
         )
     
     def add_transition(self, name: str, from_state: str, to_state: str,
@@ -95,7 +106,7 @@ class StateChartModule:
         
         Args:
             name: Transition name
-            from_state: Source state node name
+            from_state: Source state node name (parent of this transition)
             to_state: Target state node name
             event: Event name that triggers this transition
             delay: Delay in seconds before transition executes
@@ -110,18 +121,20 @@ class StateChartModule:
         if to_node is None:
             raise ValueError(f"Target state '{to_state}' not found")
         
-        relative_path = from_node.get_relative_path_to(to_node)
+        # Create the transition node
+        transition_node = self.builder.add_node(name, "Node", parent=from_state,
+            script=f'ExtResource("{res_id}")'
+        )
         
-        properties = {
-            "script": f'ExtResource("{res_id}")',
-            "to": f'NodePath("{relative_path}")',
-            "delay_in_seconds": f'"{delay}"'
-        }
+        # Use Scene Unique Name syntax for robust path resolution
+        # This avoids fragile relative paths like "../../TargetState"
+        transition_node.set_property("to", f'NodePath("%{to_state}")')
+        transition_node.set_property("delay_in_seconds", delay)  # Raw float, no quotes
         
         if event:
-            properties["event"] = f'&"{event}"'
+            transition_node.set_property("event", f'&"{event}"')
         
-        return self.builder.add_node(name, "Node", parent=from_state, **properties)
+        return transition_node
     
     def add_expression_guard(self, name: str, parent: str, expression: str) -> TscnNode:
         """Add ExpressionGuard (condition check for transition)
@@ -165,5 +178,5 @@ class StateChartModule:
             initial_node = self.builder.get_node(initial_name)
             
             if compound_node and initial_node:
-                relative_path = compound_node.get_relative_path_to(initial_node)
-                compound_node.set_property("initial_state", f'NodePath("{relative_path}")')
+                # Use Scene Unique Name syntax for robust path resolution
+                compound_node.set_property("initial_state", f'NodePath("%{initial_name}")')

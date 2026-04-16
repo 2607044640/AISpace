@@ -92,6 +92,11 @@ scene.save("SettingsUI.tscn")
       - Stop: `mcp_godot_stop_project()`
       - Verify NO errors about "未设置" (not set) or NullReferenceException for [Export] properties
       - If errors found, fix the GENERATOR SCRIPT (not the .tscn file manually)
+    - **Step 7 (CRITICAL):** If regenerating an existing scene while Godot editor is open:
+      - **MUST manually reload the scene in Godot!** Click the "Reload" button (circular arrow) in the scene tab
+      - Godot does NOT auto-reload modified .tscn files from disk
+      - Without reloading, you'll test the OLD cached version and see OLD errors
+      - This is the #1 cause of "but I fixed it and it still doesn't work" confusion
   </implementation_guide>
 
   <technical_specifications>
@@ -147,6 +152,42 @@ ui.add_instance(
   </code_templates>
 
   <core_rules>
+    <rule>
+      <description>**ALWAYS use Scene Unique Names (%) for all NodePath references. NEVER use relative paths.**</description>
+      <rationale>Relative paths like "../../../NodeName" are extremely fragile and error-prone for AI generation. They break when hierarchy changes. Humans can click-select in the editor, but AI must calculate paths manually, leading to frequent errors. Scene Unique Names are hierarchy-independent, human-readable, and AI-friendly.</rationale>
+      <example>
+        # ❌ INCORRECT - Relative paths (fragile, AI-error-prone)
+        scene.add_node("Controller", "Node", parent=".", script=ExtResource("script"))
+        controller_node = scene.get_node("Controller")
+        button_node = scene.get_node("ApplyButton")
+        relative_path = controller_node.get_relative_path_to(button_node)  # "../MainVBox/ApplyButton"
+        controller_node.set_property("ApplyButton", f'NodePath("{relative_path}")')
+        
+        # ✅ CORRECT - Scene Unique Names (robust, AI-friendly)
+        scene.assign_node_path("Controller", "ApplyButton", "ApplyButton")
+        # Automatically generates: ApplyButton = NodePath("%ApplyButton")
+        # The target node is auto-marked as unique_name_in_owner=true
+      </example>
+      <csharp_code_pattern>
+        # C# code should also use % syntax for manual GetNode calls
+        
+        # ❌ INCORRECT - Relative paths in C#
+        var button = GetNodeOrNull<Button>("../MainVBox/ApplyButton");
+        var parent = GetNodeOrNull<Control>("..");
+        var stateChart = GetParent()?.GetNodeOrNull<Node>("StateChart");
+        
+        # ✅ CORRECT - Scene Unique Names in C#
+        var button = GetNodeOrNull<Button>("%ApplyButton");
+        var backpackPanel = GetNodeOrNull<Control>("%BackpackPanel");
+        var stateChart = GetNodeOrNull<Node>("%StateChart");
+        
+        # Benefits:
+        # - Code is self-documenting (you know exactly which node you're getting)
+        # - Refactoring-safe (moving nodes doesn't break code)
+        # - No need to count "../" levels
+      </csharp_code_pattern>
+    </rule>
+    
     <rule>
       <description>NEVER generate Godot native signal connections (`[connection]` blocks) in `.tscn` files.</description>
       <rationale>Native `.tscn` signal mappings are extremely prone to breakage upon refactors. All logic must reside in code using C# R3 Rx streams.</rationale>
