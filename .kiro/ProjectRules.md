@@ -1,8 +1,11 @@
 <layer_1_quick_start>
   <quick_reference>
-    - **Rule/Arch Storage**: `KiroWorkingSpace/.kiro/` (ALL steering/instruction files).
-    - **Build Command**: `dotnet build` (Execute from 3d-practice root).
-    - **Log Audit**: `Get-Content "$env:APPDATA\Godot\app_userdata\Tesseract_Backpack\logs\godot.log" -Tail 50`.
+    - **Project**: Tesseract Backpack (TS) - Grid-based inventory system
+    - **Code Location**: `3d-practice/addons/A1TetrisBackpack/` (C# components)
+    - **Scene Location**: `3d-practice/A1TesseractBackpack/` (TS scenes)
+    - **Rule/Arch Storage**: `KiroWorkingSpace/.kiro/` (ALL steering/instruction files)
+    - **Build Command**: `dotnet build` (Execute from 3d-practice root)
+    - **Log Audit**: `Get-Content "$env:APPDATA\Godot\app_userdata\Tesseract_Backpack\logs\godot.log" -Tail 50`
   </quick_reference>
 
   <architecture_layers>
@@ -22,34 +25,6 @@
     - **Mouse Coordinate Resolution**: MUST use `ViewGrid.GetGlobalMousePosition()`. (Why: Isolates coordinate logic from Viewport scaling aberrations).
     - **Component Inter-Communication**: MUST use C# Events (`event Action<T>`) and R3 Observables. (Why: Godot `[Signal]` is strictly prohibited in C# architecture).
   </decision_tree>
-
-  <end_to_end_example>
-    <![CDATA[
-    // Core Entity-Component initialization with StateChart & R3 binding
-    [GlobalClass, Component(typeof(DraggableItemComponent))]
-    public partial class DraggableItemComponent : BaseInputComponent 
-    {
-        private CompositeDisposable _disposables = new();
-
-        public override void _Ready() 
-        {
-            this.AutoBindToParentState(); // Bind to StateChart AtomicState
-            
-            // Map R3 subscription to lifecycle
-            Observable.EveryUpdate()
-                .ObserveOn(GodotProvider.MainThread)
-                .Subscribe(_ => ProcessDragState())
-                .AddTo(_disposables);
-        }
-
-        public override void _ExitTree() 
-        {
-            _disposables.Dispose(); // Prevent memory leaks
-        }
-    }
-    // Validation: dotnet build
-    ]]>
-  </end_to_end_example>
 
   <top_anti_patterns>
     - **Scaling the InteractionArea Root**: Scaling MUST target `VisualTarget` only. (Why: Scaling the parent `InteractionArea` destroys global UI coordinate conversions and drag snapping).
@@ -73,18 +48,6 @@
 </layer_1_quick_start>
 
 <layer_2_detailed_guide>
-  <api_reference>
-    - **Component Fetching**: `GetRequiredComponentInChildren<T>()`, `GetEntity<T>()`
-    - **Component Lifecycle**: `InitializeEntity()`, `InitializeComponent()`
-    - **StateChart API**: `AutoBindToParentState()`, `StateChart.Call("send_event", "event_name")`, `SendStateEvent(string)`
-    - **R3 Lifecycle**: `CompositeDisposable.Dispose()`, `.AddTo(CompositeDisposable)`
-    - **R3 Data Streams**: `Subject<Unit>`, `OnNext(Unit.Default)`, `DistinctUntilChanged()`, `ObserveOn(GodotProvider.MainThread)`
-    - **R3 Event Wrappers**: `OnPressedAsObservable()`, `OnToggledAsObservable()`, `OnValueChangedAsObservable()`, `OnTextChangedAsObservable()`, `OnItemSelectedAsObservable()`, `Observable.EveryUpdate()`, `Observable.EveryPhysicsUpdate()`
-    - **Math Helpers**: `Mathf.FloorToInt()`
-    - **Grid Conversions**: `ViewGrid.GetGlobalMousePosition()`, `ViewGrid.GridToLocalPosition(Vector2I)`
-    - **Animation Sync**: `RegisterAnim(library, AnimationNames.Name, AnimationResource, Speed, isLoop)`
-  </api_reference>
-
   <mandatory_directives>
     **Grid Logic:**
     - MUST use 1D array: ItemData[] _gridData
@@ -143,23 +106,6 @@
     - MUST use .AddTo(itemEntity) when subscribing to item events
   </mandatory_directives>
 
-  <implementation_guide>
-    - **Step 1: Define Grid & Shape Data**: Initialize `ItemData[] _gridData`. Convert shapes using `Vector2I[]` array bounds mapping.
-    - **Step 2: Initialize Entities**: Mark root nodes with `[Entity]` and sub-nodes with `[Component(typeof(T))]`. Call `InitializeEntity()` and `InitializeComponent()` sequentially.
-    - **Step 3: Setup StateChart Bindings**: Nest action components under `AtomicState` nodes. Call `this.AutoBindToParentState()` inside `_Ready()`.
-    - **Step 4: Hook UI Coordinates**: Map mouse input via `ViewGrid.GetGlobalMousePosition()` exclusively. Round via `Mathf.FloorToInt()`.
-    - **Step 5: Enforce Animation Separation**: Setup micro-interactions using `UITweenInteractComponent`, targeting only the `VisualContainer` sub-node. Kill active tweens before instantiating new ones.
-  </implementation_guide>
-
-  <technical_specifications>
-    - **Grid Math Formula**: `index = y * Width + x`
-    - **Coordinate Bounds Checking**: MUST clamp grid coordinates to `[0, Width)` x `[0, Height)`
-    - **Shape Rotation Matrix (90-deg Clockwise)**: `(x,y) -> (-y,x)`
-    - **UI Animation Constraints**: 
-      - Pivot: `PivotOffset = Size/2` (Center-based scaling)
-      - Easing: `EaseType.Out` + `TransitionType.Sine`
-  </technical_specifications>
-
   <scene_structure_requirements>
     **Backpack Panel:**
     - Root: BackpackGridUIComponent (Control)
@@ -167,7 +113,7 @@
       - BackpackGridComponent
       - Items Container
 
-    **Item Entity:**
+    **Item Entity (TS Scene):**
     - Root: Control (InteractionArea, Scale=1,1)
       - StateChart
       - DraggableItemComponent
@@ -188,81 +134,25 @@
         - Transition: "drag_end" → Idle
   </scene_structure_requirements>
 
-  <code_templates>
-    <template name="SynergyRotationImplementation">
-      <code><![CDATA[
-      // CORRECT implementation of Synergy Star offset rotation tracking
-      Shape.OnShapeChangedAsObservable.Subscribe(rotationCount => {
-          for (int i = 0; i < StarOffsets.Length; i++) {
-              Vector2I currentOffset = OriginalStarOffsets[i];
-              for (int r = 0; r < rotationCount; r++) {
-                  currentOffset = new Vector2I(-currentOffset.Y, currentOffset.X);
-              }
-              StarOffsets[i] = currentOffset;
-          }
-          CheckSynergiesAndEmit(); // Fire OnSynergyChangedAsObservable
-      }).AddTo(_disposables);
-      ]]></code>
-    </template>
-
-    <template name="MVC_DragStateReversion">
-      <code><![CDATA[
-      // CORRECT bounce-back resolution on placement failure
-      if (!TryPlaceItem(OriginalGridPos)) {
-          VisualTarget.GlobalPosition = OriginalGlobalPos;
-          ForcePlaceItem(OriginalGridPos); // Guaranteed safety fallback
-      }
-      ]]></code>
-    </template>
-  </code_templates>
-
   <core_rules>
     <rule>
       <description>ALWAYS use `Mathf.FloorToInt()` and `ViewGrid.GetGlobalMousePosition()` for placement resolution.</description>
       <rationale>Prevents float-point precision drift and Viewport scaling mismatches when translating screen space to 1D array indices.</rationale>
-      <example>
-        # CORRECT
-        Vector2 localMousePos = ViewGrid.GetLocalMousePosition();
-        int gridX = Mathf.FloorToInt(localMousePos.X / CellSize.X);
-        int gridY = Mathf.FloorToInt(localMousePos.Y / CellSize.Y);
-        
-        # INCORRECT
-        int gridX = (int)(GetViewport().GetMousePosition().X / CellSize.X);
-      </example>
     </rule>
 
     <rule>
       <description>NEVER modify `InteractionArea` (Root) Scale values.</description>
       <rationale>The root node establishes the collision footprint and global coordinate basis. Scaling it breaks raycasts and coordinate conversions.</rationale>
-      <example>
-        # CORRECT
-        VisualTarget.Scale = new Vector2(1.1f, 1.1f);
-        
-        # INCORRECT
-        this.Scale = new Vector2(1.1f, 1.1f); // Violates coordinate integrity
-      </example>
     </rule>
 
     <rule>
       <description>PROHIBITED: Implementing internal state checks (e.g., `if (_canMove)`) inside logic components.</description>
       <rationale>Breaks StateChart architecture. Component enablement/execution MUST be governed entirely by StateChart lifecycle states (`AutoBindToParentState()`).</rationale>
-      <example>
-        # CORRECT
-        // Handled strictly by parent state via AutoBindToParentState()
-        public override void _Process(double delta) { ExecuteMovement(); }
-        
-        # INCORRECT
-        public override void _Process(double delta) { if (_isDragging) ExecuteMovement(); }
-      </example>
     </rule>
     
     <rule>
       <description>ALWAYS execute `DisposeBag` teardown in `_ExitTree()`.</description>
       <rationale>R3 framework defaults to unbounded lifecycles. Failing to dispose triggers memory leaks in Godot environments.</rationale>
-      <example>
-        # CORRECT
-        public override void _ExitTree() { _disposables.Dispose(); }
-      </example>
     </rule>
   </core_rules>
 </layer_2_detailed_guide>
@@ -290,7 +180,6 @@
   <best_practices>
     - **Entity Component Disconnection**: Couple logic to abstract classes (`BaseInputComponent`) rather than concrete variants.
     - **UI Helper Automation**: Apply `[Tool]` and `[GlobalClass]` attributes to UI Helpers (Sliders, Dropdowns, Toggles). Execute immediate structural updates directly inside property setters to maintain WYSIWYG editor synchronicity.
-    - **Animation Configuration**: Map animations strictly as public string constants in `AnimationNames` and bind them structurally via `CharacterAnimationConfig.cs` using `RegisterAnim`. No hardcoded string execution permitted.
     - **State Recovery**: Before initiating visual ZIndex manipulation or drag overrides, snapshot the `OriginalGlobalPos` and Original State to ensure atomic reversibility.
   </best_practices>
 </layer_3_advanced>

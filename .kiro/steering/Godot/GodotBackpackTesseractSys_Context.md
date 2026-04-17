@@ -3,13 +3,16 @@ inclusion: manual
 ---
 
 <context>
-Grid-based inventory system with drag-and-drop, rotation, StateChart integration, and Backpack Battles-style synergy system. Supports arbitrary item shapes (Tetris-like) with reactive event streams (R3), MVC architecture, and UI micro-interactions.
+**Tesseract Backpack (TS)** - Grid-based inventory system with drag-and-drop, rotation, StateChart integration, and Backpack Battles-style synergy system. Supports arbitrary item shapes (Tetris-like) with reactive event streams (R3), MVC architecture, and UI micro-interactions.
 </context>
 
 <layer_1_quick_start>
   <quick_reference>
+    - **Project Prefix:** TS (Tesseract)
     - **Rule Storage:** Store ALL rules in `KiroWorkingSpace/.kiro/`.
-    - **Addon Root:** `3d-practice/addons/A1TetrisBackpack/`
+    - **Addon Root (Legacy):** `3d-practice/addons/A1TetrisBackpack/` (旧代码库)
+    - **New Project Root:** `3d-practice/A1TesseractBackpack/` (新场景和资源)
+    - **Scene Naming:** All scene files use `TS` prefix (e.g., `TSItem.tscn`)
     - **Core Path:** `3d-practice/addons/A1TetrisBackpack/Core/` (BackpackGridComponent, BackpackInteractionController, BackpackGridUIComponent)
     - **Items Path:** `3d-practice/addons/A1TetrisBackpack/Items/` (ItemDataResource, GridShapeComponent, AutoShapeBuilderComponent)
     - **Interaction Path:** `3d-practice/addons/A1TetrisBackpack/Interaction/` (DraggableItemComponent, FollowMouseUIComponent)
