@@ -1,3 +1,6 @@
+---
+inclusion: always
+---
 <layer_1_quick_start>
   <quick_reference>
     - Compilation Command: `dotnet build` (Execution directory: `3d-practice/`)

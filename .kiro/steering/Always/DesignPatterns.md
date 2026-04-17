@@ -1,3 +1,7 @@
+---
+inclusion: always
+---
+
 <layer_1_quick_start>
 
   <quick_reference>
@@ -144,3 +148,53 @@
   </best_practices>
 
 </layer_3_advanced>
+
+<critical_enforcement>
+  <absolute_prohibitions>
+    <prohibition severity="CRITICAL">
+      <violation>Using hardcoded string literals in GetNode() calls</violation>
+      <examples>
+        ❌ FORBIDDEN: GetNode&lt;Control&gt;("VisualContainer")
+        ❌ FORBIDDEN: GetNode&lt;Node&gt;("../Parent/Child")
+        ❌ FORBIDDEN: GetNodeOrNull&lt;Control&gt;("SomeNode")
+      </examples>
+      <mandatory_pattern>
+        ✅ REQUIRED: [Export] public NodePath VisualContainerPath { get; set; } = "%VisualContainer";
+        ✅ REQUIRED: GetNodeOrNull&lt;Control&gt;(VisualContainerPath)
+      </mandatory_pattern>
+      <rationale>Hardcoded strings create brittle coupling, break refactoring, and violate dependency injection principles. ALL node references MUST be exposed via [Export] NodePath with Scene Unique Name (%) defaults.</rationale>
+      <enforcement>If you write GetNode() with a string literal, STOP IMMEDIATELY and refactor to use [Export] NodePath.</enforcement>
+    </prohibition>
+
+    <prohibition severity="CRITICAL">
+      <violation>Declaring NodePath without default values</violation>
+      <examples>
+        ❌ FORBIDDEN: [Export] public NodePath Target { get; set; }
+      </examples>
+      <mandatory_pattern>
+        ✅ REQUIRED: [Export] public NodePath Target { get; set; } = "%Target";
+      </mandatory_pattern>
+      <rationale>NodePath properties without defaults force manual configuration in every scene instance, creating maintenance burden and error-prone workflows.</rationale>
+    </prohibition>
+
+    <prohibition severity="CRITICAL">
+      <violation>Direct sibling component access</violation>
+      <examples>
+        ❌ FORBIDDEN: GetParent().GetNode&lt;OtherComponent&gt;("Sibling")
+        ❌ FORBIDDEN: sibling.DoSomething()
+      </examples>
+      <mandatory_pattern>
+        ✅ REQUIRED: Emit C# event/Action to parent Mediator
+        ✅ REQUIRED: Parent Mediator coordinates between siblings
+      </mandatory_pattern>
+      <rationale>Direct sibling coupling violates single responsibility and creates unmaintainable spaghetti code.</rationale>
+    </prohibition>
+  </absolute_prohibitions>
+
+  <enforcement_protocol>
+    <step>1. Before writing ANY GetNode() call, ask: "Is this a hardcoded string?"</step>
+    <step>2. If yes, IMMEDIATELY create [Export] NodePath property with % default</step>
+    <step>3. If you catch yourself violating these rules, STOP and refactor before continuing</step>
+    <step>4. Code review checklist: Search for GetNode( and verify ALL calls use NodePath variables</step>
+  </enforcement_protocol>
+</critical_enforcement>
