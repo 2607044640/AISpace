@@ -1,11 +1,11 @@
 # 上次对话状态
 
 ## 元数据
-- **更新日期**: 2026-04-17
+- **更新日期**: 2026-04-18
 - **引擎**: Godot 4.6.1 stable mono
 - **语言**: C# only
 - **项目**: Tesseract Backpack (TS) - 完整网格背包系统（带协同效果）
-- **阶段**: 基础拖拽功能完成，准备扩展功能测试
+- **阶段**: 核心架构完成，数据注入问题已解决
 
 ## 项目命名规范
 
@@ -17,6 +17,65 @@
   - 示例: `TSItem.tscn`
   - 位置: `3d-practice/A1TesseractBackpack/TSItem.tscn`
 - **文档命名**: `GodotBackpackTesseractSys_Context.md`
+
+## 最新完成：接口解耦的数据注入架构 ✅
+
+### 问题背景
+TSItemWrapper 需要向子节点 GridShapeComponent 传递 `ItemDataResource`，但 Godot 的 `_Ready()` 生命周期是子节点先执行，导致父节点无法在子节点初始化前注入数据。
+
+### 初始方案的问题
+使用 C# 事件模式虽然解决了生命周期问题，但引入了**强依赖**：
+- GridShapeComponent 必须知道父节点是 `TSItemWrapper` 类型
+- 违反了组件的通用性和可复用性原则
+
+### 最终解决方案：Interface Segregation + Observer Pattern
+
+**实现架构**:
+```csharp
+// 1. 定义接口（解耦关键）
+public interface IItemDataProvider
+{
+    event Action<ItemDataResource> DataInitialized;
+}
+
+// 2. TSItemWrapper 实现接口
+public partial class TSItemWrapper : Control, IItemDataProvider
+{
+    public event Action<ItemDataResource> DataInitialized;
+    
+    public override void _Ready()
+    {
+        DataInitialized?.Invoke(Data);
+    }
+}
+
+// 3. GridShapeComponent 依赖接口而非具体类型
+public override void _Ready()
+{
+    var parent = GetParent();
+    if (parent is IItemDataProvider provider)  // 依赖接口
+    {
+        provider.DataInitialized += OnDataReceived;
+    }
+}
+```
+
+**优势**:
+- ✅ 完全解耦：GridShapeComponent 不依赖具体的 TSItemWrapper 类型
+- ✅ 高度可复用：任何实现 IItemDataProvider 的父节点都能工作
+- ✅ 符合 SOLID 原则：依赖倒置原则（DIP）和接口隔离原则（ISP）
+- ✅ 类型安全：编译时检查
+- ✅ 易于扩展：新的 Wrapper 类只需实现接口即可
+- ✅ 正确处理 Godot 生命周期顺序
+- ✅ 内存安全：_ExitTree 中取消订阅
+
+**修改文件**:
+- `3d-practice/addons/A1TetrisBackpack/Items/IItemDataProvider.cs` (新增)
+- `3d-practice/A1TesseractBackpack/TSItemWrapper.cs`
+- `3d-practice/addons/A1TetrisBackpack/Items/GridShapeComponent.cs`
+
+**文档更新**:
+- `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_ReadyOrder.md` (标记为已解决)
 
 ## 当前任务：功能扩展与测试
 
