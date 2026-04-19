@@ -5,11 +5,17 @@ inclusion: manual
 <kiro_rule>
   <layer_1_quick_start>
     <quick_reference>
+      - **Tool:** `mcp_sequential_thinking_sequentialthinking`
+      - **Confidence Threshold:** 7/10 before recommending architectural changes
       - **Trigger Context:** Code structure evaluation, refactoring, or tool assessment for Godot C# (.NET).
       - **Supplementary Data:** Cross-reference `#PluginRecommendations.md` - contains ONLY plugins NOT currently used in project.
       - **Working Memory:** Use `.kiro/Scratchpad/` for code analysis notes and plugin search records.
     </quick_reference>
     <decision_tree>
+      - IF Confidence Score < 7 OR blind spots exist:
+        - ACTION: Read more codebase, search for existing patterns, verify plugin compatibility. (Why: Prevents recommending solutions that don't fit actual architecture.)
+      - IF Confidence Score >= 7 AND recommendation validated:
+        - ACTION: Proceed with recommendation using "What/Helps/Solves" structure. (Why: High confidence threshold met with validated approach.)
       - If Godot string-based signals are detected: ALWAYS refactor to C# strongly-typed events. (Why: Lacks compile-time safety, prone to runtime errors).
       - If massive switch-case state logic is detected: ALWAYS recommend a dedicated state machine library. (Why: Violates Open-Closed Principle, high coupling).
       - If evaluating a plugin/library: ALWAYS verify GitHub Stars > 100 AND last update within 1 year. (Why: Ensures active maintenance and community validation).
@@ -31,17 +37,28 @@ inclusion: manual
   </layer_1_quick_start>
 
   <layer_2_detailed_guide>
+    <api_reference>
+      - Tool: `mcp_sequential_thinking_sequentialthinking`
+      - Purpose: Enforces mandatory analysis before architectural recommendations.
+    </api_reference>
+
     <implementation_guide>
-      - **Step 0: Deep Analysis & Record:**
+      - **Step 0: Execute Sequential Thinking:**
+        - Execute `mcp_sequential_thinking_sequentialthinking` to establish context.
+        - Build Knowledge Inventory: What patterns exist? What libraries are used? What's the communication architecture?
+        - Identify Blind Spots: Do I know the threading model? Do I know existing event systems? Do I know the data persistence pattern?
+        - Assign Confidence Score (1-10). If < 7, fill blind spots before recommending.
+      
+      - **Step 1: Deep Analysis & Record:**
         - Read extensive codebase sections to identify optimization opportunities, code smells, and architectural issues.
         - ALWAYS create or update `.kiro/Scratchpad/CodeAnalysis_[YYYYMMDD].md` with detailed findings.
         - Record: Tight coupling locations, SOLID violations, redundant patterns, performance bottlenecks, reinvented wheels.
         - Update this file continuously as you discover more issues during code reading.
         - (Why: Like a detective's notebook - prevents forgetting insights across sessions and builds a comprehensive problem map.)
       
-      - **Step 1: Diagnose:**
+      - **Step 2: Diagnose:**
         - Scan the provided C# codebase for tight coupling, SOLID violations, redundant boilerplate, and implicit technical debt.
-        - Prioritize findings from Step 0 analysis file.
+        - Prioritize findings from Step 1 analysis file.
       
       - **Step 2: Deduplicate:**
         - Identify custom implementations of standard patterns (e.g., reinvented state machines, messy async polling) that should be replaced by established libraries.
@@ -54,7 +71,7 @@ inclusion: manual
         - Update search timestamp in the file: "Last searched: YYYY-MM-DD".
         - (Why: Like a shopping research log - prevents re-searching same things, builds institutional knowledge, tracks evaluation history.)
       
-      - **Step 3.5: Check Local Registry:**
+      - **Step 4: Check Local Registry:**
         - ALWAYS read `#PluginRecommendations.md` AFTER completing web search.
         - IMPORTANT: This registry contains ONLY plugins NOT currently used in the project - it's a "wishlist" of vetted alternatives.
         - Compare new findings with existing registry entries.
@@ -62,12 +79,22 @@ inclusion: manual
         - Cross-check: Ensure you're not recommending something inferior to what's already documented.
         - (Why: Like checking your pantry before grocery shopping - avoids duplication, discovers hidden gems already vetted, prevents recommending inferior alternatives.)
       
-      - **Step 4: Filter & Evaluate:**
+      - **Step 5: Evaluate Confidence:**
+        - Assign Confidence Score (1-10) based on:
+          - Understanding of existing architecture (3 points)
+          - Verification of plugin compatibility (2 points)
+          - Validation against existing patterns (2 points)
+          - Comparison with registry entries (2 points)
+          - Architectural impact assessment (1 point)
+        - If Confidence < 7: Read more code, verify integration points, check threading model.
+        - If Confidence >= 7: Proceed to recommendation.
+      
+      - **Step 6: Filter & Evaluate:**
         - Reject candidates unless they have >100 GitHub Stars AND an update within the last year (unless deemed feature-complete).
         - Prioritize plugins that directly solve user's stated pain point.
         - Avoid recommending 2D tools for 3D projects or online services for offline games.
       
-      - **Step 5: Explain & Demonstrate:**
+      - **Step 7: Explain & Demonstrate:**
         - Use simple, intuitive language with real-world analogies when explaining concepts.
         - ALWAYS structure each recommendation explanation as:
           1. **What it does:** One-sentence summary of core functionality.
@@ -105,6 +132,14 @@ machine.Configure(State.Idle)
     </code_templates>
     <core_rules>
       <rule>
+        <description>ALWAYS execute `mcp_sequential_thinking_sequentialthinking` before architectural recommendations.</description>
+        <rationale>Ensures structured analysis and prevents recommending solutions that don't fit actual architecture.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS verify Confidence Score >= 7 before making architectural recommendations.</description>
+        <rationale>Prevents recommending plugins or patterns without sufficient understanding of existing architecture.</rationale>
+      </rule>
+      <rule>
         <description>ALWAYS prioritize native .NET features over Godot's legacy string APIs.</description>
         <rationale>Leveraging `async/await`, delegates, generics, and Source Generators creates idiomatic, performant, and safe C# code.</rationale>
       </rule>
@@ -140,6 +175,23 @@ machine.Configure(State.Idle)
   </layer_2_detailed_guide>
 
   <layer_3_advanced>
+    <blind_spots_checklist>
+      <question>Do I know the existing communication patterns (events, signals, reactive)?</question>
+      <action>Read existing component interactions and event flows</action>
+      
+      <question>Do I know the threading model for async operations?</question>
+      <action>Check for GodotProvider.MainThread usage and async patterns</action>
+      
+      <question>Do I know what NuGet packages are already installed?</question>
+      <action>Read .csproj file and check existing using statements</action>
+      
+      <question>Do I know if similar functionality already exists?</question>
+      <action>Search codebase for related patterns and implementations</action>
+      
+      <question>Do I know the data persistence pattern?</question>
+      <action>Check existing save/load implementations</action>
+    </blind_spots_checklist>
+
     <best_practices>
       - **Library Prescriptions:** When recommending libraries, explicitly state the GitHub Stars, Last Update Date, and architectural rationale to build developer trust.
       - **Modernization:** Actively look to replace any messy async polling with native C# `async/await` patterns tailored for Godot.

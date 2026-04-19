@@ -30,6 +30,7 @@ inclusion: always
     * Skipping `dotnet build` after C# edits. (Why: Fails to catch errors immediately during development.)
     * Summarizing or narrating `.kiro/Scratchpad/` updates to the user. (Why: Pollutes conversation output with internal tracking data.)
     * Documenting general programming concepts or textbook math. (Why: Violates strict anti-noise constraints; documentation must strictly apply to the specific project/game.)
+    * Renaming properties/fields with arbitrary alternative names. (Why: Creates cognitive overhead and breaks code searchability.)
   </top_anti_patterns>
 </layer_1_quick_start>
 
@@ -72,6 +73,10 @@ inclusion: always
     <rule>
       <description>Enforce the 3-part documentation structure (目的, 示例, 算法) exclusively on complex/logic-heavy functions.</description>
       <rationale>Standardizes complex logic explanation while preventing documentation bloat on simple or trivial functions.</rationale>
+    </rule>
+    <rule>
+      <description>NEVER rename properties/fields with arbitrary names. Use exact type name, camelCase, abbreviations, or lowercase only.</description>
+      <rationale>Maintains 1:1 type-to-variable mapping for instant searchability.</rationale>
     </rule>
   </core_rules>
 </layer_2_detailed_guide>

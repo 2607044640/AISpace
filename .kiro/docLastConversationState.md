@@ -18,6 +18,283 @@
   - 位置: `3d-practice/A1TesseractBackpack/TSItem.tscn`
 - **文档命名**: `GodotBackpackTesseractSys_Context.md`
 
+## 最新完成：事件聚合架构 - 离散方块 + R3 流汇聚 ✅
+
+### 架构转变：放弃 _HasPoint，采用事件聚合
+
+**问题**: _HasPoint 重写虽然可行，但与 Godot 的 AABB 系统对抗，不够优雅。
+
+**用户提出的更优方案**: 
+- 不与 AABB 对抗，让每个 1x1 ColorRect 独立接收 GuiInput
+- 通过 R3 Subject 将所有方块的事件汇聚成单一流
+- DraggableItemComponent 订阅这个流，而不是监听单一父容器
+
+### 核心架构：Event Aggregator Pattern
+
+```csharp
+// GridShapeVisualComponent - 事件聚合器
+private readonly Subject<InputEvent> _onBlockInputSubject = new();
+public Observable<InputEvent> OnBlockInputAsObservable => _onBlockInputSubject;
+
+// 生成方块时绑定事件
+visualBlock.GuiInput += (inputEvent) =>
+{
+    _onBlockInputSubject.OnNext(inputEvent);
+};
+
+// DraggableItemComponent - 订阅聚合流
+GridShapeVisualComponent.OnBlockInputAsObservable
+    .Subscribe(HandleGuiInput)
+    .AddTo(this);
+```
+
+### 数据流
+
+```
+用户点击 L 形的任意方块
+    ↓
+ColorRect[n].GuiInput 事件触发
+    ↓
+_onBlockInputSubject.OnNext(inputEvent)
+    ↓
+OnBlockInputAsObservable 流发射事件
+    ↓
+DraggableItemComponent 订阅者接收
+    ↓
+HandleGuiInput() 处理（左键拖拽/右键旋转）
+    ↓
+StateChart 状态切换
+```
+
+### 架构优势
+
+✅ **完全绕过 AABB**: 每个方块独立响应，无需对抗 Godot 系统  
+✅ **纯组件化**: GridShapeVisualComponent 是 Node（纯逻辑控制器）  
+✅ **事件统一**: R3 Subject 汇聚所有 GuiInput 到单一流  
+✅ **高度解耦**: DraggableItemComponent 只订阅流，不关心实现细节  
+✅ **易于扩展**: 可以轻松添加事件过滤、转换、合并等 R3 操作  
+✅ **内存安全**: Subject 在 _ExitTree 中 Dispose  
+
+### 关键实现
+
+**GridShapeVisualComponent (Node)**:
+- 生成独立的 ColorRect 方块（MouseFilter.Pass）
+- 绑定每个方块的 GuiInput 到 R3 Subject
+- 暴露 `OnBlockInputAsObservable` 供外部订阅
+- InteractionArea 设置 MouseFilter.Ignore（父容器不拦截）
+
+**DraggableItemComponent**:
+- Export 从 `NodePath ClickableAreaPath` 改为 `GridShapeVisualComponent GridShapeVisualComponent`
+- 订阅 `GridShapeVisualComponent.OnBlockInputAsObservable`
+- 逻辑保持不变（左键拖拽，右键旋转）
+
+### TSItem 场景结构
+
+```
+TetrisDraggableItem (TSItemWrapper) - MouseFilter.Ignore
+├── InteractionArea (Control) - MouseFilter.Ignore
+│   ├── ClickableBackground (ColorRect)
+│   ├── ItemIcon (TextureRect)
+│   └── [运行时生成的 ColorRect 方块 - MouseFilter.Pass]
+├── StateChart
+├── GridShapeComponent - 逻辑/数据层
+├── GridShapeVisualComponent - 事件聚合器
+└── DraggableItemComponent - 订阅聚合流
+```
+
+### 文件修改
+
+- ✅ `GridShapeVisualComponent.cs` - 从 Control 回归 Node，添加 R3 Subject 事件聚合
+- ✅ `DraggableItemComponent.cs` - 订阅 GridShapeVisualComponent 的事件流
+- ✅ `TSItem.tscn` - 更新 DraggableItemComponent 的 Export 引用
+
+### 验证
+
+✅ `dotnet build` 成功  
+✅ 事件聚合架构实现  
+✅ R3 流订阅正确配置  
+✅ 场景文件更新完成  
+
+### 测试指南
+
+1. 在 Godot 编辑器中打开 TSItem.tscn
+2. 设置 L 形数据：`[(0,0), (0,1), (1,1)]`
+3. 运行场景，点击任意实际方块 → 应触发拖拽
+4. 点击空白区域 (1,0) → 不应响应（方块不存在）
+5. 拖拽中按右键 → 应触发旋转
+
+### 关键教训
+
+**在 Godot 中处理不规则形状的鼠标交互，最优雅的方案是：**
+1. 让每个 1x1 方块独立接收事件（MouseFilter.Pass）
+2. 通过 R3 Subject 将多个事件源汇聚成单一流
+3. 组件订阅这个流，而不是依赖父容器的 AABB
+
+这是纯粹的**事件驱动 + 响应式编程**架构，完全符合 DesignPatterns.md 的组件化原则！
+
+---
+
+## 最新完成：TSItem 场景集成 GridShapeVisualComponent ✅
+
+### 场景结构更新
+
+**TSItem.tscn 新架构**:
+```
+TetrisDraggableItem (Control) - TSItemWrapper
+├── InteractionArea (Control) [重命名自 VisualContainer]
+│   ├── ClickableBackground (ColorRect)
+│   ├── ItemIcon (TextureRect)
+│   └── [GridShapeVisualComponent 生成的 ColorRect 方块]
+├── StateChart (Node)
+├── DraggableItemComponent (Node)
+├── GridShapeComponent (Node) - 逻辑/数据层
+└── GridShapeVisualComponent (Node) - 视觉/表现层 [新增]
+```
+
+### 关键配置
+
+**GridShapeComponent**:
+- `AutoResizeParent = true` - 自动调整父节点尺寸
+- `VisualContainerPath = NodePath("../InteractionArea")`
+
+**GridShapeVisualComponent** (新增):
+- `GridShapeComponent = NodePath("../GridShapeComponent")` - 引用逻辑组件
+- `InteractionArea = NodePath("../InteractionArea")` - 目标容器
+- `CellSize = 64.0` - 方块尺寸
+
+**InteractionArea**:
+- 添加 `unique_name_in_owner = true` - 支持 % 引用
+- `mouse_filter = 2` (Ignore) - 由 GridShapeVisualComponent 在运行时设置
+
+### 数据流
+
+```
+TSItemWrapper (IItemDataProvider)
+    ↓ DataInitialized event
+GridShapeComponent
+    ↓ Initializes CurrentLocalCells
+    ↓ OnShapeChangedAsObservable
+GridShapeVisualComponent
+    ↓ RebuildVisualBlocks()
+InteractionArea
+    └── ColorRect[] (1x1 精确交互方块)
+```
+
+### 验证
+
+✅ `dotnet build` 成功  
+✅ 场景结构正确配置  
+✅ NodePath 引用正确  
+✅ Logic-Visual 组件成对集成  
+
+### 下一步
+
+- 在 Godot 编辑器中打开场景验证
+- 测试物品拖拽和精确鼠标交互
+- 验证旋转时方块自动重建
+- 测试红绿光验证反馈
+
+---
+
+## 最新完成：GridShapeVisualComponent - 逻辑视觉配对命名 ✅
+
+### 命名规范升级：Logic-Visual Pairing
+
+**问题**: `ItemShapeBlocksComponent` 命名不清晰，无法体现与 `GridShapeComponent` 的强绑定关系。
+
+**解决方案**: 采用**前缀一致 + 职能后缀**命名法
+
+```
+GridShapeComponent (逻辑/数据层)
+    ↕ 强绑定关系
+GridShapeVisualComponent (视觉/表现层)
+```
+
+**命名模式**: `[Domain][Aspect]Component`
+- **Domain**: GridShape (共享前缀，建立认知链接)
+- **Aspect**: Component (逻辑) vs Visual (视觉)
+
+**优势**:
+- ✅ **即时识别**: 开发者瞬间理解它们是成对出现的
+- ✅ **可扩展**: 模式可延伸 (GridShapeSynergyComponent, GridShapeAudioComponent)
+- ✅ **可维护**: 防止项目扩大后的"任意命名地狱"
+- ✅ **认知效率**: 消除无关名称的心理映射开销
+
+### 核心架构
+
+**GridShapeVisualComponent 是纯响应式监听器**:
+```csharp
+// 订阅逻辑组件的变化事件
+GridShapeComponent.OnShapeChangedAsObservable
+    .Subscribe(_ => RebuildVisualBlocks())
+    .AddTo(this);
+```
+
+**职责分离**:
+- `GridShapeComponent`: 拥有数据，管理状态（旋转、归一化）
+- `GridShapeVisualComponent`: 不拥有数据，订阅事件，生成视觉方块
+
+**MouseFilter 架构**:
+- `InteractionArea.MouseFilter = Ignore` - 父容器不拦截
+- 每个 `ColorRect.MouseFilter = Pass` - 精确的 1x1 交互
+
+### 文件变更
+
+- ✅ 创建: `GridShapeVisualComponent.cs`
+- ✅ 更新: `ComponentDesign_20260418_ShapeBlocks.md` (添加命名哲学章节)
+
+### 验证
+
+✅ `dotnet build` 成功  
+✅ 逻辑-视觉命名配对建立  
+✅ 严格命名规则执行 (Type-to-Variable)  
+✅ 纯响应式监听器模式  
+
+---
+
+## 最新完成：ItemShapeBlocksComponent - 精确方块生成组件 ✅
+
+### 问题背景
+AABB (Axis-Aligned Bounding Box) 包围盒对不规则形状（如 L 形）创建矩形碰撞区域，导致空白区域也能被点击，鼠标交互不精确。
+
+### 解决方案：1x1 方块生成
+
+**核心设计**:
+```csharp
+// 父容器忽略鼠标，让子块精准接收事件
+VisualContainer.MouseFilter = Control.MouseFilterEnum.Ignore;
+
+// 为每个格子生成独立的 ColorRect
+foreach (Vector2I cellPos in ShapeData.CurrentLocalCells)
+{
+    var cellBlock = new ColorRect
+    {
+        Size = new Vector2(CellSize, CellSize),
+        Position = new Vector2(cellPos.X * CellSize, cellPos.Y * CellSize),
+        MouseFilter = Control.MouseFilterEnum.Pass  // 精确交互
+    };
+}
+```
+
+**架构优势**:
+- ✅ **像素级精确**: 只有实际格子可点击，空白区域不响应
+- ✅ **视觉准确**: 交互区域与视觉表现完全匹配
+- ✅ **响应式**: 订阅 OnShapeChangedAsObservable，旋转时自动重建
+- ✅ **验证反馈**: 提供 SetValidationFeedback() API 用于拖拽时的红绿光反馈
+- ✅ **轻量级**: ColorRect 性能开销极小
+
+**新增文件**:
+- `3d-practice/addons/A1TetrisBackpack/Items/ItemShapeBlocksComponent.cs`
+- `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_AABBProblem.md`
+- `KiroWorkingSpace/.kiro/Scratchpad/ComponentDesign_20260418_ShapeBlocks.md`
+
+**下一步**:
+- 集成到 TSItem 场景
+- 更新 BackpackInteractionController 调用验证反馈方法
+- 测试不规则形状的鼠标交互精度
+
+---
+
 ## 最新完成：接口解耦的数据注入架构 ✅
 
 ### 问题背景
