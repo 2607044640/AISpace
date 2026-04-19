@@ -3,7 +3,6 @@ inclusion: always
 ---
 
 <layer_1_quick_start>
-
   <quick_reference>
     - **Package Requirements:** Install `R3` and `R3.Godot` via NuGet.
     - **Rule Storage:** Save and enforce all architectural rules in `KiroWorkingSpace/.kiro/`.
@@ -22,28 +21,18 @@ inclusion: always
       - **ALWAYS** use `.Debounce(TimeSpan)`. (Why: Prevents performance locking by waiting for stream settlement).
   </decision_tree>
 
-  <minimal_workflow>
-    1. Declare an Entity using `[Entity]` and call `InitializeEntity()` inside `_Ready()`.
-    2. Create independent Components using `[Component(typeof(ParentType))]` and call `InitializeComponent()` inside `_Ready()`.
-    3. Declare inter-component needs using `[ComponentDependency(typeof(OtherComponent))]`.
-    4. Subscribe to events strictly inside `OnEntityReady()` and map updates to `.AddTo(_disposables)`.
-    5. Clean up by calling `_disposables.Dispose()` strictly inside `_ExitTree()`.
-  </minimal_workflow>
-
   <top_anti_patterns>
-    - Using hardcoded relative paths: `GetNode("../../../NodeName")`. Use `[Export] NodePath = "%NodeName"` instead.
-    - Declaring NodePath without defaults: `[Export] public NodePath Target { get; set; }`. Use `= "%Target"` default.
-    - Tightly coupling nodes using `GetNode<T>()` without [Export]. Dependencies must be injected via `[Export]` with `%` defaults.
-    - Calling sibling component methods directly. Signal upward via C# `event/Action` to the Mediator.
-    - Stuffing `if-else` logic into `_PhysicsProcess`. Use Finite State Machines.
-    - Hardcoding magic values or animation names. Expose via `[Export]`.
-    - Subscribing to events inside `_Ready()`. Use `OnEntityReady()` instead.
+    - **Using hardcoded string literals in `GetNode()`:** `GetNode<Control>("VisualContainer")`. (Why: Creates brittle coupling and breaks refactoring. **ALWAYS** use `[Export] NodePath` with `%` defaults).
+    - **Declaring `NodePath` without defaults:** `[Export] public NodePath Target { get; set; }`. (Why: Forces manual configuration and is error-prone. Use `= "%Target"`).
+    - **Direct sibling component access:** `sibling.DoSomething()`. (Why: Violates single responsibility and creates unmaintainable spaghetti code. Signal upward to the Mediator).
+    - **Tightly coupling nodes using `GetNode<T>()` without `[Export]`:** Dependencies **MUST** be injected via `[Export]`.
+    - **Stuffing `if-else` logic into `_PhysicsProcess`:** (Why: Scales poorly. Use Finite State Machines).
+    - **Hardcoding magic values or animation names:** (Why: Prevents designer tweaking. Expose via `[Export]`).
+    - **Subscribing to events inside `_Ready()`:** (Why: Fails if dependencies aren't loaded. Use `OnEntityReady()` instead).
   </top_anti_patterns>
-
 </layer_1_quick_start>
 
 <layer_2_detailed_guide>
-
   <api_reference>
     | C# Attributes | Target | Purpose |
     |---|---|---|
@@ -73,6 +62,14 @@ inclusion: always
     | `.OnItemSelectedAsObservable()`| Dropdowns | Emits state immediately upon subscription. |
   </api_reference>
 
+  <implementation_guide>
+    1. Declare an Entity using `[Entity]` and call `InitializeEntity()` inside `_Ready()`.
+    2. Create independent Components using `[Component(typeof(ParentType))]` and call `InitializeComponent()` inside `_Ready()`.
+    3. Declare inter-component needs using `[ComponentDependency(typeof(OtherComponent))]`.
+    4. Subscribe to events strictly inside `OnEntityReady()` and map updates to `.AddTo(_disposables)`.
+    5. Clean up by calling `_disposables.Dispose()` strictly inside `_ExitTree()`.
+  </implementation_guide>
+
   <core_rules>
     <rule>
       <description>**ALWAYS** design systems using "Composition over Inheritance".</description>
@@ -82,12 +79,13 @@ inclusion: always
     </rule>
     <rule>
       <description>**NEVER** allow sibling components to reference each other directly.</description>
+      <rationale>Direct sibling coupling violates single responsibility. Parent Mediator **MUST** coordinate between siblings via C# events.</rationale>
     </rule>
     <rule>
-      <description>**ALWAYS** use Scene Unique Names (%) for NodePath properties with default values.</description>
+      <description>**ALWAYS** use Scene Unique Names (`%`) for `NodePath` properties with default values.</description>
+      <rationale>Hardcoded strings create brittle coupling and break refactoring. Default values eliminate manual configuration burden.</rationale>
       <example>
         [Export] public NodePath StateChartNode { get; set; } = "%StateChart";
-        [Export] public NodePath TargetUI { get; set; } = "%TestItem";
         
         public override void _Ready()
         {
@@ -97,6 +95,19 @@ inclusion: always
                 GD.PushError($"[{Name}] StateChart not found: {StateChartNode}");
                 return;
             }
+        }
+      </example>
+    </rule>
+    <rule>
+      <description>**ALWAYS** initialize R3 Subjects in `_Ready()` before any subscription can occur.</description>
+      <rationale>Godot's `_Ready()` executes child-to-parent. Subscribers may attempt to access Subjects before initialization, causing `NullReferenceException`.</rationale>
+      <example>
+        public Subject&lt;Unit&gt; OnShapeChanged { get; private set; }
+        
+        public override void _Ready()
+        {
+            OnShapeChanged = new Subject&lt;Unit&gt;();  // Initialize FIRST
+            // ... rest of initialization
         }
       </example>
     </rule>
@@ -111,13 +122,12 @@ inclusion: always
     </rule>
     <rule>
       <description>**ALWAYS** use ValueTuples `(a, b)` instead of anonymous objects `new { a, b }` inside `EveryUpdate` loops.</description>
+      <rationale>Anonymous objects trigger heap allocation, causing Garbage Collection (GC) spikes and frame drops.</rationale>
     </rule>
   </core_rules>
-
 </layer_2_detailed_guide>
 
 <layer_3_advanced>
-
   <troubleshooting>
     <error symptom="Memory leaks and degraded performance over time.">
       <cause>Reactive subscriptions or C# events were not cleanly detached upon node removal, leaving zombie objects in memory.</cause>
@@ -133,7 +143,43 @@ inclusion: always
     </error>
     <error symptom="Micro-stutters or frame drops during gameplay (GC Spikes).">
       <cause>Memory is being dynamically allocated on the heap during an `Observable.EveryUpdate()` or `Observable.EveryPhysicsUpdate()` loop using anonymous objects.</cause>
-      <fix>Strip out anonymous objects (`new { x, y }`) and replace them strictly with struct-based ValueTuples (`(x, y)`).</fix>
+      <fix>Use struct-based ValueTuples instead of anonymous objects.</fix>
+      <example>
+        // Use ValueTuples
+        Observable.EveryUpdate()
+            .Select(_ =&gt; (player.Position, enemy.Position))
+            .Subscribe(tuple =&gt; { ... });
+      </example>
+    </error>
+    <error symptom="NullReferenceException when subscribing to Observable or calling Subject.OnNext().">
+      <cause>R3 Subject was declared but never initialized in `_Ready()`.</cause>
+      <fix>Initialize ALL Subjects at the top of `_Ready()`: `OnShapeChanged = new Subject&lt;Unit&gt;();`</fix>
+    </error>
+    <error symptom="Component receives null data or misses initialization events.">
+      <cause>Godot's `_Ready()` executes child-to-parent. Child subscribed to parent's event, but parent fires event before child's `_Ready()` completes.</cause>
+      <fix>Use C# `event Action&lt;T&gt;` pattern. Parent fires event in `_Ready()`. Child subscribes in `_Ready()`. Godot guarantees child subscribes first. **ALWAYS** unsubscribe in `_ExitTree()`.</fix>
+      <example>
+        // Parent
+        public event Action&lt;ItemData&gt; OnDataReady;
+        
+        public override void _Ready() 
+        { 
+            CallDeferred(() =&gt; OnDataReady?.Invoke(data)); 
+        }
+        
+        // Child
+        public override void _Ready()
+        {
+            if (GetParent() is IDataProvider provider)
+                provider.OnDataReady += InitializeWithData;
+        }
+        
+        public override void _ExitTree()
+        {
+            if (GetParent() is IDataProvider provider)
+                provider.OnDataReady -= InitializeWithData;  // Prevent memory leak
+        }
+      </example>
     </error>
     <error symptom="NullReferenceException thrown during `InitializeComponent()` or `_Ready()`.">
       <cause>A component attempted to access a dependency or subscribe to a sibling event before the entity's component tree finished loading.</cause>
@@ -145,56 +191,9 @@ inclusion: always
     - **Payload Discarding:** Streamline logic by chaining `.AsUnitObservable()` when the pipeline only needs to know *when* an event happened, not *what* the payload contained.
     - **State Abstraction:** Use `ReactiveProperty<T>` for discrete, non-continuous state changes so UI elements automatically sync via single-subscription.
     - **Editor Parity:** Take full advantage of `R3.Godot` extensions like `OnToggledAsObservable()` because they immediately emit current state upon subscription, ensuring UI aligns instantly with backend state.
+    - **Enforcement Protocol:** 1. Before writing ANY `GetNode()` call, ask: "Is this a hardcoded string?"
+      2. If yes, **IMMEDIATELY** create `[Export] NodePath` property with `%` default.
+      3. If you catch yourself violating these rules, **STOP** and refactor before continuing.
+      4. Code review checklist: Search for `GetNode(` and verify ALL calls use NodePath variables.
   </best_practices>
-
 </layer_3_advanced>
-
-<critical_enforcement>
-  <absolute_prohibitions>
-    <prohibition severity="CRITICAL">
-      <violation>Using hardcoded string literals in GetNode() calls</violation>
-      <examples>
-        ❌ FORBIDDEN: GetNode&lt;Control&gt;("VisualContainer")
-        ❌ FORBIDDEN: GetNode&lt;Node&gt;("../Parent/Child")
-        ❌ FORBIDDEN: GetNodeOrNull&lt;Control&gt;("SomeNode")
-      </examples>
-      <mandatory_pattern>
-        ✅ REQUIRED: [Export] public NodePath VisualContainerPath { get; set; } = "%VisualContainer";
-        ✅ REQUIRED: GetNodeOrNull&lt;Control&gt;(VisualContainerPath)
-      </mandatory_pattern>
-      <rationale>Hardcoded strings create brittle coupling, break refactoring, and violate dependency injection principles. ALL node references MUST be exposed via [Export] NodePath with Scene Unique Name (%) defaults.</rationale>
-      <enforcement>If you write GetNode() with a string literal, STOP IMMEDIATELY and refactor to use [Export] NodePath.</enforcement>
-    </prohibition>
-
-    <prohibition severity="CRITICAL">
-      <violation>Declaring NodePath without default values</violation>
-      <examples>
-        ❌ FORBIDDEN: [Export] public NodePath Target { get; set; }
-      </examples>
-      <mandatory_pattern>
-        ✅ REQUIRED: [Export] public NodePath Target { get; set; } = "%Target";
-      </mandatory_pattern>
-      <rationale>NodePath properties without defaults force manual configuration in every scene instance, creating maintenance burden and error-prone workflows.</rationale>
-    </prohibition>
-
-    <prohibition severity="CRITICAL">
-      <violation>Direct sibling component access</violation>
-      <examples>
-        ❌ FORBIDDEN: GetParent().GetNode&lt;OtherComponent&gt;("Sibling")
-        ❌ FORBIDDEN: sibling.DoSomething()
-      </examples>
-      <mandatory_pattern>
-        ✅ REQUIRED: Emit C# event/Action to parent Mediator
-        ✅ REQUIRED: Parent Mediator coordinates between siblings
-      </mandatory_pattern>
-      <rationale>Direct sibling coupling violates single responsibility and creates unmaintainable spaghetti code.</rationale>
-    </prohibition>
-  </absolute_prohibitions>
-
-  <enforcement_protocol>
-    <step>1. Before writing ANY GetNode() call, ask: "Is this a hardcoded string?"</step>
-    <step>2. If yes, IMMEDIATELY create [Export] NodePath property with % default</step>
-    <step>3. If you catch yourself violating these rules, STOP and refactor before continuing</step>
-    <step>4. Code review checklist: Search for GetNode( and verify ALL calls use NodePath variables</step>
-  </enforcement_protocol>
-</critical_enforcement>
