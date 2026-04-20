@@ -18,20 +18,6 @@ inclusion: always
     5. Run `dotnet build` immediately after any C# modifications.
     6. Update internal state, checklists, and bug logs in `.kiro/Scratchpad/` silently.
   </quickstart_workflow>
-
-  <decision_tree>
-    * Is the function trivial (lifecycle hooks, simple getters)? -> Omit documentation entirely. (Why: Prevents noise and wasted lines explaining self-evident code.)
-    * Is the function simple? -> Use single-sentence summary or inline comments. (Why: Maintains flexibility without forcing rigid structures.)
-    * Is the function complex or logic-heavy? -> Apply mandatory 3-part structure (目的/Purpose, 示例/Example, 算法/Algorithm). (Why: Ensures logic execution steps map strictly 1:1 to code.)
-    * Does analysis show a significantly better architectural approach? -> Propose approach but wait for user approval before pivoting. (Why: Prevents unauthorized deviations from explicitly requested architecture.)
-  </decision_tree>
-
-  <top_anti_patterns>
-    * Skipping `dotnet build` after C# edits. (Why: Fails to catch errors immediately during development.)
-    * Summarizing or narrating `.kiro/Scratchpad/` updates to the user. (Why: Pollutes conversation output with internal tracking data.)
-    * Documenting general programming concepts or textbook math. (Why: Violates strict anti-noise constraints; documentation must strictly apply to the specific project/game.)
-    * Renaming properties/fields with arbitrary alternative names. (Why: Creates cognitive overhead and breaks code searchability.)
-  </top_anti_patterns>
 </layer_1_quick_start>
 
 <layer_2_detailed_guide>
@@ -75,28 +61,17 @@ inclusion: always
       <rationale>Standardizes complex logic explanation while preventing documentation bloat on simple or trivial functions.</rationale>
     </rule>
     <rule>
-      <description>NEVER rename properties/fields with arbitrary names. Use exact type name, camelCase, abbreviations, or lowercase only.</description>
-      <rationale>Maintains 1:1 type-to-variable mapping for instant searchability.</rationale>
+      <description>Use TypeName_Purpose format for all fields/properties. Both parts PascalCase.</description>
+      <rationale>Enables bidirectional search (by type or purpose) and eliminates cognitive overhead.</rationale>
+      <examples>
+        ✅ CORRECT: OptionButton_Theme, PopupMenu_MenuOption, Button_Option
+        ❌ FORBIDDEN: _themeDropdown, optionButton, menuPopup (arbitrary names)
+      </examples>
     </rule>
   </core_rules>
 </layer_2_detailed_guide>
 
 <layer_3_advanced>
-  <troubleshooting>
-    <error symptom="Unexpected Godot runtime behavior or unhandled exceptions during execution.">
-      <cause>Silenced runtime errors or logic bugs not caught by dotnet build compilation.</cause>
-      <fix>Check Godot Output tab or parse $env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log for raw engine logs.</fix>
-    </error>
-    <error symptom="Implementation fails to integrate properly with existing systems or violates user architecture.">
-      <cause>Blindly accepting assumptions or pivoting architecture without explicit user approval.</cause>
-      <fix>Re-read docLastConversationState.md, execute sequential thinking, and request authorization before altering architecture.</fix>
-    </error>
-    <error symptom="mcp_godot_export_mesh_library execution failure.">
-      <cause>Missing required node type in the target scene.</cause>
-      <fix>Ensure the target node is specifically a MeshInstance3D before invoking the export tool.</fix>
-    </error>
-  </troubleshooting>
-
   <best_practices>
     - Delete documentation ruthlessly if the explanation applies to programming in general rather than the specific feature.
     - Implement functionality incrementally and verify each individual step.

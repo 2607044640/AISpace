@@ -1,11 +1,11 @@
 # 上次对话状态
 
 ## 元数据
-- **更新日期**: 2026-04-18
+- **更新日期**: 2026-04-19
 - **引擎**: Godot 4.6.1 stable mono
 - **语言**: C# only
 - **项目**: Tesseract Backpack (TS) - 完整网格背包系统（带协同效果）
-- **阶段**: 核心架构完成，数据注入问题已解决
+- **阶段**: Event Aggregator 架构完成并验证，R3 Subject 初始化 Bug 已修复
 
 ## 项目命名规范
 
@@ -17,6 +17,126 @@
   - 示例: `TSItem.tscn`
   - 位置: `3d-practice/A1TesseractBackpack/TSItem.tscn`
 - **文档命名**: `GodotBackpackTesseractSys_Context.md`
+
+## 最新完成：R3 Subject 初始化 Bug 修复 ✅
+
+### 问题诊断
+在实现 Event Aggregator 架构后，运行时出现 `NullReferenceException`：
+- **症状**: GridShapeVisualComponent 尝试订阅 `GridShapeComponent.OnShapeChangedAsObservable` 时崩溃
+- **根本原因**: `OnShapeChangedAsObservable` Subject 从未被初始化（仅声明为属性，未实例化）
+- **次要问题**: GridShapeVisualComponent 在 `_Ready()` 中过早尝试构建视觉方块，此时数据尚未通过 `IItemDataProvider` 接口注入
+
+### 修复方案
+
+**1. GridShapeComponent.cs - Subject 初始化**
+```csharp
+public override void _Ready()
+{
+    GD.Print($"[{Name}] GridShapeComponent._Ready() 开始");
+    
+    // 【BUG FIX】初始化 R3 Subject（必须在任何订阅之前完成）
+    OnShapeChangedAsObservable = new Subject<Unit>();
+    GD.Print($"[{Name}] OnShapeChangedAsObservable 已初始化");
+    
+    // ... 其余初始化逻辑
+}
+```
+
+**2. GridShapeComponent.SetData() - 触发事件**
+```csharp
+public void SetData(ItemDataResource data)
+{
+    _data = data;
+    InitializeShape();
+    
+    if (AutoResizeParent)
+    {
+        CallDeferred(MethodName.UpdateParentSize);
+    }
+    
+    // 【关键】触发形状变化事件，通知 GridShapeVisualComponent 构建视觉方块
+    OnShapeChangedAsObservable?.OnNext(Unit.Default);
+    
+    GD.Print($"GridShapeComponent 初始化完成：{CurrentLocalCells?.Length ?? 0} 个格子");
+}
+```
+
+**3. GridShapeVisualComponent.cs - 条件构建**
+```csharp
+public override void _Ready()
+{
+    // ... 引用解析和订阅逻辑
+    
+    GridShapeComponent.OnShapeChangedAsObservable
+        .Subscribe(_ => 
+        {
+            GD.Print($"[{Name}] 收到形状变化事件，重建视觉方块");
+            RebuildVisualBlocks();
+        })
+        .AddTo(this);
+    
+    // 【架构修正】不在 _Ready() 中立即构建方块
+    // 原因：数据通过 IItemDataProvider 接口异步注入，此时 CurrentLocalCells 可能为 null
+    // 解决方案：仅通过 OnShapeChangedAsObservable 事件触发构建（数据注入后会自动触发）
+    if (GridShapeComponent.CurrentLocalCells != null)
+    {
+        GD.Print($"[{Name}] 数据已存在，立即构建视觉方块");
+        RebuildVisualBlocks();
+    }
+    else
+    {
+        GD.Print($"[{Name}] 数据尚未注入，等待 OnShapeChangedAsObservable 事件");
+    }
+}
+```
+
+### 初始化时序
+
+正确的初始化顺序（通过 debug 日志验证）：
+```
+1. GridShapeComponent._Ready()
+   └─ OnShapeChangedAsObservable = new Subject<Unit>()
+
+2. GridShapeVisualComponent._Ready()
+   └─ 订阅 OnShapeChangedAsObservable
+   └─ 检查 CurrentLocalCells (此时为 null，跳过构建)
+
+3. TSItemWrapper._Ready()
+   └─ 触发 DataInitialized 事件
+
+4. GridShapeComponent.OnDataReceived()
+   └─ SetData(data)
+   └─ InitializeShape()
+   └─ OnShapeChangedAsObservable.OnNext(Unit.Default)
+
+5. GridShapeVisualComponent 订阅者接收事件
+   └─ RebuildVisualBlocks()
+   └─ 生成 ColorRect 方块
+```
+
+### 验证结果
+
+✅ **编译成功**: `dotnet build` 无错误  
+✅ **运行成功**: Scenes/BackpackTest.tscn 正常加载  
+✅ **初始化正确**: Debug 日志显示完整的事件流  
+✅ **无 NullReferenceException**: Subject 在订阅前已初始化  
+✅ **数据注入正确**: IItemDataProvider 接口模式工作正常  
+
+### 测试场景
+- **测试文件**: `3d-practice/Scenes/BackpackTest.tscn`
+- **测试项**: TSItem 实例（L 形物品）
+- **验证点**: 
+  1. 场景加载无崩溃
+  2. 视觉方块正确生成
+  3. 事件流正确触发
+
+### 下一步测试
+1. **鼠标交互测试**: 点击 L 形的实际方块 vs 空白角落
+2. **旋转功能测试**: 拖拽中右键旋转
+3. **验证反馈测试**: 红绿光颜色切换
+4. **清理 Debug 日志**: 移除或减少生产环境的调试输出
+
+---
 
 ## 最新完成：事件聚合架构 - 离散方块 + R3 流汇聚 ✅
 
@@ -117,11 +237,27 @@ TetrisDraggableItem (TSItemWrapper) - MouseFilter.Ignore
 
 ### 测试指南
 
-1. 在 Godot 编辑器中打开 TSItem.tscn
-2. 设置 L 形数据：`[(0,0), (0,1), (1,1)]`
-3. 运行场景，点击任意实际方块 → 应触发拖拽
-4. 点击空白区域 (1,0) → 不应响应（方块不存在）
-5. 拖拽中按右键 → 应触发旋转
+**当前状态**: Event Aggregator 架构已实现并通过初始化验证
+
+**待测试功能**:
+1. ✅ 场景加载和初始化（已验证）
+2. ⏳ L 形物品鼠标交互精度
+   - 点击实际方块 → 应触发拖拽
+   - 点击空白角落 (1,0) → 不应响应
+3. ⏳ 拖拽中右键旋转
+4. ⏳ 验证反馈（红绿光）
+5. ⏳ 方块自动重建（旋转后）
+
+**测试步骤**:
+1. 在 Godot 编辑器中打开 `Scenes/BackpackTest.tscn`
+2. 运行场景（F5）
+3. 尝试点击 TSItem 的不同区域
+4. 拖拽物品并测试旋转
+5. 观察控制台输出和视觉反馈
+
+**Debug 日志清理**:
+- 当前代码包含大量 `GD.Print()` 用于调试
+- 验证稳定后应移除或改为条件编译（`#if DEBUG`）
 
 ### 关键教训
 

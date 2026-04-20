@@ -3,6 +3,7 @@ inclusion: always
 ---
 
 <layer_1_quick_start>
+
   <quick_reference>
     - **Package Requirements:** Install `R3` and `R3.Godot` via NuGet.
     - **Rule Storage:** Save and enforce all architectural rules in `KiroWorkingSpace/.kiro/`.
@@ -30,9 +31,11 @@ inclusion: always
     - **Hardcoding magic values or animation names:** (Why: Prevents designer tweaking. Expose via `[Export]`).
     - **Subscribing to events inside `_Ready()`:** (Why: Fails if dependencies aren't loaded. Use `OnEntityReady()` instead).
   </top_anti_patterns>
+
 </layer_1_quick_start>
 
 <layer_2_detailed_guide>
+
   <api_reference>
     | C# Attributes | Target | Purpose |
     |---|---|---|
@@ -81,6 +84,21 @@ inclusion: always
       <description>**NEVER** allow sibling components to reference each other directly.</description>
       <rationale>Direct sibling coupling violates single responsibility. Parent Mediator **MUST** coordinate between siblings via C# events.</rationale>
     </rule>
+    
+    <!-- Documentation Rules: Apply based on function complexity -->
+    <rule>
+      <description>Trivial functions (lifecycle hooks, simple getters): Omit documentation entirely.</description>
+      <rationale>Prevents noise and wasted lines explaining self-evident code.</rationale>
+    </rule>
+    <rule>
+      <description>Simple functions: Use single-sentence summary or inline comments.</description>
+      <rationale>Maintains flexibility without forcing rigid structures.</rationale>
+    </rule>
+    <rule>
+      <description>Complex/logic-heavy functions: Apply mandatory 3-part structure (目的/Purpose, 示例/Example, 算法/Algorithm).</description>
+      <rationale>Ensures logic execution steps map strictly 1:1 to code.</rationale>
+    </rule>
+    
     <rule>
       <description>**ALWAYS** use Scene Unique Names (`%`) for `NodePath` properties with default values.</description>
       <rationale>Hardcoded strings create brittle coupling and break refactoring. Default values eliminate manual configuration burden.</rationale>
@@ -89,7 +107,7 @@ inclusion: always
         
         public override void _Ready()
         {
-            var stateChart = GetNodeOrNull<Node>(StateChartNode);
+            var stateChart = GetNodeOrNull&lt;Node&gt;(StateChartNode);
             if (stateChart == null)
             {
                 GD.PushError($"[{Name}] StateChart not found: {StateChartNode}");
@@ -125,9 +143,11 @@ inclusion: always
       <rationale>Anonymous objects trigger heap allocation, causing Garbage Collection (GC) spikes and frame drops.</rationale>
     </rule>
   </core_rules>
+
 </layer_2_detailed_guide>
 
 <layer_3_advanced>
+
   <troubleshooting>
     <error symptom="Memory leaks and degraded performance over time.">
       <cause>Reactive subscriptions or C# events were not cleanly detached upon node removal, leaving zombie objects in memory.</cause>
@@ -196,4 +216,5 @@ inclusion: always
       3. If you catch yourself violating these rules, **STOP** and refactor before continuing.
       4. Code review checklist: Search for `GetNode(` and verify ALL calls use NodePath variables.
   </best_practices>
+
 </layer_3_advanced>

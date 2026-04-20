@@ -79,3 +79,38 @@ inclusion: manual
 ## Current Code
 ```csharp
 [Insert the specific, relevant C# code block causing the issue]
+
+```
+## Error Logs
+[Paste complete error output from Godot console or dotnet build]
+
+## Question
+[What specific aspect needs clarification or alternative approach?]
+        ]]></code>
+      </template>
+    </code_templates>
+  </layer_2_detailed_guide>
+
+  <layer_3_advanced>
+    <troubleshooting>
+      <error symptom="Unexpected Godot runtime behavior or unhandled exceptions during execution.">
+        <cause>Silenced runtime errors or logic bugs not caught by dotnet build compilation.</cause>
+        <fix>Check Godot Output tab or parse $env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log for raw engine logs.</fix>
+      </error>
+      <error symptom="Implementation fails to integrate properly with existing systems or violates user architecture.">
+        <cause>Blindly accepting assumptions or pivoting architecture without explicit user approval.</cause>
+        <fix>Re-read docLastConversationState.md, execute sequential thinking, and request authorization before altering architecture.</fix>
+      </error>
+      <error symptom="mcp_godot_export_mesh_library execution failure.">
+        <cause>Missing required node type in the target scene.</cause>
+        <fix>Ensure the target node is specifically a MeshInstance3D before invoking the export tool.</fix>
+      </error>
+    </troubleshooting>
+
+    <best_practices>
+      - Delete documentation ruthlessly if the explanation applies to programming in general rather than the specific feature.
+      - Implement functionality incrementally and verify each individual step.
+      - Save permanent documentation, steering files, and specifications strictly outside of the Scratchpad directory.
+    </best_practices>
+  </layer_3_advanced>
+</bug_investigation_rules>
