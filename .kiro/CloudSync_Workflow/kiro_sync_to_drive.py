@@ -36,6 +36,16 @@ SOURCE_PROJECT_DIR = r"C:\Godot\3d-practice"
 KIRO_WORKSPACE_DIR = r"C:\Godot\KiroWorkingSpace\.kiro"
 
 # KiroWorkingSpace 白名单：只包含这些子目录
+# 
+# 📌 为什么排除 Scratchpad？
+# Scratchpad 是"工作记忆"目录，包含：
+# - 临时 Bug 修复记录（已修复的问题）
+# - 调试日志和思考过程
+# - 一次性的分析报告
+# 这些内容对 AI 理解当前代码架构没有帮助，反而会引入噪音。
+# 
+# 如果 Scratchpad 中有重要的架构决策，应该提炼后移到 docs/ 或 steering/ 目录。
+#
 KIRO_WHITELIST_DIRS = ['steering', 'docs', 'specs']
 
 # KiroWorkingSpace 白名单：根目录的这些文件

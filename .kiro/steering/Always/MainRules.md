@@ -18,6 +18,13 @@ inclusion: always
     5. Run `dotnet build` immediately after any C# modifications.
     6. Update internal state, checklists, and bug logs in `.kiro/Scratchpad/` silently.
   </quickstart_workflow>
+
+  <error_escalation>
+    **IF 3 consecutive fix attempts fail for the same issue:**
+    - HALT execution immediately
+    - Read and follow instructions in `C:\Godot\KiroWorkingSpace\.kiro\steering\StableOrOther\BugInvestigation.md`
+    - Use the Escalation Template to request human intervention
+  </error_escalation>
 </layer_1_quick_start>
 
 <layer_2_detailed_guide>
@@ -55,18 +62,6 @@ inclusion: always
     <rule>
       <description>Use .kiro/Scratchpad/ exclusively for internal state tracking, complex task checklists, and cross-session bug logs.</description>
       <rationale>Isolates working memory from permanent documentation and prevents conversational bloat.</rationale>
-    </rule>
-    <rule>
-      <description>Enforce the 3-part documentation structure (目的, 示例, 算法) exclusively on complex/logic-heavy functions.</description>
-      <rationale>Standardizes complex logic explanation while preventing documentation bloat on simple or trivial functions.</rationale>
-    </rule>
-    <rule>
-      <description>Use TypeName_Purpose format for all fields/properties. Both parts PascalCase.</description>
-      <rationale>Enables bidirectional search (by type or purpose) and eliminates cognitive overhead.</rationale>
-      <examples>
-        ✅ CORRECT: OptionButton_Theme, PopupMenu_MenuOption, Button_Option
-        ❌ FORBIDDEN: _themeDropdown, optionButton, menuPopup (arbitrary names)
-      </examples>
     </rule>
   </core_rules>
 </layer_2_detailed_guide>
