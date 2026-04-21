@@ -99,46 +99,6 @@ inclusion: manual
         <cause>Missing required node type in target scene.</cause>
         <fix>Ensure target node is strictly a MeshInstance3D before invoking export tool.</fix>
       </error>
-      
-      <error symptom="Infinite UI loops or massive CPU spikes">
-        <cause>Two-way binding echo without termination condition.</cause>
-        <fix>Insert .DistinctUntilChanged() into subscription chain to drop duplicate payloads.</fix>
-        <example>
-          // ❌ Problem: Infinite loop
-          slider.OnValueChangedAsObservable().Subscribe(value => _volume.Value = value);
-          _volume.Subscribe(value => slider.Value = value);  // Triggers slider change again!
-          
-          // ✅ Solution: Block duplicates
-          slider.OnValueChangedAsObservable().DistinctUntilChanged().Subscribe(value => _volume.Value = value);
-          _volume.DistinctUntilChanged().Subscribe(value => slider.Value = value);
-        </example>
-      </error>
-      
-      <error symptom="Cross-thread crash or UI freezing">
-        <cause>Async task manipulating Node property from background thread.</cause>
-        <fix>Append .ObserveOn(GodotProvider.MainThread) immediately before .Subscribe().</fix>
-        <example>
-          Observable.Timer(TimeSpan.FromSeconds(2))
-              .ObserveOn(GodotProvider.MainThread)  // Force UI thread
-              .Subscribe(_ => label.Text = "Done!");
-        </example>
-      </error>
-      
-      <error symptom="Micro-stutters or frame drops (GC Spikes)">
-        <cause>Heap allocation using anonymous objects in EveryUpdate/EveryPhysicsUpdate loops.</cause>
-        <fix>Use struct-based ValueTuples instead of anonymous objects.</fix>
-        <example>
-          // ❌ Problem: Allocates memory every frame
-          Observable.EveryUpdate()
-              .Select(_ => new { PlayerPos = player.Position, EnemyPos = enemy.Position })
-              .Subscribe(data => { var distance = data.PlayerPos.DistanceTo(data.EnemyPos); });
-          
-          // ✅ Solution: ValueTuple on stack
-          Observable.EveryUpdate()
-              .Select(_ => (PlayerPos: player.Position, EnemyPos: enemy.Position))
-              .Subscribe(tuple => { var distance = tuple.PlayerPos.DistanceTo(tuple.EnemyPos); });
-        </example>
-      </error>
     </troubleshooting>
 
     <best_practices>

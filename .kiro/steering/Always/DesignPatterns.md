@@ -81,7 +81,7 @@ inclusion: always
     
     <!-- Naming Convention Rules -->
     <rule>
-      <description>ALWAYS use TypeName_Purpose format (PascalCase) for fields/properties. Abbreviate Component to Comp.</description>
+      <description>ALWAYS use TypeName_Purpose format (PascalCase) for fields/properties. Abbreviate Component to Comp. Use semanticRename tool for batch renaming.</description>
       <rationale>Enables bidirectional search and eliminates cognitive overhead.</rationale>
       <example>
         ✅ CORRECT: OptionButton_Theme, PopupMenu_MenuOption, GridShapeComp
@@ -90,6 +90,9 @@ inclusion: always
     </rule>
     
     <!-- Godot Node Rules -->
+    <rule>
+      <description>ALWAYS use GetNodeOrNull + null check with GD.PushError for node access.</description>
+    </rule>
     <rule>
       <description>ALWAYS use Scene Unique Names (%) for NodePath properties with default values.</description>
       <example>
