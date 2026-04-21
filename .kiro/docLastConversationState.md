@@ -1,11 +1,11 @@
 # 上次对话状态
 
 ## 元数据
-- **更新日期**: 2026-04-19
+- **更新日期**: 2026-04-21
 - **引擎**: Godot 4.6.1 stable mono
 - **语言**: C# only
 - **项目**: Tesseract Backpack (TS) - 完整网格背包系统（带协同效果）
-- **阶段**: Event Aggregator 架构完成并验证，R3 Subject 初始化 Bug 已修复
+- **阶段**: Event Aggregator 架构完成并验证，R3 Subject 初始化 Bug 已修复，Steering 文件已更新
 
 ## 项目命名规范
 
@@ -121,6 +121,29 @@ public override void _Ready()
 ✅ **初始化正确**: Debug 日志显示完整的事件流  
 ✅ **无 NullReferenceException**: Subject 在订阅前已初始化  
 ✅ **数据注入正确**: IItemDataProvider 接口模式工作正常  
+
+### Steering 文件更新 ✅
+
+基于此次 bug 修复经验，已更新三个核心 Steering 文件：
+
+**1. MainRules.md**
+- 添加 Steering 文件用途说明（DesignPatterns vs BugInvestigation）
+- 添加错误升级协议（3-Strike Rule）
+- 明确 Scratchpad 用途
+
+**2. DesignPatterns.md**
+- 新增 `<meta_rules>` 层级，包含三条关键规则：
+  - **R3 Subject 初始化必须是 _Ready() 第一行**
+  - **父子数据注入必须使用 C# event + CallDeferred**
+  - **Observable 事件必须在数据初始化后触发**
+- 添加完整的初始化示例代码
+- 更新 troubleshooting 章节，包含本次 bug 的诊断和修复方案
+- 强化命名规范（TypeName_Purpose 格式）
+
+**3. BugInvestigation.md**
+- 完善 Escalation Template 结构
+- 添加错误日志和问题描述字段
+- 明确 3-Strike Rule 执行流程
 
 ### 测试场景
 - **测试文件**: `3d-practice/Scenes/BackpackTest.tscn`
