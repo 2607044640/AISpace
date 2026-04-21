@@ -4,6 +4,26 @@ inclusion: always
 
 <layer_1_quick_start>
 
+  <meta_rules>
+    <critical_rule>
+      <description>R3 Subject Initialization is MANDATORY and MUST be the FIRST operation in _Ready()</description>
+      <rationale>Uninitialized Subjects cause NullReferenceException. Godot's child-to-parent _Ready() execution means children may subscribe before parent initializes.</rationale>
+      <enforcement>ALWAYS write MySubject = new Subject&lt;T&gt;(); as the FIRST line in _Ready() for ANY class exposing Observable properties.</enforcement>
+    </critical_rule>
+    
+    <critical_rule>
+      <description>Parent-Child data injection MUST use C# event + CallDeferred pattern</description>
+      <rationale>Godot _Ready() executes child-to-parent. Direct data access in child _Ready() will fail because parent hasn't initialized yet.</rationale>
+      <enforcement>ALWAYS use Interface + C# event pattern. Parent fires event via CallDeferred. Child subscribes in _Ready() and unsubscribes in _ExitTree().</enforcement>
+    </critical_rule>
+    
+    <critical_rule>
+      <description>Observable events MUST be triggered after data initialization</description>
+      <rationale>Subscribers expect to receive events when data changes. Forgetting OnNext() leaves subscribers waiting indefinitely.</rationale>
+      <enforcement>ALWAYS call MyObservable?.OnNext(value) immediately after initializing or modifying data that subscribers depend on.</enforcement>
+    </critical_rule>
+  </meta_rules>
+
   <quick_reference>
     - Install `R3` and `R3.Godot` via NuGet
     - Access components via auto-generated `parent` property and camelCase dependency properties
@@ -169,6 +189,38 @@ inclusion: always
 </layer_2_detailed_guide>
 
 <layer_3_advanced>
+
+  <troubleshooting>
+    <error symptom="NullReferenceException subscribing to R3 Observable">
+      <cause>Subject never instantiated in _Ready().</cause>
+      <fix>Initialize Subject in _Ready() first line: MySubject = new Subject&lt;T&gt;();</fix>
+    </error>
+    
+    <error symptom="Observable subscriber never receives initial event">
+      <cause>Parent forgets OnNext() after data init.</cause>
+      <fix>Call OnNext() immediately after data initialization.</fix>
+    </error>
+    
+    <error symptom="NullReferenceException child accessing parent data in _Ready()">
+      <cause>Godot _Ready() child-to-parent execution order.</cause>
+      <fix>Use C# event + CallDeferred. Parent fires deferred, child subscribes in _Ready().</fix>
+    </error>
+    
+    <error symptom="Unexpected runtime behavior not caught by dotnet build">
+      <cause>Runtime errors silenced or logic bugs.</cause>
+      <fix>Check Godot log: $env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log</fix>
+    </error>
+    
+    <error symptom="Implementation violates user architecture">
+      <cause>Blindly pivoting without user approval.</cause>
+      <fix>Re-read docLastConversationState.md, request authorization.</fix>
+    </error>
+    
+    <error symptom="mcp_godot_export_mesh_library fails">
+      <cause>Missing required node type.</cause>
+      <fix>Ensure target is MeshInstance3D.</fix>
+    </error>
+  </troubleshooting>
 
   <best_practices>
     - Chain `.AsUnitObservable()` when payload data is irrelevant to streamline logic.

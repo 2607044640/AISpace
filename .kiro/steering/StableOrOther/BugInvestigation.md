@@ -83,23 +83,6 @@ inclusion: manual
   </layer_2_detailed_guide>
 
   <layer_3_advanced>
-  
-    <troubleshooting>
-      <error symptom="Unexpected runtime behavior or unhandled exceptions">
-        <cause>Silenced runtime errors or logic bugs not caught by dotnet build.</cause>
-        <fix>Parse $env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log for raw engine logs.</fix>
-      </error>
-      
-      <error symptom="Implementation violates user architecture">
-        <cause>Blindly accepting assumptions or pivoting architecture without user approval.</cause>
-        <fix>Re-read docLastConversationState.md and request authorization before altering architecture.</fix>
-      </error>
-      
-      <error symptom="mcp_godot_export_mesh_library execution failure">
-        <cause>Missing required node type in target scene.</cause>
-        <fix>Ensure target node is strictly a MeshInstance3D before invoking export tool.</fix>
-      </error>
-    </troubleshooting>
 
     <best_practices>
       - Delete documentation ruthlessly if it applies to generic programming instead of specific features.

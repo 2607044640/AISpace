@@ -8,6 +8,10 @@ inclusion: always
     - Architecture & Steering Path: `KiroWorkingSpace/.kiro/`
     - Project Code Path: `3d-practice/`
     - Internal State Tracking: `KiroWorkingSpace/.kiro/Scratchpad/`
+    
+    **Steering File Purposes:**
+    - `DesignPatterns.md`: Architectural patterns, R3 reactive rules, naming conventions, component communication, troubleshooting. (Why: Daily development reference - patterns + problem solving)
+    - `BugInvestigation.md`: Systematic debugging protocol, 3-Strike Rule, Confidence Score evaluation, escalation procedures. (Why: Structured investigation for complex/rare bugs)
   </quick_reference>
 
   <quickstart_workflow>
