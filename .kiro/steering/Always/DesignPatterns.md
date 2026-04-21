@@ -101,11 +101,18 @@ inclusion: always
     
     <!-- Naming Convention Rules -->
     <rule>
-      <description>ALWAYS use TypeName_Purpose format (PascalCase) for fields/properties. Abbreviate Component to Comp. Use semanticRename tool for batch renaming.</description>
+      <description>ALWAYS use TypeName_Purpose format (PascalCase) for [Export] fields/properties. Abbreviate Component to Comp. Use semanticRename tool for batch renaming.</description>
       <rationale>Enables bidirectional search and eliminates cognitive overhead.</rationale>
       <example>
         ✅ CORRECT: OptionButton_Theme, PopupMenu_MenuOption, GridShapeComp
         ❌ FORBIDDEN: GridShapeComponent, GridShape_Node, _themeDropdown
+      </example>
+    </rule>
+    <rule>
+      <description>ALWAYS use _camelCase for private fields. Patterns: _current[State], _is[Condition], _[name]Subject. Mark readonly when never reassigned.</description>
+      <example>
+        ✅ CORRECT: _currentTween, _isPressed, readonly _onBlockInputSubject
+        ❌ FORBIDDEN: currentTween, pressed, _onBlockInputSubject (without readonly)
       </example>
     </rule>
     
