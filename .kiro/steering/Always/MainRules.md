@@ -5,6 +5,7 @@ inclusion: always
   <quick_reference>
     - Compilation Command: `dotnet build` (Execution directory: `3d-practice/`)
     - Godot Log Path: `$env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log`
+    - Recent Changes: `Get-Content "C:\Users\26070\My Drive\Kiro_Godot_Brain\AI_Context_Changes.md" -Head <lines>`
     - Architecture & Steering Path: `KiroWorkingSpace/.kiro/`
     - Project Code Path: `3d-practice/`
     - Internal State Tracking: `KiroWorkingSpace/.kiro/Scratchpad/`

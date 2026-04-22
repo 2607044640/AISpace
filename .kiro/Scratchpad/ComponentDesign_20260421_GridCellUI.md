@@ -112,3 +112,88 @@ InteractionArea.MouseFilter = MouseFilterEnum.Ignore
 - ItemCellGroupController：组合控制器
 - DraggableItemComponent：行为组件
 - 完全解耦，职责单一
+
+
+---
+
+## 场景重构完成 - TSItem.tscn
+
+### 已执行的修改
+
+**删除的节点**：
+- ❌ `GridShapeVisualComponent` - 已被 ItemCellGroupController 替代
+- ❌ `ClickableBackground` - 不再需要占位符ColorRect
+
+**新增的节点**：
+- ✅ `ItemCellGroupController` (unique_id: 2001234567)
+  - GridShapeComp_Path = `%GridShapeComponent`
+  - InteractionArea_Path = `%InteractionArea`
+  - CellSize = `64.0`
+
+**修改的节点配置**：
+- ✅ `DraggableItemComponent`
+  - 旧属性：`GridShapeVisualComponentPath`
+  - 新属性：`ItemCellGroupController_Path = %ItemCellGroupController`
+  - 新增：`StateChartPath = %StateChart`
+
+**保持不变的关键配置**：
+- ✅ `TetrisDraggableItem.MouseFilter = Ignore` (值为2)
+- ✅ `InteractionArea.MouseFilter = Ignore` (值为2)
+- ✅ 所有 NodePath 使用 `%` 前缀（Scene Unique Name）
+
+### 场景层级结构（最终版本）
+
+```
+TetrisDraggableItem (Control) [MouseFilter=Ignore]
+├── StateChart (Node)
+│   └── Root (CompoundState)
+│       ├── Idle (AtomicState)
+│       │   └── ToDragging (Transition → drag_start)
+│       └── Dragging (AtomicState)
+│           ├── ToIdle (Transition → drag_end)
+│           └── FollowMouseUIComponent (Node)
+├── GridShapeComponent (Node)
+├── ItemCellGroupController (Node) ← 新增
+├── DraggableItemComponent (Node)
+└── InteractionArea (Control) [MouseFilter=Ignore]
+    └── ItemIcon (TextureRect)
+```
+
+### 运行时行为预期
+
+1. **初始化流程**：
+   - TSItemWrapper._Ready() → 触发 DataInitialized 事件
+   - GridShapeComponent.SetData() → 初始化形状数据 → 触发 OnShapeChangedAsObservable
+   - ItemCellGroupController.RebuildCells() → 动态生成 GridCellUI 实例
+   - DraggableItemComponent.InitializeComponent() → 订阅 ItemCellGroupController.OnGroupInputAsObservable
+
+2. **视觉效果**：
+   - L 形物品显示 3 个独立的"透明体+发光边框"方块
+   - 每个方块尺寸：64x64 像素
+   - 正常状态：半透明白色边框
+   - 悬停状态：高亮白色边框
+
+3. **交互行为**：
+   - 点击 L 形空角 → 无响应（AABB bug 已解决）
+   - 点击实际方块 → 触发拖拽
+   - 右键点击 → 触发旋转
+   - 拖拽时 → 显示红绿反馈
+
+### 验证检查清单
+
+- [x] 场景文件已修改
+- [ ] 编译验证（dotnet build）
+- [ ] 运行测试场景（BackpackTest.tscn）
+- [ ] 验证 L 形空角不响应点击
+- [ ] 验证视觉效果（发光边框）
+- [ ] 验证拖拽功能
+- [ ] 验证旋转功能
+- [ ] 验证红绿反馈
+
+### 下一步工作
+
+1. 运行 `dotnet build` 验证编译
+2. 启动 Godot 编辑器，打开 BackpackTest.tscn
+3. 运行场景，观察调试日志
+4. 测试交互功能
+5. 如果一切正常，应用 GridCellUI 到 BackpackGridUIComponent

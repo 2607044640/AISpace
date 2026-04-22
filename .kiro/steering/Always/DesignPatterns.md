@@ -6,34 +6,34 @@ inclusion: always
 
   <meta_rules>
     <critical_rule>
-      <description>R3 Subject Initialization is MANDATORY and MUST be the FIRST operation in _Ready()</description>
-      <rationale>Uninitialized Subjects cause NullReferenceException. Godot's child-to-parent _Ready() execution means children may subscribe before parent initializes.</rationale>
-      <enforcement>ALWAYS write MySubject = new Subject&lt;T&gt;(); as the FIRST line in _Ready() for ANY class exposing Observable properties.</enforcement>
+      <description>R3 Subject Initialization MUST be the FIRST operation in _Ready()</description>
+      <rationale>Godot's child-to-parent _Ready() execution causes children to subscribe before parent initialization, leading to NullReferenceException.</rationale>
+      <enforcement>First line of _Ready() MUST be: MySubject = new Subject<T>();</enforcement>
     </critical_rule>
     
     <critical_rule>
-      <description>Parent-Child data injection MUST use C# event + CallDeferred pattern</description>
-      <rationale>Godot _Ready() executes child-to-parent. Direct data access in child _Ready() will fail because parent hasn't initialized yet.</rationale>
-      <enforcement>ALWAYS use Interface + C# event pattern. Parent fires event via CallDeferred. Child subscribes in _Ready() and unsubscribes in _ExitTree().</enforcement>
+      <description>Parent-Child data injection MUST use C# Event + CallDeferred</description>
+      <rationale>Prevents child _Ready() from accessing uninitialized parent data.</rationale>
+      <enforcement>Parent fires event via CallDeferred. Child subscribes in _Ready(), unsubscribes in _ExitTree().</enforcement>
     </critical_rule>
     
     <critical_rule>
-      <description>Observable events MUST be triggered after data initialization</description>
-      <rationale>Subscribers expect to receive events when data changes. Forgetting OnNext() leaves subscribers waiting indefinitely.</rationale>
-      <enforcement>ALWAYS call MyObservable?.OnNext(value) immediately after initializing or modifying data that subscribers depend on.</enforcement>
+      <description>Trigger Observable events immediately post-initialization</description>
+      <rationale>Subscribers await initial state.</rationale>
+      <enforcement>ALWAYS call MyObservable?.OnNext(value) right after data init/modification.</enforcement>
     </critical_rule>
   </meta_rules>
 
   <quick_reference>
-    - Install `R3` and `R3.Godot` via NuGet
-    - Access components via auto-generated `parent` property and camelCase dependency properties
+    - **Nuget**: `R3`, `R3.Godot`
+    - **Access**: Use auto-generated `parent` and camelCase dependency properties.
   </quick_reference>
 
   <decision_tree>
-    - High-frequency physics (Velocity): Use standard properties + `Observable.EveryPhysicsUpdate()`. (Why: `ReactiveProperty<T>` causes allocation overhead)
-    - Async UI updates: Append `.ObserveOn(GodotProvider.MainThread)`. (Why: Godot UI is thread-restricted)
-    - Button presses: Use `.ThrottleFirst(TimeSpan)`. (Why: Prevents double-clicks. NEVER use `.Throttle()`)
-    - Continuous streams (sliders, I/O): Use `.Debounce(TimeSpan)`. (Why: Waits for stream settlement)
+    - **Physics (Velocity)**: Property + `Observable.EveryPhysicsUpdate()`. (Avoids `ReactiveProperty` allocation).
+    - **UI Updates**: Append `.ObserveOn(GodotProvider.MainThread)`. (Thread safety).
+    - **Button Clicks**: `.ThrottleFirst(TimeSpan)`. (Prevents double-clicks. NEVER use `.Throttle()`).
+    - **Continuous I/O (Sliders)**: `.Debounce(TimeSpan)`. (Waits for settlement).
   </decision_tree>
 
 </layer_1_quick_start>
@@ -41,155 +41,65 @@ inclusion: always
 <layer_2_detailed_guide>
 
   <api_reference>
-    | C# Attributes | Target | Purpose |
-    |---|---|---|
-    | `[Entity]` | Entity Classes | Marks node as root Mediator. |
-    | `[Component(typeof(T))]` | Component Classes | Binds single-responsibility component to parent entity. |
-    | `[ComponentDependency(typeof(T))]` | Component Classes | Explicitly requests another component on same entity. |
-    | `[Export]` | Properties | Exposes node references/values to Godot Inspector. |
-    | `[GlobalClass]` | Core Components | Exposes mechanics to Godot Editor for cross-project reuse. |
+    [Entity]: Marks root Mediator.
+    [Component(typeof(T))]: Binds single-responsibility component.
+    [ComponentDependency(typeof(T))]: Requests peer component.
+    [Export] / [GlobalClass]: Exposes to Godot Inspector/Editor.
 
-    | R3 Reactive Operators | Input -> Output | Action |
-    |---|---|---|
-    | `Where(predicate)` | `T -> T` | Filters stream payloads based on condition. |
-    | `CombineLatest` | `IObservable[] -> T[]` | Triggers upon multiple stream conditions resolving. |
-    | `Select` | `T -> U` | Transforms stream payload to new type. |
-    | `Pairwise()` | `T -> (T prev, T curr)` | Emits previous and current state simultaneously. |
-    | `Chunk(TimeSpan)` | `T -> T[]` | Batches high-volume stream events. |
-    | `.DistinctUntilChanged()`| `T -> T` | Blocks identical consecutive payloads. |
-    | `.AsUnitObservable()` | `T -> Unit` | Discards payload data when only timing matters. |
+    Where(pred): Filter | Select(func): Transform | CombineLatest: Multi-condition trigger
+    Pairwise(): Emits (prev, curr) | Chunk(time): Batch events | DistinctUntilChanged(): Block duplicates
+    AsUnitObservable(): Discard payload, keep timing.
 
-    | R3.Godot Integration | Source | Target Stream |
-    |---|---|---|
-    | `Observable.EveryUpdate()` | Global | Mapped to Godot `_Process`. |
-    | `Observable.EveryPhysicsUpdate()`| Global | Mapped to Godot `_PhysicsProcess`. |
-    | `.OnPressedAsObservable()` | Button Nodes | Triggers on button click. |
-    | `.OnToggledAsObservable()` | Toggle Nodes | Emits state immediately upon subscription. |
-    | `.OnValueChangedAsObservable()`| Sliders/Inputs | Emits state immediately upon subscription. |
-    | `.OnItemSelectedAsObservable()`| Dropdowns | Emits state immediately upon subscription. |
+    EveryUpdate() -> _Process | EveryPhysicsUpdate() -> _PhysicsProcess
+    OnPressedAsObservable() | OnToggledAsObservable() | OnValueChangedAsObservable() | OnItemSelectedAsObservable() -> Emits immediately on sub.
   </api_reference>
 
   <implementation_guide>
-    - Step 1: Declare `[Entity]` and call `InitializeEntity()` in `_Ready()`.
-    - Step 2: Declare `[Component(typeof(Parent))]` and call `InitializeComponent()` in `_Ready()`.
-    - Step 3: Declare peer dependencies via `[ComponentDependency(typeof(T))]`.
-    - Step 4: Subscribe to events in `OnEntityReady()` and append `.AddTo(_disposables)`.
-    - Step 5: Clean up by calling `_disposables.Dispose()` in `_ExitTree()`.
+    1. Entity: `[Entity]` -> call `InitializeEntity()` in `_Ready()`.
+    2. Component: `[Component(typeof(Parent))]` -> call `InitializeComponent()` in `_Ready()`.
+    3. Dependencies: Request via `[ComponentDependency(typeof(T))]`.
+    4. Lifecycle (Init): Subscribe in `OnEntityReady()`. Append `.AddTo(_disposables)`.
+    5. Lifecycle (Exit): Call `_disposables?.Dispose()` in `_ExitTree()`.
   </implementation_guide>
 
   <core_rules>
-    <rule>
-      <description>ALWAYS design systems using Composition over Inheritance.</description>
-    </rule>
-    <rule>
-      <description>Entities MUST act exclusively as Mediators and contain ZERO business logic.</description>
-    </rule>
-    <rule>
-      <description>NEVER allow sibling components to reference each other directly. Parent Mediator MUST coordinate via C# events.</description>
-    </rule>
+    <rule><description>Composition over Inheritance. Entities are Mediators with ZERO business logic.</description></rule>
+    <rule><description>NO sibling cross-referencing. Parent Mediator coordinates via C# events.</description></rule>
     
     <!-- Documentation Rules -->
+    <rule><description>FORBIDDEN: XML comments (`/// <summary>`) or inline comments for standard Godot lifecycle (`_Ready`, `_Process`, `_ExitTree`), simple properties, or standard cleanup (`_disposables?.Dispose()`).</description></rule>
+    <rule><description>MANDATORY: Inline `//` comments (Chinese) explaining WHY for custom Rx streams (`.Debounce()`, `.CombineLatest()`), math formulas, complex state transitions.</description></rule>
+    <rule><description>3-part structure (Purpose, Example, Algorithm) ONLY for complex non-obvious functions.</description></rule>
+    
     <rule>
-      <description>ALWAYS omit documentation for trivial functions like lifecycle hooks or simple getters.</description>
+      <description>[Export] fields: `TypeName_Purpose` (PascalCase). Example: `OptionButton_Theme`, `GridShapeComp`.</description>
     </rule>
     <rule>
-      <description>ALWAYS use single-sentence summaries or inline comments for simple functions.</description>
-    </rule>
-    <rule>
-      <description>ALWAYS apply mandatory 3-part structure (目的/Purpose, 示例/Example, 算法/Algorithm) for complex functions.</description>
+      <description>Private fields: `_camelCase`. Example: `_currentTween`, `_isPressed`, `readonly _inputSubject`.</description>
     </rule>
     
-    <!-- Naming Convention Rules -->
     <rule>
-      <description>ALWAYS use TypeName_Purpose format (PascalCase) for [Export] fields/properties. Abbreviate Component to Comp. Use semanticRename tool for batch renaming.</description>
-      <rationale>Enables bidirectional search and eliminates cognitive overhead.</rationale>
-      <example>
-        ✅ CORRECT: OptionButton_Theme, PopupMenu_MenuOption, GridShapeComp
-        ❌ FORBIDDEN: GridShapeComponent, GridShape_Node, _themeDropdown
-      </example>
-    </rule>
-    <rule>
-      <description>ALWAYS use _camelCase for private fields. Patterns: _current[State], _is[Condition], _[name]Subject. Mark readonly when never reassigned.</description>
-      <example>
-        ✅ CORRECT: _currentTween, _isPressed, readonly _onBlockInputSubject
-        ❌ FORBIDDEN: currentTween, pressed, _onBlockInputSubject (without readonly)
-      </example>
-    </rule>
-    
-    <!-- Godot Node Rules -->
-    <rule>
-      <description>ALWAYS use GetNodeOrNull + null check with GD.PushError for node access.</description>
-    </rule>
-    <rule>
-      <description>ALWAYS use Scene Unique Names (%) for NodePath properties with default values.</description>
+      <description>Node Access: Use GetNodeOrNull + GD.PushError check. Use Scene Unique Names (%) for NodePaths.</description>
       <example>
         [Export] public NodePath StateChartNode { get; set; } = "%StateChart";
-        
-        public override void _Ready()
-        {
-            var stateChart = GetNodeOrNull&lt;Node&gt;(StateChartNode);
-            if (stateChart == null) { GD.PushError($"[{Name}] StateChart not found"); return; }
-        }
+        // In _Ready(): GetNodeOrNull&lt;Node&gt;(StateChartNode) + null check.
       </example>
     </rule>
     
-    <!-- R3 Reactive Rules -->
     <rule>
-      <description>ALWAYS initialize R3 Subjects in _Ready() before any subscriptions occur.</description>
-      <rationale>Godot _Ready() executes child-to-parent. Uninitialized Subjects throw NullReferenceException.</rationale>
-      <example>
-        public Subject&lt;Unit&gt; OnShapeChanged { get; private set; }
-        
-        public override void _Ready()
-        {
-            OnShapeChanged = new Subject&lt;Unit&gt;();  // Initialize FIRST
-        }
-      </example>
+      <description>Memory Management: Instantiate `CompositeDisposable _disposables = new();`. Dispose in `_ExitTree()`.</description>
     </rule>
     <rule>
-      <description>ALWAYS instantiate CompositeDisposable _disposables = new(); inside EVERY reactive class.</description>
-    </rule>
-    <rule>
-      <description>ALWAYS call _disposables.Dispose() in _ExitTree() to prevent memory leaks.</description>
-    </rule>
-    <rule>
-      <description>ALWAYS use .DistinctUntilChanged() on two-way bindings and high-frequency UI updates.</description>
-    </rule>
-    <rule>
-      <description>ALWAYS use ValueTuples (a, b) instead of anonymous objects new { a, b } inside EveryUpdate loops.</description>
-      <rationale>Prevents GC spikes.</rationale>
+      <description>Performance: Use ValueTuples `(a, b)` instead of anonymous objects in EveryUpdate loops to prevent GC spikes.</description>
     </rule>
     
-    <!-- Parent-Child Communication Rules -->
     <rule>
-      <description>ALWAYS use C# event + CallDeferred for parent-child node communication.</description>
-      <rationale>Godot _Ready() executes child-to-parent. Child subscribes first, parent fires deferred.</rationale>
+      <description>Implement Parent-Child C# Event pattern correctly.</description>
       <example>
-        // Parent
-        public event Action&lt;ItemData&gt; OnDataReady;
-        
-        public override void _Ready()
-        {
-            var data = LoadItemData();
-            CallDeferred(() => OnDataReady?.Invoke(data));
-        }
-        
-        // Child
-        public override void _Ready()
-        {
-            if (GetParent() is IDataProvider provider)
-                provider.OnDataReady += HandleData;
-        }
-        
-        public override void _ExitTree()
-        {
-            if (GetParent() is IDataProvider provider)
-                provider.OnDataReady -= HandleData;  // Prevent memory leak
-        }
+        // PARENT: CallDeferred(() => OnDataReady?.Invoke(data));
+        // CHILD (_Ready): if (GetParent() is IData p) p.OnDataReady += Handle;
+        // CHILD (_ExitTree): if (GetParent() is IData p) p.OnDataReady -= Handle;
       </example>
-    </rule>
-    <rule>
-      <description>ALWAYS subscribe to Entity-Component events inside OnEntityReady() and NEVER inside _Ready().</description>
     </rule>
   </core_rules>
 
@@ -198,41 +108,18 @@ inclusion: always
 <layer_3_advanced>
 
   <troubleshooting>
-    <error symptom="NullReferenceException subscribing to R3 Observable">
-      <cause>Subject never instantiated in _Ready().</cause>
-      <fix>Initialize Subject in _Ready() first line: MySubject = new Subject&lt;T&gt;();</fix>
-    </error>
-    
-    <error symptom="Observable subscriber never receives initial event">
-      <cause>Parent forgets OnNext() after data init.</cause>
-      <fix>Call OnNext() immediately after data initialization.</fix>
-    </error>
-    
-    <error symptom="NullReferenceException child accessing parent data in _Ready()">
-      <cause>Godot _Ready() child-to-parent execution order.</cause>
-      <fix>Use C# event + CallDeferred. Parent fires deferred, child subscribes in _Ready().</fix>
-    </error>
-    
-    <error symptom="Unexpected runtime behavior not caught by dotnet build">
-      <cause>Runtime errors silenced or logic bugs.</cause>
-      <fix>Check Godot log: $env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log</fix>
-    </error>
-    
-    <error symptom="Implementation violates user architecture">
-      <cause>Blindly pivoting without user approval.</cause>
-      <fix>Re-read docLastConversationState.md, request authorization.</fix>
-    </error>
-    
-    <error symptom="mcp_godot_export_mesh_library fails">
-      <cause>Missing required node type.</cause>
-      <fix>Ensure target is MeshInstance3D.</fix>
-    </error>
+    <error symptom="NullReferenceException on R3 Subscribe" cause="Subject not initialized" fix="Add MySubject = new Subject&lt;T&gt;(); as first line in _Ready()" />
+    <error symptom="Subscriber missing initial event" cause="Missing OnNext" fix="Call OnNext() immediately after data init" />
+    <error symptom="Child null access in _Ready" cause="Godot execution order" fix="Use Parent C# Event + CallDeferred pattern" />
+    <error symptom="Runtime bug bypassing build" cause="Logic/Silent error" fix="Check Godot log: $env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log" />
+    <error symptom="Architecture violation" cause="Unapproved pivot" fix="Re-read docLastConversationState.md, request user auth" />
+    <error symptom="mcp_godot_export_mesh_library fails" cause="Wrong node type" fix="Ensure target is MeshInstance3D" />
   </troubleshooting>
 
   <best_practices>
-    - Chain `.AsUnitObservable()` when payload data is irrelevant to streamline logic.
-    - Use `ReactiveProperty<T>` for discrete state changes to auto-sync UI elements.
-    - Leverage `R3.Godot` extensions (e.g., `OnToggledAsObservable`) to instantly align UI with backend state upon subscription.
+    - Chain `.AsUnitObservable()` when payload data is irrelevant.
+    - Use `ReactiveProperty<T>` for discrete state changes (auto-syncs UI).
+    - Leverage `R3.Godot` extensions (e.g., `OnToggledAsObservable`) to align UI/backend state instantly.
   </best_practices>
 
 </layer_3_advanced>

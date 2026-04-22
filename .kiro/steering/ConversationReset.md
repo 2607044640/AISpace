@@ -10,6 +10,7 @@ Execute the Conversation Reset Protocol when the conversation context becomes to
 Read these files FIRST to understand the baseline state before updating:
 1. `KiroWorkingSpace/.kiro/docLastConversationState.md`
 2. `KiroWorkingSpace/.kiro/ProjectRules.md`
+3. Recent Changes: `Get-Content "C:\Users\26070\My Drive\Kiro_Godot_Brain\AI_Context_Changes.md" -Head <lines>` (Replace `<lines>` with appropriate number based on context needs)
 </target_files>
 
 <workflow>
