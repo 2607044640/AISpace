@@ -87,8 +87,52 @@ PROJECT_WHITELIST_DIRS = ['Scenes', 'Tests']
 DRIVE_SYNC_PATH = r"C:\Users\26070\My Drive\Kiro_Godot_Brain"
 
 # 本地备份文件夹（不上传到 Google Drive）
-# 用于存放：旧的合并文件、清单文件（Manifest）
+# 用于存放：旧的合并文件、清单文件（Manifest）、完整合并文件（用于 diff）
 LOCAL_BACKUP_PATH = r"D:\Kiro_Godot_Brain_Backup"
+
+# ==========================================
+# 📂 文件分类配置（可扩展架构）
+# ==========================================
+#
+# 设计理念：将项目文件按重要性和功能分类，生成多个小文件供 AI 选择性查看
+# 
+# 分类策略：
+# 1. ImportantRules - 核心规则文件（MainRules.md, DesignPatterns.md）
+# 2. OtherRules - 其他规则和文档（steering, docs, specs 中的其他文件）
+# 3. A1_Components - 用户自定义 A1 前缀组件
+# 4. B1_Components - 用户自定义 B1 前缀组件
+# 5. ProjectCore - 项目核心文件（Scenes, Tests, 其他）
+#
+# 🔧 如何添加新分类：
+# 在 FILE_CATEGORIES 字典中添加新条目，指定文件名和过滤条件
+#
+FILE_CATEGORIES = {
+    'important_rules': {
+        'filename': '01_ImportantRules.txt',
+        'description': '核心规则文件',
+        'files': ['steering/Always/MainRules.md', 'steering/Always/DesignPatterns.md']
+    },
+    'other_rules': {
+        'filename': '02_OtherRules.txt',
+        'description': '其他规则和文档',
+        'exclude_files': ['steering/Always/MainRules.md', 'steering/Always/DesignPatterns.md']
+    },
+    'a1_components': {
+        'filename': '03_A1_Components.txt',
+        'description': 'A1 前缀组件',
+        'prefix': 'A1'
+    },
+    'b1_components': {
+        'filename': '04_B1_Components.txt',
+        'description': 'B1 前缀组件',
+        'prefix': 'B1'
+    },
+    'project_core': {
+        'filename': '05_ProjectCore.txt',
+        'description': '项目核心文件',
+        'exclude_prefixes': ['A1', 'B1']
+    }
+}
 
 # ==========================================
 # 🎯 文件大小阈值配置（分级策略）
