@@ -5,13 +5,13 @@ inclusion: always
   <quick_reference>
     - Compilation Command: `dotnet build` (Execution directory: `3d-practice/`)
     - Godot Log Path: `$env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log`
-    - Recent Changes: `Get-Content "C:\Users\26070\My Drive\Kiro_Godot_Brain\AI_Context_Changes.md" -Head <lines>`
+    - Recent Changes: `Get-Content "C:\Users\26070\My Drive\Kiro_Godot_Brain\AI_Context_Changes.md" -Head <lines>` (XML 格式测试)
     - Architecture & Steering Path: `KiroWorkingSpace/.kiro/`
     - Project Code Path: `3d-practice/`
     - Internal State Tracking: `KiroWorkingSpace/.kiro/Scratchpad/`
     
     **Steering File Purposes:**
-    - `DesignPatterns.md`: Architectural patterns, R3 rules, naming conventions, component communication.
+    - `ProjectRules.md`: Architectural patterns, R3 rules, naming conventions, component communication.
     - `BugInvestigation.md`: Systematic debugging protocol, 3-Strike Rule, escalation procedures.
   </quick_reference>
 
@@ -39,6 +39,22 @@ inclusion: always
     - Asset MCPs: `mcp_godot_load_sprite`, `mcp_godot_export_mesh_library` (Req: MeshInstance3D)
     - UID MCPs: `mcp_godot_get_uid`, `mcp_godot_update_project_uids`
   </api_reference>
+
+  <scene_management>
+    - Edit existing `.tscn` files directly to add nodes, modify properties, connect signals, and set Export variables.
+    - Execute file edits yourself; do not ask the user to edit manually.
+    - **CRITICAL SYNC:** Any renaming of `[Export]` variables or node paths in C# MUST trigger an immediate, corresponding text edit in the associated `.tscn` file.
+  </scene_management>
+
+  <error_recovery_protocol>
+    - **NO BLIND FIXES:** If `dotnet build` fails or runtime errors occur, guessing or blind code modification is STRICTLY FORBIDDEN.
+    - **LOGS FIRST:** Run the specific scene (F6) to generate logs, wait 2 seconds or prompt the user to interact, then fetch via `mcp_godot_get_debug_output` or read `godot.log`.
+    - **MANDATORY ANALYSIS:** Force the use of `mcp_sequential_thinking_sequentialthinking` to analyze the root cause from the logs before executing any code changes.
+  </error_recovery_protocol>
+
+  <csharp_scene_sync_constraint>
+    - **STRICT SYNC:** If you modify an `[Export]` variable name or a `GetNode<Type>("Path")` string in a `.cs` script, you MUST synchronously open and modify the corresponding `.tscn` file. (Failure to do this causes immediate `NullReferenceException` at runtime).
+  </csharp_scene_sync_constraint>
 
   <core_rules>
     <rule>

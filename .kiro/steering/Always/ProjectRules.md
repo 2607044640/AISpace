@@ -2,18 +2,26 @@
 inclusion: always
 ---
 <layer_1_architecture_and_r3>
-
+<prime_directive>
+    <rule>
+      <description>CRITICAL: Future-Proof, Extensible & Generic Design ONLY</description>
+      <rationale>Short-sighted logic, hardcoding, and overly specific designs create technical debt. Every implementation must anticipate future system scaling and requirement changes.</rationale>
+      <enforcement>
+        1. ARCHITECTURE: Solve the CLASS of problem, not the specific instance. Systems must be decoupled, modular, and parameterized.
+        2. CODE: Maximally utilize Generics (<T>), Interfaces, and abstraction layers. ZERO hardcoded edge-cases or magic numbers. 
+        3. NAMING: Strictly use domain-agnostic, high-level abstract terminology. Do not tie names to current specific visual or gameplay manifestations.
+        4. EVOLUTION: Before writing any logic or rule, ask: "Will this break or require refactoring if the system scales by 100x or adds 5 new variants?" If yes, redesign it.
+      </enforcement>
+    </rule>
+  </prime_directive>
   <r3_godot_quirks>
     <rule>
-      <description>CRITICAL: Godot _Ready() Execution Order & NullReference Prevention</description>
-      <rationale>Children execute _Ready() BEFORE parents. Subscribing to uninitialized parent subjects causes crashes.</rationale>
+      <description>CRITICAL: Godot Lifecycle (_EnterTree vs _Ready) & Initialization</description>
+      <rationale>Godot executes `_EnterTree()` Top-Down (Parent before Child), but `_Ready()` Bottom-Up (Child before Parent). Using _Ready for parent data init causes NullReference in children.</rationale>
       <enforcement>
-        1. Subjects MUST be initialized on the very FIRST line of `_Ready()` (`MySubject = new Subject<T>();`).
-        2. ALWAYS call `MyObservable?.OnNext(value)` immediately after data init so subscribers don't miss the initial state.
-        3. Use C# Events + CallDeferred for Parent-Child injection:
-           - PARENT: `CallDeferred(() => OnDataReady?.Invoke(data));`
-           - CHILD (_Ready): `if (GetParent() is IData p) p.OnDataReady += Handle;`
-           - CHILD (_ExitTree): `if (GetParent() is IData p) p.OnDataReady -= Handle;`
+        1. INIT IN ENTER_TREE: All `Subject<T>` instantiations and core data (`new Subject<T>()`) MUST be done in the Parent's `public override void _EnterTree()`.
+        2. SAFE CHILD READY: Children can safely subscribe to Parent Subjects in their own `_Ready()` because the Parent's `_EnterTree()` has already executed.
+        3. AVOID CALLDEFERRED: Do not use `CallDeferred` for cross-frame delays. Use `await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);` to preserve C# async stack traces and readability.
       </enforcement>
     </rule>
   </r3_godot_quirks>

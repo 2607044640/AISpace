@@ -1,84 +1,262 @@
-# 🎯 快速开始指南
+# 🔄 Kiro Sync - 大模型上下文同步工具
 
-## 一键同步（推荐）
+## 📖 简介
 
-在 `3d-practice` 项目根目录，双击运行 `SYNC_TO_GEMINI.bat`，脚本会自动完成所有工作。
+Kiro Sync 是一个将 Godot 项目代码、配置和规则文档合并成单一 XML 文件的工具，专为大模型（Gemini/Claude）优化。
 
-## 首次配置（必须）
+## 🎯 核心特性
 
-1. 安装 [Google Drive 桌面客户端](https://www.google.com/drive/download/)
-2. 在 Google Drive 网页端创建文件夹 `Kiro_Godot_Brain`
-3. 确认 Google Drive 已映射到 `G:\My Drive\`（如果路径不同，需要修改配置）
-4. 编辑 `kiro_sync_to_drive.py`，确认第 11-17 行配置正确：
-   ```python
-   SOURCE_PROJECT_DIR = r"C:\Godot\3d-practice"  # 你的项目路径
-   DRIVE_SYNC_PATH = r"G:\My Drive\Kiro_Godot_Brain"  # 你的 Drive 路径
-   CLEAN_BEFORE_SYNC = True  # 是否清空旧文件
-   ```
-5. **关键步骤：** 在 Gemini 中编辑你的自定义 Gem，在 Knowledge 区域选择**整个 `Kiro_Godot_Brain` 文件夹**（不是单个文件！）
+### 1. XML 结构化格式
+- 使用 `<tag>` 标签替代纯文本分隔符
+- 大模型对 XML 边界识别能力更强
+- 使用 `<![CDATA[...]]>` 包裹代码内容，防止解析错误
 
-## 工作流程
-
+### 2. 三明治布局（基于位置权重）
+```xml
+<system_context>
+  <section_1_important_rules>    <!-- 顶部：核心规则（高权重） -->
+    <file path="..." priority="CRITICAL">...</file>
+  </section_1_important_rules>
+  
+  <section_2_project_code>       <!-- 中间：项目源码 -->
+    <file path="..." priority="NORMAL">...</file>
+  </section_2_project_code>
+  
+  <section_3_recent_changes>     <!-- 底部：近期变更（高权重） -->
+    <![CDATA[...]]>
+  </section_3_recent_changes>
+</system_context>
 ```
-修改代码 → 双击 SYNC_TO_GEMINI.bat → 等待 Drive 同步 → 在 Gemini 开新对话
+
+### 3. 智能过滤
+- **白名单机制**: A1/B1 前缀文件夹完整包含
+- **大小限制**: 代码文件 1MB，资源文件 200KB
+- **关键文件**: project.godot 等无视大小限制
+- **黑名单**: 排除二进制、缓存、IDE 配置
+
+### 4. 变更检测
+- MD5 哈希检测文件变化
+- 生成 unified diff 格式
+- 保留最近 10 次变更记录
+- 使用 `<RECENT_CHANGES>` 标记提升 AI 注意力
+
+## 🚀 使用方法
+
+### 手动运行
+```bash
+python KiroWorkingSpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py
 ```
 
-## 同步模式说明
+### 自动运行（Hook）
+脚本会在以下情况自动触发：
+- 保存 `.md`, `.json`, `.txt` 文件（KiroWorkingSpace）
+- 保存 `.cs`, `.gd`, `.tscn` 文件（3d-practice）
+- AI 对话结束时（agentStop 事件）
 
-脚本使用**文件夹镜像模式**，而不是 ZIP 压缩：
-- ✅ Gemini 可以直接索引和读取每个代码文件
-- ✅ 保持原有目录结构，便于 AI 理解项目架构
-- ✅ 支持增量更新，Drive 只同步变化的文件
-- ❌ 不使用 ZIP（Gemini 无法读取 ZIP 内容）
+## 📁 输出文件
 
-## 故障排查
+### Google Drive（供 AI 查看）
+- `AI_Context_Master_YYYYMMDD_HHMMSS.txt` - 主上下文文件（XML 格式）
+- `AI_Context_Changes.md` - 变更历史记录
 
-**问题：找不到源项目目录**
-- 确认 `C:\Godot\3d-practice` 路径是否正确
-- 如果项目在其他位置，修改 `kiro_sync_to_drive.py` 中的 `SOURCE_PROJECT_DIR`
+### D 盘备份（本地，不同步）
+- `AI_Context_Master_*.txt` - 旧文件备份
+- `AI_Context_Manifest.json` - 文件清单（用于变更检测）
+- `AI_Context_Manifest_Previous.json` - 上次清单
 
-**问题：找不到 Google Drive 路径**
-- 检查 Drive 客户端是否正在运行（系统托盘查看图标）
-- 确认 Drive 映射盘符（可能是 `G:\` 或其他盘符）
-- 打开文件资源管理器，查看 Google Drive 的实际路径
-- 修改 `kiro_sync_to_drive.py` 中的 `DRIVE_SYNC_PATH` 为实际路径
+## ⚙️ 配置说明
 
-**问题：Gemini 看不到最新代码**
-- 确认 Drive 同步已完成（G 盘图标不再旋转）
-- **关键：在 Gemini 中开启新对话**（旧对话不会自动刷新知识库）
-- 检查 Gem 的 Knowledge 设置是否选择了**整个文件夹**而不是单个文件
-- 确认文件夹内有代码文件（不是空的）
-- 尝试在 Gemini 中重新添加 Knowledge 源
-
-**问题：同步的文件太少或太多**
-- 太少：检查源目录路径是否正确，查看脚本输出的统计信息
-- 太多：检查是否有不需要的文件类型，可在脚本中添加更多 `IGNORE_EXTENSIONS`
-- 查看脚本输出的"已过滤"数量，确认过滤规则是否生效
-
-## 高级配置
-
-### 修改源项目路径
-编辑 `kiro_sync_to_drive.py` 第 11 行：
+### 路径配置
 ```python
-SOURCE_PROJECT_DIR = r"C:\Godot\你的项目名"
+SOURCE_PROJECT_DIR = r"C:\Godot\3d-practice"           # Godot 项目目录
+KIRO_WORKSPACE_DIR = r"C:\Godot\KiroWorkingSpace\.kiro" # Kiro 规则目录
+DRIVE_SYNC_PATH = r"C:\Users\26070\My Drive\Kiro_Godot_Brain" # Google Drive
+LOCAL_BACKUP_PATH = r"D:\Kiro_Godot_Brain_Backup"      # 本地备份
 ```
 
-### 修改 Drive 目标路径
-编辑 `kiro_sync_to_drive.py` 第 16 行：
+### 白名单配置
 ```python
-DRIVE_SYNC_PATH = r"G:\My Drive\你的文件夹名"
+# KiroWorkingSpace 白名单
+KIRO_WHITELIST_DIRS = ['steering', 'docs', 'specs']
+KIRO_WHITELIST_FILES = ['ProjectRules.md', 'docLastConversationState.md', 'ConversationReset.md']
+
+# 3d-practice 白名单
+PROJECT_WHITELIST_PREFIXES = ['A1', 'B1']  # 前缀匹配
+PROJECT_WHITELIST_DIRS = ['Scenes', 'Tests']  # 显式文件夹
 ```
 
-### 添加过滤规则
-在 `IGNORE_EXTENSIONS` 或 `IGNORE_DIRS` 中添加新的文件类型或目录名。
+### 大小限制
+```python
+CODE_MAX_SIZE_MB = 1.0       # 代码文件最大 1MB
+RESOURCE_MAX_SIZE_MB = 0.2   # 资源文件最大 200KB
+```
 
-### 自动化同步
-可以配合 Git hooks 或 IDE 的 File Watcher 实现保存时自动同步。
+### 关键文件（无视大小限制）
+```python
+CRITICAL_FILES = {
+    'project.godot',
+    'default_bus_layout.tres',
+    '.gitignore',
+    '.gitattributes'
+}
+```
 
-## 文件说明
+## 🔍 工作流程
 
-- `kiro_sync_to_drive.py` - 核心同步脚本
-- `SYNC_TO_GEMINI.bat` - 一键启动器（放在 3d-practice 根目录）
-- `SYNC_TO_DRIVE.bat` - 备用启动器（可从任意位置运行）
-- `SYNC_LOGIC.md` - 架构设计文档
-- `README.md` - 本文档
+1. **扫描文件**
+   - KiroWorkingSpace/.kiro/ (白名单模式)
+   - 3d-practice/ (扩展名过滤 + 大小限制)
+
+2. **生成 XML 文件**
+   - 顶部：核心规则（CRITICAL/HIGH 优先级）
+   - 中间：项目源码（NORMAL 优先级）
+   - 底部：近期变更（提升 AI 注意力）
+
+3. **变更检测**
+   - 计算文件 MD5 哈希
+   - 对比上次 Manifest
+   - 生成 unified diff
+
+4. **保存文件**
+   - XML 文件 → Google Drive
+   - Manifest → D 盘
+   - 旧文件 → D 盘备份
+
+## 📊 输出示例
+
+### XML 结构
+```xml
+<system_context>
+  <metadata>
+    <description>Godot Sensei Project Context Master File</description>
+    <generated_time>2026-04-23 00:58:00</generated_time>
+  </metadata>
+
+  <section_1_important_rules>
+    <file path=".kiro/ProjectRules.md" priority="CRITICAL">
+<![CDATA[
+... 核心规则内容 ...
+]]>
+    </file>
+  </section_1_important_rules>
+
+  <section_2_project_code>
+    <file path="3d-practice/addons/A1TetrisBackpack/..." priority="NORMAL">
+<![CDATA[
+... 源码内容 ...
+]]>
+    </file>
+  </section_2_project_code>
+
+  <section_3_recent_changes>
+    <![CDATA[
+# 🔄 AI Context 变更历史
+## 📅 20260423_005935
+- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
+...
+]]>
+  </section_3_recent_changes>
+</system_context>
+```
+
+### 变更记录
+```markdown
+# 🔄 AI Context 变更历史
+
+<RECENT_CHANGES>
+## 📅 20260423_005935
+- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
+
+#### .kiro/steering\Always\MainRules.md
+```diff
+@@ -3,11 +3,11 @@
+-    - Recent Changes: `Get-Content "..." -Head <lines>`
++    - Recent Changes: `Get-Content "..." -Head <lines>` (XML 格式测试)
+```
+</RECENT_CHANGES>
+```
+
+## 💡 使用建议
+
+### 给 AI 的提示词
+```
+请重点关注 <section_1_important_rules> 中 priority="CRITICAL" 的文件，
+这些是项目的核心规则。然后查看 <section_3_recent_changes> 了解最新变更。
+```
+
+### 选择性查看
+- 核心规则: 搜索 `<section_1_important_rules>`
+- 项目源码: 搜索 `<section_2_project_code>`
+- 近期变更: 搜索 `<section_3_recent_changes>`
+- 特定文件: 搜索 `<file path="..."`
+
+### 优先级说明
+- `CRITICAL`: 核心配置文件（project.godot, MainRules.md 等）
+- `HIGH`: 重要规则文档（steering, docs, specs）
+- `NORMAL`: 普通源码文件
+
+## 🛠️ 故障排除
+
+### 问题：脚本运行失败
+**检查**:
+1. Python 是否安装（需要 Python 3.7+）
+2. 路径配置是否正确
+3. Google Drive 是否正常同步
+
+### 问题：文件过大
+**解决**:
+1. 调整 `CODE_MAX_SIZE_MB` 和 `RESOURCE_MAX_SIZE_MB`
+2. 添加更多文件到黑名单
+3. 排除不必要的文件夹
+
+### 问题：变更检测不工作
+**检查**:
+1. `D:\Kiro_Godot_Brain_Backup\AI_Context_Manifest.json` 是否存在
+2. 文件权限是否正确
+3. 查看脚本输出的错误信息
+
+### 问题：Hook 不触发
+**检查**:
+1. Hook 配置文件是否存在（`.kiro/hooks/`）
+2. 查看 Hook 日志（`.kiro/CloudSync_Workflow/logs/`）
+3. 使用 Kiro 命令面板检查 Hook 状态
+
+## 📚 相关文档
+
+- **完成报告**: `REFACTOR_COMPLETE.md` - 重构详细说明
+- **原始计划**: `REFACTOR_PLAN.md` - 历史参考（已过时）
+- **主规则**: `../steering/Always/MainRules.md` - 项目核心规则
+- **设计模式**: `../steering/Always/DesignPatterns.md` - 架构模式
+
+## 🔄 版本历史
+
+### v2.0 (2026-04-23) - XML 重构
+- ✅ 采用 XML 结构化格式
+- ✅ 实现三明治布局
+- ✅ 添加优先级标记
+- ✅ 使用 CDATA 包裹代码
+
+### v1.0 (2026-04-22) - 初始版本
+- ✅ 纯文本分隔符格式
+- ✅ 变更检测功能
+- ✅ 白名单机制
+- ✅ Hook 自动触发
+
+## 📞 支持
+
+如有问题，请查看：
+1. 脚本输出的错误信息
+2. `REFACTOR_COMPLETE.md` 中的故障排除部分
+3. Kiro 日志文件
+
+## 🎉 总结
+
+Kiro Sync 是一个基于大模型认知原理设计的上下文同步工具，采用 XML 结构和三明治布局，智能过滤和变更检测，自动同步到 Google Drive，为 AI 提供最优质的项目上下文。
+
+**核心优势**:
+- 🎯 XML 结构（大模型友好）
+- 🎯 三明治布局（符合位置权重）
+- 🎯 优先级标记（明确重要性）
+- 🎯 智能过滤（高信噪比）
+- 🎯 变更检测（追踪历史）
+- 🎯 自动同步（Hook 触发）

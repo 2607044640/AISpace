@@ -1,0 +1,8 @@
+[2026-04-23 00:46:39] Sync started 
+Traceback (most recent call last):
+  File "C:\Godot\3d-practice\..\KiroWorkingSpace\.kiro\CloudSync_Workflow\kiro_sync_to_drive.py", line 1081, in <module>
+    build_pure_code_package()
+NameError: name 'build_pure_code_package' is not defined
+❌ [Kiro Sync] 错误: name 'build_pure_code_package' is not defined
+
+按 Enter 键退出...
