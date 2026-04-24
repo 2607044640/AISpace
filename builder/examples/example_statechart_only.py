@@ -35,4 +35,4 @@ sc.resolve_initial_states()
 
 # Export
 print(scene.generate_tree_view())
-scene.save("c:/Godot/3d-practice/Scenes/PlayerStateChart.tscn")
+scene.save("c:/Godot/TetrisBackpack/Scenes/PlayerStateChart.tscn")

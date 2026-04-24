@@ -219,7 +219,7 @@ print('\n'.join(tree_lines[:50]))
 print("... (truncated)")
 print("\n" + "=" * 60)
 
-scene.save("c:/Godot/3d-practice/Scenes/Test_Binding_Inventory_Shop.tscn")
+scene.save("c:/Godot/TetrisBackpack/Scenes/Test_Binding_Inventory_Shop.tscn")
 
 print("\n✅ Test 8 Complete: Inventory Shop binding scene generated")
 print("   - 12 shop item slots with buy buttons")

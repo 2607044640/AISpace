@@ -6,6 +6,7 @@ trigger: manual
     <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
     <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
     <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    <rule>Generator Python scripts MUST be saved to `AISpace/temp/` only. NEVER scatter them in `AISpace/scripts/` or project dirs. The generated `.tscn` output may go to `TetrisBackpack/Scenes/`, but the generator itself is disposable and lives in `AISpace/temp/`.</rule>
   </critical_rule>
   <layer_1_quick_start>
     <quick_reference>

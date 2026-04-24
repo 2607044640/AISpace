@@ -2,7 +2,7 @@
 trigger: manual
 ---
 ```xml
-<kiro_rule>
+<core_rule>
   <layer_1_quick_start>
     <quick_reference>
       - **Tool:** `mcp_sequential_thinking_sequentialthinking`
@@ -136,5 +136,5 @@ machine.Configure(State.Idle)
       - **Scratchpad Discipline:** Treat `Scratchpad/` files as living documents. Update them incrementally as you learn more, don't wait until the end of the analysis.
     </best_practices>
   </layer_3_advanced>
-</kiro_rule>
+</core_rule>
 ```

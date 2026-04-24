@@ -1,4 +1,4 @@
-﻿---
+---
 trigger: manual
 ---
 
@@ -10,7 +10,7 @@ Execute the Conversation Reset Protocol when the conversation context becomes to
 Read these files FIRST to understand the baseline state before updating:
 1. `AISpace/docLastConversationState.md` (State tracking)
 2. `AISpace/ProjectRules.md` (Hard constraints)
-3. Recent Changes: `Get-Content "C:\Users\26070\My Drive\Kiro_Godot_Brain\AI_Context_Changes.md" -Head <lines>`
+3. Recent Changes: `Get-Content "C:\Users\26070\My Drive\Agent_Godot_Brain\AI_Context_Changes.md" -Head <lines>`
 </target_files>
 
 <workflow>

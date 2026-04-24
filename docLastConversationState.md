@@ -19,7 +19,7 @@
 - Architecture shift: Renderer → Factory
 
 **Files Modified**:
-- `3d-practice/addons/A1TetrisBackpack/Core/BackpackGridUIComponent.cs`
+- `TetrisBackpack/addons/A1TetrisBackpack/Core/BackpackGridUIComponent.cs`
 
 **Result**: Unified visual language - all grid cells use transparent body + glowing border style.
 
@@ -55,7 +55,7 @@ public override void _EnterTree()
 ```
 
 **Files Modified**:
-- `3d-practice/addons/A1TetrisBackpack/Core/BackpackGridUIComponent.cs`
+- `TetrisBackpack/addons/A1TetrisBackpack/Core/BackpackGridUIComponent.cs`
   - Removed: `GridContainerPath` Export property
   - Added: `_backgroundCanvas` auto-creation in `_EnterTree()`
 
@@ -82,7 +82,7 @@ gridCellUI.MouseExited += () => ResetGroupState();
 ```
 
 **Files Modified**:
-- `3d-practice/addons/A1TetrisBackpack/Items/ItemCellGroupController.cs`
+- `TetrisBackpack/addons/A1TetrisBackpack/Items/ItemCellGroupController.cs`
 
 **Result**: Clear visual feedback - mousing over any part of item makes entire shape glow white.
 
@@ -103,7 +103,7 @@ gridCellUI.MouseExited += () => ResetGroupState();
 - Use `FollowMouseUIComponent.GrabOffset` property
 - User sets `GrabOffset = (-15, -15)` in Inspector
 - Shifts item UP and LEFT relative to mouse during drag
-- Mouse cursor sits safely inside cell bounds
+- Mouse agent sits safely inside cell bounds
 
 **Architecture Principle**: 
 - Grid logic (ItemCellGroupController) handles static positioning
@@ -238,19 +238,19 @@ BackpackPanel (BackpackGridUIComponent)
 
 ## 📝 Documentation Updated
 
-1. **Scratchpad**: `AISpace/.kiro/Scratchpad/ComponentDesign_20260423.md`
+1. **Scratchpad**: `AISpace/.agent/Scratchpad/ComponentDesign_20260423.md`
    - Design Decision 1: Visual Language Unification
    - Design Decision 2: Hover Effect Implementation
    - Design Decision 3: BackpackInteractionController Necessity
    - Bug Fix: Mouse Slipping (correct solution)
    - Refactor: Auto-Generation Pattern
 
-2. **System Context**: `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+2. **System Context**: `AISpace/.agent/steering/Godot/GodotBackpackTesseractSys_Context.md`
    - Updated API reference
    - Updated implementation anchors
    - Added hover area expansion notes
 
-3. **Project Rules**: `AISpace/.kiro/steering/Always/ProjectRules.md`
+3. **Project Rules**: `AISpace/.agent/steering/Always/ProjectRules.md`
    - Prime Directive already contains KISS rule (no append needed)
 
 ---

@@ -254,7 +254,7 @@ print('\n'.join(tree_lines[:60]))
 print("... (truncated)")
 print("\n" + "=" * 60)
 
-scene.save("c:/Godot/3d-practice/Scenes/Test_Binding_Comprehensive_Multi_Controller.tscn")
+scene.save("c:/Godot/TetrisBackpack/Scenes/Test_Binding_Comprehensive_Multi_Controller.tscn")
 
 print("\n✅ Test 9 Complete: Comprehensive multi-controller scene generated")
 print("   - 100+ UI nodes across multiple sections")

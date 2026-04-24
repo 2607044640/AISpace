@@ -4,7 +4,7 @@ trigger: manual
 
 <layer_1_quick_start>
   <quick_reference>
-    - **Run Analysis:** `dotnet build` (from `3d-practice/`)
+    - **Run Analysis:** `dotnet build` (from `TetrisBackpack/`)
     - **Auto-Fix:** `dotnet roslynator fix --severity warning`
     - **Strict Mode:** `dotnet build /p:TreatWarningsAsErrors=true`
     - **Installed Analyzers:** Roslynator 4.12.11, StyleCop 1.2.0-beta.556, SonarAnalyzer 10.6.0
@@ -37,7 +37,7 @@ trigger: manual
   </api_reference>
 
   <configuration_files>
-    <file name=".editorconfig" location="3d-practice/">
+    <file name=".editorconfig" location="TetrisBackpack/">
       <purpose>Define naming conventions and rule severities</purpose>
       <critical_sections>
         - **Naming Rules:** `dotnet_naming_rule.*` enforces TypeName_Purpose pattern (ERROR level)
@@ -60,7 +60,7 @@ trigger: manual
       </syntax>
     </file>
 
-    <file name="Directory.Build.props" location="3d-practice/">
+    <file name="Directory.Build.props" location="TetrisBackpack/">
       <purpose>Global analyzer enforcement across all projects</purpose>
       <critical_properties>
         - `EnforceCodeStyleInBuild=true`: Run analyzers during build
@@ -71,7 +71,7 @@ trigger: manual
       <mechanism>MSBuild auto-loads this file before compiling any .csproj</mechanism>
     </file>
 
-    <file name="stylecop.json" location="3d-practice/">
+    <file name="stylecop.json" location="TetrisBackpack/">
       <purpose>StyleCop-specific configuration</purpose>
       <critical_settings>
         - `documentExposedElements=true`: Public APIs require XML docs
@@ -202,7 +202,7 @@ trigger: manual
       ```yaml
       - name: Static Analysis
         run: |
-          cd 3d-practice
+          cd TetrisBackpack
           dotnet build /p:TreatWarningsAsErrors=true
       ```
     </github_actions>
@@ -210,7 +210,7 @@ trigger: manual
       ```yaml
       static-analysis:
         script:
-          - cd 3d-practice
+          - cd TetrisBackpack
           - dotnet build /p:TreatWarningsAsErrors=true
       ```
     </gitlab_ci>

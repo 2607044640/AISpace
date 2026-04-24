@@ -130,7 +130,7 @@ print("\nGenerated Tree Structure:")
 print(scene.generate_tree_view())
 print("\n" + "=" * 60)
 
-scene.save("c:/Godot/3d-practice/Scenes/Test_Binding_StateChart_Components.tscn")
+scene.save("c:/Godot/TetrisBackpack/Scenes/Test_Binding_StateChart_Components.tscn")
 
 print("\n✅ Test 7 Complete: StateChart component binding scene generated")
 print("   - 4 state components with Export bindings")

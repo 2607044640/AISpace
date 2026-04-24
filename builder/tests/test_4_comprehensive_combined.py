@@ -232,7 +232,7 @@ print("\nGenerated Tree Structure:")
 print(scene.generate_tree_view())
 print("\n" + "=" * 60)
 
-scene.save("c:/Godot/3d-practice/Scenes/Test_Comprehensive_Combined.tscn")
+scene.save("c:/Godot/TetrisBackpack/Scenes/Test_Comprehensive_Combined.tscn")
 
 print("✅ Test 4 Complete: Comprehensive combined scene generated successfully")
 print("   - UI: Boss health bar, name plate, phase indicator, ability cooldowns")

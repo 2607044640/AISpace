@@ -172,7 +172,7 @@ print("=" * 70)
 print(scene.generate_tree_view())
 print("=" * 70)
 
-scene.save("c:/Godot/3d-practice/Scenes/Example_StateChart_Component_Binding.tscn")
+scene.save("c:/Godot/TetrisBackpack/Scenes/Example_StateChart_Component_Binding.tscn")
 
 print("\n✅ Scene generated successfully!")
 print("\n" + "=" * 70)

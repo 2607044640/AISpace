@@ -109,7 +109,7 @@ print(scene.generate_tree_view())
 print("\n" + "=" * 60)
 
 # Save scene
-scene.save("c:/Godot/3d-practice/Scenes/Test_Export_NodePath_Binding.tscn")
+scene.save("c:/Godot/TetrisBackpack/Scenes/Test_Export_NodePath_Binding.tscn")
 
 print("\n✅ Test 5 Complete: All NodePath binding tests passed")
 print("   - Single assignment: ✅")

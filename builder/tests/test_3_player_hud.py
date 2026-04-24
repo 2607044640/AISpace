@@ -126,7 +126,7 @@ print("\nGenerated Tree Structure:")
 print(scene.generate_tree_view())
 print("\n" + "=" * 60)
 
-scene.save("c:/Godot/3d-practice/Scenes/Test_PlayerHUD.tscn")
+scene.save("c:/Godot/TetrisBackpack/Scenes/Test_PlayerHUD.tscn")
 
 print("✅ Test 3 Complete: Player HUD scene generated successfully")
 print("=" * 60)

@@ -2,6 +2,9 @@
 trigger: manual
 ---
 ```xml
+<critical_rule>
+  <rule>Generator Python scripts MUST be saved to `AISpace/temp/` only. NEVER scatter them in `AISpace/scripts/` or project dirs. The generated `.tscn` output may go to `TetrisBackpack/Scenes/`, but the generator itself is disposable and lives in `AISpace/temp/`.</rule>
+</critical_rule>
 <layer_1_quick_start>
   <quick_reference>
     - **Core Builder:** `builder.core.TscnBuilder`
@@ -87,7 +90,7 @@ scene.save("SettingsUI.tscn")
     - **Step 4:** Perform dependency injection by mapping UI nodes to C# `[Export]` properties using `assign_multiple_node_paths()`.
     - **Step 5:** Execute `scene.save()` to write the output.
     - **Step 6 (MANDATORY):** Test the generated scene using Godot MCP tools:
-      - Run: `mcp_godot_run_project(projectPath="c:/Godot/3d-practice", scene="Scenes/YourScene.tscn")`
+      - Run: `mcp_godot_run_project(projectPath="c:/Godot/TetrisBackpack", scene="Scenes/YourScene.tscn")`
       - Check output: `mcp_godot_get_debug_output()`
       - Stop: `mcp_godot_stop_project()`
       - Verify NO errors about "未设置" (not set) or NullReferenceException for [Export] properties
@@ -137,7 +140,7 @@ public override void _Ready()
       <code><![CDATA[
 # ALWAYS use mcp_godot_get_uid to get correct UID
 uid_result = mcp_godot_get_uid(
-    projectPath="c:/Godot/3d-practice",
+    projectPath="c:/Godot/TetrisBackpack",
     filePath="A1UIScenes/UIComponents/DropdownComponent.tscn"
 )
 

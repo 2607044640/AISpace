@@ -16,15 +16,15 @@ trigger: manual
   <quick_reference>
     - **Project Prefix:** TS (Tesseract)
     - **Rule Storage:** Store ALL rules in `AISpace/`.
-    - **Addon Root (Legacy):** `3d-practice/addons/A1TetrisBackpack/` (旧代码库)
-    - **New Project Root:** `3d-practice/A1TesseractBackpack/` (新场景和资源)
+    - **Addon Root (Legacy):** `TetrisBackpack/addons/A1TetrisBackpack/` (旧代码库)
+    - **New Project Root:** `TetrisBackpack/A1TesseractBackpack/` (新场景和资源)
     - **Scene Naming:** All scene files use `TS` prefix (e.g., `TSItem.tscn`)
-    - **Core Path:** `3d-practice/addons/A1TetrisBackpack/Core/` (BackpackGridComponent, BackpackInteractionController, BackpackGridUIComponent)
-    - **Items Path:** `3d-practice/addons/A1TetrisBackpack/Items/` (ItemDataResource, GridShapeComponent, ItemCellGroupController, IItemDataProvider)
-    - **UI Path:** `3d-practice/addons/A1TetrisBackpack/UI/` (GridCellUI - Panel-based cell component)
-    - **Interaction Path:** `3d-practice/addons/A1TetrisBackpack/Interaction/` (DraggableItemComponent, FollowMouseUIComponent)
-    - **Synergies Path:** `3d-practice/addons/A1TetrisBackpack/Synergies/` (SynergyDataResource, SynergyComponent)
-    - **MicroUI Path:** `3d-practice/addons/A1TetrisBackpack/MicroUI/` (UITweenInteractComponent)
+    - **Core Path:** `TetrisBackpack/addons/A1TetrisBackpack/Core/` (BackpackGridComponent, BackpackInteractionController, BackpackGridUIComponent)
+    - **Items Path:** `TetrisBackpack/addons/A1TetrisBackpack/Items/` (ItemDataResource, GridShapeComponent, ItemCellGroupController, IItemDataProvider)
+    - **UI Path:** `TetrisBackpack/addons/A1TetrisBackpack/UI/` (GridCellUI - Panel-based cell component)
+    - **Interaction Path:** `TetrisBackpack/addons/A1TetrisBackpack/Interaction/` (DraggableItemComponent, FollowMouseUIComponent)
+    - **Synergies Path:** `TetrisBackpack/addons/A1TetrisBackpack/Synergies/` (SynergyDataResource, SynergyComponent)
+    - **MicroUI Path:** `TetrisBackpack/addons/A1TetrisBackpack/MicroUI/` (UITweenInteractComponent)
     - **Core Dependencies:** R3 (Cysharp) for reactive streams, GodotStateCharts for state management.
   </quick_reference>
 

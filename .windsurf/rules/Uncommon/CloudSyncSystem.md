@@ -1,15 +1,15 @@
-﻿#  Kiro Cloud Sync System - AI 快速上手指南
+#  Agent Cloud Sync System - AI 快速上手指南
 
 ##  系统概览
 
 **目的**: 将项目上下文同步到 Google Drive，供 Gemini AI 阅读，同时生成人类可读的分类视图。
 
-**核心脚本**: `AISpace/CloudSync_Workflow/kiro_sync_to_drive.py`
+**核心脚本**: `AISpace/CloudSync_Workflow/agent_sync_to_drive.py`
 
 **输出位置**:
--  **云端 (AI)**: `C:\Users\26070\My Drive\Kiro_Godot_Brain\AI_Context_Master_YYYYMMDD_HHMMSS.txt` (单一 XML 文件)
+-  **云端 (AI)**: `C:\Users\26070\My Drive\Agent_Godot_Brain\AI_Context_Master_YYYYMMDD_HHMMSS.txt` (单一 XML 文件)
 -  **本地 (人类)**: `D:\A1GeminiSyncTestForHuman\` (5 个分类文件)
--  **备份**: `D:\Kiro_Godot_Brain_Backup\` (Manifest 和旧文件)
+-  **备份**: `D:\Agent_Godot_Brain_Backup\` (Manifest 和旧文件)
 
 ---
 
@@ -61,7 +61,7 @@
 - 保留最近 10 次变更记录
 - 最近 5 次标记为 `<RECENT_CHANGES>`
 
-**输出**: `C:\Users\26070\My Drive\Kiro_Godot_Brain\AI_Context_Changes.md`
+**输出**: `C:\Users\26070\My Drive\Agent_Godot_Brain\AI_Context_Changes.md`
 
 ### 5 自动同步 Hooks
 
@@ -77,12 +77,12 @@
 
 ### `build_dual_sync()`
 主函数，协调整个同步流程：
-1. 扫描 AISpace/ 和 3d-practice/
+1. 扫描 AISpace/ 和 TetrisBackpack/
 2. 分类文件到 5 个桶
 3. 生成云端 XML 和本地分类文件
 4. 处理 Manifest 和变更检测
 
-### `process_file_to_bucket(file_path, virtual_path, buckets, manifest_dict, source_path, kiro_path, override_content=None)`
+### `process_file_to_bucket(file_path, virtual_path, buckets, manifest_dict, source_path, agent_path, override_content=None)`
 处理单个文件：
 - `override_content=None`: 正常读取文本文件
 - `override_content="<stub>"`: 使用占位符（二进制/第三方插件）
@@ -93,7 +93,7 @@
 - 检测空字节 `\x00`
 - 返回 True/False
 
-### `classify_file_to_bucket(file_path, source_path, kiro_path)`
+### `classify_file_to_bucket(file_path, source_path, agent_path)`
 文件分类逻辑（优先级从高到低）：
 1. 核心规则文件  `01_important_rules`
 2. 路径包含 A1  `03_a1_components`
@@ -114,10 +114,10 @@ PROJECT_WHITELIST_PREFIXES = ['A1', 'B1']
 - A1/B1 开头的文件夹会绕过大小限制
 - 第三方插件过滤时，A1/B1 插件保留源码
 
-**Kiro 白名单**:
+**Agent 白名单**:
 ```python
-KIRO_WHITELIST_DIRS = ['steering', 'docs', 'specs']
-KIRO_WHITELIST_FILES = ['ProjectRules.md', 'docLastConversationState.md', 'ConversationReset.md']
+AGENT_WHITELIST_DIRS = ['steering', 'docs', 'specs']
+AGENT_WHITELIST_FILES = ['ProjectRules.md', 'docLastConversationState.md', 'ConversationReset.md']
 ```
 
 ### 忽略规则
@@ -148,12 +148,12 @@ IGNORE_DIRS = (
 ### 手动运行同步
 ```bash
 cd AISpace/CloudSync_Workflow
-python kiro_sync_to_drive.py
+python agent_sync_to_drive.py
 ```
 
 ### 查看最近变更
 ```powershell
-Get-Content "C:\Users\26070\My Drive\Kiro_Godot_Brain\AI_Context_Changes.md" -Head 50
+Get-Content "C:\Users\26070\My Drive\Agent_Godot_Brain\AI_Context_Changes.md" -Head 50
 ```
 
 ### 验证二进制索引
@@ -208,7 +208,7 @@ if len(path_parts) > 1 and path_parts[0] == 'addons':
 **症状**: `AI_Context_Changes.md` 为空或不更新
 
 **检查**:
-1. Manifest 文件是否存在：`D:\Kiro_Godot_Brain_Backup\AI_Context_Manifest.json`
+1. Manifest 文件是否存在：`D:\Agent_Godot_Brain_Backup\AI_Context_Manifest.json`
 2. 文件哈希是否正确计算
 3. `process_manifest_and_changes()` 是否被调用
 
@@ -239,7 +239,7 @@ if len(path_parts) > 1 and path_parts[0] == 'addons':
 
 ##  相关文件
 
-- **主脚本**: `AISpace/CloudSync_Workflow/kiro_sync_to_drive.py`
+- **主脚本**: `AISpace/CloudSync_Workflow/agent_sync_to_drive.py`
 - **静默执行**: `AISpace/CloudSync_Workflow/SYNC_TO_GEMINI_SILENT.bat`
 - **Hooks**: `AISpace/hooks/auto-sync-*.json`
 - **验证脚本**: `AISpace/CloudSync_Workflow/verify_*.py`
@@ -251,10 +251,10 @@ if len(path_parts) > 1 and path_parts[0] == 'addons':
 ```powershell
 # 手动同步
 cd C:\Godot\AISpace\CloudSync_Workflow
-python kiro_sync_to_drive.py
+python agent_sync_to_drive.py
 
 # 查看最近变更（前 20 行）
-Get-Content "C:\Users\26070\My Drive\Kiro_Godot_Brain\AI_Context_Changes.md" -Head 20
+Get-Content "C:\Users\26070\My Drive\Agent_Godot_Brain\AI_Context_Changes.md" -Head 20
 
 # 验证二进制索引
 python verify_binary_indexing.py
@@ -272,5 +272,5 @@ python test_addon_detection.py
 ---
 
 **最后更新**: 2026-04-23  
-**维护者**: Kiro AI Assistant  
+**维护者**: Agent AI Assistant  
 **架构师**: 用户

@@ -147,7 +147,7 @@ print("\nGenerated Tree Structure:")
 print(scene.generate_tree_view())
 print("\n" + "=" * 60)
 
-scene.save("c:/Godot/3d-practice/Scenes/Test_Binding_UI_Controller.tscn")
+scene.save("c:/Godot/TetrisBackpack/Scenes/Test_Binding_UI_Controller.tscn")
 
 print("\n✅ Test 6 Complete: UI Controller binding scene generated")
 print("   - 15 UI controls bound to SettingsController")

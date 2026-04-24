@@ -6,6 +6,7 @@ trigger: manual
   <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
   <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
   <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+  <rule>Generator Python scripts MUST be saved to `AISpace/temp/` only. NEVER scatter them in `AISpace/scripts/` or project dirs. The generated `.tscn` output may go to `TetrisBackpack/Scenes/`, but the generator itself is disposable and lives in `AISpace/temp/`.</rule>
 </critical_rule>
 <layer_1_quick_start>
   <quick_reference>
@@ -45,7 +46,7 @@ ui.add_separator("TitleSep", parent="MainVBox")
 
 # 4. Add Prefab Control (Requires UID)
 slider_uid = mcp_godot_get_uid(
-    projectPath="c:/Godot/3d-practice",
+    projectPath="c:/Godot/TetrisBackpack",
     filePath="A1UIScenes/UIComponents/SliderComponent.tscn"
 )["uid"]
 
@@ -59,7 +60,7 @@ scene.add_node("SettingsController", "Node", parent=".", script=f'ExtResource("{
 scene.assign_multiple_node_paths("SettingsController", {"VolumeSlider": "VolumeSlider"})
 
 # 6. Save
-scene.save("c:/Godot/3d-practice/Scenes/SettingsMenu.tscn")
+scene.save("c:/Godot/TetrisBackpack/Scenes/SettingsMenu.tscn")
 ]]></code>
   </end_to_end_example>
   <top_anti_patterns>
@@ -113,9 +114,9 @@ scene.save("c:/Godot/3d-practice/Scenes/SettingsMenu.tscn")
     <template name="SettingsUI_Prefabs">
       <code><![CDATA[
 # Get UIDs for prefabs
-dropdown_uid = mcp_godot_get_uid(projectPath="c:/Godot/3d-practice", filePath="A1UIScenes/UIComponents/DropdownComponent.tscn")["uid"]
-slider_uid = mcp_godot_get_uid(projectPath="c:/Godot/3d-practice", filePath="A1UIScenes/UIComponents/SliderComponent.tscn")["uid"]
-toggle_uid = mcp_godot_get_uid(projectPath="c:/Godot/3d-practice", filePath="A1UIScenes/UIComponents/ToggleComponent.tscn")["uid"]
+dropdown_uid = mcp_godot_get_uid(projectPath="c:/Godot/TetrisBackpack", filePath="A1UIScenes/UIComponents/DropdownComponent.tscn")["uid"]
+slider_uid = mcp_godot_get_uid(projectPath="c:/Godot/TetrisBackpack", filePath="A1UIScenes/UIComponents/SliderComponent.tscn")["uid"]
+toggle_uid = mcp_godot_get_uid(projectPath="c:/Godot/TetrisBackpack", filePath="A1UIScenes/UIComponents/ToggleComponent.tscn")["uid"]
 
 # Use prefabs
 ui.add_instance("ResolutionDropdown", parent="MainVBox",
@@ -153,7 +154,7 @@ ui.add_instance("FullscreenToggle", parent="MainVBox",
   <troubleshooting>
     <error symptom="UI prefab fails to load with 'Invalid scene UID' error.">
       <cause>The `scene_uid` parameter was hardcoded or guessed instead of retrieved via `mcp_godot_get_uid`.</cause>
-      <fix>ALWAYS call `mcp_godot_get_uid(projectPath="c:/Godot/3d-practice", filePath="A1UIScenes/UIComponents/...")` before `ui.add_instance()`. Never hardcode UIDs.</fix>
+      <fix>ALWAYS call `mcp_godot_get_uid(projectPath="c:/Godot/TetrisBackpack", filePath="A1UIScenes/UIComponents/...")` before `ui.add_instance()`. Never hardcode UIDs.</fix>
     </error>
     <error symptom="UI controls appear detached or floating instead of in proper containers.">
       <cause>The `parent` parameter was omitted or incorrect in `ui.add_*()` calls.</cause>
@@ -195,7 +196,7 @@ ui.add_instance("FullscreenToggle", parent="MainVBox",
 
   <common_tasks_quick_index>
     <task name="Build Settings UI with Prefabs">See `<end_to_end_example>` in layer_1_quick_start</task>
-    <task name="Get Prefab UID">Use `mcp_godot_get_uid(projectPath="c:/Godot/3d-practice", filePath="A1UIScenes/UIComponents/...")`</task>
+    <task name="Get Prefab UID">Use `mcp_godot_get_uid(projectPath="c:/Godot/TetrisBackpack", filePath="A1UIScenes/UIComponents/...")`</task>
     <task name="Center UI Layout">See `<decision_tree>` → "If centering UI" in layer_1_quick_start</task>
     <task name="Add Standard Controls">See `<api_reference>` in layer_2_detailed_guide for all `ui.add_*()` methods</task>
     <task name="Use Prefabs">See `<code_templates>` → "SettingsUI_Prefabs" in layer_2_detailed_guide</task>

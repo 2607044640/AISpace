@@ -75,9 +75,9 @@ def generate_basic_item():
     statechart.resolve_initial_states()
     
     # 生成场景
-    # 从 AISpace/builder 到 3d-practice
+    # 从 AISpace/builder 到 TetrisBackpack
     workspace_root = os.path.dirname(os.path.dirname(current_dir))
-    output_path = os.path.join(workspace_root, "3d-practice", "addons", "A1TetrisBackpack", "Items", "BasicItem.tscn")
+    output_path = os.path.join(workspace_root, "TetrisBackpack", "addons", "A1TetrisBackpack", "Items", "BasicItem.tscn")
     scene.save(output_path)
     
     print("\n=== BasicItem.tscn 生成完成 ===")

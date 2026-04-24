@@ -1,14 +1,14 @@
-﻿---
+---
 trigger: always_on
 ---
 <layer_1_quick_start>
   <quick_reference>
-    - Compilation Command: `dotnet build` (Execution directory: `3d-practice/`)
+    - Compilation Command: `dotnet build` (Execution directory: `TetrisBackpack/`)
     - Godot Log Path: `$env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log`
-    - Recent Changes: `Get-Content "C:\Users\26070\My Drive\Kiro_Godot_Brain\AI_Context_Changes.md" -Head <lines>`
+    - Recent Changes: `Get-Content "C:\Users\26070\My Drive\Agent_Godot_Brain\AI_Context_Changes.md" -Head <lines>`
     - Architecture & Rules Path: `AISpace/.windsurf/rules/`
-    - Project Code Path: `3d-practice/`
-    - Cloud Sync Script: `AISpace/CloudSync_Workflow/kiro_sync_to_drive.py` (triggered via `C:\Godot\3d-practice\SYNC_TO_GEMINI_SILENT.bat`)
+    - Project Code Path: `TetrisBackpack/`
+    - Cloud Sync Script: `AISpace/CloudSync_Workflow/agent_sync_to_drive.py` (triggered via `C:\Godot\TetrisBackpack\SYNC_TO_GEMINI_SILENT.bat`)
     
     **Steering File Purposes:**
     - `ProjectRules.md`: Architectural patterns, R3 rules, naming conventions, component communication.
@@ -21,7 +21,7 @@ trigger: always_on
     3. Verify assumptions and existing code state.
     4. Execute implementation incrementally (read files, run commands, make changes).
     5. Run `dotnet build` immediately after ANY C# modifications.
-    6. After modifying ANY `.md`, `.cs`, `.gd`, `.tscn`, `.tres`, or `.cfg` file, run `C:\Godot\3d-practice\SYNC_TO_GEMINI_SILENT.bat` silently in background to sync context to Gemini (replaces Kiro fileEdited hook).
+    6. After modifying ANY `.md`, `.cs`, `.gd`, `.tscn`, `.tres`, or `.cfg` file, run `C:\Godot\TetrisBackpack\SYNC_TO_GEMINI_SILENT.bat` silently in background to sync context to Gemini (replaces Agent fileEdited hook).
   </quickstart_workflow>
 
   <error_escalation>
@@ -70,12 +70,12 @@ trigger: always_on
       <rationale>Maintains strict separation between system instructions and Godot project source code.</rationale>
     </rule>
     <rule>
-      <description>Execute dotnet build from 3d-practice/ after writing ANY C# code.</description>
+      <description>Execute dotnet build from TetrisBackpack/ after writing ANY C# code.</description>
       <rationale>Catches C# compilation errors immediately via the .sln file.</rationale>
     </rule>
     <rule>
-      <description>AUTO-SYNC: After any file write/edit to `.md`, `.cs`, `.gd`, `.tscn`, `.tres`, or `.cfg`, run `C:\Godot\3d-practice\SYNC_TO_GEMINI_SILENT.bat` in the background (non-blocking) to push context to Google Drive for Gemini.</description>
-      <rationale>Windsurf has no native fileEdited hook (unlike Kiro), so the AI must self-trigger the sync. Run with `powershell -WindowStyle Hidden -Command "& 'C:\Godot\3d-practice\SYNC_TO_GEMINI_SILENT.bat'"` as a non-blocking background command.</rationale>
+      <description>AUTO-SYNC: After any file write/edit to `.md`, `.cs`, `.gd`, `.tscn`, `.tres`, or `.cfg`, run `C:\Godot\TetrisBackpack\SYNC_TO_GEMINI_SILENT.bat` in the background (non-blocking) to push context to Google Drive for Gemini.</description>
+      <rationale>Windsurf has no native fileEdited hook (unlike Agent), so the AI must self-trigger the sync. Run with `powershell -WindowStyle Hidden -Command "& 'C:\Godot\TetrisBackpack\SYNC_TO_GEMINI_SILENT.bat'"` as a non-blocking background command.</rationale>
     </rule>
     <rule>
       <description>Delete documentation ruthlessly if the explanation applies to programming in general rather than the specific feature.</description>
@@ -83,3 +83,14 @@ trigger: always_on
     </rule>
   </core_rules>
 </layer_2_detailed_guide>
+
+<layer_3_agent_temporary_workspace>
+  <critical_rule>
+    # [CRITICAL RULE: Agent's Temporary Workspace]
+    1. All system analysis, scratchpads, temp logs, and debug files MUST ONLY be written to one of:
+       - `C:\Godot\AISpace\temp\` — for AI-system-side scripts (cleanup, generators, analysis)
+       - `C:\Godot\TetrisBackpack\temp\` — for project-side throwaway scenes, test scripts, debug C# probes
+    2. Files in either temp dir are strictly temporary, disposable, and "read-after-burn".
+    3. NEVER scatter temporary files, test code (`test_*`), or `*.bak` files in main project directories.
+  </critical_rule>
+</layer_3_agent_temporary_workspace>

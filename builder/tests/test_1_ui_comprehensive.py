@@ -116,7 +116,7 @@ print("\nGenerated Tree Structure:")
 print(scene.generate_tree_view())
 print("\n" + "=" * 60)
 
-scene.save("c:/Godot/3d-practice/Scenes/Test_UI_Comprehensive.tscn")
+scene.save("c:/Godot/TetrisBackpack/Scenes/Test_UI_Comprehensive.tscn")
 
 print("✅ Test 1 Complete: UI scene generated successfully")
 print("=" * 60)

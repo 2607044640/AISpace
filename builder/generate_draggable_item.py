@@ -158,7 +158,7 @@ def generate_draggable_item():
     
     # 生成场景
     workspace_root = os.path.dirname(os.path.dirname(current_dir))
-    output_path = os.path.join(workspace_root, "3d-practice", "addons", "A1TetrisBackpack", "Items", "TetrisDraggableItem.tscn")
+    output_path = os.path.join(workspace_root, "TetrisBackpack", "addons", "A1TetrisBackpack", "Items", "TetrisDraggableItem.tscn")
     scene.save(output_path)
     
     print("\n=== TetrisDraggableItem.tscn 生成完成 ===")

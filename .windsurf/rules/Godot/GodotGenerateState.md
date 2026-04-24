@@ -10,7 +10,7 @@ trigger: manual
   </quick_reference>
 
   <decision_tree>
-    - If establishing domain name -> **ALWAYS** use PascalCase. (Why: Enforces consistent naming conventions across the Kiro workspace.)
+    - If establishing domain name -> **ALWAYS** use PascalCase. (Why: Enforces consistent naming conventions across the Agent workspace.)
     - If extracting session data -> **ALWAYS** perform exhaustive raw extraction before filtering. (Why: Prevents accidental loss of critical architectural decisions or bug fixes.)
     - If finalizing data -> **MUST** apply the anti-noise checklist. (Why: Guarantees high-density, easily scannable context for future AI consumption.)
   </decision_tree>
@@ -49,7 +49,7 @@ trigger: manual
     </rule>
     <rule>
       <description>**ALWAYS** use the precise four output XML tags (`<context>`, `<architecture>`, `<modifications>`, `<directives>`) exclusively.</description>
-      <rationale>Maintains a strict, predictable parsing schema for context ingestion across all Kiro domains.</rationale>
+      <rationale>Maintains a strict, predictable parsing schema for context ingestion across all Agent domains.</rationale>
     </rule>
     <rule>
       <description>**MUST** format all output using concise, imperative language and nested XML tags.</description>
@@ -60,7 +60,7 @@ trigger: manual
 
 <layer_3_advanced>
   <troubleshooting>
-    <error symptom="Generated context file is ignored by Kiro workspace or fails to parse">
+    <error symptom="Generated context file is ignored by Agent workspace or fails to parse">
       <cause>Missing or malformed YAML front matter, or incorrect directory path.</cause>
       <fix>Verify the file is saved exactly in `C:\Godot\AISpace\.windsurf\rules\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
     </error>

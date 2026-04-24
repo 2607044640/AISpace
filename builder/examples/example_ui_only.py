@@ -39,4 +39,4 @@ ui.add_button("CancelButton", parent="ButtonSection", text="Cancel", size_flags_
 
 # Export
 print(scene.generate_tree_view())
-scene.save("c:/Godot/3d-practice/Scenes/SettingsMenu.tscn")
+scene.save("c:/Godot/TetrisBackpack/Scenes/SettingsMenu.tscn")
