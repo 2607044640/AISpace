@@ -2,18 +2,20 @@
 inclusion: always
 ---
 <layer_1_architecture_and_r3>
-<prime_directive>
+
+  <prime_directive>
     <rule>
-      <description>CRITICAL: Future-Proof, Extensible & Generic Design ONLY</description>
-      <rationale>Short-sighted logic, hardcoding, and overly specific designs create technical debt. Every implementation must anticipate future system scaling and requirement changes.</rationale>
+      <description>CRITICAL: Execution Strictness, KISS & Anti-Over-Engineering</description>
+      <rationale>While component-based design is required, over-engineering (e.g., adding unrequested [Export] variables, generalizing simple UI math, or over-anticipating scaling) breaks pixel-perfect layouts and ruins the Architect's intent.</rationale>
       <enforcement>
-        1. ARCHITECTURE: Solve the CLASS of problem, not the specific instance. Systems must be decoupled, modular, and parameterized.
-        2. CODE: Maximally utilize Generics (<T>), Interfaces, and abstraction layers. ZERO hardcoded edge-cases or magic numbers. 
-        3. NAMING: Strictly use domain-agnostic, high-level abstract terminology. Do not tie names to current specific visual or gameplay manifestations.
-        4. EVOLUTION: Before writing any logic or rule, ask: "Will this break or require refactoring if the system scales by 100x or adds 5 new variants?" If yes, redesign it.
+        1. EXACT BLUEPRINT OBEDIENCE: If the Architect instructs a specific hotfix, offset, or logic flow, execute it EXACTLY. Do NOT generalize it into an `[Export]` variable or rewrite formulas to "solve a class of problems" unless explicitly commanded.
+        2. KISS & YAGNI: Keep It Simple, Stupid. You Aren't Gonna Need It. Never invent logic, abstractions, interfaces, or "future-proofing" mechanisms that complicate straightforward UI or math tasks.
+        3. COMPONENT STRICTNESS: Adhere strictly to Composition over Inheritance. Components should do ONE thing. Do not bloat existing components with unrequested features.
+        4. NAMING ENFORCEMENT: Variables representing injected components MUST strictly match their Type names. No arbitrary aliases or "clever" renaming.
       </enforcement>
     </rule>
   </prime_directive>
+
   <r3_godot_quirks>
     <rule>
       <description>CRITICAL: Godot Lifecycle (_EnterTree vs _Ready) & Initialization</description>

@@ -46,8 +46,8 @@ dotnet build "New Game Project Test Godot.sln"
 
 ```json
 {
-  "godot_executable": "C:\\Godot\\Godot_v4.6.1-stable_mono_win64\\Godot_v4.6.1-stable_mono_win64.exe",
-  "project_root": "C:\\Godot\\new-game-project-test-godot",
+  "godot_executable": "C:\\GodotEngine\\Godot_v4.6.1-stable_mono_win64\\Godot_v4.6.1-stable_mono_win64.exe",
+  "project_root": "C:\\Godot\\3d-practice",
   "mcp_port": 8765
 }
 ```
@@ -256,7 +256,7 @@ python .\.kiro\scripts\test_mcp_bridge.py
 
 **解决：**
 1. 编辑 `.kiro/scripts/godot_config.json`
-2. 设置正确的 `godot_executable` 路径
+2. 设置正确的 `godot_executable` 路径（当前配置：`C:\GodotEngine\Godot_v4.6.1-stable_mono_win64\Godot_v4.6.1-stable_mono_win64.exe`）
 3. 确保路径指向 `.exe` 文件
 
 ### 日志文件未找到

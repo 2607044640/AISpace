@@ -60,13 +60,13 @@ inclusion: manual
     | Class | Methods/Properties | Parameters / Types |
     | :--- | :--- | :--- |
     | `BackpackGridComponent` | `CanPlaceItem`, `TryPlaceItem`, `RemoveItem`, `GetItemAt`, `ClearGrid` | `ItemData[] _gridData`, `OnItemPlacedAsObservable`, `OnItemRemovedAsObservable` |
-    | `BackpackGridUIComponent` | `GlobalToGridPosition`, `GridToLocalPosition`, `GetCellCenterPosition`, `LocalToGridPosition`, `IsValidGridPosition`, `GetCellRect`, `GetShapeRect`, `RefreshGrid`, `SetCellSize`, `ToggleDebugLines` | `[GlobalClass]`, `Vector2 CellSize`, `bool DrawDebugLines`, `Color GridColor` |
+    | `BackpackGridUIComponent` | `GlobalToGridPosition`, `GridToLocalPosition`, `GetCellCenterPosition`, `LocalToGridPosition`, `IsValidGridPosition`, `GetCellRect`, `GetShapeRect`, `RefreshGrid`, `SetCellSize`, `GenerateBackgroundGrid` | `[GlobalClass]`, `Vector2 CellSize`, `Control GridContainer`, `List<GridCellUI> _backgroundCells` (Factory pattern for background grid) |
     | `BackpackInteractionController` | `RegisterItem`, `HandleItemPickedUp`, `HandleItemDropped`, `HandleItemRotated` | `Dictionary<Node, ItemDragState>` |
     | `ItemDataResource` | `GetCellCount`, `GetBoundingSize`, `IsShapeValid` | `ItemID`, `ItemName`, `Icon`, `BaseShape` (Array<Vector2I>) |
     | `GridShapeComponent` | `Rotate90`, `NormalizeShape` | `Vector2I[] CurrentLocalCells`, `OnShapeChangedAsObservable` (initialized in `_EnterTree()`) |
     | `IItemDataProvider` | `DataInitialized` event | Interface for parent-to-child data injection (solves _Ready() lifecycle issue) |
-    | `GridCellUI` | `SetState`, `OnCellInputAsObservable` | Panel-based cell with StyleBoxFlat, states: Normal/Hover/Valid/Invalid |
-    | `ItemCellGroupController` | `SetGroupState`, `ResetGroupState`, `OnGroupInputAsObservable` | Event aggregator for multiple GridCellUI instances |
+    | `GridCellUI` | `SetState`, `OnCellInputAsObservable`, `OnCellHoverAsObservable`, `MouseEntered`, `MouseExited` | Panel-based cell with StyleBoxFlat, states: Normal/Hover/Valid/Invalid |
+    | `ItemCellGroupController` | `SetGroupState`, `ResetGroupState`, `OnGroupInputAsObservable` | Event aggregator for multiple GridCellUI instances, includes hover effect subscriptions |
     | `DraggableItemComponent` | `GuiInput` event handlers | `Control ClickableArea`, `Node StateChart`, `OnDragStartedAsObservable`, `OnDragEndedAsObservable`, `OnRotateRequestedAsObservable` (all initialized in `_EnterTree()`) |
     | `FollowMouseUIComponent` | `AutoBindToParentState`, `OnDragStateEntered`, `OnDragStateExited` | `Control TargetUI`, `Vector2 GrabOffset` |
     | `UITweenInteractComponent` | `AnimateToScale`, `UpdatePivotOffset` | `Control InteractionArea`, `Control VisualTarget`, `Vector2 HoverScale`, `Vector2 PressScale`, `float TweenDuration` |
