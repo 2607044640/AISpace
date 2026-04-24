@@ -1,0 +1,607 @@
+# Replace 'KiroWorkingSpace' -> 'AISpace'  (APPLY)  2026-04-25 01:18:27
+
+
+=== Scanning C:\Godot\AISpace ===
+
+[  1 hit(s)] C:\Godot\AISpace\.kiroignore  (enc=utf-8)
+    L2: # AI Context Filter - KiroWorkingSpace
+    -> MODIFIED (1 replacement(s))
+
+[ 43 hit(s)] C:\Godot\AISpace\AI_Context_Master_20260419_131656.txt  (enc=utf-8)
+    L20: - **Rule/Arch Storage**: `KiroWorkingSpace/.kiro/` (ALL steering/instruction files)
+    L493: - `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_AABBProblem.md`
+    L494: - `KiroWorkingSpace/.kiro/Scratchpad/ComponentDesign_20260418_ShapeBlocks.md`
+    L560: - `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_ReadyOrder.md` (标记为已解决)
+    L739: - **系统文档**: `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L740: - **设计模式**: `KiroWorkingSpace/.kiro/steering/Always/DesignPatterns.md`
+    L741: - **主规则**: `KiroWorkingSpace/.kiro/steering/Always/MainRules.md`
+    L742: - **项目规则**: `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L760: 1. 读取 `KiroWorkingSpace/.kiro/docLastConversationState.md`（本文件）
+    L761: 2. 读取 `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L762: 3. 读取 `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L814: 1. `KiroWorkingSpace/.kiro/docLastConversationState.md`
+    L815: 2. `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L1319: - **Rule Storage:** Save and enforce all architectural rules in `KiroWorkingSpace/.kiro/`.
+    L1524: - Architecture & Steering Path: `KiroWorkingSpace/.kiro/`
+    L1526: - Internal State Tracking: `KiroWorkingSpace/.kiro/Scratchpad/`
+    L1578: <description>Store ALL rules, steering files, and architecture documents exclusively in KiroWorkingSpace/.kiro/.</description>
+    L1639: - **Rule Storage:** Store ALL rules in `KiroWorkingSpace/.kiro/`.
+    L1928: - **Target Path:** `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\`
+    L1957: | **Output Path** | `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\` | **MUST** be exact absolute path. |
+    L1986: <fix>Verify the file is saved exactly in `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+    L2019: - **Rule Storage Constraints:** **MUST** store all rule files within `KiroWorkingSpace/.kiro/`
+    L2482: - **File Directory Integrity**: All system configuration files **MUST** be stored in `KiroWorkingSpace/.kiro/`.
+    L3094: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L3095: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L3096: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L3100: <item>Location: `KiroWorkingSpace/builder/modules/statechart.py`</item>
+    L3474: - **Framework Location:** `KiroWorkingSpace/builder/`
+    L3759: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3760: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3761: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3766: <li>UIModule Location: `KiroWorkingSpace/builder/modules/ui.py`</li>
+    L4063: Generate a status report to `KiroWorkingSpace/.kiro/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L4068: - `KiroWorkingSpace/.kiro/TempFolder/` task notes
+    L4377: - Store ALL rules, steering files, and instructions exclusively in `KiroWorkingSpace/.kiro/`.
+    L6838: - `KiroWorkingSpace/.kiro/steering/GodotUIBuilder.md` - Updated with TscnEditor section
+    L7156: - Create directory `KiroWorkingSpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L7368: - Read KiroWorkingSpace/.kiro/specs/tscn-editor-tools/InstructionDesignPrinciples.md if it exists
+    L7388: - All file operations target `KiroWorkingSpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L8201: KiroWorkingSpace/.kiro/steering/Godot/
+    L8330: - `KiroWorkingSpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L8331: - `KiroWorkingSpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L8332: - `KiroWorkingSpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+    -> MODIFIED (43 replacement(s))
+
+[  3 hit(s)] C:\Godot\AISpace\docLastConversationState.md  (enc=utf-8)
+    L241: 1. **Scratchpad**: `KiroWorkingSpace/.kiro/Scratchpad/ComponentDesign_20260423.md`
+    L248: 2. **System Context**: `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L253: 3. **Project Rules**: `KiroWorkingSpace/.kiro/steering/Always/ProjectRules.md`
+    -> MODIFIED (3 replacement(s))
+
+[ 44 hit(s)] C:\Godot\AISpace\New Text Document.txt  (enc=utf-8)
+    L21: - **Rule/Arch Storage**: `KiroWorkingSpace/.kiro/` (ALL steering/instruction files)
+    L494: - `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_AABBProblem.md`
+    L495: - `KiroWorkingSpace/.kiro/Scratchpad/ComponentDesign_20260418_ShapeBlocks.md`
+    L561: - `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_ReadyOrder.md` (标记为已解决)
+    L740: - **系统文档**: `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L741: - **设计模式**: `KiroWorkingSpace/.kiro/steering/Always/DesignPatterns.md`
+    L742: - **主规则**: `KiroWorkingSpace/.kiro/steering/Always/MainRules.md`
+    L743: - **项目规则**: `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L761: 1. 读取 `KiroWorkingSpace/.kiro/docLastConversationState.md`（本文件）
+    L762: 2. 读取 `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L763: 3. 读取 `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L776: Execute the Conversation Reset Protocol when the conversation context becomes too long. Save the current project state by reading, clearing, and rewriting the designated state files from scratch. Main
+    L781: 1. `KiroWorkingSpace/.kiro/docLastConversationState.md`
+    L782: 2. `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L1070: - **Rule Storage:** Save and enforce all architectural rules in `KiroWorkingSpace/.kiro/`.
+    L1275: - Architecture & Steering Path: `KiroWorkingSpace/.kiro/`
+    L1277: - Internal State Tracking: `KiroWorkingSpace/.kiro/Scratchpad/`
+    L1329: <description>Store ALL rules, steering files, and architecture documents exclusively in KiroWorkingSpace/.kiro/.</description>
+    L1390: - **Rule Storage:** Store ALL rules in `KiroWorkingSpace/.kiro/`.
+    L1679: - **Target Path:** `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\`
+    L1708: | **Output Path** | `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\` | **MUST** be exact absolute path. |
+    L1737: <fix>Verify the file is saved exactly in `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+    L1770: - **Rule Storage Constraints:** **MUST** store all rule files within `KiroWorkingSpace/.kiro/`
+    L2233: - **File Directory Integrity**: All system configuration files **MUST** be stored in `KiroWorkingSpace/.kiro/`.
+    L2845: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L2846: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L2847: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L2851: <item>Location: `KiroWorkingSpace/builder/modules/statechart.py`</item>
+    L3225: - **Framework Location:** `KiroWorkingSpace/builder/`
+    L3510: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3511: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3512: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3517: <li>UIModule Location: `KiroWorkingSpace/builder/modules/ui.py`</li>
+    L3814: Generate a status report to `KiroWorkingSpace/.kiro/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L3819: - `KiroWorkingSpace/.kiro/TempFolder/` task notes
+    L3908: - Store ALL rules, steering files, and instructions exclusively in `KiroWorkingSpace/.kiro/`.
+    L6038: - `KiroWorkingSpace/.kiro/steering/GodotUIBuilder.md` - Updated with TscnEditor section
+    L6356: - Create directory `KiroWorkingSpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L6568: - Read KiroWorkingSpace/.kiro/specs/tscn-editor-tools/InstructionDesignPrinciples.md if it exists
+    L6588: - All file operations target `KiroWorkingSpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L7465: KiroWorkingSpace/.kiro/steering/Godot/
+    L7594: - `KiroWorkingSpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L7595: - `KiroWorkingSpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L7596: - `KiroWorkingSpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+    -> MODIFIED (44 replacement(s))
+
+[  2 hit(s)] C:\Godot\AISpace\.windsurf\rules\ConversationReset.md  (enc=utf-8-sig)
+    L11: 1. `KiroWorkingSpace/docLastConversationState.md` (State tracking)
+    L12: 2. `KiroWorkingSpace/ProjectRules.md` (Hard constraints)
+    -> MODIFIED (2 replacement(s))
+
+[  4 hit(s)] C:\Godot\AISpace\.windsurf\rules\Always\MainRules.md  (enc=utf-8-sig)
+    L9: - Architecture & Rules Path: `KiroWorkingSpace/.windsurf/rules/`
+    L11: - Cloud Sync Script: `KiroWorkingSpace/CloudSync_Workflow/kiro_sync_to_drive.py` (triggered via `C:\Godot\3d-practice\SYNC_TO_GEMINI_SILENT.bat`)
+    L30: - Read and follow instructions in `C:\Godot\KiroWorkingSpace\.windsurf\rules\StableOrOther\BugInvestigation.md`.
+    L69: <description>Store ALL rules, steering files, and architecture documents EXCLUSIVELY in KiroWorkingSpace/.</description>
+    -> MODIFIED (4 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotBackpackTesseractSys_Context.md  (enc=utf-8-sig)
+    L18: - **Rule Storage:** Store ALL rules in `KiroWorkingSpace/`.
+    -> MODIFIED (1 replacement(s))
+
+[  3 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotGenerateState.md  (enc=utf-8-sig)
+    L7: - **Target Path:** `C:\Godot\KiroWorkingSpace\.windsurf\rules\Godot\`
+    L36: | **Output Path** | `C:\Godot\KiroWorkingSpace\.windsurf\rules\Godot\` | **MUST** be exact absolute path. |
+    L65: <fix>Verify the file is saved exactly in `C:\Godot\KiroWorkingSpace\.windsurf\rules\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+    -> MODIFIED (3 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotInputMap_Context.md  (enc=utf-8-sig)
+    L9: - **Rule Storage Constraints:** **MUST** store all rule files within `KiroWorkingSpace/`
+    -> MODIFIED (1 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotSettingsSystem_Context.md  (enc=utf-8-sig)
+    L351: - **File Directory Integrity**: All system configuration files **MUST** be stored in `KiroWorkingSpace/`.
+    -> MODIFIED (1 replacement(s))
+
+[  4 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\SceneBuilders\GodotStateChartBuilder_Context.md  (enc=utf-8-sig)
+    L6: <rule>MUST explicitly read `KiroWorkingSpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L7: <rule>MUST explicitly read `KiroWorkingSpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L8: <rule>MUST explicitly read `KiroWorkingSpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L12: <item>Location: `KiroWorkingSpace/builder/modules/statechart.py`</item>
+    -> MODIFIED (4 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\SceneBuilders\GodotTscnBuilder_Context.md  (enc=utf-8-sig)
+    L103: - **Framework Location:** `KiroWorkingSpace/builder/`
+    -> MODIFIED (1 replacement(s))
+
+[  4 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\SceneBuilders\GodotUIBuilder_Context.md  (enc=utf-8-sig)
+    L6: <rule>MUST explicitly read `KiroWorkingSpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L7: <rule>MUST explicitly read `KiroWorkingSpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L8: <rule>MUST explicitly read `KiroWorkingSpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L13: <li>UIModule Location: `KiroWorkingSpace/builder/modules/ui.py`</li>
+    -> MODIFIED (4 replacement(s))
+
+[  2 hit(s)] C:\Godot\AISpace\.windsurf\rules\StableOrOther\ClaudeReportToGemini.md  (enc=utf-8-sig)
+    L13: Generate a status report to `KiroWorkingSpace/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L18: - `KiroWorkingSpace/TempFolder/` task notes
+    -> MODIFIED (2 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\StableOrOther\InstructionDesignPrinciples.md  (enc=utf-8-sig)
+    L21: - Store ALL rules, steering files, and instructions exclusively in `KiroWorkingSpace/`.
+    -> MODIFIED (1 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\StableOrOther\RulesOptimizer.md  (enc=utf-8-sig)
+    L144: - Store ALL rules in `KiroWorkingSpace/.windsurf/rules/`
+    -> MODIFIED (1 replacement(s))
+
+[ 10 hit(s)] C:\Godot\AISpace\.windsurf\rules\Uncommon\CloudSyncSystem.md  (enc=utf-8-sig)
+    L7: **核心脚本**: `KiroWorkingSpace/CloudSync_Workflow/kiro_sync_to_drive.py`
+    L80: 1. 扫描 KiroWorkingSpace/ 和 3d-practice/
+    L150: cd KiroWorkingSpace/CloudSync_Workflow
+    L161: cd KiroWorkingSpace/CloudSync_Workflow
+    L167: cd KiroWorkingSpace/CloudSync_Workflow
+    L242: - **主脚本**: `KiroWorkingSpace/CloudSync_Workflow/kiro_sync_to_drive.py`
+    L243: - **静默执行**: `KiroWorkingSpace/CloudSync_Workflow/SYNC_TO_GEMINI_SILENT.bat`
+    L244: - **Hooks**: `KiroWorkingSpace/hooks/auto-sync-*.json`
+    L245: - **验证脚本**: `KiroWorkingSpace/CloudSync_Workflow/verify_*.py`
+    L253: cd C:\Godot\KiroWorkingSpace\CloudSync_Workflow
+    -> MODIFIED (10 replacement(s))
+
+[  2 hit(s)] C:\Godot\AISpace\.windsurf\workflows\sync-to-gemini.md  (enc=utf-8)
+    L8: scans `KiroWorkingSpace/.windsurf/rules/` + `3d-practice/` and writes the AI context bundle to
+    L22: Get-ChildItem 'C:\Godot\KiroWorkingSpace\CloudSync_Workflow\logs' -Filter 'sync_*.log' |
+    -> MODIFIED (2 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\builder\generate_basic_item.py  (enc=utf-8)
+    L78: # 从 KiroWorkingSpace/builder 到 3d-practice
+    -> MODIFIED (1 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\CHANGE_TRACKING.md  (enc=utf-8)
+    L175: python KiroWorkingSpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py
+    -> MODIFIED (1 replacement(s))
+
+[  7 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\kiro_sync_to_drive.py  (enc=utf-8)
+    L14: KIRO_WORKSPACE_DIR = r"C:\Godot\KiroWorkingSpace"
+    L81: 4. KiroWorkingSpace/ 目录下 → 02_other_rules
+    L258: # ========== 扫描 KiroWorkingSpace/ (包含 .windsurf/rules/) ==========
+    L268: process_file_to_bucket(file_path, f"KiroWorkingSpace/{filename}", buckets, current_manifest, source_path, kiro_path, override_content=stub_content)
+    L270: process_file_to_bucket(file_path, f"KiroWorkingSpace/{filename}", buckets, current_manifest, source_path, kiro_path)
+    L286: process_file_to_bucket(f_path, f"KiroWorkingSpace/{rel_path}", buckets, current_manifest, source_path, kiro_path, override_content=stub_content)
+    L289: process_file_to_bucket(f_path, f"KiroWorkingSpace/{rel_path}", buckets, current_manifest, source_path, kiro_path)
+    -> MODIFIED (7 replacement(s))
+
+[  5 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\README.md  (enc=utf-8)
+    L47: python KiroWorkingSpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py
+    L52: - 保存 `.md`, `.json`, `.txt` 文件（KiroWorkingSpace）
+    L72: KIRO_WORKSPACE_DIR = r"C:\Godot\KiroWorkingSpace\.kiro" # Kiro 规则目录
+    L79: # KiroWorkingSpace 白名单
+    L107: - KiroWorkingSpace/.kiro/ (白名单模式)
+    -> MODIFIED (5 replacement(s))
+
+[  4 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\REFACTOR_COMPLETE.md  (enc=utf-8)
+    L150: - **当前脚本**: `KiroWorkingSpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py`
+    L151: - **原始计划**: `KiroWorkingSpace/.kiro/CloudSync_Workflow/REFACTOR_PLAN.md` (已过时，保留作为历史记录)
+    L152: - **主规则文件**: `KiroWorkingSpace/.kiro/steering/Always/MainRules.md`
+    L153: - **设计模式文件**: `KiroWorkingSpace/.kiro/steering/Always/DesignPatterns.md`
+    -> MODIFIED (4 replacement(s))
+
+[  2 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\REFACTOR_PLAN.md  (enc=utf-8)
+    L43: 1. 扫描 KiroWorkingSpace/.kiro/ (白名单模式)
+    L228: - 当前脚本：`C:\Godot\KiroWorkingSpace\.kiro\CloudSync_Workflow\kiro_sync_to_drive.py`
+    -> MODIFIED (2 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\SYNC_LOGIC.md  (enc=utf-8)
+    L52: python KiroWorkingSpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py
+    -> MODIFIED (1 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\hooks\auto-sync-kiroworkspace.kiro.hook  (enc=utf-8)
+    L4: "description": "Automatically syncs to Google Drive when any steering or rule file is saved in KiroWorkingSpace",
+    -> MODIFIED (1 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\deploy_enemy_to_3dpractice.py  (enc=utf-8)
+    L9: # 源路径（KiroWorkingSpace）
+    -> MODIFIED (1 replacement(s))
+
+[  7 hit(s)] C:\Godot\AISpace\scripts\emergency_backup.py  (enc=utf-8)
+    L16: "KiroWorkingSpace/.kiro/docLastConversationState.md",
+    L17: "KiroWorkingSpace/.kiro/ProjectRules.md",
+    L18: "KiroWorkingSpace/.kiro/Scratchpad/BackpackTest_BugFix_Guide.md",
+    L19: "KiroWorkingSpace/.kiro/Scratchpad/GuiInput_Bug_Fix_Summary.md",
+    L24: backup_dir = Path(f"KiroWorkingSpace/.kiro/chat_backups/{timestamp}_emergency")
+    L34: rel_path = src.relative_to("KiroWorkingSpace/.kiro")
+    L44: scratchpad_src = Path("KiroWorkingSpace/.kiro/Scratchpad")
+    -> MODIFIED (7 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_backpack_test_scene.py  (enc=utf-8)
+    L2: sys.path.append('C:/Godot/KiroWorkingSpace/.kiro/scripts/ui_builder/generators')
+    -> MODIFIED (1 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_backpack_test_v2.py  (enc=utf-8)
+    L8: sys.path.append('C:/Godot/KiroWorkingSpace')
+    -> MODIFIED (1 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_test_theme_switcher.py  (enc=utf-8)
+    L2: sys.path.append('C:/Godot/KiroWorkingSpace/.kiro/scripts/ui_builder/generators')
+    -> MODIFIED (1 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_theme_switcher.py  (enc=utf-8)
+    L2: sys.path.append('C:/Godot/KiroWorkingSpace/.kiro/scripts/ui_builder/generators')
+    -> MODIFIED (1 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\TempBuilders\statechart_builder\example_player_statechart.py  (enc=utf-8)
+    L7: sys.path.append("C:/Godot/KiroWorkingSpace/.kiro/scripts/statechart_builder")
+    -> MODIFIED (1 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\ui_builder\README.md  (enc=utf-8-sig)
+    L47: - **KiroWorkingSpace/.kiro/steering/GodotUIBuilder.md** - 完整API参考
+    -> MODIFIED (1 replacement(s))
+
+[  2 hit(s)] C:\Godot\AISpace\scripts\ui_builder\docs\TEST_RESULTS.md  (enc=utf-8)
+    L119: - **Test Script**: `KiroWorkingSpace/.kiro/scripts/ui_builder/test_final_workflow.py`
+    L120: - **Test Output**: `KiroWorkingSpace/test_output.tscn`
+    -> MODIFIED (2 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\ui_builder\tools\analyze_option_components.py  (enc=utf-8)
+    L16: # 从 C:\Godot\KiroWorkingSpace\.kiro\scripts\ui_builder 到 C:\Godot\3d-practice
+    -> MODIFIED (1 replacement(s))
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\ui_builder\tools\validate_settings_menu.py  (enc=utf-8)
+    L20: # From: C:\Godot\KiroWorkingSpace\.kiro\scripts\ui_builder
+    -> MODIFIED (1 replacement(s))
+
+[230 hit(s)] C:\Godot\AISpace\tools\replace_kiro_dryrun_20260425_011809.log  (enc=utf-8)
+    L1: # Replace 'KiroWorkingSpace' -> 'AISpace'  (DRY-RUN)  2026-04-25 01:18:08
+    L7: L2: # AI Context Filter - KiroWorkingSpace
+    L10: L20: - **Rule/Arch Storage**: `KiroWorkingSpace/.kiro/` (ALL steering/instruction files)
+    L11: L493: - `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_AABBProblem.md`
+    L12: L494: - `KiroWorkingSpace/.kiro/Scratchpad/ComponentDesign_20260418_ShapeBlocks.md`
+    L13: L560: - `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_ReadyOrder.md` (标记为已解决)
+    L14: L739: - **系统文档**: `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L15: L740: - **设计模式**: `KiroWorkingSpace/.kiro/steering/Always/DesignPatterns.md`
+    L16: L741: - **主规则**: `KiroWorkingSpace/.kiro/steering/Always/MainRules.md`
+    L17: L742: - **项目规则**: `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L18: L760: 1. 读取 `KiroWorkingSpace/.kiro/docLastConversationState.md`（本文件）
+    L19: L761: 2. 读取 `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L20: L762: 3. 读取 `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L21: L814: 1. `KiroWorkingSpace/.kiro/docLastConversationState.md`
+    L22: L815: 2. `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L23: L1319: - **Rule Storage:** Save and enforce all architectural rules in `KiroWorkingSpace/.kiro/`.
+    L24: L1524: - Architecture & Steering Path: `KiroWorkingSpace/.kiro/`
+    L25: L1526: - Internal State Tracking: `KiroWorkingSpace/.kiro/Scratchpad/`
+    L26: L1578: <description>Store ALL rules, steering files, and architecture documents exclusively in KiroWorkingSpace/.kiro/.</description>
+    L27: L1639: - **Rule Storage:** Store ALL rules in `KiroWorkingSpace/.kiro/`.
+    L28: L1928: - **Target Path:** `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\`
+    L29: L1957: | **Output Path** | `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\` | **MUST** be exact absolute path. |
+    L30: L1986: <fix>Verify the file is saved exactly in `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+    L31: L2019: - **Rule Storage Constraints:** **MUST** store all rule files within `KiroWorkingSpace/.kiro/`
+    L32: L2482: - **File Directory Integrity**: All system configuration files **MUST** be stored in `KiroWorkingSpace/.kiro/`.
+    L33: L3094: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L34: L3095: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L35: L3096: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L36: L3100: <item>Location: `KiroWorkingSpace/builder/modules/statechart.py`</item>
+    L37: L3474: - **Framework Location:** `KiroWorkingSpace/builder/`
+    L38: L3759: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L39: L3760: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L40: L3761: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L41: L3766: <li>UIModule Location: `KiroWorkingSpace/builder/modules/ui.py`</li>
+    L42: L4063: Generate a status report to `KiroWorkingSpace/.kiro/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L43: L4068: - `KiroWorkingSpace/.kiro/TempFolder/` task notes
+    L44: L4377: - Store ALL rules, steering files, and instructions exclusively in `KiroWorkingSpace/.kiro/`.
+    L45: L6838: - `KiroWorkingSpace/.kiro/steering/GodotUIBuilder.md` - Updated with TscnEditor section
+    L46: L7156: - Create directory `KiroWorkingSpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L47: L7368: - Read KiroWorkingSpace/.kiro/specs/tscn-editor-tools/InstructionDesignPrinciples.md if it exists
+    L48: L7388: - All file operations target `KiroWorkingSpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L49: L8201: KiroWorkingSpace/.kiro/steering/Godot/
+    L50: L8330: - `KiroWorkingSpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L51: L8331: - `KiroWorkingSpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L52: L8332: - `KiroWorkingSpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+    L55: L241: 1. **Scratchpad**: `KiroWorkingSpace/.kiro/Scratchpad/ComponentDesign_20260423.md`
+    L56: L248: 2. **System Context**: `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L57: L253: 3. **Project Rules**: `KiroWorkingSpace/.kiro/steering/Always/ProjectRules.md`
+    L60: L21: - **Rule/Arch Storage**: `KiroWorkingSpace/.kiro/` (ALL steering/instruction files)
+    L61: L494: - `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_AABBProblem.md`
+    L62: L495: - `KiroWorkingSpace/.kiro/Scratchpad/ComponentDesign_20260418_ShapeBlocks.md`
+    L63: L561: - `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_ReadyOrder.md` (标记为已解决)
+    L64: L740: - **系统文档**: `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L65: L741: - **设计模式**: `KiroWorkingSpace/.kiro/steering/Always/DesignPatterns.md`
+    L66: L742: - **主规则**: `KiroWorkingSpace/.kiro/steering/Always/MainRules.md`
+    L67: L743: - **项目规则**: `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L68: L761: 1. 读取 `KiroWorkingSpace/.kiro/docLastConversationState.md`（本文件）
+    L69: L762: 2. 读取 `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L70: L763: 3. 读取 `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L72: L781: 1. `KiroWorkingSpace/.kiro/docLastConversationState.md`
+    L73: L782: 2. `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L74: L1070: - **Rule Storage:** Save and enforce all architectural rules in `KiroWorkingSpace/.kiro/`.
+    L75: L1275: - Architecture & Steering Path: `KiroWorkingSpace/.kiro/`
+    L76: L1277: - Internal State Tracking: `KiroWorkingSpace/.kiro/Scratchpad/`
+    L77: L1329: <description>Store ALL rules, steering files, and architecture documents exclusively in KiroWorkingSpace/.kiro/.</description>
+    L78: L1390: - **Rule Storage:** Store ALL rules in `KiroWorkingSpace/.kiro/`.
+    L79: L1679: - **Target Path:** `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\`
+    L80: L1708: | **Output Path** | `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\` | **MUST** be exact absolute path. |
+    L81: L1737: <fix>Verify the file is saved exactly in `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+    L82: L1770: - **Rule Storage Constraints:** **MUST** store all rule files within `KiroWorkingSpace/.kiro/`
+    L83: L2233: - **File Directory Integrity**: All system configuration files **MUST** be stored in `KiroWorkingSpace/.kiro/`.
+    L84: L2845: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L85: L2846: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L86: L2847: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L87: L2851: <item>Location: `KiroWorkingSpace/builder/modules/statechart.py`</item>
+    L88: L3225: - **Framework Location:** `KiroWorkingSpace/builder/`
+    L89: L3510: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L90: L3511: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L91: L3512: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L92: L3517: <li>UIModule Location: `KiroWorkingSpace/builder/modules/ui.py`</li>
+    L93: L3814: Generate a status report to `KiroWorkingSpace/.kiro/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L94: L3819: - `KiroWorkingSpace/.kiro/TempFolder/` task notes
+    L95: L3908: - Store ALL rules, steering files, and instructions exclusively in `KiroWorkingSpace/.kiro/`.
+    L96: L6038: - `KiroWorkingSpace/.kiro/steering/GodotUIBuilder.md` - Updated with TscnEditor section
+    L97: L6356: - Create directory `KiroWorkingSpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L98: L6568: - Read KiroWorkingSpace/.kiro/specs/tscn-editor-tools/InstructionDesignPrinciples.md if it exists
+    L99: L6588: - All file operations target `KiroWorkingSpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L100: L7465: KiroWorkingSpace/.kiro/steering/Godot/
+    L101: L7594: - `KiroWorkingSpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L102: L7595: - `KiroWorkingSpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L103: L7596: - `KiroWorkingSpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+    L106: L11: 1. `KiroWorkingSpace/docLastConversationState.md` (State tracking)
+    L107: L12: 2. `KiroWorkingSpace/ProjectRules.md` (Hard constraints)
+    L110: L9: - Architecture & Rules Path: `KiroWorkingSpace/.windsurf/rules/`
+    L111: L11: - Cloud Sync Script: `KiroWorkingSpace/CloudSync_Workflow/kiro_sync_to_drive.py` (triggered via `C:\Godot\3d-practice\SYNC_TO_GEMINI_SILENT.bat`)
+    L112: L30: - Read and follow instructions in `C:\Godot\KiroWorkingSpace\.windsurf\rules\StableOrOther\BugInvestigation.md`.
+    L113: L69: <description>Store ALL rules, steering files, and architecture documents EXCLUSIVELY in KiroWorkingSpace/.</description>
+    L116: L18: - **Rule Storage:** Store ALL rules in `KiroWorkingSpace/`.
+    L119: L7: - **Target Path:** `C:\Godot\KiroWorkingSpace\.windsurf\rules\Godot\`
+    L120: L36: | **Output Path** | `C:\Godot\KiroWorkingSpace\.windsurf\rules\Godot\` | **MUST** be exact absolute path. |
+    L121: L65: <fix>Verify the file is saved exactly in `C:\Godot\KiroWorkingSpace\.windsurf\rules\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+    L124: L9: - **Rule Storage Constraints:** **MUST** store all rule files within `KiroWorkingSpace/`
+    L127: L351: - **File Directory Integrity**: All system configuration files **MUST** be stored in `KiroWorkingSpace/`.
+    L130: L6: <rule>MUST explicitly read `KiroWorkingSpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L131: L7: <rule>MUST explicitly read `KiroWorkingSpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L132: L8: <rule>MUST explicitly read `KiroWorkingSpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L133: L12: <item>Location: `KiroWorkingSpace/builder/modules/statechart.py`</item>
+    L136: L103: - **Framework Location:** `KiroWorkingSpace/builder/`
+    L139: L6: <rule>MUST explicitly read `KiroWorkingSpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L140: L7: <rule>MUST explicitly read `KiroWorkingSpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L141: L8: <rule>MUST explicitly read `KiroWorkingSpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L142: L13: <li>UIModule Location: `KiroWorkingSpace/builder/modules/ui.py`</li>
+    L145: L13: Generate a status report to `KiroWorkingSpace/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L146: L18: - `KiroWorkingSpace/TempFolder/` task notes
+    L149: L21: - Store ALL rules, steering files, and instructions exclusively in `KiroWorkingSpace/`.
+    L152: L144: - Store ALL rules in `KiroWorkingSpace/.windsurf/rules/`
+    L155: L7: **核心脚本**: `KiroWorkingSpace/CloudSync_Workflow/kiro_sync_to_drive.py`
+    L156: L80: 1. 扫描 KiroWorkingSpace/ 和 3d-practice/
+    L157: L150: cd KiroWorkingSpace/CloudSync_Workflow
+    L158: L161: cd KiroWorkingSpace/CloudSync_Workflow
+    L159: L167: cd KiroWorkingSpace/CloudSync_Workflow
+    L160: L242: - **主脚本**: `KiroWorkingSpace/CloudSync_Workflow/kiro_sync_to_drive.py`
+    L161: L243: - **静默执行**: `KiroWorkingSpace/CloudSync_Workflow/SYNC_TO_GEMINI_SILENT.bat`
+    L162: L244: - **Hooks**: `KiroWorkingSpace/hooks/auto-sync-*.json`
+    L163: L245: - **验证脚本**: `KiroWorkingSpace/CloudSync_Workflow/verify_*.py`
+    L164: L253: cd C:\Godot\KiroWorkingSpace\CloudSync_Workflow
+    L167: L8: scans `KiroWorkingSpace/.windsurf/rules/` + `3d-practice/` and writes the AI context bundle to
+    L168: L22: Get-ChildItem 'C:\Godot\KiroWorkingSpace\CloudSync_Workflow\logs' -Filter 'sync_*.log' |
+    L171: L78: # 从 KiroWorkingSpace/builder 到 3d-practice
+    L174: L175: python KiroWorkingSpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py
+    L177: L14: KIRO_WORKSPACE_DIR = r"C:\Godot\KiroWorkingSpace"
+    L178: L81: 4. KiroWorkingSpace/ 目录下 → 02_other_rules
+    L179: L258: # ========== 扫描 KiroWorkingSpace/ (包含 .windsurf/rules/) ==========
+    L180: L268: process_file_to_bucket(file_path, f"KiroWorkingSpace/{filename}", buckets, current_manifest, source_path, kiro_path, override_content=stub_content)
+    L181: L270: process_file_to_bucket(file_path, f"KiroWorkingSpace/{filename}", buckets, current_manifest, source_path, kiro_path)
+    L182: L286: process_file_to_bucket(f_path, f"KiroWorkingSpace/{rel_path}", buckets, current_manifest, source_path, kiro_path, override_content=stub_content)
+    L183: L289: process_file_to_bucket(f_path, f"KiroWorkingSpace/{rel_path}", buckets, current_manifest, source_path, kiro_path)
+    L186: L47: python KiroWorkingSpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py
+    L187: L52: - 保存 `.md`, `.json`, `.txt` 文件（KiroWorkingSpace）
+    L188: L72: KIRO_WORKSPACE_DIR = r"C:\Godot\KiroWorkingSpace\.kiro" # Kiro 规则目录
+    L189: L79: # KiroWorkingSpace 白名单
+    L190: L107: - KiroWorkingSpace/.kiro/ (白名单模式)
+    L193: L150: - **当前脚本**: `KiroWorkingSpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py`
+    L194: L151: - **原始计划**: `KiroWorkingSpace/.kiro/CloudSync_Workflow/REFACTOR_PLAN.md` (已过时，保留作为历史记录)
+    L195: L152: - **主规则文件**: `KiroWorkingSpace/.kiro/steering/Always/MainRules.md`
+    L196: L153: - **设计模式文件**: `KiroWorkingSpace/.kiro/steering/Always/DesignPatterns.md`
+    L199: L43: 1. 扫描 KiroWorkingSpace/.kiro/ (白名单模式)
+    L200: L228: - 当前脚本：`C:\Godot\KiroWorkingSpace\.kiro\CloudSync_Workflow\kiro_sync_to_drive.py`
+    L203: L52: python KiroWorkingSpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py
+    L206: L4: "description": "Automatically syncs to Google Drive when any steering or rule file is saved in KiroWorkingSpace",
+    L209: L9: # 源路径（KiroWorkingSpace）
+    L212: L16: "KiroWorkingSpace/.kiro/docLastConversationState.md",
+    L213: L17: "KiroWorkingSpace/.kiro/ProjectRules.md",
+    L214: L18: "KiroWorkingSpace/.kiro/Scratchpad/BackpackTest_BugFix_Guide.md",
+    L215: L19: "KiroWorkingSpace/.kiro/Scratchpad/GuiInput_Bug_Fix_Summary.md",
+    L216: L24: backup_dir = Path(f"KiroWorkingSpace/.kiro/chat_backups/{timestamp}_emergency")
+    L217: L34: rel_path = src.relative_to("KiroWorkingSpace/.kiro")
+    L218: L44: scratchpad_src = Path("KiroWorkingSpace/.kiro/Scratchpad")
+    L221: L2: sys.path.append('C:/Godot/KiroWorkingSpace/.kiro/scripts/ui_builder/generators')
+    L224: L8: sys.path.append('C:/Godot/KiroWorkingSpace')
+    L227: L2: sys.path.append('C:/Godot/KiroWorkingSpace/.kiro/scripts/ui_builder/generators')
+    L230: L2: sys.path.append('C:/Godot/KiroWorkingSpace/.kiro/scripts/ui_builder/generators')
+    L233: L7: sys.path.append("C:/Godot/KiroWorkingSpace/.kiro/scripts/statechart_builder")
+    L236: L47: - **KiroWorkingSpace/.kiro/steering/GodotUIBuilder.md** - 完整API参考
+    L239: L119: - **Test Script**: `KiroWorkingSpace/.kiro/scripts/ui_builder/test_final_workflow.py`
+    L240: L120: - **Test Output**: `KiroWorkingSpace/test_output.tscn`
+    L243: L16: # 从 C:\Godot\KiroWorkingSpace\.kiro\scripts\ui_builder 到 C:\Godot\3d-practice
+    L246: L20: # From: C:\Godot\KiroWorkingSpace\.kiro\scripts\ui_builder
+    L249: L3: "KiroWorkingSpace" and replace it with "AISpace".
+    L250: L20: OLD = "KiroWorkingSpace"
+    L255: L25: "C:\Godot\KiroWorkingSpace",
+    L258: L20: - **Rule/Arch Storage**: `KiroWorkingSpace/.kiro/` (ALL steering/instruction files)
+    L259: L493: - `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_AABBProblem.md`
+    L260: L494: - `KiroWorkingSpace/.kiro/Scratchpad/ComponentDesign_20260418_ShapeBlocks.md`
+    L261: L560: - `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_ReadyOrder.md` (标记为已解决)
+    L262: L739: - **系统文档**: `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L263: L740: - **设计模式**: `KiroWorkingSpace/.kiro/steering/Always/DesignPatterns.md`
+    L264: L741: - **主规则**: `KiroWorkingSpace/.kiro/steering/Always/MainRules.md`
+    L265: L742: - **项目规则**: `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L266: L760: 1. 读取 `KiroWorkingSpace/.kiro/docLastConversationState.md`（本文件）
+    L267: L761: 2. 读取 `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L268: L762: 3. 读取 `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L269: L814: 1. `KiroWorkingSpace/.kiro/docLastConversationState.md`
+    L270: L815: 2. `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L271: L1319: - **Rule Storage:** Save and enforce all architectural rules in `KiroWorkingSpace/.kiro/`.
+    L272: L1524: - Architecture & Steering Path: `KiroWorkingSpace/.kiro/`
+    L273: L1526: - Internal State Tracking: `KiroWorkingSpace/.kiro/Scratchpad/`
+    L274: L1578: <description>Store ALL rules, steering files, and architecture documents exclusively in KiroWorkingSpace/.kiro/.</description>
+    L275: L1639: - **Rule Storage:** Store ALL rules in `KiroWorkingSpace/.kiro/`.
+    L276: L1928: - **Target Path:** `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\`
+    L277: L1957: | **Output Path** | `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\` | **MUST** be exact absolute path. |
+    L278: L1986: <fix>Verify the file is saved exactly in `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+    L279: L2019: - **Rule Storage Constraints:** **MUST** store all rule files within `KiroWorkingSpace/.kiro/`
+    L280: L2482: - **File Directory Integrity**: All system configuration files **MUST** be stored in `KiroWorkingSpace/.kiro/`.
+    L281: L3094: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L282: L3095: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L283: L3096: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L284: L3100: <item>Location: `KiroWorkingSpace/builder/modules/statechart.py`</item>
+    L285: L3474: - **Framework Location:** `KiroWorkingSpace/builder/`
+    L286: L3759: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L287: L3760: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L288: L3761: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L289: L3766: <li>UIModule Location: `KiroWorkingSpace/builder/modules/ui.py`</li>
+    L290: L4063: Generate a status report to `KiroWorkingSpace/.kiro/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L291: L4068: - `KiroWorkingSpace/.kiro/TempFolder/` task notes
+    L292: L4377: - Store ALL rules, steering files, and instructions exclusively in `KiroWorkingSpace/.kiro/`.
+    L293: L6838: - `KiroWorkingSpace/.kiro/steering/GodotUIBuilder.md` - Updated with TscnEditor section
+    L294: L7156: - Create directory `KiroWorkingSpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L295: L7368: - Read KiroWorkingSpace/.kiro/specs/tscn-editor-tools/InstructionDesignPrinciples.md if it exists
+    L296: L7388: - All file operations target `KiroWorkingSpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L297: L8493: KiroWorkingSpace/.kiro/steering/Godot/
+    L298: L8622: - `KiroWorkingSpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L299: L8623: - `KiroWorkingSpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L300: L8624: - `KiroWorkingSpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+    L303: L37: - `C:\Godot\KiroWorkingSpace`
+    L306: L11: - **`KiroWorkingSpace/.kiro/scripts/godot_config.json`**
+    L307: L25: - **`KiroWorkingSpace/.kiro/docs/GodotMCPServer.md`**
+    L308: L34: - `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotUIBuilder_Context.md`
+    L309: L35: - `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md`
+    L310: L36: - `KiroWorkingSpace/.kiro/scripts/ui_builder/README.md`
+    L311: L46: | Kiro 工作区 | `C:\Godot\KiroWorkingSpace` | `C:\Godot\KiroWorkingSpace` | ✅ 无需更改 |
+    L312: L89: 1. 编辑 `KiroWorkingSpace/.kiro/scripts/godot_config.json`
+    L315: L13: python "%~dp0..\KiroWorkingSpace\CloudSync_Workflow\kiro_sync_to_drive.py"
+    L318: L3: set LOG_DIR=%~dp0..\KiroWorkingSpace\CloudSync_Workflow\logs
+    L319: L8: python "%~dp0..\KiroWorkingSpace\CloudSync_Workflow\kiro_sync_to_drive.py" >> "%LOG_FILE%" 2>&1
+    L322: L21: KiroWorkingSpace/.kiro/steering/Godot/
+    L323: L150: - `KiroWorkingSpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L324: L151: - `KiroWorkingSpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L325: L152: - `KiroWorkingSpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+    -> MODIFIED (230 replacement(s))
+
+[  2 hit(s)] C:\Godot\AISpace\tools\replace_kiro_workspace.py  (enc=utf-8)
+    L3: "KiroWorkingSpace" and replace it with "AISpace".
+    L20: OLD = "KiroWorkingSpace"
+    -> MODIFIED (2 replacement(s))
+
+=== Scanning C:\Godot\3d-practice ===
+
+[  1 hit(s)] C:\Godot\3d-practice\AddDefenderExclusions.ps1  (enc=utf-8)
+    L25: "C:\Godot\KiroWorkingSpace",
+    -> MODIFIED (1 replacement(s))
+
+[ 43 hit(s)] C:\Godot\3d-practice\AI_Context_Master_20260419_135502.txt  (enc=utf-8)
+    L20: - **Rule/Arch Storage**: `KiroWorkingSpace/.kiro/` (ALL steering/instruction files)
+    L493: - `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_AABBProblem.md`
+    L494: - `KiroWorkingSpace/.kiro/Scratchpad/ComponentDesign_20260418_ShapeBlocks.md`
+    L560: - `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_ReadyOrder.md` (标记为已解决)
+    L739: - **系统文档**: `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L740: - **设计模式**: `KiroWorkingSpace/.kiro/steering/Always/DesignPatterns.md`
+    L741: - **主规则**: `KiroWorkingSpace/.kiro/steering/Always/MainRules.md`
+    L742: - **项目规则**: `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L760: 1. 读取 `KiroWorkingSpace/.kiro/docLastConversationState.md`（本文件）
+    L761: 2. 读取 `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L762: 3. 读取 `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L814: 1. `KiroWorkingSpace/.kiro/docLastConversationState.md`
+    L815: 2. `KiroWorkingSpace/.kiro/ProjectRules.md`
+    L1319: - **Rule Storage:** Save and enforce all architectural rules in `KiroWorkingSpace/.kiro/`.
+    L1524: - Architecture & Steering Path: `KiroWorkingSpace/.kiro/`
+    L1526: - Internal State Tracking: `KiroWorkingSpace/.kiro/Scratchpad/`
+    L1578: <description>Store ALL rules, steering files, and architecture documents exclusively in KiroWorkingSpace/.kiro/.</description>
+    L1639: - **Rule Storage:** Store ALL rules in `KiroWorkingSpace/.kiro/`.
+    L1928: - **Target Path:** `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\`
+    L1957: | **Output Path** | `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\` | **MUST** be exact absolute path. |
+    L1986: <fix>Verify the file is saved exactly in `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+    L2019: - **Rule Storage Constraints:** **MUST** store all rule files within `KiroWorkingSpace/.kiro/`
+    L2482: - **File Directory Integrity**: All system configuration files **MUST** be stored in `KiroWorkingSpace/.kiro/`.
+    L3094: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L3095: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L3096: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L3100: <item>Location: `KiroWorkingSpace/builder/modules/statechart.py`</item>
+    L3474: - **Framework Location:** `KiroWorkingSpace/builder/`
+    L3759: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3760: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3761: <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3766: <li>UIModule Location: `KiroWorkingSpace/builder/modules/ui.py`</li>
+    L4063: Generate a status report to `KiroWorkingSpace/.kiro/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L4068: - `KiroWorkingSpace/.kiro/TempFolder/` task notes
+    L4377: - Store ALL rules, steering files, and instructions exclusively in `KiroWorkingSpace/.kiro/`.
+    L6838: - `KiroWorkingSpace/.kiro/steering/GodotUIBuilder.md` - Updated with TscnEditor section
+    L7156: - Create directory `KiroWorkingSpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L7368: - Read KiroWorkingSpace/.kiro/specs/tscn-editor-tools/InstructionDesignPrinciples.md if it exists
+    L7388: - All file operations target `KiroWorkingSpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L8493: KiroWorkingSpace/.kiro/steering/Godot/
+    L8622: - `KiroWorkingSpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L8623: - `KiroWorkingSpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L8624: - `KiroWorkingSpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+    -> MODIFIED (43 replacement(s))
+
+[  1 hit(s)] C:\Godot\3d-practice\BUILD_OPTIMIZATION_GUIDE.md  (enc=utf-8)
+    L37: - `C:\Godot\KiroWorkingSpace`
+    -> MODIFIED (1 replacement(s))
+
+[  8 hit(s)] C:\Godot\3d-practice\ENGINE_PATH_UPDATE_SUMMARY.md  (enc=utf-8)
+    L11: - **`KiroWorkingSpace/.kiro/scripts/godot_config.json`**
+    L25: - **`KiroWorkingSpace/.kiro/docs/GodotMCPServer.md`**
+    L34: - `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotUIBuilder_Context.md`
+    L35: - `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md`
+    L36: - `KiroWorkingSpace/.kiro/scripts/ui_builder/README.md`
+    L46: | Kiro 工作区 | `C:\Godot\KiroWorkingSpace` | `C:\Godot\KiroWorkingSpace` | ✅ 无需更改 |
+    L89: 1. 编辑 `KiroWorkingSpace/.kiro/scripts/godot_config.json`
+    -> MODIFIED (8 replacement(s))
+
+[  1 hit(s)] C:\Godot\3d-practice\SYNC_TO_GEMINI.bat  (enc=utf-8)
+    L13: python "%~dp0..\KiroWorkingSpace\CloudSync_Workflow\kiro_sync_to_drive.py"
+    -> MODIFIED (1 replacement(s))
+
+[  2 hit(s)] C:\Godot\3d-practice\SYNC_TO_GEMINI_SILENT.bat  (enc=utf-8)
+    L3: set LOG_DIR=%~dp0..\KiroWorkingSpace\CloudSync_Workflow\logs
+    L8: python "%~dp0..\KiroWorkingSpace\CloudSync_Workflow\kiro_sync_to_drive.py" >> "%LOG_FILE%" 2>&1
+    -> MODIFIED (2 replacement(s))
+
+[  4 hit(s)] C:\Godot\3d-practice\.kiro\Scratchpad\settings_final_summary.md  (enc=utf-8)
+    L21: KiroWorkingSpace/.kiro/steering/Godot/
+    L150: - `KiroWorkingSpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L151: - `KiroWorkingSpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L152: - `KiroWorkingSpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+    -> MODIFIED (4 replacement(s))
+
+=== SUMMARY (APPLY) ===
+Files with matches: 46
+Total occurrences : 460
+Files modified    : 46

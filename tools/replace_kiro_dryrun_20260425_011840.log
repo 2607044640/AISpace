@@ -1,0 +1,698 @@
+# Replace 'AISpace' -> 'AISpace'  (DRY-RUN)  2026-04-25 01:18:39
+
+
+=== Scanning C:\Godot\AISpace ===
+
+[  1 hit(s)] C:\Godot\AISpace\.kiroignore  (enc=utf-8)
+    L2: # AI Context Filter - AISpace
+
+[ 43 hit(s)] C:\Godot\AISpace\AI_Context_Master_20260419_131656.txt  (enc=utf-8)
+    L20: - **Rule/Arch Storage**: `AISpace/.kiro/` (ALL steering/instruction files)
+    L493: - `AISpace/.kiro/Scratchpad/CodeAnalysis_20260418_AABBProblem.md`
+    L494: - `AISpace/.kiro/Scratchpad/ComponentDesign_20260418_ShapeBlocks.md`
+    L560: - `AISpace/.kiro/Scratchpad/CodeAnalysis_20260418_ReadyOrder.md` (标记为已解决)
+    L739: - **系统文档**: `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L740: - **设计模式**: `AISpace/.kiro/steering/Always/DesignPatterns.md`
+    L741: - **主规则**: `AISpace/.kiro/steering/Always/MainRules.md`
+    L742: - **项目规则**: `AISpace/.kiro/ProjectRules.md`
+    L760: 1. 读取 `AISpace/.kiro/docLastConversationState.md`（本文件）
+    L761: 2. 读取 `AISpace/.kiro/ProjectRules.md`
+    L762: 3. 读取 `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L814: 1. `AISpace/.kiro/docLastConversationState.md`
+    L815: 2. `AISpace/.kiro/ProjectRules.md`
+    L1319: - **Rule Storage:** Save and enforce all architectural rules in `AISpace/.kiro/`.
+    L1524: - Architecture & Steering Path: `AISpace/.kiro/`
+    L1526: - Internal State Tracking: `AISpace/.kiro/Scratchpad/`
+    L1578: <description>Store ALL rules, steering files, and architecture documents exclusively in AISpace/.kiro/.</description>
+    L1639: - **Rule Storage:** Store ALL rules in `AISpace/.kiro/`.
+    L1928: - **Target Path:** `C:\Godot\AISpace\.kiro\steering\Godot\`
+    L1957: | **Output Path** | `C:\Godot\AISpace\.kiro\steering\Godot\` | **MUST** be exact absolute path. |
+    L1986: <fix>Verify the file is saved exactly in `C:\Godot\AISpace\.kiro\steering\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+    L2019: - **Rule Storage Constraints:** **MUST** store all rule files within `AISpace/.kiro/`
+    L2482: - **File Directory Integrity**: All system configuration files **MUST** be stored in `AISpace/.kiro/`.
+    L3094: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L3095: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L3096: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L3100: <item>Location: `AISpace/builder/modules/statechart.py`</item>
+    L3474: - **Framework Location:** `AISpace/builder/`
+    L3759: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3760: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3761: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3766: <li>UIModule Location: `AISpace/builder/modules/ui.py`</li>
+    L4063: Generate a status report to `AISpace/.kiro/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L4068: - `AISpace/.kiro/TempFolder/` task notes
+    L4377: - Store ALL rules, steering files, and instructions exclusively in `AISpace/.kiro/`.
+    L6838: - `AISpace/.kiro/steering/GodotUIBuilder.md` - Updated with TscnEditor section
+    L7156: - Create directory `AISpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L7368: - Read AISpace/.kiro/specs/tscn-editor-tools/InstructionDesignPrinciples.md if it exists
+    L7388: - All file operations target `AISpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L8201: AISpace/.kiro/steering/Godot/
+    L8330: - `AISpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L8331: - `AISpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L8332: - `AISpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+
+[  3 hit(s)] C:\Godot\AISpace\docLastConversationState.md  (enc=utf-8)
+    L241: 1. **Scratchpad**: `AISpace/.kiro/Scratchpad/ComponentDesign_20260423.md`
+    L248: 2. **System Context**: `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L253: 3. **Project Rules**: `AISpace/.kiro/steering/Always/ProjectRules.md`
+
+[ 44 hit(s)] C:\Godot\AISpace\New Text Document.txt  (enc=utf-8)
+    L21: - **Rule/Arch Storage**: `AISpace/.kiro/` (ALL steering/instruction files)
+    L494: - `AISpace/.kiro/Scratchpad/CodeAnalysis_20260418_AABBProblem.md`
+    L495: - `AISpace/.kiro/Scratchpad/ComponentDesign_20260418_ShapeBlocks.md`
+    L561: - `AISpace/.kiro/Scratchpad/CodeAnalysis_20260418_ReadyOrder.md` (标记为已解决)
+    L740: - **系统文档**: `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L741: - **设计模式**: `AISpace/.kiro/steering/Always/DesignPatterns.md`
+    L742: - **主规则**: `AISpace/.kiro/steering/Always/MainRules.md`
+    L743: - **项目规则**: `AISpace/.kiro/ProjectRules.md`
+    L761: 1. 读取 `AISpace/.kiro/docLastConversationState.md`（本文件）
+    L762: 2. 读取 `AISpace/.kiro/ProjectRules.md`
+    L763: 3. 读取 `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L776: Execute the Conversation Reset Protocol when the conversation context becomes too long. Save the current project state by reading, clearing, and rewriting the designated state files from scratch. Main
+    L781: 1. `AISpace/.kiro/docLastConversationState.md`
+    L782: 2. `AISpace/.kiro/ProjectRules.md`
+    L1070: - **Rule Storage:** Save and enforce all architectural rules in `AISpace/.kiro/`.
+    L1275: - Architecture & Steering Path: `AISpace/.kiro/`
+    L1277: - Internal State Tracking: `AISpace/.kiro/Scratchpad/`
+    L1329: <description>Store ALL rules, steering files, and architecture documents exclusively in AISpace/.kiro/.</description>
+    L1390: - **Rule Storage:** Store ALL rules in `AISpace/.kiro/`.
+    L1679: - **Target Path:** `C:\Godot\AISpace\.kiro\steering\Godot\`
+    L1708: | **Output Path** | `C:\Godot\AISpace\.kiro\steering\Godot\` | **MUST** be exact absolute path. |
+    L1737: <fix>Verify the file is saved exactly in `C:\Godot\AISpace\.kiro\steering\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+    L1770: - **Rule Storage Constraints:** **MUST** store all rule files within `AISpace/.kiro/`
+    L2233: - **File Directory Integrity**: All system configuration files **MUST** be stored in `AISpace/.kiro/`.
+    L2845: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L2846: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L2847: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L2851: <item>Location: `AISpace/builder/modules/statechart.py`</item>
+    L3225: - **Framework Location:** `AISpace/builder/`
+    L3510: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3511: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3512: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3517: <li>UIModule Location: `AISpace/builder/modules/ui.py`</li>
+    L3814: Generate a status report to `AISpace/.kiro/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L3819: - `AISpace/.kiro/TempFolder/` task notes
+    L3908: - Store ALL rules, steering files, and instructions exclusively in `AISpace/.kiro/`.
+    L6038: - `AISpace/.kiro/steering/GodotUIBuilder.md` - Updated with TscnEditor section
+    L6356: - Create directory `AISpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L6568: - Read AISpace/.kiro/specs/tscn-editor-tools/InstructionDesignPrinciples.md if it exists
+    L6588: - All file operations target `AISpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L7465: AISpace/.kiro/steering/Godot/
+    L7594: - `AISpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L7595: - `AISpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L7596: - `AISpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+
+[  2 hit(s)] C:\Godot\AISpace\.windsurf\rules\ConversationReset.md  (enc=utf-8-sig)
+    L11: 1. `AISpace/docLastConversationState.md` (State tracking)
+    L12: 2. `AISpace/ProjectRules.md` (Hard constraints)
+
+[  4 hit(s)] C:\Godot\AISpace\.windsurf\rules\Always\MainRules.md  (enc=utf-8-sig)
+    L9: - Architecture & Rules Path: `AISpace/.windsurf/rules/`
+    L11: - Cloud Sync Script: `AISpace/CloudSync_Workflow/kiro_sync_to_drive.py` (triggered via `C:\Godot\3d-practice\SYNC_TO_GEMINI_SILENT.bat`)
+    L30: - Read and follow instructions in `C:\Godot\AISpace\.windsurf\rules\StableOrOther\BugInvestigation.md`.
+    L69: <description>Store ALL rules, steering files, and architecture documents EXCLUSIVELY in AISpace/.</description>
+
+[  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotBackpackTesseractSys_Context.md  (enc=utf-8-sig)
+    L18: - **Rule Storage:** Store ALL rules in `AISpace/`.
+
+[  3 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotGenerateState.md  (enc=utf-8-sig)
+    L7: - **Target Path:** `C:\Godot\AISpace\.windsurf\rules\Godot\`
+    L36: | **Output Path** | `C:\Godot\AISpace\.windsurf\rules\Godot\` | **MUST** be exact absolute path. |
+    L65: <fix>Verify the file is saved exactly in `C:\Godot\AISpace\.windsurf\rules\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+
+[  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotInputMap_Context.md  (enc=utf-8-sig)
+    L9: - **Rule Storage Constraints:** **MUST** store all rule files within `AISpace/`
+
+[  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotSettingsSystem_Context.md  (enc=utf-8-sig)
+    L351: - **File Directory Integrity**: All system configuration files **MUST** be stored in `AISpace/`.
+
+[  4 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\SceneBuilders\GodotStateChartBuilder_Context.md  (enc=utf-8-sig)
+    L6: <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L7: <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L8: <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L12: <item>Location: `AISpace/builder/modules/statechart.py`</item>
+
+[  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\SceneBuilders\GodotTscnBuilder_Context.md  (enc=utf-8-sig)
+    L103: - **Framework Location:** `AISpace/builder/`
+
+[  4 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\SceneBuilders\GodotUIBuilder_Context.md  (enc=utf-8-sig)
+    L6: <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L7: <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L8: <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L13: <li>UIModule Location: `AISpace/builder/modules/ui.py`</li>
+
+[  2 hit(s)] C:\Godot\AISpace\.windsurf\rules\StableOrOther\ClaudeReportToGemini.md  (enc=utf-8-sig)
+    L13: Generate a status report to `AISpace/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L18: - `AISpace/TempFolder/` task notes
+
+[  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\StableOrOther\InstructionDesignPrinciples.md  (enc=utf-8-sig)
+    L21: - Store ALL rules, steering files, and instructions exclusively in `AISpace/`.
+
+[  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\StableOrOther\RulesOptimizer.md  (enc=utf-8-sig)
+    L144: - Store ALL rules in `AISpace/.windsurf/rules/`
+
+[ 10 hit(s)] C:\Godot\AISpace\.windsurf\rules\Uncommon\CloudSyncSystem.md  (enc=utf-8-sig)
+    L7: **核心脚本**: `AISpace/CloudSync_Workflow/kiro_sync_to_drive.py`
+    L80: 1. 扫描 AISpace/ 和 3d-practice/
+    L150: cd AISpace/CloudSync_Workflow
+    L161: cd AISpace/CloudSync_Workflow
+    L167: cd AISpace/CloudSync_Workflow
+    L242: - **主脚本**: `AISpace/CloudSync_Workflow/kiro_sync_to_drive.py`
+    L243: - **静默执行**: `AISpace/CloudSync_Workflow/SYNC_TO_GEMINI_SILENT.bat`
+    L244: - **Hooks**: `AISpace/hooks/auto-sync-*.json`
+    L245: - **验证脚本**: `AISpace/CloudSync_Workflow/verify_*.py`
+    L253: cd C:\Godot\AISpace\CloudSync_Workflow
+
+[  2 hit(s)] C:\Godot\AISpace\.windsurf\workflows\sync-to-gemini.md  (enc=utf-8)
+    L8: scans `AISpace/.windsurf/rules/` + `3d-practice/` and writes the AI context bundle to
+    L22: Get-ChildItem 'C:\Godot\AISpace\CloudSync_Workflow\logs' -Filter 'sync_*.log' |
+
+[  1 hit(s)] C:\Godot\AISpace\builder\generate_basic_item.py  (enc=utf-8)
+    L78: # 从 AISpace/builder 到 3d-practice
+
+[  1 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\CHANGE_TRACKING.md  (enc=utf-8)
+    L175: python AISpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py
+
+[  7 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\kiro_sync_to_drive.py  (enc=utf-8)
+    L14: KIRO_WORKSPACE_DIR = r"C:\Godot\AISpace"
+    L81: 4. AISpace/ 目录下 → 02_other_rules
+    L258: # ========== 扫描 AISpace/ (包含 .windsurf/rules/) ==========
+    L268: process_file_to_bucket(file_path, f"AISpace/{filename}", buckets, current_manifest, source_path, kiro_path, override_content=stub_content)
+    L270: process_file_to_bucket(file_path, f"AISpace/{filename}", buckets, current_manifest, source_path, kiro_path)
+    L286: process_file_to_bucket(f_path, f"AISpace/{rel_path}", buckets, current_manifest, source_path, kiro_path, override_content=stub_content)
+    L289: process_file_to_bucket(f_path, f"AISpace/{rel_path}", buckets, current_manifest, source_path, kiro_path)
+
+[  5 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\README.md  (enc=utf-8)
+    L47: python AISpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py
+    L52: - 保存 `.md`, `.json`, `.txt` 文件（AISpace）
+    L72: KIRO_WORKSPACE_DIR = r"C:\Godot\AISpace\.kiro" # Kiro 规则目录
+    L79: # AISpace 白名单
+    L107: - AISpace/.kiro/ (白名单模式)
+
+[  4 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\REFACTOR_COMPLETE.md  (enc=utf-8)
+    L150: - **当前脚本**: `AISpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py`
+    L151: - **原始计划**: `AISpace/.kiro/CloudSync_Workflow/REFACTOR_PLAN.md` (已过时，保留作为历史记录)
+    L152: - **主规则文件**: `AISpace/.kiro/steering/Always/MainRules.md`
+    L153: - **设计模式文件**: `AISpace/.kiro/steering/Always/DesignPatterns.md`
+
+[  2 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\REFACTOR_PLAN.md  (enc=utf-8)
+    L43: 1. 扫描 AISpace/.kiro/ (白名单模式)
+    L228: - 当前脚本：`C:\Godot\AISpace\.kiro\CloudSync_Workflow\kiro_sync_to_drive.py`
+
+[  1 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\SYNC_LOGIC.md  (enc=utf-8)
+    L52: python AISpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py
+
+[  1 hit(s)] C:\Godot\AISpace\hooks\auto-sync-kiroworkspace.kiro.hook  (enc=utf-8)
+    L4: "description": "Automatically syncs to Google Drive when any steering or rule file is saved in AISpace",
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\deploy_enemy_to_3dpractice.py  (enc=utf-8)
+    L9: # 源路径（AISpace）
+
+[  7 hit(s)] C:\Godot\AISpace\scripts\emergency_backup.py  (enc=utf-8)
+    L16: "AISpace/.kiro/docLastConversationState.md",
+    L17: "AISpace/.kiro/ProjectRules.md",
+    L18: "AISpace/.kiro/Scratchpad/BackpackTest_BugFix_Guide.md",
+    L19: "AISpace/.kiro/Scratchpad/GuiInput_Bug_Fix_Summary.md",
+    L24: backup_dir = Path(f"AISpace/.kiro/chat_backups/{timestamp}_emergency")
+    L34: rel_path = src.relative_to("AISpace/.kiro")
+    L44: scratchpad_src = Path("AISpace/.kiro/Scratchpad")
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_backpack_test_scene.py  (enc=utf-8)
+    L2: sys.path.append('C:/Godot/AISpace/.kiro/scripts/ui_builder/generators')
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_backpack_test_v2.py  (enc=utf-8)
+    L8: sys.path.append('C:/Godot/AISpace')
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_test_theme_switcher.py  (enc=utf-8)
+    L2: sys.path.append('C:/Godot/AISpace/.kiro/scripts/ui_builder/generators')
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_theme_switcher.py  (enc=utf-8)
+    L2: sys.path.append('C:/Godot/AISpace/.kiro/scripts/ui_builder/generators')
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\TempBuilders\statechart_builder\example_player_statechart.py  (enc=utf-8)
+    L7: sys.path.append("C:/Godot/AISpace/.kiro/scripts/statechart_builder")
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\ui_builder\README.md  (enc=utf-8-sig)
+    L47: - **AISpace/.kiro/steering/GodotUIBuilder.md** - 完整API参考
+
+[  2 hit(s)] C:\Godot\AISpace\scripts\ui_builder\docs\TEST_RESULTS.md  (enc=utf-8)
+    L119: - **Test Script**: `AISpace/.kiro/scripts/ui_builder/test_final_workflow.py`
+    L120: - **Test Output**: `AISpace/test_output.tscn`
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\ui_builder\tools\analyze_option_components.py  (enc=utf-8)
+    L16: # 从 C:\Godot\AISpace\.kiro\scripts\ui_builder 到 C:\Godot\3d-practice
+
+[  1 hit(s)] C:\Godot\AISpace\scripts\ui_builder\tools\validate_settings_menu.py  (enc=utf-8)
+    L20: # From: C:\Godot\AISpace\.kiro\scripts\ui_builder
+
+[ 44 hit(s)] C:\Godot\AISpace\tools\replace_kiro_apply_20260425_011828.log  (enc=utf-8)
+    L1: # Replace 'KiroWorkingSpace' -> 'AISpace'  (APPLY)  2026-04-25 01:18:27
+    L4: === Scanning C:\Godot\AISpace ===
+    L6: [  1 hit(s)] C:\Godot\AISpace\.kiroignore  (enc=utf-8)
+    L10: [ 43 hit(s)] C:\Godot\AISpace\AI_Context_Master_20260419_131656.txt  (enc=utf-8)
+    L56: [  3 hit(s)] C:\Godot\AISpace\docLastConversationState.md  (enc=utf-8)
+    L62: [ 44 hit(s)] C:\Godot\AISpace\New Text Document.txt  (enc=utf-8)
+    L109: [  2 hit(s)] C:\Godot\AISpace\.windsurf\rules\ConversationReset.md  (enc=utf-8-sig)
+    L114: [  4 hit(s)] C:\Godot\AISpace\.windsurf\rules\Always\MainRules.md  (enc=utf-8-sig)
+    L121: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotBackpackTesseractSys_Context.md  (enc=utf-8-sig)
+    L125: [  3 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotGenerateState.md  (enc=utf-8-sig)
+    L131: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotInputMap_Context.md  (enc=utf-8-sig)
+    L135: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotSettingsSystem_Context.md  (enc=utf-8-sig)
+    L139: [  4 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\SceneBuilders\GodotStateChartBuilder_Context.md  (enc=utf-8-sig)
+    L146: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\SceneBuilders\GodotTscnBuilder_Context.md  (enc=utf-8-sig)
+    L150: [  4 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\SceneBuilders\GodotUIBuilder_Context.md  (enc=utf-8-sig)
+    L157: [  2 hit(s)] C:\Godot\AISpace\.windsurf\rules\StableOrOther\ClaudeReportToGemini.md  (enc=utf-8-sig)
+    L162: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\StableOrOther\InstructionDesignPrinciples.md  (enc=utf-8-sig)
+    L166: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\StableOrOther\RulesOptimizer.md  (enc=utf-8-sig)
+    L170: [ 10 hit(s)] C:\Godot\AISpace\.windsurf\rules\Uncommon\CloudSyncSystem.md  (enc=utf-8-sig)
+    L183: [  2 hit(s)] C:\Godot\AISpace\.windsurf\workflows\sync-to-gemini.md  (enc=utf-8)
+    L188: [  1 hit(s)] C:\Godot\AISpace\builder\generate_basic_item.py  (enc=utf-8)
+    L192: [  1 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\CHANGE_TRACKING.md  (enc=utf-8)
+    L196: [  7 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\kiro_sync_to_drive.py  (enc=utf-8)
+    L206: [  5 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\README.md  (enc=utf-8)
+    L214: [  4 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\REFACTOR_COMPLETE.md  (enc=utf-8)
+    L221: [  2 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\REFACTOR_PLAN.md  (enc=utf-8)
+    L226: [  1 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\SYNC_LOGIC.md  (enc=utf-8)
+    L230: [  1 hit(s)] C:\Godot\AISpace\hooks\auto-sync-kiroworkspace.kiro.hook  (enc=utf-8)
+    L234: [  1 hit(s)] C:\Godot\AISpace\scripts\deploy_enemy_to_3dpractice.py  (enc=utf-8)
+    L238: [  7 hit(s)] C:\Godot\AISpace\scripts\emergency_backup.py  (enc=utf-8)
+    L248: [  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_backpack_test_scene.py  (enc=utf-8)
+    L252: [  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_backpack_test_v2.py  (enc=utf-8)
+    L256: [  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_test_theme_switcher.py  (enc=utf-8)
+    L260: [  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_theme_switcher.py  (enc=utf-8)
+    L264: [  1 hit(s)] C:\Godot\AISpace\scripts\TempBuilders\statechart_builder\example_player_statechart.py  (enc=utf-8)
+    L268: [  1 hit(s)] C:\Godot\AISpace\scripts\ui_builder\README.md  (enc=utf-8-sig)
+    L272: [  2 hit(s)] C:\Godot\AISpace\scripts\ui_builder\docs\TEST_RESULTS.md  (enc=utf-8)
+    L277: [  1 hit(s)] C:\Godot\AISpace\scripts\ui_builder\tools\analyze_option_components.py  (enc=utf-8)
+    L281: [  1 hit(s)] C:\Godot\AISpace\scripts\ui_builder\tools\validate_settings_menu.py  (enc=utf-8)
+    L285: [230 hit(s)] C:\Godot\AISpace\tools\replace_kiro_dryrun_20260425_011809.log  (enc=utf-8)
+    L286: L1: # Replace 'KiroWorkingSpace' -> 'AISpace'  (DRY-RUN)  2026-04-25 01:18:08
+    L454: L249: L3: "KiroWorkingSpace" and replace it with "AISpace".
+    L517: [  2 hit(s)] C:\Godot\AISpace\tools\replace_kiro_workspace.py  (enc=utf-8)
+    L518: L3: "KiroWorkingSpace" and replace it with "AISpace".
+
+[271 hit(s)] C:\Godot\AISpace\tools\replace_kiro_dryrun_20260425_011809.log  (enc=utf-8)
+    L1: # Replace 'AISpace' -> 'AISpace'  (DRY-RUN)  2026-04-25 01:18:08
+    L4: === Scanning C:\Godot\AISpace ===
+    L6: [  1 hit(s)] C:\Godot\AISpace\.kiroignore  (enc=utf-8)
+    L7: L2: # AI Context Filter - AISpace
+    L9: [ 43 hit(s)] C:\Godot\AISpace\AI_Context_Master_20260419_131656.txt  (enc=utf-8)
+    L10: L20: - **Rule/Arch Storage**: `AISpace/.kiro/` (ALL steering/instruction files)
+    L11: L493: - `AISpace/.kiro/Scratchpad/CodeAnalysis_20260418_AABBProblem.md`
+    L12: L494: - `AISpace/.kiro/Scratchpad/ComponentDesign_20260418_ShapeBlocks.md`
+    L13: L560: - `AISpace/.kiro/Scratchpad/CodeAnalysis_20260418_ReadyOrder.md` (标记为已解决)
+    L14: L739: - **系统文档**: `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L15: L740: - **设计模式**: `AISpace/.kiro/steering/Always/DesignPatterns.md`
+    L16: L741: - **主规则**: `AISpace/.kiro/steering/Always/MainRules.md`
+    L17: L742: - **项目规则**: `AISpace/.kiro/ProjectRules.md`
+    L18: L760: 1. 读取 `AISpace/.kiro/docLastConversationState.md`（本文件）
+    L19: L761: 2. 读取 `AISpace/.kiro/ProjectRules.md`
+    L20: L762: 3. 读取 `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L21: L814: 1. `AISpace/.kiro/docLastConversationState.md`
+    L22: L815: 2. `AISpace/.kiro/ProjectRules.md`
+    L23: L1319: - **Rule Storage:** Save and enforce all architectural rules in `AISpace/.kiro/`.
+    L24: L1524: - Architecture & Steering Path: `AISpace/.kiro/`
+    L25: L1526: - Internal State Tracking: `AISpace/.kiro/Scratchpad/`
+    L26: L1578: <description>Store ALL rules, steering files, and architecture documents exclusively in AISpace/.kiro/.</description>
+    L27: L1639: - **Rule Storage:** Store ALL rules in `AISpace/.kiro/`.
+    L28: L1928: - **Target Path:** `C:\Godot\AISpace\.kiro\steering\Godot\`
+    L29: L1957: | **Output Path** | `C:\Godot\AISpace\.kiro\steering\Godot\` | **MUST** be exact absolute path. |
+    L30: L1986: <fix>Verify the file is saved exactly in `C:\Godot\AISpace\.kiro\steering\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+    L31: L2019: - **Rule Storage Constraints:** **MUST** store all rule files within `AISpace/.kiro/`
+    L32: L2482: - **File Directory Integrity**: All system configuration files **MUST** be stored in `AISpace/.kiro/`.
+    L33: L3094: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L34: L3095: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L35: L3096: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L36: L3100: <item>Location: `AISpace/builder/modules/statechart.py`</item>
+    L37: L3474: - **Framework Location:** `AISpace/builder/`
+    L38: L3759: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L39: L3760: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L40: L3761: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L41: L3766: <li>UIModule Location: `AISpace/builder/modules/ui.py`</li>
+    L42: L4063: Generate a status report to `AISpace/.kiro/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L43: L4068: - `AISpace/.kiro/TempFolder/` task notes
+    L44: L4377: - Store ALL rules, steering files, and instructions exclusively in `AISpace/.kiro/`.
+    L45: L6838: - `AISpace/.kiro/steering/GodotUIBuilder.md` - Updated with TscnEditor section
+    L46: L7156: - Create directory `AISpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L47: L7368: - Read AISpace/.kiro/specs/tscn-editor-tools/InstructionDesignPrinciples.md if it exists
+    L48: L7388: - All file operations target `AISpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L49: L8201: AISpace/.kiro/steering/Godot/
+    L50: L8330: - `AISpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L51: L8331: - `AISpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L52: L8332: - `AISpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+    L54: [  3 hit(s)] C:\Godot\AISpace\docLastConversationState.md  (enc=utf-8)
+    L55: L241: 1. **Scratchpad**: `AISpace/.kiro/Scratchpad/ComponentDesign_20260423.md`
+    L56: L248: 2. **System Context**: `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L57: L253: 3. **Project Rules**: `AISpace/.kiro/steering/Always/ProjectRules.md`
+    L59: [ 44 hit(s)] C:\Godot\AISpace\New Text Document.txt  (enc=utf-8)
+    L60: L21: - **Rule/Arch Storage**: `AISpace/.kiro/` (ALL steering/instruction files)
+    L61: L494: - `AISpace/.kiro/Scratchpad/CodeAnalysis_20260418_AABBProblem.md`
+    L62: L495: - `AISpace/.kiro/Scratchpad/ComponentDesign_20260418_ShapeBlocks.md`
+    L63: L561: - `AISpace/.kiro/Scratchpad/CodeAnalysis_20260418_ReadyOrder.md` (标记为已解决)
+    L64: L740: - **系统文档**: `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L65: L741: - **设计模式**: `AISpace/.kiro/steering/Always/DesignPatterns.md`
+    L66: L742: - **主规则**: `AISpace/.kiro/steering/Always/MainRules.md`
+    L67: L743: - **项目规则**: `AISpace/.kiro/ProjectRules.md`
+    L68: L761: 1. 读取 `AISpace/.kiro/docLastConversationState.md`（本文件）
+    L69: L762: 2. 读取 `AISpace/.kiro/ProjectRules.md`
+    L70: L763: 3. 读取 `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L72: L781: 1. `AISpace/.kiro/docLastConversationState.md`
+    L73: L782: 2. `AISpace/.kiro/ProjectRules.md`
+    L74: L1070: - **Rule Storage:** Save and enforce all architectural rules in `AISpace/.kiro/`.
+    L75: L1275: - Architecture & Steering Path: `AISpace/.kiro/`
+    L76: L1277: - Internal State Tracking: `AISpace/.kiro/Scratchpad/`
+    L77: L1329: <description>Store ALL rules, steering files, and architecture documents exclusively in AISpace/.kiro/.</description>
+    L78: L1390: - **Rule Storage:** Store ALL rules in `AISpace/.kiro/`.
+    L79: L1679: - **Target Path:** `C:\Godot\AISpace\.kiro\steering\Godot\`
+    L80: L1708: | **Output Path** | `C:\Godot\AISpace\.kiro\steering\Godot\` | **MUST** be exact absolute path. |
+    L81: L1737: <fix>Verify the file is saved exactly in `C:\Godot\AISpace\.kiro\steering\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+    L82: L1770: - **Rule Storage Constraints:** **MUST** store all rule files within `AISpace/.kiro/`
+    L83: L2233: - **File Directory Integrity**: All system configuration files **MUST** be stored in `AISpace/.kiro/`.
+    L84: L2845: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L85: L2846: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L86: L2847: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L87: L2851: <item>Location: `AISpace/builder/modules/statechart.py`</item>
+    L88: L3225: - **Framework Location:** `AISpace/builder/`
+    L89: L3510: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L90: L3511: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L91: L3512: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L92: L3517: <li>UIModule Location: `AISpace/builder/modules/ui.py`</li>
+    L93: L3814: Generate a status report to `AISpace/.kiro/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L94: L3819: - `AISpace/.kiro/TempFolder/` task notes
+    L95: L3908: - Store ALL rules, steering files, and instructions exclusively in `AISpace/.kiro/`.
+    L96: L6038: - `AISpace/.kiro/steering/GodotUIBuilder.md` - Updated with TscnEditor section
+    L97: L6356: - Create directory `AISpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L98: L6568: - Read AISpace/.kiro/specs/tscn-editor-tools/InstructionDesignPrinciples.md if it exists
+    L99: L6588: - All file operations target `AISpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L100: L7465: AISpace/.kiro/steering/Godot/
+    L101: L7594: - `AISpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L102: L7595: - `AISpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L103: L7596: - `AISpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+    L105: [  2 hit(s)] C:\Godot\AISpace\.windsurf\rules\ConversationReset.md  (enc=utf-8-sig)
+    L106: L11: 1. `AISpace/docLastConversationState.md` (State tracking)
+    L107: L12: 2. `AISpace/ProjectRules.md` (Hard constraints)
+    L109: [  4 hit(s)] C:\Godot\AISpace\.windsurf\rules\Always\MainRules.md  (enc=utf-8-sig)
+    L110: L9: - Architecture & Rules Path: `AISpace/.windsurf/rules/`
+    L111: L11: - Cloud Sync Script: `AISpace/CloudSync_Workflow/kiro_sync_to_drive.py` (triggered via `C:\Godot\3d-practice\SYNC_TO_GEMINI_SILENT.bat`)
+    L112: L30: - Read and follow instructions in `C:\Godot\AISpace\.windsurf\rules\StableOrOther\BugInvestigation.md`.
+    L113: L69: <description>Store ALL rules, steering files, and architecture documents EXCLUSIVELY in AISpace/.</description>
+    L115: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotBackpackTesseractSys_Context.md  (enc=utf-8-sig)
+    L116: L18: - **Rule Storage:** Store ALL rules in `AISpace/`.
+    L118: [  3 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotGenerateState.md  (enc=utf-8-sig)
+    L119: L7: - **Target Path:** `C:\Godot\AISpace\.windsurf\rules\Godot\`
+    L120: L36: | **Output Path** | `C:\Godot\AISpace\.windsurf\rules\Godot\` | **MUST** be exact absolute path. |
+    L121: L65: <fix>Verify the file is saved exactly in `C:\Godot\AISpace\.windsurf\rules\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+    L123: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotInputMap_Context.md  (enc=utf-8-sig)
+    L124: L9: - **Rule Storage Constraints:** **MUST** store all rule files within `AISpace/`
+    L126: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotSettingsSystem_Context.md  (enc=utf-8-sig)
+    L127: L351: - **File Directory Integrity**: All system configuration files **MUST** be stored in `AISpace/`.
+    L129: [  4 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\SceneBuilders\GodotStateChartBuilder_Context.md  (enc=utf-8-sig)
+    L130: L6: <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L131: L7: <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L132: L8: <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L133: L12: <item>Location: `AISpace/builder/modules/statechart.py`</item>
+    L135: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\SceneBuilders\GodotTscnBuilder_Context.md  (enc=utf-8-sig)
+    L136: L103: - **Framework Location:** `AISpace/builder/`
+    L138: [  4 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\SceneBuilders\GodotUIBuilder_Context.md  (enc=utf-8-sig)
+    L139: L6: <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L140: L7: <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L141: L8: <rule>MUST explicitly read `AISpace/.windsurf/rules/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L142: L13: <li>UIModule Location: `AISpace/builder/modules/ui.py`</li>
+    L144: [  2 hit(s)] C:\Godot\AISpace\.windsurf\rules\StableOrOther\ClaudeReportToGemini.md  (enc=utf-8-sig)
+    L145: L13: Generate a status report to `AISpace/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L146: L18: - `AISpace/TempFolder/` task notes
+    L148: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\StableOrOther\InstructionDesignPrinciples.md  (enc=utf-8-sig)
+    L149: L21: - Store ALL rules, steering files, and instructions exclusively in `AISpace/`.
+    L151: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\StableOrOther\RulesOptimizer.md  (enc=utf-8-sig)
+    L152: L144: - Store ALL rules in `AISpace/.windsurf/rules/`
+    L154: [ 10 hit(s)] C:\Godot\AISpace\.windsurf\rules\Uncommon\CloudSyncSystem.md  (enc=utf-8-sig)
+    L155: L7: **核心脚本**: `AISpace/CloudSync_Workflow/kiro_sync_to_drive.py`
+    L156: L80: 1. 扫描 AISpace/ 和 3d-practice/
+    L157: L150: cd AISpace/CloudSync_Workflow
+    L158: L161: cd AISpace/CloudSync_Workflow
+    L159: L167: cd AISpace/CloudSync_Workflow
+    L160: L242: - **主脚本**: `AISpace/CloudSync_Workflow/kiro_sync_to_drive.py`
+    L161: L243: - **静默执行**: `AISpace/CloudSync_Workflow/SYNC_TO_GEMINI_SILENT.bat`
+    L162: L244: - **Hooks**: `AISpace/hooks/auto-sync-*.json`
+    L163: L245: - **验证脚本**: `AISpace/CloudSync_Workflow/verify_*.py`
+    L164: L253: cd C:\Godot\AISpace\CloudSync_Workflow
+    L166: [  2 hit(s)] C:\Godot\AISpace\.windsurf\workflows\sync-to-gemini.md  (enc=utf-8)
+    L167: L8: scans `AISpace/.windsurf/rules/` + `3d-practice/` and writes the AI context bundle to
+    L168: L22: Get-ChildItem 'C:\Godot\AISpace\CloudSync_Workflow\logs' -Filter 'sync_*.log' |
+    L170: [  1 hit(s)] C:\Godot\AISpace\builder\generate_basic_item.py  (enc=utf-8)
+    L171: L78: # 从 AISpace/builder 到 3d-practice
+    L173: [  1 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\CHANGE_TRACKING.md  (enc=utf-8)
+    L174: L175: python AISpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py
+    L176: [  7 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\kiro_sync_to_drive.py  (enc=utf-8)
+    L177: L14: KIRO_WORKSPACE_DIR = r"C:\Godot\AISpace"
+    L178: L81: 4. AISpace/ 目录下 → 02_other_rules
+    L179: L258: # ========== 扫描 AISpace/ (包含 .windsurf/rules/) ==========
+    L180: L268: process_file_to_bucket(file_path, f"AISpace/{filename}", buckets, current_manifest, source_path, kiro_path, override_content=stub_content)
+    L181: L270: process_file_to_bucket(file_path, f"AISpace/{filename}", buckets, current_manifest, source_path, kiro_path)
+    L182: L286: process_file_to_bucket(f_path, f"AISpace/{rel_path}", buckets, current_manifest, source_path, kiro_path, override_content=stub_content)
+    L183: L289: process_file_to_bucket(f_path, f"AISpace/{rel_path}", buckets, current_manifest, source_path, kiro_path)
+    L185: [  5 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\README.md  (enc=utf-8)
+    L186: L47: python AISpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py
+    L187: L52: - 保存 `.md`, `.json`, `.txt` 文件（AISpace）
+    L188: L72: KIRO_WORKSPACE_DIR = r"C:\Godot\AISpace\.kiro" # Kiro 规则目录
+    L189: L79: # AISpace 白名单
+    L190: L107: - AISpace/.kiro/ (白名单模式)
+    L192: [  4 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\REFACTOR_COMPLETE.md  (enc=utf-8)
+    L193: L150: - **当前脚本**: `AISpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py`
+    L194: L151: - **原始计划**: `AISpace/.kiro/CloudSync_Workflow/REFACTOR_PLAN.md` (已过时，保留作为历史记录)
+    L195: L152: - **主规则文件**: `AISpace/.kiro/steering/Always/MainRules.md`
+    L196: L153: - **设计模式文件**: `AISpace/.kiro/steering/Always/DesignPatterns.md`
+    L198: [  2 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\REFACTOR_PLAN.md  (enc=utf-8)
+    L199: L43: 1. 扫描 AISpace/.kiro/ (白名单模式)
+    L200: L228: - 当前脚本：`C:\Godot\AISpace\.kiro\CloudSync_Workflow\kiro_sync_to_drive.py`
+    L202: [  1 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\SYNC_LOGIC.md  (enc=utf-8)
+    L203: L52: python AISpace/.kiro/CloudSync_Workflow/kiro_sync_to_drive.py
+    L205: [  1 hit(s)] C:\Godot\AISpace\hooks\auto-sync-kiroworkspace.kiro.hook  (enc=utf-8)
+    L206: L4: "description": "Automatically syncs to Google Drive when any steering or rule file is saved in AISpace",
+    L208: [  1 hit(s)] C:\Godot\AISpace\scripts\deploy_enemy_to_3dpractice.py  (enc=utf-8)
+    L209: L9: # 源路径（AISpace）
+    L211: [  7 hit(s)] C:\Godot\AISpace\scripts\emergency_backup.py  (enc=utf-8)
+    L212: L16: "AISpace/.kiro/docLastConversationState.md",
+    L213: L17: "AISpace/.kiro/ProjectRules.md",
+    L214: L18: "AISpace/.kiro/Scratchpad/BackpackTest_BugFix_Guide.md",
+    L215: L19: "AISpace/.kiro/Scratchpad/GuiInput_Bug_Fix_Summary.md",
+    L216: L24: backup_dir = Path(f"AISpace/.kiro/chat_backups/{timestamp}_emergency")
+    L217: L34: rel_path = src.relative_to("AISpace/.kiro")
+    L218: L44: scratchpad_src = Path("AISpace/.kiro/Scratchpad")
+    L220: [  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_backpack_test_scene.py  (enc=utf-8)
+    L221: L2: sys.path.append('C:/Godot/AISpace/.kiro/scripts/ui_builder/generators')
+    L223: [  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_backpack_test_v2.py  (enc=utf-8)
+    L224: L8: sys.path.append('C:/Godot/AISpace')
+    L226: [  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_test_theme_switcher.py  (enc=utf-8)
+    L227: L2: sys.path.append('C:/Godot/AISpace/.kiro/scripts/ui_builder/generators')
+    L229: [  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_theme_switcher.py  (enc=utf-8)
+    L230: L2: sys.path.append('C:/Godot/AISpace/.kiro/scripts/ui_builder/generators')
+    L232: [  1 hit(s)] C:\Godot\AISpace\scripts\TempBuilders\statechart_builder\example_player_statechart.py  (enc=utf-8)
+    L233: L7: sys.path.append("C:/Godot/AISpace/.kiro/scripts/statechart_builder")
+    L235: [  1 hit(s)] C:\Godot\AISpace\scripts\ui_builder\README.md  (enc=utf-8-sig)
+    L236: L47: - **AISpace/.kiro/steering/GodotUIBuilder.md** - 完整API参考
+    L238: [  2 hit(s)] C:\Godot\AISpace\scripts\ui_builder\docs\TEST_RESULTS.md  (enc=utf-8)
+    L239: L119: - **Test Script**: `AISpace/.kiro/scripts/ui_builder/test_final_workflow.py`
+    L240: L120: - **Test Output**: `AISpace/test_output.tscn`
+    L242: [  1 hit(s)] C:\Godot\AISpace\scripts\ui_builder\tools\analyze_option_components.py  (enc=utf-8)
+    L243: L16: # 从 C:\Godot\AISpace\.kiro\scripts\ui_builder 到 C:\Godot\3d-practice
+    L245: [  1 hit(s)] C:\Godot\AISpace\scripts\ui_builder\tools\validate_settings_menu.py  (enc=utf-8)
+    L246: L20: # From: C:\Godot\AISpace\.kiro\scripts\ui_builder
+    L248: [  2 hit(s)] C:\Godot\AISpace\tools\replace_kiro_workspace.py  (enc=utf-8)
+    L249: L3: "AISpace" and replace it with "AISpace".
+    L250: L20: OLD = "AISpace"
+    L255: L25: "C:\Godot\AISpace",
+    L258: L20: - **Rule/Arch Storage**: `AISpace/.kiro/` (ALL steering/instruction files)
+    L259: L493: - `AISpace/.kiro/Scratchpad/CodeAnalysis_20260418_AABBProblem.md`
+    L260: L494: - `AISpace/.kiro/Scratchpad/ComponentDesign_20260418_ShapeBlocks.md`
+    L261: L560: - `AISpace/.kiro/Scratchpad/CodeAnalysis_20260418_ReadyOrder.md` (标记为已解决)
+    L262: L739: - **系统文档**: `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L263: L740: - **设计模式**: `AISpace/.kiro/steering/Always/DesignPatterns.md`
+    L264: L741: - **主规则**: `AISpace/.kiro/steering/Always/MainRules.md`
+    L265: L742: - **项目规则**: `AISpace/.kiro/ProjectRules.md`
+    L266: L760: 1. 读取 `AISpace/.kiro/docLastConversationState.md`（本文件）
+    L267: L761: 2. 读取 `AISpace/.kiro/ProjectRules.md`
+    L268: L762: 3. 读取 `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L269: L814: 1. `AISpace/.kiro/docLastConversationState.md`
+    L270: L815: 2. `AISpace/.kiro/ProjectRules.md`
+    L271: L1319: - **Rule Storage:** Save and enforce all architectural rules in `AISpace/.kiro/`.
+    L272: L1524: - Architecture & Steering Path: `AISpace/.kiro/`
+    L273: L1526: - Internal State Tracking: `AISpace/.kiro/Scratchpad/`
+    L274: L1578: <description>Store ALL rules, steering files, and architecture documents exclusively in AISpace/.kiro/.</description>
+    L275: L1639: - **Rule Storage:** Store ALL rules in `AISpace/.kiro/`.
+    L276: L1928: - **Target Path:** `C:\Godot\AISpace\.kiro\steering\Godot\`
+    L277: L1957: | **Output Path** | `C:\Godot\AISpace\.kiro\steering\Godot\` | **MUST** be exact absolute path. |
+    L278: L1986: <fix>Verify the file is saved exactly in `C:\Godot\AISpace\.kiro\steering\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+    L279: L2019: - **Rule Storage Constraints:** **MUST** store all rule files within `AISpace/.kiro/`
+    L280: L2482: - **File Directory Integrity**: All system configuration files **MUST** be stored in `AISpace/.kiro/`.
+    L281: L3094: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L282: L3095: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L283: L3096: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L284: L3100: <item>Location: `AISpace/builder/modules/statechart.py`</item>
+    L285: L3474: - **Framework Location:** `AISpace/builder/`
+    L286: L3759: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L287: L3760: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L288: L3761: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L289: L3766: <li>UIModule Location: `AISpace/builder/modules/ui.py`</li>
+    L290: L4063: Generate a status report to `AISpace/.kiro/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L291: L4068: - `AISpace/.kiro/TempFolder/` task notes
+    L292: L4377: - Store ALL rules, steering files, and instructions exclusively in `AISpace/.kiro/`.
+    L293: L6838: - `AISpace/.kiro/steering/GodotUIBuilder.md` - Updated with TscnEditor section
+    L294: L7156: - Create directory `AISpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L295: L7368: - Read AISpace/.kiro/specs/tscn-editor-tools/InstructionDesignPrinciples.md if it exists
+    L296: L7388: - All file operations target `AISpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L297: L8493: AISpace/.kiro/steering/Godot/
+    L298: L8622: - `AISpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L299: L8623: - `AISpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L300: L8624: - `AISpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+    L303: L37: - `C:\Godot\AISpace`
+    L306: L11: - **`AISpace/.kiro/scripts/godot_config.json`**
+    L307: L25: - **`AISpace/.kiro/docs/GodotMCPServer.md`**
+    L308: L34: - `AISpace/.kiro/steering/Godot/SceneBuilders/GodotUIBuilder_Context.md`
+    L309: L35: - `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md`
+    L310: L36: - `AISpace/.kiro/scripts/ui_builder/README.md`
+    L311: L46: | Kiro 工作区 | `C:\Godot\AISpace` | `C:\Godot\AISpace` | ✅ 无需更改 |
+    L312: L89: 1. 编辑 `AISpace/.kiro/scripts/godot_config.json`
+    L315: L13: python "%~dp0..\AISpace\CloudSync_Workflow\kiro_sync_to_drive.py"
+    L318: L3: set LOG_DIR=%~dp0..\AISpace\CloudSync_Workflow\logs
+    L319: L8: python "%~dp0..\AISpace\CloudSync_Workflow\kiro_sync_to_drive.py" >> "%LOG_FILE%" 2>&1
+    L322: L21: AISpace/.kiro/steering/Godot/
+    L323: L150: - `AISpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L324: L151: - `AISpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L325: L152: - `AISpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+
+[ 41 hit(s)] C:\Godot\AISpace\tools\replace_kiro_dryrun_20260425_011809.log.bak  (enc=utf-8)
+    L1: # Replace 'KiroWorkingSpace' -> 'AISpace'  (DRY-RUN)  2026-04-25 01:18:08
+    L4: === Scanning C:\Godot\AISpace ===
+    L6: [  1 hit(s)] C:\Godot\AISpace\.kiroignore  (enc=utf-8)
+    L9: [ 43 hit(s)] C:\Godot\AISpace\AI_Context_Master_20260419_131656.txt  (enc=utf-8)
+    L54: [  3 hit(s)] C:\Godot\AISpace\docLastConversationState.md  (enc=utf-8)
+    L59: [ 44 hit(s)] C:\Godot\AISpace\New Text Document.txt  (enc=utf-8)
+    L105: [  2 hit(s)] C:\Godot\AISpace\.windsurf\rules\ConversationReset.md  (enc=utf-8-sig)
+    L109: [  4 hit(s)] C:\Godot\AISpace\.windsurf\rules\Always\MainRules.md  (enc=utf-8-sig)
+    L115: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotBackpackTesseractSys_Context.md  (enc=utf-8-sig)
+    L118: [  3 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotGenerateState.md  (enc=utf-8-sig)
+    L123: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotInputMap_Context.md  (enc=utf-8-sig)
+    L126: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\GodotSettingsSystem_Context.md  (enc=utf-8-sig)
+    L129: [  4 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\SceneBuilders\GodotStateChartBuilder_Context.md  (enc=utf-8-sig)
+    L135: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\SceneBuilders\GodotTscnBuilder_Context.md  (enc=utf-8-sig)
+    L138: [  4 hit(s)] C:\Godot\AISpace\.windsurf\rules\Godot\SceneBuilders\GodotUIBuilder_Context.md  (enc=utf-8-sig)
+    L144: [  2 hit(s)] C:\Godot\AISpace\.windsurf\rules\StableOrOther\ClaudeReportToGemini.md  (enc=utf-8-sig)
+    L148: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\StableOrOther\InstructionDesignPrinciples.md  (enc=utf-8-sig)
+    L151: [  1 hit(s)] C:\Godot\AISpace\.windsurf\rules\StableOrOther\RulesOptimizer.md  (enc=utf-8-sig)
+    L154: [ 10 hit(s)] C:\Godot\AISpace\.windsurf\rules\Uncommon\CloudSyncSystem.md  (enc=utf-8-sig)
+    L166: [  2 hit(s)] C:\Godot\AISpace\.windsurf\workflows\sync-to-gemini.md  (enc=utf-8)
+    L170: [  1 hit(s)] C:\Godot\AISpace\builder\generate_basic_item.py  (enc=utf-8)
+    L173: [  1 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\CHANGE_TRACKING.md  (enc=utf-8)
+    L176: [  7 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\kiro_sync_to_drive.py  (enc=utf-8)
+    L185: [  5 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\README.md  (enc=utf-8)
+    L192: [  4 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\REFACTOR_COMPLETE.md  (enc=utf-8)
+    L198: [  2 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\REFACTOR_PLAN.md  (enc=utf-8)
+    L202: [  1 hit(s)] C:\Godot\AISpace\CloudSync_Workflow\SYNC_LOGIC.md  (enc=utf-8)
+    L205: [  1 hit(s)] C:\Godot\AISpace\hooks\auto-sync-kiroworkspace.kiro.hook  (enc=utf-8)
+    L208: [  1 hit(s)] C:\Godot\AISpace\scripts\deploy_enemy_to_3dpractice.py  (enc=utf-8)
+    L211: [  7 hit(s)] C:\Godot\AISpace\scripts\emergency_backup.py  (enc=utf-8)
+    L220: [  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_backpack_test_scene.py  (enc=utf-8)
+    L223: [  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_backpack_test_v2.py  (enc=utf-8)
+    L226: [  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_test_theme_switcher.py  (enc=utf-8)
+    L229: [  1 hit(s)] C:\Godot\AISpace\scripts\temp\generate_theme_switcher.py  (enc=utf-8)
+    L232: [  1 hit(s)] C:\Godot\AISpace\scripts\TempBuilders\statechart_builder\example_player_statechart.py  (enc=utf-8)
+    L235: [  1 hit(s)] C:\Godot\AISpace\scripts\ui_builder\README.md  (enc=utf-8-sig)
+    L238: [  2 hit(s)] C:\Godot\AISpace\scripts\ui_builder\docs\TEST_RESULTS.md  (enc=utf-8)
+    L242: [  1 hit(s)] C:\Godot\AISpace\scripts\ui_builder\tools\analyze_option_components.py  (enc=utf-8)
+    L245: [  1 hit(s)] C:\Godot\AISpace\scripts\ui_builder\tools\validate_settings_menu.py  (enc=utf-8)
+    L248: [  2 hit(s)] C:\Godot\AISpace\tools\replace_kiro_workspace.py  (enc=utf-8)
+    L249: L3: "KiroWorkingSpace" and replace it with "AISpace".
+
+[  6 hit(s)] C:\Godot\AISpace\tools\replace_kiro_workspace.py  (enc=utf-8)
+    L2: Scan C:\\Godot\\AISpace and C:\\Godot\\3d-practice for the literal string
+    L3: "AISpace" and replace it with "AISpace".
+    L20: OLD = "AISpace"
+    L21: NEW = "AISpace"
+    L24: Path(r"C:\Godot\AISpace"),
+
+[  4 hit(s)] C:\Godot\AISpace\tools\replace_kiro_workspace.py.bak  (enc=utf-8)
+    L2: Scan C:\\Godot\\AISpace and C:\\Godot\\3d-practice for the literal string
+    L3: "KiroWorkingSpace" and replace it with "AISpace".
+    L21: NEW = "AISpace"
+    L24: Path(r"C:\Godot\AISpace"),
+
+=== Scanning C:\Godot\3d-practice ===
+
+[  1 hit(s)] C:\Godot\3d-practice\AddDefenderExclusions.ps1  (enc=utf-8)
+    L25: "C:\Godot\AISpace",
+
+[ 43 hit(s)] C:\Godot\3d-practice\AI_Context_Master_20260419_135502.txt  (enc=utf-8)
+    L20: - **Rule/Arch Storage**: `AISpace/.kiro/` (ALL steering/instruction files)
+    L493: - `AISpace/.kiro/Scratchpad/CodeAnalysis_20260418_AABBProblem.md`
+    L494: - `AISpace/.kiro/Scratchpad/ComponentDesign_20260418_ShapeBlocks.md`
+    L560: - `AISpace/.kiro/Scratchpad/CodeAnalysis_20260418_ReadyOrder.md` (标记为已解决)
+    L739: - **系统文档**: `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L740: - **设计模式**: `AISpace/.kiro/steering/Always/DesignPatterns.md`
+    L741: - **主规则**: `AISpace/.kiro/steering/Always/MainRules.md`
+    L742: - **项目规则**: `AISpace/.kiro/ProjectRules.md`
+    L760: 1. 读取 `AISpace/.kiro/docLastConversationState.md`（本文件）
+    L761: 2. 读取 `AISpace/.kiro/ProjectRules.md`
+    L762: 3. 读取 `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+    L814: 1. `AISpace/.kiro/docLastConversationState.md`
+    L815: 2. `AISpace/.kiro/ProjectRules.md`
+    L1319: - **Rule Storage:** Save and enforce all architectural rules in `AISpace/.kiro/`.
+    L1524: - Architecture & Steering Path: `AISpace/.kiro/`
+    L1526: - Internal State Tracking: `AISpace/.kiro/Scratchpad/`
+    L1578: <description>Store ALL rules, steering files, and architecture documents exclusively in AISpace/.kiro/.</description>
+    L1639: - **Rule Storage:** Store ALL rules in `AISpace/.kiro/`.
+    L1928: - **Target Path:** `C:\Godot\AISpace\.kiro\steering\Godot\`
+    L1957: | **Output Path** | `C:\Godot\AISpace\.kiro\steering\Godot\` | **MUST** be exact absolute path. |
+    L1986: <fix>Verify the file is saved exactly in `C:\Godot\AISpace\.kiro\steering\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+    L2019: - **Rule Storage Constraints:** **MUST** store all rule files within `AISpace/.kiro/`
+    L2482: - **File Directory Integrity**: All system configuration files **MUST** be stored in `AISpace/.kiro/`.
+    L3094: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L3095: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L3096: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    L3100: <item>Location: `AISpace/builder/modules/statechart.py`</item>
+    L3474: - **Framework Location:** `AISpace/builder/`
+    L3759: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3760: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3761: <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+    L3766: <li>UIModule Location: `AISpace/builder/modules/ui.py`</li>
+    L4063: Generate a status report to `AISpace/.kiro/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+    L4068: - `AISpace/.kiro/TempFolder/` task notes
+    L4377: - Store ALL rules, steering files, and instructions exclusively in `AISpace/.kiro/`.
+    L6838: - `AISpace/.kiro/steering/GodotUIBuilder.md` - Updated with TscnEditor section
+    L7156: - Create directory `AISpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L7368: - Read AISpace/.kiro/specs/tscn-editor-tools/InstructionDesignPrinciples.md if it exists
+    L7388: - All file operations target `AISpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+    L8493: AISpace/.kiro/steering/Godot/
+    L8622: - `AISpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L8623: - `AISpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L8624: - `AISpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+
+[  1 hit(s)] C:\Godot\3d-practice\BUILD_OPTIMIZATION_GUIDE.md  (enc=utf-8)
+    L37: - `C:\Godot\AISpace`
+
+[  8 hit(s)] C:\Godot\3d-practice\ENGINE_PATH_UPDATE_SUMMARY.md  (enc=utf-8)
+    L11: - **`AISpace/.kiro/scripts/godot_config.json`**
+    L25: - **`AISpace/.kiro/docs/GodotMCPServer.md`**
+    L34: - `AISpace/.kiro/steering/Godot/SceneBuilders/GodotUIBuilder_Context.md`
+    L35: - `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md`
+    L36: - `AISpace/.kiro/scripts/ui_builder/README.md`
+    L46: | Kiro 工作区 | `C:\Godot\AISpace` | `C:\Godot\AISpace` | ✅ 无需更改 |
+    L89: 1. 编辑 `AISpace/.kiro/scripts/godot_config.json`
+
+[  1 hit(s)] C:\Godot\3d-practice\SYNC_TO_GEMINI.bat  (enc=utf-8)
+    L13: python "%~dp0..\AISpace\CloudSync_Workflow\kiro_sync_to_drive.py"
+
+[  2 hit(s)] C:\Godot\3d-practice\SYNC_TO_GEMINI_SILENT.bat  (enc=utf-8)
+    L3: set LOG_DIR=%~dp0..\AISpace\CloudSync_Workflow\logs
+    L8: python "%~dp0..\AISpace\CloudSync_Workflow\kiro_sync_to_drive.py" >> "%LOG_FILE%" 2>&1
+
+[  4 hit(s)] C:\Godot\3d-practice\.kiro\Scratchpad\settings_final_summary.md  (enc=utf-8)
+    L21: AISpace/.kiro/steering/Godot/
+    L150: - `AISpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+    L151: - `AISpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+    L152: - `AISpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+
+=== SUMMARY (DRY-RUN) ===
+Files with matches: 49
+Total occurrences : 594
+Files modified    : 0

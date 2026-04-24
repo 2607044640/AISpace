@@ -1,0 +1,115 @@
+﻿---
+trigger: manual
+---
+
+<layer_1_quick_start>
+  <quick_reference>
+    - **UI Path:** `Project > Project Settings > Input Map`
+    - **Data Storage:** Serialized under the `[input]` node in `project.godot`
+    - **Rule Storage Constraints:** **MUST** store all rule files within `KiroWorkingSpace/`
+  </quick_reference>
+  
+  <decision_tree>
+    - Adding or modifying actions in editor: **DO NOT** restart editor. (Rationale: Editor dynamically updates Input Map changes).
+    - Testing new input mappings: **ALWAYS** press F5. (Rationale: Game execution requires a re-run to apply new live inputs).
+    - Manually editing `project.godot`: **MUST** restart editor. (Rationale: Godot does not hot-reload manual external modifications to the configuration file).
+  </decision_tree>
+  
+  <minimal_workflow>
+    1. Navigate to `Project > Project Settings > Input Map`.
+    2. Enter exact action name and click `Add`.
+    3. Click `+` and bind physical `Key`, `Mouse Button`, `Joypad Buttons`, or `Joypad Axes`.
+    4. Expand the action and adjust `deadzone` value directly.
+  </minimal_workflow>
+  
+  <top_anti_patterns>
+    - Using `_Process()` for physics input. (Rationale: Causes input lag and physics jitter by desyncing with the physics engine).
+    - Hardcoding Joypad index to `0` unintentionally. (Rationale: `0` locks input to only the first device, breaking local multiplayer or alternate controllers. `-1` listens to all).
+    - Ignoring case sensitivity. (Rationale: Input map keys are strict strings; `Jump` fails if mapped as `jump`).
+  </top_anti_patterns>
+</layer_1_quick_start>
+
+<layer_2_detailed_guide>
+  <api_reference>
+    - `Input.IsActionPressed(string action)`: Polling detection for continuous hold state.
+    - `Input.IsActionJustPressed(string action)`: Polling detection that triggers true only on the first frame pressed.
+    - `Input.IsActionJustReleased(string action)`: Polling detection for interrupt or end logic on the exact release frame.
+    - `Input.GetAxis(string negative_action, string positive_action)`: Returns single axis float from `-1.0` to `1.0`.
+    - `Input.GetActionStrength(string action)`: Returns analog stick strength float from `0.0` to `1.0`.
+    - `Input.GetVector(string negative_x, string positive_x, string negative_y, string positive_y)`: Combines two axes into a normalized `Vector2`.
+  </api_reference>
+  
+  <technical_specifications>
+    - **Default Deadzone:** `0.5`
+    - **Axis Values Range:** `-1.0` (Left/Up) to `1.0` (Right/Down)
+    - **Analog Strength Range:** `0.0` to `1.0`
+    - **Device Index Targeting:** `-1` (All devices), `0` (First device)
+    
+    **Gamepad Button Standard Mapping:**
+    | Index | Xbox | PlayStation | Target Convention |
+    |---|---|---|---|
+    | 0 | A | Cross (×) | Jump / Confirm |
+    | 1 | B | Circle (○) | Cancel / Interact |
+    | 2 | X | Square (□) | Reload / Use |
+    | 3 | Y | Triangle (△) | Toggle View |
+    | 4/5 | LB/RB | L1/R1 | Skill 1 / 2 |
+    | 6/7 | LT/RT | L2/R2 | Aim / Attack |
+    | 8/9 | Back/Start | Share/Options | Map / Menu |
+    | 10/11| L3/R3 | L3/R3 | Sprint / Lock-on |
+    
+    **Joystick Axis Mapping Requirements:**
+    | Axis | Target Parameter | Range |
+    |---|---|---|
+    | 0 / 1 | Left Stick X / Y | -1.0 to 1.0 |
+    | 2 / 3 | Right Stick X / Y | -1.0 to 1.0 |
+  </technical_specifications>
+  
+  <core_rules>
+    <rule>
+      <description>**ALWAYS** commit the `project.godot` file to version control.</description>
+      <rationale>Input Map configuration is serialized within this file under `[input]`; failing to commit causes input data loss across environments.</rationale>
+    </rule>
+    <rule>
+      <description>**NEVER** process physics movement inputs in `_Process()`.</description>
+      <rationale>Input polling for physics bodies must strictly synchronize with the physics step in `_PhysicsProcess(double delta)` to prevent movement desyncs and visual jitter.</rationale>
+    </rule>
+  </core_rules>
+</layer_2_detailed_guide>
+
+<layer_3_advanced>
+  <troubleshooting>
+    <error symptom="Unresponsive Input">
+      <cause>String mismatch between code calls and Input Map action names.</cause>
+      <fix>Verify exact case-sensitive string matches for action definitions.</fix>
+    </error>
+    <error symptom="Gamepad Not Recognized">
+      <cause>Gamepad connected after launch or incorrect device index specified.</cause>
+      <fix>Connect the gamepad before launching the game. Verify the Input device Index is correctly mapped to `-1` (all devices) or `0` (first device).</fix>
+    </error>
+    <error symptom="Stick Drift">
+      <cause>Default Deadzone threshold is too low for the specific physical controller's wear.</cause>
+      <fix>Expand the target action in the Input Map and physically increase the `deadzone` float value (e.g., from `0.2` to `0.3`).</fix>
+    </error>
+    <error symptom="Input Lag or Physics Jitter">
+      <cause>Processing physics movement logic in the visual frame loop instead of the physics loop.</cause>
+      <fix>Migrate all movement-related Input logic to the `_PhysicsProcess()` override.</fix>
+    </error>
+  </troubleshooting>
+  
+  <implementation_anchors>
+    - **3D Movement Vector Conversion Math:** `Vector3 direction = (Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();`
+    - **Velocity Application Math:** `velocity.X = direction.X * Speed; velocity.Z = direction.Z * Speed;`
+    - **Jump Velocity Assignment Math:** `velocity.Y = JumpVelocity;`
+  </implementation_anchors>
+  
+  <best_practices>
+    <rule>
+      <description>**ALWAYS** evaluate `IsOnFloor()` before executing `Input.IsActionJustPressed("jump")` physics logic.</description>
+      <rationale>Ensures ground state detection is bound to input execution, preventing infinite air-jumping without explicit code intention.</rationale>
+    </rule>
+    <rule>
+      <description>**ALWAYS** utilize `Input.GetVector` for omnidirectional character movement over combining individual `GetAxis` calls.</description>
+      <rationale>Natively normalizes diagonal inputs, mathematically preventing unintended velocity boosts when moving on diagonal axes.</rationale>
+    </rule>
+  </best_practices>
+</layer_3_advanced>

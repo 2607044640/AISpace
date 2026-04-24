@@ -1,7 +1,6 @@
-G:\My Drive\Kiro_Godot_Brain\AI_Context_Master_20260419_124148.txt
 # 🤖 Godot Sensei 专属项目上下文库
 # 包含所有核心 C# 脚本、场景、配置和项目规则
-# 生成时间: 2026-04-19 12:40:07
+# 生成时间: 2026-04-19 13:16:56
 
 
 ================================================================================
@@ -18,7 +17,7 @@ G:\My Drive\Kiro_Godot_Brain\AI_Context_Master_20260419_124148.txt
     - **Project**: Tesseract Backpack (TS) - Grid-based inventory system
     - **Code Location**: `3d-practice/addons/A1TetrisBackpack/` (C# components)
     - **Scene Location**: `3d-practice/A1TesseractBackpack/` (TS scenes)
-    - **Rule/Arch Storage**: `AISpace/.kiro/` (ALL steering/instruction files)
+    - **Rule/Arch Storage**: `KiroWorkingSpace/.kiro/` (ALL steering/instruction files)
     - **Build Command**: `dotnet build` (Execute from 3d-practice root)
     - **Log Audit**: `Get-Content "$env:APPDATA\Godot\app_userdata\Tesseract_Backpack\logs\godot.log" -Tail 50`
   </quick_reference>
@@ -491,8 +490,8 @@ foreach (Vector2I cellPos in ShapeData.CurrentLocalCells)
 
 **新增文件**:
 - `3d-practice/addons/A1TetrisBackpack/Items/ItemShapeBlocksComponent.cs`
-- `AISpace/.kiro/Scratchpad/CodeAnalysis_20260418_AABBProblem.md`
-- `AISpace/.kiro/Scratchpad/ComponentDesign_20260418_ShapeBlocks.md`
+- `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_AABBProblem.md`
+- `KiroWorkingSpace/.kiro/Scratchpad/ComponentDesign_20260418_ShapeBlocks.md`
 
 **下一步**:
 - 集成到 TSItem 场景
@@ -558,7 +557,7 @@ public override void _Ready()
 - `3d-practice/addons/A1TetrisBackpack/Items/GridShapeComponent.cs`
 
 **文档更新**:
-- `AISpace/.kiro/Scratchpad/CodeAnalysis_20260418_ReadyOrder.md` (标记为已解决)
+- `KiroWorkingSpace/.kiro/Scratchpad/CodeAnalysis_20260418_ReadyOrder.md` (标记为已解决)
 
 ## 当前任务：功能扩展与测试
 
@@ -737,10 +736,10 @@ public override void _Ready()
 - **Test Controller**: `3d-practice/Tests/BackpackTestController.cs`
 
 ### 文档
-- **系统文档**: `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
-- **设计模式**: `AISpace/.kiro/steering/Always/DesignPatterns.md`
-- **主规则**: `AISpace/.kiro/steering/Always/MainRules.md`
-- **项目规则**: `AISpace/.kiro/ProjectRules.md`
+- **系统文档**: `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+- **设计模式**: `KiroWorkingSpace/.kiro/steering/Always/DesignPatterns.md`
+- **主规则**: `KiroWorkingSpace/.kiro/steering/Always/MainRules.md`
+- **项目规则**: `KiroWorkingSpace/.kiro/ProjectRules.md`
 
 ## 重要教训
 
@@ -758,9 +757,9 @@ public override void _Ready()
 4. **1D 数组网格**: `index = y * Width + x`
 
 ## 启动下一个对话的步骤
-1. 读取 `AISpace/.kiro/docLastConversationState.md`（本文件）
-2. 读取 `AISpace/.kiro/ProjectRules.md`
-3. 读取 `AISpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
+1. 读取 `KiroWorkingSpace/.kiro/docLastConversationState.md`（本文件）
+2. 读取 `KiroWorkingSpace/.kiro/ProjectRules.md`
+3. 读取 `KiroWorkingSpace/.kiro/steering/Godot/GodotBackpackTesseractSys_Context.md`
 4. 继续功能扩展和测试工作
 
 
@@ -771,29 +770,227 @@ public override void _Ready()
 ---
 inclusion: manual
 ---
+<conversation_reset_rules>
+  <layer_1_quick_start>
+    <quick_reference>
+      - Tool: `mcp_sequential_thinking_sequentialthinking`
+      - Confidence Threshold: 7/10 before resetting
+      - Core Rule: Capture ALL critical information before clearing
+    </quick_reference>
+    
+    <decision_tree>
+      - IF Confidence Score < 7 OR blind spots exist:
+        - ACTION: Read more context, check Scratchpad files, verify critical decisions captured. (Why: Prevents losing important project state.)
+      - IF important information found but unsure how to summarize:
+        - ACTION: Ask user for clarification before resetting. (Why: User may have context AI doesn't.)
+      - IF Confidence Score >= 7 AND all information captured:
+        - ACTION: Proceed with reset. (Why: High confidence threshold met with validated state capture.)
+    </decision_tree>
+    
+    <top_anti_patterns>
+      <rule>
+        <description>NEVER reset without reading ALL target files and Scratchpad directory.</description>
+        <rationale>Critical information may be scattered across multiple files and temporary notes.</rationale>
+      </rule>
+      <rule>
+        <description>NEVER assume current conversation contains all important context.</description>
+        <rationale>Previous sessions may have made decisions or discoveries not visible in current context.</rationale>
+      </rule>
+      <rule>
+        <description>NEVER discard Scratchpad analysis files without reviewing them.</description>
+        <rationale>Scratchpad may contain important architectural insights or bug investigation notes.</rationale>
+      </rule>
+    </top_anti_patterns>
+  </layer_1_quick_start>
 
-<instructions>
-Execute the Conversation Reset Protocol when the conversation context becomes too long. Save the current project state by reading, clearing, and rewriting the designated state files from scratch. Maintain all rule and steering files exclusively within `AISpace/.kiro/`.
-</instructions>
+  <layer_2_detailed_guide>
+    <api_reference>
+      - Tool: `mcp_sequential_thinking_sequentialthinking`
+      - Purpose: Enforces mandatory state capture validation before reset.
+    </api_reference>
 
-<target_files>
-Read these files to understand the state upon starting a fresh session. Update these exact files when resetting:
-1. `AISpace/.kiro/docLastConversationState.md`
-2. `AISpace/.kiro/ProjectRules.md`
-</target_files>
+    <target_files>
+      Read these files to understand the state upon starting a fresh session. Update these exact files when resetting:
+      1. `KiroWorkingSpace/.kiro/docLastConversationState.md`
+      2. `KiroWorkingSpace/.kiro/ProjectRules.md`
+    </target_files>
 
-<workflow>
-1. Read the files listed in `<target_files>` to capture the current project state.
-2. Clear the existing contents of each file completely.
-3. Rewrite each file from scratch to reflect the most up-to-date context, rules, and objectives.
-</workflow>
+    <implementation_guide>
+      <step>Execute `mcp_sequential_thinking_sequentialthinking` to establish context.</step>
+      <step>Build Knowledge Inventory:
+        - What tasks were completed in recent sessions?
+        - What is the current project phase?
+        - What are the pending tasks or blockers?
+        - What architectural decisions were made?
+        - What bugs or issues are known?
+      </step>
+      <step>Identify Blind Spots:
+        - Are there unrecorded decisions or workarounds?
+        - Are there Scratchpad files with important analysis?
+        - Are there performance issues or technical debt?
+        - Are there user requests not yet implemented?
+        - Are there temporary solutions that need documentation?
+      </step>
+      <step>Read ALL target files:
+        - `docLastConversationState.md` - Current project state
+        - `ProjectRules.md` - Project-specific rules and architecture
+      </step>
+      <step>Read Scratchpad directory:
+        - Check for CodeAnalysis_*.md files
+        - Check for PluginSearch_*.md files
+        - Check for ComponentDesign_*.md files
+        - Check for any other analysis or investigation notes
+      </step>
+      <step>Assign Confidence Score (1-10). If < 7, fill blind spots by:
+        - Reading more context files
+        - Checking recent conversation history
+        - Verifying all critical decisions are captured
+        - Asking user for clarification if needed
+      </step>
+      <step>Validate state capture:
+        - All completed tasks documented?
+        - All pending tasks listed?
+        - All architectural decisions recorded?
+        - All known issues documented?
+        - All important Scratchpad insights preserved?
+      </step>
+      <step>Clear and rewrite target files:
+        - Clear existing contents completely
+        - Rewrite with up-to-date, concise summaries
+        - Preserve all critical information
+        - Remove outdated or irrelevant details
+      </step>
+    </implementation_guide>
 
-<examples>
-<example>
-<input>Conversation context is degrading due to length.</input>
-<expected_behavior>Read `docLastConversationState.md` to grasp current progress. Clear its contents. Write a new, concise summary of the latest completed tasks and pending blockers. Repeat this overwrite process for the remaining three files. Initialize fresh session.</expected_behavior>
-</example>
-</examples>
+    <core_rules>
+      <rule>
+        <description>ALWAYS execute `mcp_sequential_thinking_sequentialthinking` before resetting.</description>
+        <rationale>Ensures structured analysis and prevents losing critical project state.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS verify Confidence Score >= 7 before clearing files.</description>
+        <rationale>Ensures sufficient understanding of project state and all critical information captured.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS read Scratchpad directory before resetting.</description>
+        <rationale>Scratchpad may contain important analysis or investigation notes not yet integrated into main documentation.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS preserve architectural decisions and key lessons learned.</description>
+        <rationale>These are the most valuable information for future sessions and hardest to reconstruct.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS maintain concise but complete summaries.</description>
+        <rationale>Balance between context window efficiency and information preservation.</rationale>
+      </rule>
+    </core_rules>
+
+    <knowledge_inventory_checklist>
+      <category name="Project State">
+        - [ ] Current project phase identified?
+        - [ ] Recent completed tasks documented?
+        - [ ] Pending tasks and blockers listed?
+        - [ ] Known bugs or issues recorded?
+      </category>
+      <category name="Architecture">
+        - [ ] Key architectural decisions captured?
+        - [ ] Design patterns in use documented?
+        - [ ] Component structure understood?
+        - [ ] Integration points identified?
+      </category>
+      <category name="Technical Debt">
+        - [ ] Temporary workarounds documented?
+        - [ ] Performance issues noted?
+        - [ ] Refactoring needs identified?
+        - [ ] Technical debt tracked?
+      </category>
+      <category name="Scratchpad Content">
+        - [ ] CodeAnalysis files reviewed?
+        - [ ] PluginSearch files reviewed?
+        - [ ] ComponentDesign files reviewed?
+        - [ ] Investigation notes reviewed?
+      </category>
+    </knowledge_inventory_checklist>
+
+    <blind_spots_checklist>
+      <question>Are there unrecorded architectural decisions?</question>
+      <action>Review recent conversation for design choices and rationale</action>
+      
+      <question>Are there Scratchpad files with important insights?</question>
+      <action>List and read all files in .kiro/Scratchpad/</action>
+      
+      <question>Are there temporary solutions that need documentation?</question>
+      <action>Check for workarounds or "TODO" comments in recent discussions</action>
+      
+      <question>Are there user requests not yet implemented?</question>
+      <action>Review conversation for feature requests or enhancement ideas</action>
+      
+      <question>Are there performance issues or technical debt?</question>
+      <action>Check for optimization discussions or known limitations</action>
+    </blind_spots_checklist>
+  </layer_2_detailed_guide>
+
+  <layer_3_advanced>
+    <escalation_triggers>
+      <trigger>
+        <condition>Important information found but unsure how to summarize</condition>
+        <action>Ask user for clarification or priority guidance</action>
+        <rationale>User may have context or priorities AI doesn't understand</rationale>
+      </trigger>
+      <trigger>
+        <condition>Scratchpad contains extensive analysis not yet integrated</condition>
+        <action>Notify user and ask if analysis should be preserved separately</action>
+        <rationale>Extensive analysis may be valuable for future reference</rationale>
+      </trigger>
+      <trigger>
+        <condition>Multiple conflicting architectural approaches discussed</condition>
+        <action>Ask user which approach was ultimately chosen</action>
+        <rationale>Prevents documenting abandoned approaches as current state</rationale>
+      </trigger>
+    </escalation_triggers>
+
+    <best_practices>
+      - **Preserve Decisions Over Details:** Focus on "what was decided and why" rather than implementation minutiae.
+      - **Document Lessons Learned:** Capture key insights that would be expensive to rediscover.
+      - **Maintain Continuity:** Ensure next session can pick up exactly where this one left off.
+      - **Scratchpad Integration:** Review Scratchpad files and integrate important insights into main documentation.
+      - **Concise Summaries:** Balance completeness with brevity - aim for essential information only.
+    </best_practices>
+
+    <example_workflow>
+      <scenario>Conversation context approaching limit, need to reset</scenario>
+      <execution>
+        <step>1. Execute mcp_sequential_thinking_sequentialthinking</step>
+        <step>2. Knowledge Inventory:
+          - Recent tasks: Implemented GridShapeVisualComponent, fixed NullReferenceException
+          - Current phase: Core architecture complete, testing phase
+          - Pending: Rotation testing, synergy system implementation
+          - Architecture: Entity-Component with Mediator, R3 reactive streams
+        </step>
+        <step>3. Blind Spots Identified:
+          - Are there Scratchpad analysis files?
+          - Were there any temporary workarounds?
+          - Are there performance concerns?
+        </step>
+        <step>4. Read target files:
+          - docLastConversationState.md - Contains detailed project history
+          - ProjectRules.md - Contains architecture rules
+        </step>
+        <step>5. Read Scratchpad:
+          - Found: CodeAnalysis_20260418_AABBProblem.md
+          - Found: ComponentDesign_20260418_ShapeBlocks.md
+          - Found: ValidationFramework_Summary.md
+        </step>
+        <step>6. Confidence Score: 8/10 (sufficient to proceed)</step>
+        <step>7. Clear and rewrite:
+          - docLastConversationState.md: Update with latest completed tasks, preserve architectural decisions
+          - ProjectRules.md: Update with any new rules or patterns discovered
+          - Integrate key Scratchpad insights into main documentation
+        </step>
+      </execution>
+    </example_workflow>
+  </layer_3_advanced>
+</conversation_reset_rules>
 
 
 ================================================================================
@@ -807,11 +1004,17 @@ inclusion: manual
 <kiro_rule>
   <layer_1_quick_start>
     <quick_reference>
+      - **Tool:** `mcp_sequential_thinking_sequentialthinking`
+      - **Confidence Threshold:** 7/10 before recommending architectural changes
       - **Trigger Context:** Code structure evaluation, refactoring, or tool assessment for Godot C# (.NET).
       - **Supplementary Data:** Cross-reference `#PluginRecommendations.md` - contains ONLY plugins NOT currently used in project.
       - **Working Memory:** Use `.kiro/Scratchpad/` for code analysis notes and plugin search records.
     </quick_reference>
     <decision_tree>
+      - IF Confidence Score < 7 OR blind spots exist:
+        - ACTION: Read more codebase, search for existing patterns, verify plugin compatibility. (Why: Prevents recommending solutions that don't fit actual architecture.)
+      - IF Confidence Score >= 7 AND recommendation validated:
+        - ACTION: Proceed with recommendation using "What/Helps/Solves" structure. (Why: High confidence threshold met with validated approach.)
       - If Godot string-based signals are detected: ALWAYS refactor to C# strongly-typed events. (Why: Lacks compile-time safety, prone to runtime errors).
       - If massive switch-case state logic is detected: ALWAYS recommend a dedicated state machine library. (Why: Violates Open-Closed Principle, high coupling).
       - If evaluating a plugin/library: ALWAYS verify GitHub Stars > 100 AND last update within 1 year. (Why: Ensures active maintenance and community validation).
@@ -833,17 +1036,28 @@ inclusion: manual
   </layer_1_quick_start>
 
   <layer_2_detailed_guide>
+    <api_reference>
+      - Tool: `mcp_sequential_thinking_sequentialthinking`
+      - Purpose: Enforces mandatory analysis before architectural recommendations.
+    </api_reference>
+
     <implementation_guide>
-      - **Step 0: Deep Analysis & Record:**
+      - **Step 0: Execute Sequential Thinking:**
+        - Execute `mcp_sequential_thinking_sequentialthinking` to establish context.
+        - Build Knowledge Inventory: What patterns exist? What libraries are used? What's the communication architecture?
+        - Identify Blind Spots: Do I know the threading model? Do I know existing event systems? Do I know the data persistence pattern?
+        - Assign Confidence Score (1-10). If < 7, fill blind spots before recommending.
+      
+      - **Step 1: Deep Analysis & Record:**
         - Read extensive codebase sections to identify optimization opportunities, code smells, and architectural issues.
         - ALWAYS create or update `.kiro/Scratchpad/CodeAnalysis_[YYYYMMDD].md` with detailed findings.
         - Record: Tight coupling locations, SOLID violations, redundant patterns, performance bottlenecks, reinvented wheels.
         - Update this file continuously as you discover more issues during code reading.
         - (Why: Like a detective's notebook - prevents forgetting insights across sessions and builds a comprehensive problem map.)
       
-      - **Step 1: Diagnose:**
+      - **Step 2: Diagnose:**
         - Scan the provided C# codebase for tight coupling, SOLID violations, redundant boilerplate, and implicit technical debt.
-        - Prioritize findings from Step 0 analysis file.
+        - Prioritize findings from Step 1 analysis file.
       
       - **Step 2: Deduplicate:**
         - Identify custom implementations of standard patterns (e.g., reinvented state machines, messy async polling) that should be replaced by established libraries.
@@ -856,7 +1070,7 @@ inclusion: manual
         - Update search timestamp in the file: "Last searched: YYYY-MM-DD".
         - (Why: Like a shopping research log - prevents re-searching same things, builds institutional knowledge, tracks evaluation history.)
       
-      - **Step 3.5: Check Local Registry:**
+      - **Step 4: Check Local Registry:**
         - ALWAYS read `#PluginRecommendations.md` AFTER completing web search.
         - IMPORTANT: This registry contains ONLY plugins NOT currently used in the project - it's a "wishlist" of vetted alternatives.
         - Compare new findings with existing registry entries.
@@ -864,12 +1078,22 @@ inclusion: manual
         - Cross-check: Ensure you're not recommending something inferior to what's already documented.
         - (Why: Like checking your pantry before grocery shopping - avoids duplication, discovers hidden gems already vetted, prevents recommending inferior alternatives.)
       
-      - **Step 4: Filter & Evaluate:**
+      - **Step 5: Evaluate Confidence:**
+        - Assign Confidence Score (1-10) based on:
+          - Understanding of existing architecture (3 points)
+          - Verification of plugin compatibility (2 points)
+          - Validation against existing patterns (2 points)
+          - Comparison with registry entries (2 points)
+          - Architectural impact assessment (1 point)
+        - If Confidence < 7: Read more code, verify integration points, check threading model.
+        - If Confidence >= 7: Proceed to recommendation.
+      
+      - **Step 6: Filter & Evaluate:**
         - Reject candidates unless they have >100 GitHub Stars AND an update within the last year (unless deemed feature-complete).
         - Prioritize plugins that directly solve user's stated pain point.
         - Avoid recommending 2D tools for 3D projects or online services for offline games.
       
-      - **Step 5: Explain & Demonstrate:**
+      - **Step 7: Explain & Demonstrate:**
         - Use simple, intuitive language with real-world analogies when explaining concepts.
         - ALWAYS structure each recommendation explanation as:
           1. **What it does:** One-sentence summary of core functionality.
@@ -907,6 +1131,14 @@ machine.Configure(State.Idle)
     </code_templates>
     <core_rules>
       <rule>
+        <description>ALWAYS execute `mcp_sequential_thinking_sequentialthinking` before architectural recommendations.</description>
+        <rationale>Ensures structured analysis and prevents recommending solutions that don't fit actual architecture.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS verify Confidence Score >= 7 before making architectural recommendations.</description>
+        <rationale>Prevents recommending plugins or patterns without sufficient understanding of existing architecture.</rationale>
+      </rule>
+      <rule>
         <description>ALWAYS prioritize native .NET features over Godot's legacy string APIs.</description>
         <rationale>Leveraging `async/await`, delegates, generics, and Source Generators creates idiomatic, performant, and safe C# code.</rationale>
       </rule>
@@ -942,6 +1174,23 @@ machine.Configure(State.Idle)
   </layer_2_detailed_guide>
 
   <layer_3_advanced>
+    <blind_spots_checklist>
+      <question>Do I know the existing communication patterns (events, signals, reactive)?</question>
+      <action>Read existing component interactions and event flows</action>
+      
+      <question>Do I know the threading model for async operations?</question>
+      <action>Check for GodotProvider.MainThread usage and async patterns</action>
+      
+      <question>Do I know what NuGet packages are already installed?</question>
+      <action>Read .csproj file and check existing using statements</action>
+      
+      <question>Do I know if similar functionality already exists?</question>
+      <action>Search codebase for related patterns and implementations</action>
+      
+      <question>Do I know the data persistence pattern?</question>
+      <action>Check existing save/load implementations</action>
+    </blind_spots_checklist>
+
     <best_practices>
       - **Library Prescriptions:** When recommending libraries, explicitly state the GitHub Stars, Last Update Date, and architectural rationale to build developer trust.
       - **Modernization:** Actively look to replace any messy async polling with native C# `async/await` patterns tailored for Godot.
@@ -1067,7 +1316,7 @@ inclusion: always
 
   <quick_reference>
     - **Package Requirements:** Install `R3` and `R3.Godot` via NuGet.
-    - **Rule Storage:** Save and enforce all architectural rules in `AISpace/.kiro/`.
+    - **Rule Storage:** Save and enforce all architectural rules in `KiroWorkingSpace/.kiro/`.
     - **Component Parent Access:** Rely on the auto-generated `parent` property.
     - **Component Dependency Access:** Rely on auto-generated camelCase properties (e.g., `inputComponent`).
   </quick_reference>
@@ -1272,9 +1521,9 @@ inclusion: always
   <quick_reference>
     - Compilation Command: `dotnet build` (Execution directory: `3d-practice/`)
     - Godot Log Path: `$env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log`
-    - Architecture & Steering Path: `AISpace/.kiro/`
+    - Architecture & Steering Path: `KiroWorkingSpace/.kiro/`
     - Project Code Path: `3d-practice/`
-    - Internal State Tracking: `AISpace/.kiro/Scratchpad/`
+    - Internal State Tracking: `KiroWorkingSpace/.kiro/Scratchpad/`
   </quick_reference>
 
   <quickstart_workflow>
@@ -1326,7 +1575,7 @@ inclusion: always
       <rationale>Ensures structured analysis prior to any action execution, verifying assumptions before implementation.</rationale>
     </rule>
     <rule>
-      <description>Store ALL rules, steering files, and architecture documents exclusively in AISpace/.kiro/.</description>
+      <description>Store ALL rules, steering files, and architecture documents exclusively in KiroWorkingSpace/.kiro/.</description>
       <rationale>Maintains strict separation between system/instruction files and the Godot project source code.</rationale>
     </rule>
     <rule>
@@ -1387,7 +1636,7 @@ inclusion: manual
 <layer_1_quick_start>
   <quick_reference>
     - **Project Prefix:** TS (Tesseract)
-    - **Rule Storage:** Store ALL rules in `AISpace/.kiro/`.
+    - **Rule Storage:** Store ALL rules in `KiroWorkingSpace/.kiro/`.
     - **Addon Root (Legacy):** `3d-practice/addons/A1TetrisBackpack/` (旧代码库)
     - **New Project Root:** `3d-practice/A1TesseractBackpack/` (新场景和资源)
     - **Scene Naming:** All scene files use `TS` prefix (e.g., `TSItem.tscn`)
@@ -1676,7 +1925,7 @@ inclusion: manual
 
 <layer_1_quick_start>
   <quick_reference>
-    - **Target Path:** `C:\Godot\AISpace\.kiro\steering\Godot\`
+    - **Target Path:** `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\`
     - **Target Filename:** `Godot<DomainName>_Context.md` (e.g., `GodotInputMap_Context.md`)
     - **Required Front Matter:** `--- inclusion: manual ---`
   </quick_reference>
@@ -1705,7 +1954,7 @@ inclusion: manual
   <api_reference>
     | Component | Value/Tag | Constraint |
     | :--- | :--- | :--- |
-    | **Output Path** | `C:\Godot\AISpace\.kiro\steering\Godot\` | **MUST** be exact absolute path. |
+    | **Output Path** | `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\` | **MUST** be exact absolute path. |
     | **Filename Format** | `Godot<DomainName>_Context.md` | **MUST** use PascalCase for domain name. |
     | **YAML Header** | `---` `<newline>` `inclusion: manual` `<newline>` `---` | **MUST** be prepended to every generated file. |
     | **Tag: Context** | `<context>` | **MUST** contain a brief summary of the domain/system functionality. |
@@ -1734,7 +1983,7 @@ inclusion: manual
   <troubleshooting>
     <error symptom="Generated context file is ignored by Kiro workspace or fails to parse">
       <cause>Missing or malformed YAML front matter, or incorrect directory path.</cause>
-      <fix>Verify the file is saved exactly in `C:\Godot\AISpace\.kiro\steering\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
+      <fix>Verify the file is saved exactly in `C:\Godot\KiroWorkingSpace\.kiro\steering\Godot\` and the first lines are strictly `--- \n inclusion: manual \n ---`.</fix>
     </error>
     <error symptom="Domain rule file contains excessively long paragraphs and low density">
       <cause>Failure to apply the anti-noise checklist during Step 2 (Compliance and Compression).</cause>
@@ -1767,7 +2016,7 @@ inclusion: manual
   <quick_reference>
     - **UI Path:** `Project > Project Settings > Input Map`
     - **Data Storage:** Serialized under the `[input]` node in `project.godot`
-    - **Rule Storage Constraints:** **MUST** store all rule files within `AISpace/.kiro/`
+    - **Rule Storage Constraints:** **MUST** store all rule files within `KiroWorkingSpace/.kiro/`
   </quick_reference>
   
   <decision_tree>
@@ -2230,7 +2479,7 @@ inclusion: manual
 
   <best_practices>
     - **Performance Constraint**: The system overhead **MUST** maintain ~100 bytes per setting with less than 1ms latency for reactive UI updates.
-    - **File Directory Integrity**: All system configuration files **MUST** be stored in `AISpace/.kiro/`.
+    - **File Directory Integrity**: All system configuration files **MUST** be stored in `KiroWorkingSpace/.kiro/`.
     - **Migration Standard**: **NEVER** use manual event subscriptions (e.g., `_slider.ValueChanged += OnSliderChanged`); **ALWAYS** migrate legacy manual C# events to generic `SettingBinders` to eliminate manual unsubscription lifecycle management.
     - **Payload Discarding**: Streamline logic by chaining `.AsUnitObservable()` when the pipeline only needs to know *when* an event happened, not *what* the payload contained.
     - **State Abstraction**: Use `ReactiveProperty<T>` for discrete, non-continuous state changes so UI elements automatically sync via single-subscription.
@@ -2842,13 +3091,13 @@ inclusion: manual
 ---
 <godot_statechart_module_rules>
   <critical_rule>
-    <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
-    <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
-    <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
+    <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any StateChart builder operations.</rule>
   </critical_rule>
   <layer_1_quick_start>
     <quick_reference>
-      <item>Location: `AISpace/builder/modules/statechart.py`</item>
+      <item>Location: `KiroWorkingSpace/builder/modules/statechart.py`</item>
       <item>Dependency: MUST read `#GodotTscnBuilder_Context.md` and requires `godot_state_charts` addon.</item>
       <item>Initialization: `sc = StateChartModule(scene, parent=".")` followed by `sc.add_statechart("StateChart")`.</item>
       <item>Finalization: `sc.resolve_initial_states()` MUST be called before `scene.save()`.</item>
@@ -3222,7 +3471,7 @@ scene.save("SettingsUI.tscn")
   </implementation_guide>
 
   <technical_specifications>
-    - **Framework Location:** `AISpace/builder/`
+    - **Framework Location:** `KiroWorkingSpace/builder/`
     - **Standard Prefab Types:** - `DropdownComponent.tscn`
       - `SliderComponent.tscn`
       - `ToggleComponent.tscn`
@@ -3507,14 +3756,14 @@ inclusion: manual
 ---
 ```xml
 <critical_rule>
-  <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
-  <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
-  <rule>MUST explicitly read `AISpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+  <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+  <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
+  <rule>MUST explicitly read `KiroWorkingSpace/.kiro/steering/Godot/SceneBuilders/GodotTscnBuilder_Context.md` before proceeding with any UI builder operations.</rule>
 </critical_rule>
 <layer_1_quick_start>
   <quick_reference>
     <ul>
-      <li>UIModule Location: `AISpace/builder/modules/ui.py`</li>
+      <li>UIModule Location: `KiroWorkingSpace/builder/modules/ui.py`</li>
       <li>Prefabs Directory: `res://A1UIScenes/UIComponents/`</li>
       <li>Gold Standard UI: `res://A1UIScenes/SettingsMenuV2_Fixed.tscn`</li>
       <li>Required MCP Tool: `mcp_godot_get_uid`</li>
@@ -3811,12 +4060,12 @@ inclusion: manual
 </trigger_phrases>
 
 <instructions>
-Generate a status report to `AISpace/.kiro/TempFolder/GeminiReport_YYYY-MM-DD.md`.
+Generate a status report to `KiroWorkingSpace/.kiro/TempFolder/GeminiReport_YYYY-MM-DD.md`.
 
 Extract context from the following sources:
 - Current conversation history
 - `docLastConversationState.md`
-- `AISpace/.kiro/TempFolder/` task notes
+- `KiroWorkingSpace/.kiro/TempFolder/` task notes
 - Modified files in the current session
 
 Prioritize the "Questions for Gemini" section to maximize value. 
@@ -3882,6 +4131,226 @@ Format the report exactly as specified in `<report_template>`.
 
 
 ================================================================================
+📂 FILE: .kiro/steering\StableOrOther\FeatureImplementation.md
+================================================================================
+
+---
+inclusion: manual
+---
+<feature_implementation_rules>
+  <layer_1_quick_start>
+    <quick_reference>
+      - Tool: `mcp_sequential_thinking_sequentialthinking`
+      - Confidence Threshold: 7/10 before implementation
+      - Core Rule: Read existing systems BEFORE creating new ones
+    </quick_reference>
+    
+    <decision_tree>
+      - IF Confidence Score < 7 OR blind spots exist:
+        - ACTION: Read relevant existing code, search for similar systems. (Why: Prevents duplicate implementations and architectural drift.)
+      - IF existing system found that provides 80%+ of requested functionality:
+        - ACTION: Propose extending existing system instead of creating new one. (Why: Maintains architectural consistency and reduces code duplication.)
+      - IF Confidence Score >= 7 AND no conflicts detected:
+        - ACTION: Proceed with implementation. (Why: High confidence threshold met with validated approach.)
+      - IF implementation breaks existing tests or compilation:
+        - ACTION: Halt and re-evaluate approach. (Why: New feature should not break existing functionality.)
+    </decision_tree>
+    
+    <top_anti_patterns>
+      <rule>
+        <description>NEVER implement a feature without reading existing related systems first.</description>
+        <rationale>Creates duplicate systems, violates DRY principle, and causes architectural fragmentation.</rationale>
+      </rule>
+      <rule>
+        <description>NEVER assume communication patterns without verifying existing architecture.</description>
+        <rationale>Violates established patterns (e.g., Mediator), creates tight coupling, breaks maintainability.</rationale>
+      </rule>
+      <rule>
+        <description>NEVER add features that require new dependencies without checking existing packages.</description>
+        <rationale>Introduces dependency bloat when existing packages may already provide the functionality.</rationale>
+      </rule>
+    </top_anti_patterns>
+  </layer_1_quick_start>
+
+  <layer_2_detailed_guide>
+    <api_reference>
+      - Tool: `mcp_sequential_thinking_sequentialthinking`
+      - Purpose: Enforces mandatory analysis before feature implementation.
+    </api_reference>
+
+    <implementation_guide>
+      <step>Execute `mcp_sequential_thinking_sequentialthinking` to establish context.</step>
+      <step>Build Knowledge Inventory:
+        - What existing systems handle similar functionality?
+        - What design patterns are used in related features?
+        - What communication mechanisms exist (events, signals, reactive streams)?
+        - How does save/load system work?
+        - What UI patterns are established?
+      </step>
+      <step>Identify Blind Spots:
+        - Are there existing reward/progression systems?
+        - How do other features integrate with UI?
+        - What's the data persistence pattern?
+        - Are there existing event buses or message systems?
+        - What threading model is used for async operations?
+      </step>
+      <step>Assign Confidence Score (1-10). If < 7, fill blind spots by:
+        - Reading related component files
+        - Searching for similar patterns in codebase
+        - Checking existing NuGet packages
+        - Reviewing architecture documentation
+      </step>
+      <step>Validate approach:
+        - Does this extend existing systems or create new ones?
+        - Does this follow established patterns (Entity/Component, Mediator)?
+        - Does this integrate cleanly with existing UI/data layers?
+      </step>
+      <step>Implement incrementally:
+        - Create minimal skeleton first
+        - Verify compilation after each component
+        - Test integration points immediately
+        - Run `dotnet build` after each C# modification
+      </step>
+    </implementation_guide>
+
+    <technical_specifications>
+      - Engine Target: Godot 4.6.1 stable mono
+      - Language Target: C#
+      - Architecture: Entity-Component with Mediator pattern
+      - Reactive Framework: R3 + R3.Godot
+    </technical_specifications>
+
+    <core_rules>
+      <rule>
+        <description>ALWAYS read existing related systems before implementing new features.</description>
+        <rationale>Prevents architectural drift, maintains consistency, identifies reusable components.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS verify Confidence Score >= 7 before starting implementation.</description>
+        <rationale>Ensures sufficient understanding of existing architecture and integration points.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS follow established patterns (Entity/Component, Mediator, R3 reactive streams).</description>
+        <rationale>Maintains architectural consistency and code maintainability.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS use [Export] NodePath with Scene Unique Names (%) for node references.</description>
+        <rationale>Prevents hardcoded coupling and enables flexible scene composition.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS implement features incrementally with compilation verification at each step.</description>
+        <rationale>Catches errors early and maintains working state throughout development.</rationale>
+      </rule>
+    </core_rules>
+
+    <knowledge_inventory_checklist>
+      <category name="Existing Systems">
+        - [ ] Similar features already implemented?
+        - [ ] Existing data structures that could be reused?
+        - [ ] Related components in the same domain?
+      </category>
+      <category name="Architecture Patterns">
+        - [ ] How do similar features communicate (events, signals, reactive)?
+        - [ ] What's the established component hierarchy?
+        - [ ] Is there a Mediator pattern in use?
+      </category>
+      <category name="Integration Points">
+        - [ ] How does UI update mechanism work?
+        - [ ] What's the save/load pattern?
+        - [ ] Are there existing event buses or message systems?
+      </category>
+      <category name="Dependencies">
+        - [ ] What NuGet packages are already installed?
+        - [ ] Are there existing utilities for this functionality?
+        - [ ] What's the threading model for async operations?
+      </category>
+    </knowledge_inventory_checklist>
+
+    <blind_spots_checklist>
+      <question>Do I know if a similar system already exists?</question>
+      <action>Search codebase for related class names and functionality</action>
+      
+      <question>Do I know the established communication patterns?</question>
+      <action>Read existing component interactions and event flows</action>
+      
+      <question>Do I know how this integrates with save/load?</question>
+      <action>Check existing persistence implementations</action>
+      
+      <question>Do I know the UI update mechanism?</question>
+      <action>Review existing UI components and reactive bindings</action>
+      
+      <question>Do I know what dependencies are available?</question>
+      <action>Check .csproj file and existing using statements</action>
+    </blind_spots_checklist>
+  </layer_2_detailed_guide>
+
+  <layer_3_advanced>
+    <escalation_triggers>
+      <trigger>
+        <condition>Existing system found that provides 80%+ of requested functionality</condition>
+        <action>Propose extending existing system instead of creating new one</action>
+        <rationale>Prevents code duplication and maintains architectural consistency</rationale>
+      </trigger>
+      <trigger>
+        <condition>Implementation requires breaking established patterns</condition>
+        <action>Discuss architectural tradeoffs with user before proceeding</action>
+        <rationale>Ensures user understands impact of deviating from established architecture</rationale>
+      </trigger>
+      <trigger>
+        <condition>Feature requires new dependencies not aligned with existing stack</condition>
+        <action>Propose alternatives using existing packages or discuss necessity</action>
+        <rationale>Prevents dependency bloat and maintains stack consistency</rationale>
+      </trigger>
+    </escalation_triggers>
+
+    <best_practices>
+      - **Extend Before Create:** Always check if existing systems can be extended before creating new ones.
+      - **Pattern Consistency:** Match the architectural patterns used in similar features.
+      - **Incremental Integration:** Integrate with one system at a time (UI, then data, then events).
+      - **Validation Points:** Verify compilation and basic functionality after each integration point.
+      - **Documentation:** Update relevant documentation when adding new systems or patterns.
+    </best_practices>
+
+    <example_workflow>
+      <scenario>User requests: "Add a quest system with rewards"</scenario>
+      <execution>
+        <step>1. Execute mcp_sequential_thinking_sequentialthinking</step>
+        <step>2. Knowledge Inventory:
+          - Search for existing "reward" or "progression" systems
+          - Check how achievements/unlocks are currently handled
+          - Review existing UI notification patterns
+          - Identify save/load mechanism
+        </step>
+        <step>3. Blind Spots Identified:
+          - Does a reward system already exist?
+          - How are game state changes currently tracked?
+          - What's the pattern for persistent data?
+        </step>
+        <step>4. Fill Blind Spots:
+          - Read existing progression-related components
+          - Check for event systems or message buses
+          - Review save/load implementation
+        </step>
+        <step>5. Confidence Score: 8/10 (sufficient to proceed)</step>
+        <step>6. Implementation Decision:
+          - Found existing RewardComponent → extend it for quest rewards
+          - Found event bus → use it for quest completion notifications
+          - Found save system → integrate quest state into existing pattern
+        </step>
+        <step>7. Incremental Implementation:
+          - Create QuestComponent following Entity/Component pattern
+          - Integrate with existing RewardComponent
+          - Add UI using established reactive binding patterns
+          - Integrate with save system
+          - Verify compilation after each step
+        </step>
+      </execution>
+    </example_workflow>
+  </layer_3_advanced>
+</feature_implementation_rules>
+
+
+================================================================================
 📂 FILE: .kiro/steering\StableOrOther\InstructionDesignPrinciples.md
 ================================================================================
 
@@ -3905,7 +4374,7 @@ Meta-rules for creating, formatting, summarizing, and storing AI instruction fil
 </critical_constraints>
 
 <file_management>
-- Store ALL rules, steering files, and instructions exclusively in `AISpace/.kiro/`.
+- Store ALL rules, steering files, and instructions exclusively in `KiroWorkingSpace/.kiro/`.
 - NEVER store rule files in individual project folders.
 </file_management>
 
@@ -3935,6 +4404,337 @@ Delete ruthlessly before saving:
 </anti_noise_checklist>
 
 </instructions>
+
+
+================================================================================
+📂 FILE: .kiro/steering\StableOrOther\PerformanceOptimization.md
+================================================================================
+
+---
+inclusion: manual
+---
+<performance_optimization_rules>
+  <layer_1_quick_start>
+    <quick_reference>
+      - Tool: `mcp_sequential_thinking_sequentialthinking`
+      - Confidence Threshold: 8/10 before optimization (higher due to risk)
+      - Core Rule: Profile BEFORE optimizing (never guess bottlenecks)
+    </quick_reference>
+    
+    <decision_tree>
+      - IF no profiling data available:
+        - ACTION: Request profiling data or add performance logging. (Why: Optimizing without data is premature optimization that breaks working code.)
+      - IF Confidence Score < 8 OR bottleneck location unknown:
+        - ACTION: Add targeted performance logging, check Godot profiler, analyze frame times. (Why: Must identify actual bottleneck before optimizing.)
+      - IF optimization breaks tests or changes behavior:
+        - ACTION: Revert immediately and re-evaluate approach. (Why: Performance gains are worthless if functionality breaks.)
+      - IF Confidence Score >= 8 AND bottleneck confirmed:
+        - ACTION: Apply targeted optimization to confirmed bottleneck only. (Why: High confidence threshold met with validated target.)
+    </decision_tree>
+    
+    <top_anti_patterns>
+      <rule>
+        <description>NEVER optimize without profiling data or performance metrics.</description>
+        <rationale>Premature optimization wastes time on non-bottlenecks and often makes code worse.</rationale>
+      </rule>
+      <rule>
+        <description>NEVER apply generic optimizations without understanding the specific bottleneck.</description>
+        <rationale>Generic advice (e.g., "use object pooling") may not address the actual problem and adds complexity.</rationale>
+      </rule>
+      <rule>
+        <description>NEVER optimize multiple systems simultaneously.</description>
+        <rationale>Makes it impossible to measure which change actually improved performance.</rationale>
+      </rule>
+      <rule>
+        <description>NEVER sacrifice code readability for micro-optimizations without proven need.</description>
+        <rationale>Maintainability loss is not worth negligible performance gains.</rationale>
+      </rule>
+    </top_anti_patterns>
+  </layer_1_quick_start>
+
+  <layer_2_detailed_guide>
+    <api_reference>
+      - Tool: `mcp_sequential_thinking_sequentialthinking`
+      - Purpose: Enforces mandatory profiling and analysis before optimization.
+      - Godot Profiler: Access via Debug → Profiler in Godot Editor
+      - Performance Log: `$env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log`
+    </api_reference>
+
+    <implementation_guide>
+      <step>Execute `mcp_sequential_thinking_sequentialthinking` to establish context.</step>
+      <step>Build Knowledge Inventory:
+        - What is the actual FPS / frame time?
+        - Which systems run in _Process vs _PhysicsProcess?
+        - Are there visible frame drops or consistent low FPS?
+        - What operations happen every frame?
+        - Are there any obvious infinite loops or recursive calls?
+      </step>
+      <step>Identify Blind Spots:
+        - Is the bottleneck CPU-bound or GPU-bound?
+        - Which specific script/node is causing the slowdown?
+        - Are there memory leaks or GC spikes?
+        - Is the issue in game logic, rendering, or physics?
+        - Are there profiling metrics available?
+      </step>
+      <step>Assign Confidence Score (1-10). If < 8, fill blind spots by:
+        - Running Godot Profiler during lag scenario
+        - Adding targeted performance logging (GD.Print with timestamps)
+        - Checking frame time breakdown (process vs physics vs rendering)
+        - Monitoring memory usage and GC collections
+        - Isolating suspected systems by temporarily disabling them
+      </step>
+      <step>Validate bottleneck:
+        - Confirm specific file/method causing slowdown
+        - Measure baseline performance (FPS, frame time, memory)
+        - Verify the bottleneck is actually significant (>10% frame time)
+      </step>
+      <step>Apply targeted optimization:
+        - Optimize ONLY the confirmed bottleneck
+        - Measure performance after change
+        - Verify functionality remains correct
+        - Run `dotnet build` and tests after C# modifications
+      </step>
+    </implementation_guide>
+
+    <technical_specifications>
+      - Engine Target: Godot 4.6.1 stable mono
+      - Language Target: C#
+      - Performance Target: 60 FPS (16.67ms frame time)
+      - Profiling Tools: Godot Profiler, custom performance logging
+    </technical_specifications>
+
+    <core_rules>
+      <rule>
+        <description>ALWAYS obtain profiling data before attempting any optimization.</description>
+        <rationale>Prevents premature optimization and ensures effort targets actual bottlenecks.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS verify Confidence Score >= 8 before optimizing.</description>
+        <rationale>Higher threshold than other protocols due to risk of breaking working code.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS measure performance before and after optimization.</description>
+        <rationale>Validates that optimization actually improved performance and by how much.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS optimize one system at a time.</description>
+        <rationale>Enables accurate measurement of each optimization's impact.</rationale>
+      </rule>
+      <rule>
+        <description>ALWAYS verify functionality remains correct after optimization.</description>
+        <rationale>Performance gains are worthless if behavior changes or breaks.</rationale>
+      </rule>
+      <rule>
+        <description>NEVER use anonymous objects in Observable.EveryUpdate() or Observable.EveryPhysicsUpdate().</description>
+        <rationale>Causes GC allocations every frame. Use ValueTuples instead.</rationale>
+      </rule>
+      <rule>
+        <description>NEVER use ReactiveProperty&lt;T&gt; for high-frequency physics data (e.g., Velocity).</description>
+        <rationale>Severe allocation overhead. Use standard properties and poll via Observable.EveryPhysicsUpdate().</rationale>
+      </rule>
+    </core_rules>
+
+    <knowledge_inventory_checklist>
+      <category name="Performance Metrics">
+        - [ ] Current FPS / frame time measured?
+        - [ ] Frame time breakdown available (process/physics/render)?
+        - [ ] Memory usage and GC spike data?
+        - [ ] Profiler data captured during lag scenario?
+      </category>
+      <category name="System Analysis">
+        - [ ] Which systems run every frame?
+        - [ ] Are there nested loops or recursive calls?
+        - [ ] How many nodes are in the scene tree?
+        - [ ] Are there expensive operations in _Process/_PhysicsProcess?
+      </category>
+      <category name="Bottleneck Location">
+        - [ ] Specific file/method identified?
+        - [ ] CPU-bound or GPU-bound confirmed?
+        - [ ] Game logic, rendering, or physics issue?
+        - [ ] Single bottleneck or multiple issues?
+      </category>
+    </knowledge_inventory_checklist>
+
+    <blind_spots_checklist>
+      <question>Do I have actual profiling data?</question>
+      <action>Run Godot Profiler or add performance logging</action>
+      
+      <question>Do I know which specific code is causing the bottleneck?</question>
+      <action>Add targeted logging with timestamps to narrow down location</action>
+      
+      <question>Do I know if it's CPU or GPU bound?</question>
+      <action>Check Godot Profiler's CPU vs GPU time breakdown</action>
+      
+      <question>Do I know the baseline performance metrics?</question>
+      <action>Measure FPS and frame time before any changes</action>
+      
+      <question>Do I know if there are memory leaks or GC spikes?</question>
+      <action>Monitor memory usage over time and check for GC collections</action>
+    </blind_spots_checklist>
+  </layer_2_detailed_guide>
+
+  <layer_3_advanced>
+    <escalation_triggers>
+      <trigger>
+        <condition>No profiling data available and user cannot provide it</condition>
+        <action>Add performance logging infrastructure first, then re-evaluate</action>
+        <rationale>Cannot optimize without knowing the bottleneck</rationale>
+      </trigger>
+      <trigger>
+        <condition>Optimization breaks tests or changes behavior</condition>
+        <action>Revert immediately and analyze why behavior changed</action>
+        <rationale>Correctness always takes precedence over performance</rationale>
+      </trigger>
+      <trigger>
+        <condition>Multiple unrelated bottlenecks identified</condition>
+        <action>Prioritize by impact and optimize one at a time</action>
+        <rationale>Prevents confusion about which change improved performance</rationale>
+      </trigger>
+      <trigger>
+        <condition>Suspected engine bug or OS-level issue</condition>
+        <action>Document findings and escalate to user for external investigation</action>
+        <rationale>Engine/OS bugs are outside scope of code optimization</rationale>
+      </trigger>
+    </escalation_triggers>
+
+    <common_godot_performance_patterns>
+      <pattern name="GC Allocation in Update Loops">
+        <symptom>Frame drops every few seconds, GC spikes in profiler</symptom>
+        <cause>Anonymous objects or string concatenation in _Process/_PhysicsProcess</cause>
+        <fix>Use ValueTuples instead of anonymous objects, cache strings, use StringBuilder</fix>
+        <example><![CDATA[
+// BAD: Allocates every frame
+Observable.EveryUpdate()
+    .Select(_ => new { pos = Position, vel = Velocity })
+    .Subscribe(data => Process(data.pos, data.vel));
+
+// GOOD: Zero allocation
+Observable.EveryUpdate()
+    .Select(_ => (Position, Velocity))
+    .Subscribe(data => Process(data.Item1, data.Item2));
+        ]]></example>
+      </pattern>
+
+      <pattern name="ReactiveProperty Overhead">
+        <symptom>Consistent frame drops, high CPU usage in property setters</symptom>
+        <cause>ReactiveProperty&lt;T&gt; used for high-frequency data like Velocity</cause>
+        <fix>Use standard properties and poll via Observable.EveryPhysicsUpdate()</fix>
+        <example><![CDATA[
+// BAD: Allocation overhead every physics frame
+public ReactiveProperty<Vector3> Velocity { get; } = new();
+
+// GOOD: Standard property, poll when needed
+public Vector3 Velocity { get; set; }
+
+Observable.EveryPhysicsUpdate()
+    .Select(_ => Velocity)
+    .Subscribe(vel => ProcessVelocity(vel));
+        ]]></example>
+      </pattern>
+
+      <pattern name="Excessive GetNode Calls">
+        <symptom>High CPU usage in _Process, many GetNode calls in profiler</symptom>
+        <cause>GetNode called every frame instead of cached in _Ready</cause>
+        <fix>Cache node references in _Ready using [Export] NodePath</fix>
+        <example><![CDATA[
+// BAD: GetNode every frame
+public override void _Process(double delta)
+{
+    var player = GetNode<Player>("%Player"); // Expensive!
+    player.Update();
+}
+
+// GOOD: Cache in _Ready
+[Export] public NodePath PlayerPath { get; set; } = "%Player";
+private Player _player;
+
+public override void _Ready()
+{
+    _player = GetNodeOrNull<Player>(PlayerPath);
+}
+
+public override void _Process(double delta)
+{
+    _player?.Update();
+}
+        ]]></example>
+      </pattern>
+
+      <pattern name="Unoptimized LINQ in Update Loops">
+        <symptom>High CPU usage, many allocations in LINQ operations</symptom>
+        <cause>LINQ queries (Where, Select, etc.) executed every frame</cause>
+        <fix>Cache results, use for loops, or move logic outside update loop</fix>
+        <example><![CDATA[
+// BAD: LINQ every frame
+public override void _Process(double delta)
+{
+    var activeEnemies = enemies.Where(e => e.IsActive).ToList(); // Allocates!
+    ProcessEnemies(activeEnemies);
+}
+
+// GOOD: Cache or use for loop
+private List<Enemy> _activeEnemies = new();
+
+public override void _Process(double delta)
+{
+    _activeEnemies.Clear();
+    foreach (var enemy in enemies)
+    {
+        if (enemy.IsActive) _activeEnemies.Add(enemy);
+    }
+    ProcessEnemies(_activeEnemies);
+}
+        ]]></example>
+      </pattern>
+    </common_godot_performance_patterns>
+
+    <best_practices>
+      - **Profile First:** Always run Godot Profiler before making assumptions about bottlenecks.
+      - **Measure Impact:** Record FPS/frame time before and after each optimization.
+      - **One Change at a Time:** Optimize one system, measure, then move to next bottleneck.
+      - **Preserve Readability:** Only sacrifice code clarity for proven, significant performance gains.
+      - **Document Optimizations:** Add comments explaining why code is written in a specific way for performance.
+      - **Regression Testing:** Verify functionality remains correct after each optimization.
+    </best_practices>
+
+    <example_workflow>
+      <scenario>User reports: "The game is lagging during combat"</scenario>
+      <execution>
+        <step>1. Execute mcp_sequential_thinking_sequentialthinking</step>
+        <step>2. Knowledge Inventory:
+          - User reports lag during combat (not constant)
+          - No profiling data provided yet
+          - Combat involves multiple enemies and particle effects
+        </step>
+        <step>3. Blind Spots Identified:
+          - What's the actual FPS during lag?
+          - Is it CPU or GPU bound?
+          - Which specific system is the bottleneck?
+          - Are there GC spikes?
+        </step>
+        <step>4. Confidence Score: 3/10 (too low - need data)</step>
+        <step>5. Fill Blind Spots:
+          - Request user run Godot Profiler during combat
+          - Add performance logging to combat systems
+          - Measure FPS and frame time during lag scenario
+        </step>
+        <step>6. Profiler Results:
+          - FPS drops from 60 to 30 during combat
+          - CPU time spike in EnemyAI._Process
+          - GC collections every 2 seconds
+        </step>
+        <step>7. Updated Confidence Score: 8/10 (sufficient to proceed)</step>
+        <step>8. Targeted Optimization:
+          - Found: LINQ query in EnemyAI._Process running every frame
+          - Baseline: 30 FPS during combat
+          - Fix: Cache enemy list, use for loop instead of LINQ
+          - Result: 55 FPS during combat (83% improvement)
+          - Verification: Combat behavior unchanged, tests pass
+        </step>
+      </execution>
+    </example_workflow>
+  </layer_3_advanced>
+</performance_optimization_rules>
 
 
 ================================================================================
@@ -6035,7 +6835,7 @@ All tasks from the implementation plan have been successfully completed and vali
 **Documentation:**
 - `EDITOR_USAGE.md` - Complete usage guide
 - `TEST_RESULTS.md` - Final validation results
-- `AISpace/.kiro/steering/GodotUIBuilder.md` - Updated with TscnEditor section
+- `KiroWorkingSpace/.kiro/steering/GodotUIBuilder.md` - Updated with TscnEditor section
 
 ### Test Results
 
@@ -6353,7 +7153,7 @@ This implementation plan creates a Python library for programmatically reading a
 ## Tasks
 
 - [x] 1. Set up project structure and core type definitions
-  - Create directory `AISpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+  - Create directory `KiroWorkingSpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
   - Create `__init__.py` to make it a Python package
   - Create `types.py` with all data classes (Header, ExtResource, Node, PropertyValue types, Error types)
   - Implement PropertyValue type classes (Color, Vector2, NodePath, ExtResourceRef) with `__str__` methods
@@ -6565,7 +7365,7 @@ This implementation plan creates a Python library for programmatically reading a
     - Export error classes (ParseError, EditorError)
   
   - [ ] 9.2 Review InstructionDesignPrinciples.md
-    - Read AISpace/.kiro/specs/tscn-editor-tools/InstructionDesignPrinciples.md if it exists
+    - Read KiroWorkingSpace/.kiro/specs/tscn-editor-tools/InstructionDesignPrinciples.md if it exists
     - Ensure implementation follows any documented principles
   
   - [ ] 9.3 Update GodotUIBuilder.md documentation
@@ -6585,7 +7385,7 @@ This implementation plan creates a Python library for programmatically reading a
 
 - Tasks marked with `*` are optional and can be skipped for faster MVP
 - Implementation uses Python with type hints for clarity and safety
-- All file operations target `AISpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
+- All file operations target `KiroWorkingSpace/.kiro/scripts/ui_builder/tscn_editor_tools/`
 - SettingsMenuV2.tscn (10,800 chars) serves as primary validation test case
 - Round-trip property (parse → print → parse) is critical for correctness
 - Preservation of UIDs and formatting ensures Godot compatibility
@@ -6594,16 +7394,6 @@ This implementation plan creates a Python library for programmatically reading a
 ================================================================================
 💻 SECTION 2: 3D-PRACTICE PROJECT - 项目源代码
 ================================================================================
-
-
-================================================================================
-📂 FILE: 3d-practice/.editorconfig
-================================================================================
-
-root = true
-
-[*]
-charset = utf-8
 
 
 ================================================================================
@@ -6627,31 +7417,6 @@ charset = utf-8
     <PackageReference Include="Stateless" Version="5.20.1" />
   </ItemGroup>
 </Project>
-
-
-================================================================================
-📂 FILE: 3d-practice/3dPractice.sln
-================================================================================
-
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3dPractice", "3dPractice.csproj", "{DD7C1466-B89A-4981-A30A-7636DC326D61}"
-EndProject
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-	Debug|Any CPU = Debug|Any CPU
-	ExportDebug|Any CPU = ExportDebug|Any CPU
-	ExportRelease|Any CPU = ExportRelease|Any CPU
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DD7C1466-B89A-4981-A30A-7636DC326D61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DD7C1466-B89A-4981-A30A-7636DC326D61}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DD7C1466-B89A-4981-A30A-7636DC326D61}.ExportDebug|Any CPU.ActiveCfg = ExportDebug|Any CPU
-		{DD7C1466-B89A-4981-A30A-7636DC326D61}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
-		{DD7C1466-B89A-4981-A30A-7636DC326D61}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
-		{DD7C1466-B89A-4981-A30A-7636DC326D61}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
-	EndGlobalSection
-EndGlobal
 
 
 ================================================================================
@@ -7031,35 +7796,6 @@ public partial class HealthComponent : Node
 ## 联系方式
 
 如有问题，请通过 Issue 联系。
-
-
-================================================================================
-📂 FILE: 3d-practice/test_paths.txt
-================================================================================
-
-@ e c h o   o f f 
- 
- c h c p   6 5 0 0 1   > n u l   2 > & 1 
- 
- s e t   L O G _ D I R = C : \ G o d o t \ 3 d - p r a c t i c e \ . . \ K i r o W o r k i n g S p a c e \ . k i r o \ C l o u d S y n c _ W o r k f l o w \ l o g s 
- 
- i f   n o t   e x i s t   " % L O G _ D I R % "   m k d i r   " % L O G _ D I R % " 
- 
- s e t   L O G _ F I L E = % L O G _ D I R % \ s y n c _ % d a t e : ~ 0 , 4 % % d a t e : ~ 5 , 2 % % d a t e : ~ 8 , 2 % _ % t i m e : ~ 0 , 2 % % t i m e : ~ 3 , 2 % % t i m e : ~ 6 , 2 % . l o g 
- 
- s e t   L O G _ F I L E = % L O G _ F I L E :   = 0 % 
- 
- e c h o   [ % d a t e %   % t i m e % ]   S y n c   s t a r t e d   > >   " % L O G _ F I L E % " 
- 
- p y t h o n   " C : \ G o d o t \ 3 d - p r a c t i c e \ . . \ K i r o W o r k i n g S p a c e \ . k i r o \ C l o u d S y n c _ W o r k f l o w \ k i r o _ s y n c _ t o _ d r i v e . p y "   > >   " % L O G _ F I L E % "   2 > & 1 
- 
- e c h o   [ % d a t e %   % t i m e % ]   S y n c   c o m p l e t e d   > >   " % L O G _ F I L E % " 
- 
- e x i t   / b 
- 
- 
- 
- 
 
 
 ================================================================================
@@ -7462,7 +8198,7 @@ Update `A1UIScenes/SettingsUI.tscn` to connect raw controls to SettingsMenu expo
 
 创建统一的 Godot 文档文件夹：
 ```
-AISpace/.kiro/steering/Godot/
+KiroWorkingSpace/.kiro/steering/Godot/
 ├── GodotInputMap.md
 ├── GodotStateChartBuilder.md
 ├── GodotStateless.md
@@ -7591,9 +8327,9 @@ BindSlider(_settingsManager.Brightness, BrightnessSlider, value => {
 
 ## 📚 相关文档
 
-- `AISpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
-- `AISpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
-- `AISpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
+- `KiroWorkingSpace/.kiro/steering/Godot/GodotSettingsSystem.md` - 设置系统完整指南
+- `KiroWorkingSpace/.kiro/steering/DesignPatterns.md` - 设计模式规则
+- `KiroWorkingSpace/.kiro/steering/StableOrOther/InstructionDesignPrinciples.md` - 文档编写规范
 
 ---
 
@@ -8198,33 +8934,6 @@ Label/colors/font_color = Color(1, 1, 1, 1)
 Label/colors/font_outline_color = Color(0.69324, 0.23787549, 0.31092137, 1)
 Label/colors/font_shadow_color = Color(1, 0.32410014, 0.25894427, 0)
 VBoxContainer/constants/separation = 20
-
-
-================================================================================
-📂 FILE: 3d-practice/A1UIResources\kenney_ui_audio\LICENSE.txt
-================================================================================
-
-	
-
-	UI SFX Set
-
-	by  Kenney Vleugels (Kenney.nl)
-
-			------------------------------
-
-	License (Creative Commons Zero, CC0)
-	http://creativecommons.org/publicdomain/zero/1.0/
-
-	You may use these assets in personal and commercial projects.
-	Credit (Kenney or www.kenney.nl) would be nice but is not mandatory.
-
-			------------------------------
-
-	Donate:   http://support.kenney.nl
-	Request:  http://request.kenney.nl
-
-	Follow on Twitter for updates:
-	@KenneyNL
 
 
 ================================================================================
@@ -19960,81 +20669,6 @@ public partial class InputToStateOperator : Node
 
     #endregion
 }
-
-
-================================================================================
-📂 FILE: 3d-practice/addons\A1MyAddon\CoreComponents\Examples\Player3D_Example.cs.txt
-================================================================================
-
-using Godot;
-using Godot.Composition;
-
-/// <summary>
-/// Player3D 实体示例
-/// 
-/// 这是一个完整的玩家实体，展示了如何使用 Godot.Composition 框架。
-/// 
-/// 功能：
-/// - WASD 移动
-/// - 空格跳跃
-/// - 鼠标控制相机
-/// - 角色自动转向移动方向
-/// - 动画自动切换
-/// 
-/// 使用的组件：
-/// - PlayerInputComponent - 读取玩家输入
-/// - MovementComponent - 处理物理移动
-/// - CharacterRotationComponent - 控制角色朝向
-/// - CameraControlComponent - 控制相机
-/// - AnimationControllerComponent - 控制动画
-/// </summary>
-[Entity]
-public partial class Player3D : CharacterBody3D
-{
-    /// <summary>
-    /// Entity 的唯一职责：初始化组件系统
-    /// Godot.Composition 会自动：
-    /// 1. 收集所有子组件
-    /// 2. 解析组件依赖关系
-    /// 3. 注入依赖
-    /// 4. 调用 OnEntityReady()
-    /// </summary>
-    public override void _Ready()
-    {
-        InitializeEntity();
-        
-        // 就这么简单！不需要任何其他代码。
-        // 所有逻辑都在组件中。
-    }
-}
-
-/* 
- * 场景结构：
- * 
- * Player3D (CharacterBody3D) - 本脚本
- * ├── PlayerInputComponent (Node)
- * ├── MovementComponent (Node)
- * ├── CharacterRotationComponent (Node)
- * ├── CameraControlComponent (Node)
- * ├── AnimationControllerComponent (Node)
- * ├── CollisionShape3D
- * ├── CharacterModel (Node3D)
- * │   └── AnimationPlayer
- * └── CameraPivot (Node3D)
- *     └── SpringArm3D
- *         └── Camera3D
- * 
- * 组件依赖关系：
- * 
- * PlayerInputComponent (独立)
- *   ↓ 事件
- * MovementComponent (依赖 PlayerInputComponent)
- *   ↓ 事件
- * CharacterRotationComponent (依赖 PlayerInputComponent)
- * 
- * CameraControlComponent (独立)
- * AnimationControllerComponent (读取 parent.Velocity)
- */
 
 
 ================================================================================
@@ -33389,127 +34023,6 @@ static func make_uniform(v: Vector3) -> Vector3:
 
 
 ================================================================================
-📂 FILE: 3d-practice/addons\godot-jolt\LICENSE.txt
-================================================================================
-
-Copyright (c) Mikael Hermansson and Godot Jolt contributors.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-================================================================================
-📂 FILE: 3d-practice/addons\godot-jolt\THIRDPARTY.txt
-================================================================================
-
-Godot Jolt incorporates third-party material from the projects listed below.
-
-Godot Engine (https://github.com/godotengine/godot)
-
-    Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md).
-    Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to
-    deal in the Software without restriction, including without limitation the
-    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-    sell copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-    IN THE SOFTWARE.
-
-godot-cpp (https://github.com/godot-jolt/godot-cpp)
-
-    Copyright (c) 2017-present Godot Engine contributors.
-    Copyright (c) 2022-present Mikael Hermansson.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to
-    deal in the Software without restriction, including without limitation the
-    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-    sell copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-    IN THE SOFTWARE.
-
-Jolt Physics (https://github.com/godot-jolt/jolt)
-
-    Copyright (c) 2021 Jorrit Rouwe.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to
-    deal in the Software without restriction, including without limitation the
-    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-    sell copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-    IN THE SOFTWARE.
-
-mimalloc (https://github.com/godot-jolt/mimalloc)
-
-    Copyright (c) 2018-2021 Microsoft Corporation, Daan Leijen.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to
-    deal in the Software without restriction, including without limitation the
-    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-    sell copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-    IN THE SOFTWARE.
-
-
-================================================================================
 📂 FILE: 3d-practice/addons\godot-rapier2d\circle_mesh.tres
 ================================================================================
 
@@ -33744,300 +34257,6 @@ author="appsinacup"
 version="0.8.27"
 flavour="godot-rapier-2d-single-simd-parallel"
 script=""
-
-
-================================================================================
-📂 FILE: 3d-practice/addons\godot-rapier2d\THIRDPARTY.txt
-================================================================================
-
-Godot Rapier incorporates third-party material from the projects listed below.
-
-Godot Engine (https://github.com/godotengine/godot)
-
-    Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md).
-    Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to
-    deal in the Software without restriction, including without limitation the
-    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-    sell copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-    IN THE SOFTWARE.
-
-godot-cpp (https://github.com/godotengine/godot-cpp)
-
-    Copyright (c) 2017-present Godot Engine contributors.
-    Copyright (c) 2022-present Mikael Hermansson.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to
-    deal in the Software without restriction, including without limitation the
-    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-    sell copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-    IN THE SOFTWARE.
-
-rapier (https://github.com/dimforge/rapier)
-
-    Copyright 2020 Sébastien Crozet
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-
-
-Godot Jolt (https://github.com/godot-jolt/godot-jolt)
-
-    Copyright (c) Mikael Hermansson and Godot Jolt contributors.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-    this software and associated documentation files (the "Software"), to deal in
-    the Software without restriction, including without limitation the rights to
-    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-    the Software, and to permit persons to whom the Software is furnished to do so,
-    subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-    FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-    COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-    IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-salva (https://github.com/dimforge/salva)
-                                 Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
-
-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-
-   1. Definitions.
-
-      "License" shall mean the terms and conditions for use, reproduction,
-      and distribution as defined by Sections 1 through 9 of this document.
-
-      "Licensor" shall mean the copyright owner or entity authorized by
-      the copyright owner that is granting the License.
-
-      "Legal Entity" shall mean the union of the acting entity and all
-      other entities that control, are controlled by, or are under common
-      control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
-      direction or management of such entity, whether by contract or
-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-      outstanding shares, or (iii) beneficial ownership of such entity.
-
-      "You" (or "Your") shall mean an individual or Legal Entity
-      exercising permissions granted by this License.
-
-      "Source" form shall mean the preferred form for making modifications,
-      including but not limited to software source code, documentation
-      source, and configuration files.
-
-      "Object" form shall mean any form resulting from mechanical
-      transformation or translation of a Source form, including but
-      not limited to compiled object code, generated documentation,
-      and conversions to other media types.
-
-      "Work" shall mean the work of authorship, whether in Source or
-      Object form, made available under the License, as indicated by a
-      copyright notice that is included in or attached to the work
-      (an example is provided in the Appendix below).
-
-      "Derivative Works" shall mean any work, whether in Source or Object
-      form, that is based on (or derived from) the Work and for which the
-      editorial revisions, annotations, elaborations, or other modifications
-      represent, as a whole, an original work of authorship. For the purposes
-      of this License, Derivative Works shall not include works that remain
-      separable from, or merely link (or bind by name) to the interfaces of,
-      the Work and Derivative Works thereof.
-
-      "Contribution" shall mean any work of authorship, including
-      the original version of the Work and any modifications or additions
-      to that Work or Derivative Works thereof, that is intentionally
-      submitted to Licensor for inclusion in the Work by the copyright owner
-      or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
-      means any form of electronic, verbal, or written communication sent
-      to the Licensor or its representatives, including but not limited to
-      communication on electronic mailing lists, source code control systems,
-      and issue tracking systems that are managed by, or on behalf of, the
-      Licensor for the purpose of discussing and improving the Work, but
-      excluding communication that is conspicuously marked or otherwise
-      designated in writing by the copyright owner as "Not a Contribution."
-
-      "Contributor" shall mean Licensor and any individual or Legal Entity
-      on behalf of whom a Contribution has been received by Licensor and
-      subsequently incorporated within the Work.
-
-   2. Grant of Copyright License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      copyright license to reproduce, prepare Derivative Works of,
-      publicly display, publicly perform, sublicense, and distribute the
-      Work and such Derivative Works in Source or Object form.
-
-   3. Grant of Patent License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      (except as stated in this section) patent license to make, have made,
-      use, offer to sell, sell, import, and otherwise transfer the Work,
-      where such license applies only to those patent claims licensable
-      by such Contributor that are necessarily infringed by their
-      Contribution(s) alone or by combination of their Contribution(s)
-      with the Work to which such Contribution(s) was submitted. If You
-      institute patent litigation against any entity (including a
-      cross-claim or counterclaim in a lawsuit) alleging that the Work
-      or a Contribution incorporated within the Work constitutes direct
-      or contributory patent infringement, then any patent licenses
-      granted to You under this License for that Work shall terminate
-      as of the date such litigation is filed.
-
-   4. Redistribution. You may reproduce and distribute copies of the
-      Work or Derivative Works thereof in any medium, with or without
-      modifications, and in Source or Object form, provided that You
-      meet the following conditions:
-
-      (a) You must give any other recipients of the Work or
-          Derivative Works a copy of this License; and
-
-      (b) You must cause any modified files to carry prominent notices
-          stating that You changed the files; and
-
-      (c) You must retain, in the Source form of any Derivative Works
-          that You distribute, all copyright, patent, trademark, and
-          attribution notices from the Source form of the Work,
-          excluding those notices that do not pertain to any part of
-          the Derivative Works; and
-
-      (d) If the Work includes a "NOTICE" text file as part of its
-          distribution, then any Derivative Works that You distribute must
-          include a readable copy of the attribution notices contained
-          within such NOTICE file, excluding those notices that do not
-          pertain to any part of the Derivative Works, in at least one
-          of the following places: within a NOTICE text file distributed
-          as part of the Derivative Works; within the Source form or
-          documentation, if provided along with the Derivative Works; or,
-          within a display generated by the Derivative Works, if and
-          wherever such third-party notices normally appear. The contents
-          of the NOTICE file are for informational purposes only and
-          do not modify the License. You may add Your own attribution
-          notices within Derivative Works that You distribute, alongside
-          or as an addendum to the NOTICE text from the Work, provided
-          that such additional attribution notices cannot be construed
-          as modifying the License.
-
-      You may add Your own copyright statement to Your modifications and
-      may provide additional or different license terms and conditions
-      for use, reproduction, or distribution of Your modifications, or
-      for any such Derivative Works as a whole, provided Your use,
-      reproduction, and distribution of the Work otherwise complies with
-      the conditions stated in this License.
-
-   5. Submission of Contributions. Unless You explicitly state otherwise,
-      any Contribution intentionally submitted for inclusion in the Work
-      by You to the Licensor shall be under the terms and conditions of
-      this License, without any additional terms or conditions.
-      Notwithstanding the above, nothing herein shall supersede or modify
-      the terms of any separate license agreement you may have executed
-      with Licensor regarding such Contributions.
-
-   6. Trademarks. This License does not grant permission to use the trade
-      names, trademarks, service marks, or product names of the Licensor,
-      except as required for reasonable and customary use in describing the
-      origin of the Work and reproducing the content of the NOTICE file.
-
-   7. Disclaimer of Warranty. Unless required by applicable law or
-      agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-      implied, including, without limitation, any warranties or conditions
-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-      PARTICULAR PURPOSE. You are solely responsible for determining the
-      appropriateness of using or redistributing the Work and assume any
-      risks associated with Your exercise of permissions under this License.
-
-   8. Limitation of Liability. In no event and under no legal theory,
-      whether in tort (including negligence), contract, or otherwise,
-      unless required by applicable law (such as deliberate and grossly
-      negligent acts) or agreed to in writing, shall any Contributor be
-      liable to You for damages, including any direct, indirect, special,
-      incidental, or consequential damages of any character arising as a
-      result of this License or out of the use or inability to use the
-      Work (including but not limited to damages for loss of goodwill,
-      work stoppage, computer failure or malfunction, or any and all
-      other commercial damages or losses), even if such Contributor
-      has been advised of the possibility of such damages.
-
-   9. Accepting Warranty or Additional Liability. While redistributing
-      the Work or Derivative Works thereof, You may choose to offer,
-      and charge a fee for, acceptance of support, warranty, indemnity,
-      or other liability obligations and/or rights consistent with this
-      License. However, in accepting such obligations, You may act only
-      on Your own behalf and on Your sole responsibility, not on behalf
-      of any other Contributor, and only if You agree to indemnify,
-      defend, and hold each Contributor harmless for any liability
-      incurred by, or claims asserted against, such Contributor by reason
-      of your accepting any such warranty or additional liability.
-
-   END OF TERMS AND CONDITIONS
-
-   APPENDIX: How to apply the Apache License to your work.
-
-      To apply the Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "[]"
-      replaced with your own identifying information. (Don't include
-      the brackets!)  The text should be enclosed in the appropriate
-      comment syntax for the file format. We also recommend that a
-      file or class name and description of purpose be included on the
-      same "printed page" as the copyright notice for easier
-      identification within third-party archives.
-
-   Copyright 2020 Sébastien Crozet
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
 
 
 ================================================================================
@@ -44640,19 +44859,6 @@ func get_version() -> String:
 	return config.get_value("plugin", "version")
 
 #endregion
-
-
-================================================================================
-📂 FILE: 3d-practice/addons\phantom_camera\examples\credits.txt
-================================================================================
-
-#####################
-EXAMPLE ASSET CREDITS
-#####################
-
-# level_spritesheet
-https://opengameart.org/content/a-platformer-in-the-forest
-https://opengameart.org/users/buch
 
 
 ================================================================================
@@ -74189,64 +74395,6 @@ bones/68/rotation = Quaternion(-4.214685e-08, 0.9924207, 0.12288763, -5.268355e-
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." index="1" unique_id=755629954]
 libraries/ = SubResource("AnimationLibrary_amuq4")
-
-
-================================================================================
-📂 FILE: 3d-practice/Scenes\Kuno1.02\���p�K��.txt
-================================================================================
-
-■【VRChat対応 3Dモデル『シンプルくのいち"サヤ"』】■
-製作者：uonji
-
-VRChatでの使用を想定しています。
-UNITYのHumanoid形式対応の3Dモデルデータです。
-
-UNITYバージョン：2019.4.31f1
-VRCSDKバージョン：VRCSDK3.0
-
-■仕様■
-
-ポリゴン数：△31744
-マテリアル数：1
-
-内容物：
-3DモデルFBXデータ（Kuno1.02.fbx）
-テクスチャpngデータ（ALLTEX.png）
-UnityPackageデータ（Kuno1.02.unitypackage）
-利用規約（利用規約.txt）
-
-■導入方法■
-1.Unity（2019.4.31f1）で新規プロジェクトを作成
-2.最新のVRCSDKをダウンロードしAssetsフォルダにインポート
-3.unitypackageをAssetsフォルダにインポート
-4.AssetsフォルダのSayaフォルダからKuno1.02(Prefab Asset)をHierarchyに配置
-5.VRCコントロールパネルからアップロード
-
-■利用規約■
-本モデルをダウンロードされた時点で利用規約に同意したものとみなします。
-本規約は製作者の都合により予告なく変更される場合があり、変更後は最新の規約が適用されます。
-
-・本モデルの著作権は製作者のuonjiに帰属するものとします。
-・本モデルの商用利用を許可します。
-・本モデルの改変を許可します。
-・本モデルを用いて作られた作品を有償で配布、販売することを許可します。
-・本モデルの販売、再配布は改変の有無を問わず禁止します。
-・VRChat内で本モデルを他者が利用できる状態にすることを禁止します。
-
-■免責事項■
-本モデルの使用によって生じたいかなる損害、不利益、トラブル等について一切の責任を負いません。
-本モデルは使用者の責任においてご使用ください。
-
-
-■更新履歴■
-2022/03/16
-・手のメッシュを修正
-
-2021/01/14
-・そのままの状態でVRCにアップロードするとエラーになる問題を修正しました。
-（Blueprint IDが設定されてしまっていたため）
-
-(C)2020 uonji
 
 
 ================================================================================

@@ -75,7 +75,7 @@ def generate_basic_item():
     statechart.resolve_initial_states()
     
     # 生成场景
-    # 从 AISpace/builder 到 3d-practice
+    # 从 KiroWorkingSpace/builder 到 3d-practice
     workspace_root = os.path.dirname(os.path.dirname(current_dir))
     output_path = os.path.join(workspace_root, "3d-practice", "addons", "A1TetrisBackpack", "Items", "BasicItem.tscn")
     scene.save(output_path)
