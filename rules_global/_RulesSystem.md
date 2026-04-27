@@ -7,9 +7,11 @@ Rules Infrastructure Guide. Explains the Windows hardlink architecture powering 
 
 ## Hardlink Architecture (Core Principle)
 - **Single Source of Truth**: `C:\Godot\AISpace\rules_global\`
-- **Destinations**: `.windsurf\rules\`, `TetrisBackpack\.agents\rules\`, `TetrisBackpack\AGENTS.md`
-- ALL destinations are Windows hardlinks sharing the exact same NTFS inode.
-- Editing ANY path updates ALL paths instantly. No syncing/copying needed.
+- **Shared Destinations**: `.windsurf\rules\`, `AISpace\.agents\rules\`, `TetrisBackpack\AGENTS.md`
+- **Codex Destination**: `AISpace\AGENTS.md`
+- Shared destinations are Windows hardlinks to `rules_global\`.
+- Codex workspace-root lookup now hardlinks directly to `rules_global\Always\AGENTS.md`.
+- Editing a hardlinked source updates every destination linked to that source instantly. No syncing/copying needed.
 - `rules_global\` DOES NOT survive `git clone` (git ignores hardlinks).
 
 ## Quick Operations
@@ -26,6 +28,7 @@ Rules Infrastructure Guide. Explains the Windows hardlink architecture powering 
 ## IDE Support Matrix
 - **Windsurf**: `.windsurf\rules\**` (reads frontmatter)
 - **Antigravity**: `.agents\rules\**` (Always/Manual/Glob)
+- **GPT/Codex**: `AISpace\AGENTS.md` (workspace-root lookup)
 - **Zed/Claude Code**: `TetrisBackpack\AGENTS.md` (root lookup)
 - **Kiro/Cursor/Cline/Copilot**: Handled via root-level hardlinks in STEP 4.
 

@@ -4,6 +4,7 @@
 #
 # rules_global\ is the ONE folder you edit. This script wires hardlinks so:
 #   - .windsurf\rules\ links: always_on AGENTS.md + glob-triggered context files
+#   - AISpace\AGENTS.md and rules_ide\Codex\AGENTS.md point to rules_global\Always\AGENTS.md
 #   - TetrisBackpack\AGENTS.md points to rules_global\Always\AGENTS.md  (Zed/Claude Code)
 #   - AISpace\.agents\rules\ links: Antigravity workspace rules (Always On + Glob)
 #
@@ -25,6 +26,7 @@ $ErrorActionPreference = "Stop"
 
 $Root      = "C:\Godot"
 $GlobalDir = "$Root\AISpace\rules_global"
+$CodexDir  = "$Root\AISpace\rules_ide\Codex"
 $WR        = "$Root\AISpace\.windsurf\rules"
 
 # ---------------------------------------------------------------------------
@@ -92,9 +94,11 @@ Create-HardLink "$WR\Godot\domain_ui.md"      "$GlobalDir\Glob\domain_ui.md"
 Write-Host "  (manual files: rules_global only, no .windsurf copy)" -ForegroundColor DarkGray
 
 # ---------------------------------------------------------------------------
-# STEP 3 — Wire TetrisBackpack\AGENTS.md (Zed + Claude Code)
+# STEP 3 — Wire workspace-root AGENTS.md files (Codex + Zed/Claude Code)
 # ---------------------------------------------------------------------------
-Write-Header "Wiring TetrisBackpack (Zed + Claude Code)"
+Write-Header "Wiring Codex and workspace-root AGENTS.md files"
+Create-HardLink "$CodexDir\AGENTS.md" "$GlobalDir\Always\AGENTS.md"
+Create-HardLink "$Root\AISpace\AGENTS.md" "$GlobalDir\Always\AGENTS.md"
 Create-HardLink "$Root\TetrisBackpack\AGENTS.md" "$GlobalDir\Always\AGENTS.md"
 
 # ---------------------------------------------------------------------------
@@ -155,5 +159,12 @@ Write-Host "  AISpace\rules_global\"           -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Active hardlinks for AGENTS.md:"  -ForegroundColor DarkCyan
 fsutil hardlink list "$GlobalDir\Always\AGENTS.md"
+Write-Host ""
+if (Test-Path "$Root\AISpace\AGENTS.md") {
+    Write-Host "Verified: AISpace\\AGENTS.md exists for Codex root lookup." -ForegroundColor Green
+} else {
+    Write-Host "ERROR: AISpace\\AGENTS.md is missing after link setup." -ForegroundColor Red
+    exit 1
+}
 Write-Host ""
 Write-Host "To add a new IDE: uncomment its block in STEP 4 and re-run." -ForegroundColor DarkCyan

@@ -515,6 +515,10 @@ def build_dual_sync():
     if changes_file.exists():
         with open(changes_file, "r", encoding="utf-8") as f:
             recent_changes_content = f.read()
+        recent_changes_content = recent_changes_content.replace(
+            "# 🔄 AI Context 变更历史\n\n",
+            "# 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史\n\n",
+        )
 
     # ========== 输出 A：云端 AI 巨无霸 (单一 XML 文件) ==========
     print(f"\n📝 [Agent Sync] 生成云端 AI 巨无霸...")
@@ -745,6 +749,7 @@ def append_to_changes_file(changes, detailed_diffs, human_path, timestamp):
     if changes_file.exists():
         with open(changes_file, "r", encoding="utf-8") as f:
             content = f.read()
+            content = content.replace("# 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史\n\n", "")
             content = content.replace("# 🔄 AI Context 变更历史\n\n", "")
             content = content.replace("<RECENT_CHANGES>\n", "")
             content = content.replace("</RECENT_CHANGES>\n", "")
@@ -765,7 +770,7 @@ def append_to_changes_file(changes, detailed_diffs, human_path, timestamp):
     records_queue.appendleft(new_record)
 
     with open(changes_file, "w", encoding="utf-8") as f:
-        f.write("# 🔄 AI Context 变更历史\n\n<RECENT_CHANGES>\n")
+        f.write("# 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史\n\n<RECENT_CHANGES>\n")
         f.write("\n---\n".join(list(records_queue)))
         f.write("\n</RECENT_CHANGES>\n")
 
