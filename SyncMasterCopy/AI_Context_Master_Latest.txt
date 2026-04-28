@@ -1,7 +1,7 @@
 <system_context>
   <metadata>
     <description>Godot CsArchitect (构筑师) Project Context Master File (Dual-Sync)</description>
-    <generated_time>2026-04-28 09:45:08</generated_time>
+    <generated_time>2026-04-28 20:16:24</generated_time>
   </metadata>
 
   <section name='00_primacy_boost' description='Read This First'>
@@ -11,6 +11,140 @@
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260428_094508
+- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
+
+#### TetrisBackpack/A1TesseractBackpack\TSItem.tscn
+```diff
+--- 
++++ 
+@@ -25,14 +25,10 @@
+ collision_layer = 16
+ collision_mask = 16
+ lock_rotation = true
+ freeze = true
+ script = ExtResource("physics_script")
+-
+-[node name="PhysicsCollisionShape" type="CollisionShape2D" parent="PhysicsProxy" unique_id=913178107]
+-unique_name_in_owner = true
+-disabled = true
+ 
+ [node name="StateChart" type="Node" parent="." unique_id=1344843508]
+ unique_name_in_owner = true
+ script = ExtResource("script_StateChart")
+ 
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\ItemPhysicsComponent.cs
+```diff
+--- 
++++ 
+@@ -2,20 +2,19 @@
+ 
+ [GlobalClass]
+ public partial class ItemPhysicsComponent : RigidBody2D
+ {
+     private Control _rootControl;
+-    private CollisionShape2D _collisionShape;
+     private GridShapeComponent _gridShapeComp;
++    private System.Collections.Generic.List<CollisionShape2D> _dynamicShapes = new System.Collections.Generic.List<CollisionShape2D>();
+ 
+     public bool IsPhysical { get; private set; } = false;
+ 
+     public override void _Ready()
+     {
+         this.TopLevel = true; // Break the infinite translation feedback loop by detaching from parent transform
+         _rootControl = GetParent<Control>();
+-        _collisionShape = GetNodeOrNull<CollisionShape2D>("%PhysicsCollisionShape");
+         
+         if (_rootControl != null)
+         {
+             _gridShapeComp = _rootControl.GetNodeOrNull<GridShapeComponent>("%GridShapeComponent");
+         }
+@@ -23,51 +22,61 @@
+ 
+     public override void _PhysicsProcess(double delta)
+     {
+         if (!IsPhysical || _rootControl == null) return;
+ 
+-        // CRITICAL: Offset compensation (Center vs Top-Left)
+-        _rootControl.GlobalPosition = this.GlobalPosition - (_rootControl.Size / 2f);
++        // CRITICAL: Offset compensation (Origin is now Top-Left)
++        _rootControl.GlobalPosition = this.GlobalPosition;
+     }
+ 
+     public void EnablePhysics()
+     {
+-        if (_gridShapeComp != null && _collisionShape != null)
++        if (_gridShapeComp != null)
+         {
+-            Vector2I boundSize = _gridShapeComp.GetBoundingSize();
++            // Clear existing dynamic shapes
++            foreach (var shape in _dynamicShapes)
++            {
++                if (GodotObject.IsInstanceValid(shape))
++                {
++                    shape.QueueFree();
++                }
++            }
++            _dynamicShapes.Clear();
++
+             Vector2 cellSize = _gridShapeComp.CellSize;
+-            Vector2 sizePixels = new Vector2(boundSize.X * cellSize.X, boundSize.Y * cellSize.Y);
+             
+-            var rectShape = new RectangleShape2D();
+-            rectShape.Size = sizePixels;
+-            _collisionShape.Shape = rectShape;
+-            
+-            // Center the collision shape relative to the RigidBody's origin
+-            _collisionShape.Position = sizePixels / 2f;
++            // Native Compound Shapes: Create a CollisionShape2D for each cell
++            foreach (Vector2I cellPos in _gridShapeComp.CurrentLocalCells)
++            {
++                var shapeNode = new CollisionShape2D();
++                var rectShape = new RectangleShape2D();
++                rectShape.Size = cellSize;
++                shapeNode.Shape = rectShape;
++                
++                // Position is the center of the cell relative to the top-left origin
++                shapeNode.Position = new Vector2(cellPos.X * cellSize.X + cellSize.X / 2f, cellPos.Y * cellSize.Y + cellSize.Y / 2f);
++                
++                AddChild(shapeNode);
++                _dynamicShapes.Add(shapeNode);
++            }
+         }
+ 
+-        // Fix position jump: explicit sync before unfreezing
++        // Sync position before unfreezing
+         if (_rootControl != null)
+         {
+-            this.GlobalPosition = _rootControl.GlobalPosition + (_rootControl.Size / 2f);
++            this.GlobalPosition = _rootControl.GlobalPosition;
+         }
+ 
+         this.SetDeferred(RigidBody2D.PropertyName.Freeze, false);
+-        if (_collisionShape != null) 
+-        {
+-            _collisionShape.SetDeferred(CollisionShape2D.PropertyName.Disabled, false);
+-        }
+         IsPhysical = true;
+     }
+ 
+     public void DisablePhysics()
+     {
+         this.SetDeferred(RigidBody2D.PropertyName.Freeze, true);
+-        if (_collisionShape != null) 
+-        {
+-            _collisionShape.SetDeferred(CollisionShape2D.PropertyName.Disabled, true);
+-        }
++        // We don't need to disable shapes individually, freezing the RigidBody is enough.
++        // Dynamic shapes will be recreated on next EnablePhysics.
+         IsPhysical = false;
+ 
+         LinearVelocity = Vector2.Zero;
+         AngularVelocity = 0f;
+         Position = Vector2.Zero;
+```
+---
 ## 📅 20260428_074732
 - ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
 
@@ -794,140 +928,6 @@
  		}
  	}
  
-```
----
-## 📅 20260428_042500
-- ➕ 新增: 0 | 📝 修改: 4 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Items\ItemCellGroupController.cs
-```diff
---- 
-+++ 
-@@ -41,12 +41,24 @@
- 	private readonly Subject<(InputEvent Event, int CellIndex)> _aggregatedInputSubject = new();
- 
- 	/// CompositeDisposable - 管理所有订阅
- 	private readonly CompositeDisposable _disposables = new();
- 
--	/// 是否正在拖拽（用于在拖拽期间拦截 Hover 视觉更新）
--	public bool IsDragging { get; set; } = false;
-+	private bool _isDragging = false;
-+
-+	/// 是否正在拖拽
-+	/// 【架构升级】设置时自动同步 MouseFilter (引擎级穿透) 和 ZIndex (视觉置顶)
-+	public bool IsDragging 
-+	{
-+		get => _isDragging;
-+		set 
-+		{
-+			if (_isDragging == value) return;
-+			_isDragging = value;
-+			OnDraggingStateChanged(_isDragging);
-+		}
-+	}
- 
- 	#endregion
- 
- 	#region Public Interface
- 
-@@ -99,10 +111,28 @@
- 		// 清理聚合Subject
- 		_aggregatedInputSubject?.Dispose();
- 	}
- 
- 	#endregion
-+
-+	private void OnDraggingStateChanged(bool isDragging)
-+	{
-+		// 1. MouseFilter 管理 (引擎级 Hit-test 穿透)
-+		// 拖拽时设为 Ignore，防止物品拦截滑向背包网格的鼠标事件
-+		var filterMode = isDragging ? Control.MouseFilterEnum.Ignore : Control.MouseFilterEnum.Pass;
-+		foreach (var cell in _cells)
-+		{
-+			cell.MouseFilter = filterMode;
-+		}
-+
-+		// 2. 视觉层级管理 (Z-Index)
-+		// 将物品根节点置顶，确保拖拽时不会被其他物品遮挡
-+		if (GetParent() is Control rootControl)
-+		{
-+			rootControl.ZIndex = isDragging ? 100 : 0;
-+		}
-+	}
- 
- 	#region Cell Management
- 
- 	/// 重建单元格集合
- 	/// 目的：根据GridShapeComponent的当前形状生成对应的GridCellUI实例
-@@ -171,13 +201,14 @@
- 			// 【事件聚合】将此单元格的输入事件推送到聚合Subject
- 			gridCellUI.OnCellInputAsObservable
- 				.Subscribe(inputEvent => _aggregatedInputSubject.OnNext((inputEvent, gridCellUI.CellIndex)))
- 				.AddTo(gridCellUI);
- 
--			// 【Hover 效果】订阅鼠标进入/离开事件 (拖拽期间禁用)
--			gridCellUI.MouseEntered += () => { if (!IsDragging) SetGroupState(GridCellUI.CellState.Hover); };
--			gridCellUI.MouseExited += () => { if (!IsDragging) ResetGroupState(); };
-+			// 【Hover 效果】订阅鼠标进入/离开事件
-+			// 注：IsDragging 为 true 时 MouseFilter 为 Ignore，引擎不会触发这些事件
-+			gridCellUI.MouseEntered += () => SetGroupState(GridCellUI.CellState.Hover);
-+			gridCellUI.MouseExited += () => ResetGroupState();
- 
- 			cellIndex++;
- 		}
- 	}
- 
-```
-#### AISpace/rules_global\Always\AGENTS.md
-```diff
---- 
-+++ 
-@@ -6,10 +6,11 @@
- 
- ## 1. Quick Start & Workflow
- - **Build**: `dotnet build` (Dir: `TetrisBackpack/`)
- - **Logs**: `$env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log`
- - **Context**: `C:\Users\26070\My Drive\Agent_Godot_Brain\AI_Context_Changes.md`
-+- **Master Sync**: `AISpace\SyncMasterCopy\AI_Context_Master_Latest.txt` (项目有效文件 + changes 合集)
- - **Paths**: Code=`TetrisBackpack/`, Rules/Arch=`AISpace/` (Single source: `AGENTS.md`)
- - **Steering**: `BugInvestigation.md` (Escalation), `_RulesSystem.md` (Infrastructure)
- 
- <workflow>
- 1. Verify assumptions from `ConversationReset.md`, `docLastConversationState.md`, `AGENTS.md`.
-```
-#### AISpace/AGENTS.md
-```diff
---- 
-+++ 
-@@ -6,10 +6,11 @@
- 
- ## 1. Quick Start & Workflow
- - **Build**: `dotnet build` (Dir: `TetrisBackpack/`)
- - **Logs**: `$env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log`
- - **Context**: `C:\Users\26070\My Drive\Agent_Godot_Brain\AI_Context_Changes.md`
-+- **Master Sync**: `AISpace\SyncMasterCopy\AI_Context_Master_Latest.txt` (项目有效文件 + changes 合集)
- - **Paths**: Code=`TetrisBackpack/`, Rules/Arch=`AISpace/` (Single source: `AGENTS.md`)
- - **Steering**: `BugInvestigation.md` (Escalation), `_RulesSystem.md` (Infrastructure)
- 
- <workflow>
- 1. Verify assumptions from `ConversationReset.md`, `docLastConversationState.md`, `AGENTS.md`.
-```
-#### AISpace/rules_ide\Codex\AGENTS.md
-```diff
---- 
-+++ 
-@@ -6,10 +6,11 @@
- 
- ## 1. Quick Start & Workflow
- - **Build**: `dotnet build` (Dir: `TetrisBackpack/`)
- - **Logs**: `$env:APPDATA/Godot/app_userdata/Tesseract_Backpack/logs/godot.log`
- - **Context**: `C:\Users\26070\My Drive\Agent_Godot_Brain\AI_Context_Changes.md`
-+- **Master Sync**: `AISpace\SyncMasterCopy\AI_Context_Master_Latest.txt` (项目有效文件 + changes 合集)
- - **Paths**: Code=`TetrisBackpack/`, Rules/Arch=`AISpace/` (Single source: `AGENTS.md`)
- - **Steering**: `BugInvestigation.md` (Escalation), `_RulesSystem.md` (Infrastructure)
- 
- <workflow>
- 1. Verify assumptions from `ConversationReset.md`, `docLastConversationState.md`, `AGENTS.md`.
 ```
 </RECENT_CHANGES>
       ]]>
@@ -20685,6 +20685,9 @@ public partial class ItemPhysicsComponent : RigidBody2D
         this.TopLevel = true; // Break the infinite translation feedback loop by detaching from parent transform
         _rootControl = GetParent<Control>();
         
+        // CRITICAL JUICE: Make items slippery so they slide off each other instead of stacking perfectly
+        this.PhysicsMaterialOverride = new PhysicsMaterial { Friction = 0.0f, Bounce = 0.15f };
+
         if (_rootControl != null)
         {
             _gridShapeComp = _rootControl.GetNodeOrNull<GridShapeComponent>("%GridShapeComponent");
@@ -25785,6 +25788,141 @@ rendering_device/driver.windows="d3d12"
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260428_094508
+- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
+
+#### TetrisBackpack/A1TesseractBackpack\TSItem.tscn
+```diff
+--- 
++++ 
+@@ -25,14 +25,10 @@
+ collision_layer = 16
+ collision_mask = 16
+ lock_rotation = true
+ freeze = true
+ script = ExtResource("physics_script")
+-
+-[node name="PhysicsCollisionShape" type="CollisionShape2D" parent="PhysicsProxy" unique_id=913178107]
+-unique_name_in_owner = true
+-disabled = true
+ 
+ [node name="StateChart" type="Node" parent="." unique_id=1344843508]
+ unique_name_in_owner = true
+ script = ExtResource("script_StateChart")
+ 
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\ItemPhysicsComponent.cs
+```diff
+--- 
++++ 
+@@ -2,20 +2,19 @@
+ 
+ [GlobalClass]
+ public partial class ItemPhysicsComponent : RigidBody2D
+ {
+     private Control _rootControl;
+-    private CollisionShape2D _collisionShape;
+     private GridShapeComponent _gridShapeComp;
++    private System.Collections.Generic.List<CollisionShape2D> _dynamicShapes = new System.Collections.Generic.List<CollisionShape2D>();
+ 
+     public bool IsPhysical { get; private set; } = false;
+ 
+     public override void _Ready()
+     {
+         this.TopLevel = true; // Break the infinite translation feedback loop by detaching from parent transform
+         _rootControl = GetParent<Control>();
+-        _collisionShape = GetNodeOrNull<CollisionShape2D>("%PhysicsCollisionShape");
+         
+         if (_rootControl != null)
+         {
+             _gridShapeComp = _rootControl.GetNodeOrNull<GridShapeComponent>("%GridShapeComponent");
+         }
+@@ -23,51 +22,61 @@
+ 
+     public override void _PhysicsProcess(double delta)
+     {
+         if (!IsPhysical || _rootControl == null) return;
+ 
+-        // CRITICAL: Offset compensation (Center vs Top-Left)
+-        _rootControl.GlobalPosition = this.GlobalPosition - (_rootControl.Size / 2f);
++        // CRITICAL: Offset compensation (Origin is now Top-Left)
++        _rootControl.GlobalPosition = this.GlobalPosition;
+     }
+ 
+     public void EnablePhysics()
+     {
+-        if (_gridShapeComp != null && _collisionShape != null)
++        if (_gridShapeComp != null)
+         {
+-            Vector2I boundSize = _gridShapeComp.GetBoundingSize();
++            // Clear existing dynamic shapes
++            foreach (var shape in _dynamicShapes)
++            {
++                if (GodotObject.IsInstanceValid(shape))
++                {
++                    shape.QueueFree();
++                }
++            }
++            _dynamicShapes.Clear();
++
+             Vector2 cellSize = _gridShapeComp.CellSize;
+-            Vector2 sizePixels = new Vector2(boundSize.X * cellSize.X, boundSize.Y * cellSize.Y);
+             
+-            var rectShape = new RectangleShape2D();
+-            rectShape.Size = sizePixels;
+-            _collisionShape.Shape = rectShape;
+-            
+-            // Center the collision shape relative to the RigidBody's origin
+-            _collisionShape.Position = sizePixels / 2f;
++            // Native Compound Shapes: Create a CollisionShape2D for each cell
++            foreach (Vector2I cellPos in _gridShapeComp.CurrentLocalCells)
++            {
++                var shapeNode = new CollisionShape2D();
++                var rectShape = new RectangleShape2D();
++                rectShape.Size = cellSize;
++                shapeNode.Shape = rectShape;
++                
++                // Position is the center of the cell relative to the top-left origin
++                shapeNode.Position = new Vector2(cellPos.X * cellSize.X + cellSize.X / 2f, cellPos.Y * cellSize.Y + cellSize.Y / 2f);
++                
++                AddChild(shapeNode);
++                _dynamicShapes.Add(shapeNode);
++            }
+         }
+ 
+-        // Fix position jump: explicit sync before unfreezing
++        // Sync position before unfreezing
+         if (_rootControl != null)
+         {
+-            this.GlobalPosition = _rootControl.GlobalPosition + (_rootControl.Size / 2f);
++            this.GlobalPosition = _rootControl.GlobalPosition;
+         }
+ 
+         this.SetDeferred(RigidBody2D.PropertyName.Freeze, false);
+-        if (_collisionShape != null) 
+-        {
+-            _collisionShape.SetDeferred(CollisionShape2D.PropertyName.Disabled, false);
+-        }
+         IsPhysical = true;
+     }
+ 
+     public void DisablePhysics()
+     {
+         this.SetDeferred(RigidBody2D.PropertyName.Freeze, true);
+-        if (_collisionShape != null) 
+-        {
+-            _collisionShape.SetDeferred(CollisionShape2D.PropertyName.Disabled, true);
+-        }
++        // We don't need to disable shapes individually, freezing the RigidBody is enough.
++        // Dynamic shapes will be recreated on next EnablePhysics.
+         IsPhysical = false;
+ 
+         LinearVelocity = Vector2.Zero;
+         AngularVelocity = 0f;
+         Position = Vector2.Zero;
+```
+
+---
 ## 📅 20260428_074732
 - ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
 
@@ -25887,7 +26025,6 @@ rendering_device/driver.windows="d3d12"
  [node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/FloorStaticBody" unique_id=599388113]
  shape = SubResource("RectangleShape2D_floor")
 ```
-
 ---
 ## 📅 20260428_061243
 - ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
@@ -27322,222 +27459,6 @@ rendering_device/driver.windows="d3d12"
  		return topLeft + CellSize / 2;
  	}
  
-```
----
-## 📅 20260428_033004
-- ➕ 新增: 0 | 📝 修改: 3 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
-```diff
---- 
-+++ 
-@@ -270,11 +270,11 @@
- 				var mp = BackpackGridUIComp.GetGlobalMousePosition();
- 				Vector2I mouseGridPos = BackpackGridUIComp.GlobalToGridPosition(mp);
- 				Vector2I targetTopLeftGridPos = mouseGridPos - GetGrabbedCellLogicalOffset(_currentDrag, shapeComponent);
- 
- 				return (
--					inBounds: BackpackGridUIComp.GetGlobalRect().HasPoint(mp),
-+					inBounds: BackpackGridUIComp.IsPointInside(mp),
- 					gridPos:  targetTopLeftGridPos
- 				);
- 			});
- 
- 		// 合并：任一流发射 → 执行同一段预览逻辑
-@@ -309,11 +309,11 @@
- 		var dragState = _currentDrag;
- 		_currentDrag = null;
- 
- 		// 使用 ViewGrid.GetGlobalMousePosition() 确保在 Camera2D/CanvasLayer 下坐标准确
- 		Vector2 mousePos = BackpackGridUIComp.GetGlobalMousePosition();
--		bool isInBackpack = BackpackGridUIComp.GetGlobalRect().HasPoint(mousePos);
-+		bool isInBackpack = BackpackGridUIComp.IsPointInside(mousePos);
- 
- 		if (!isInBackpack)
- 		{
- 			PerformBounceBack(itemEntity, dragState);
- 			return;
-@@ -334,51 +334,41 @@
- 			PerformSnapToGrid(itemEntity, itemControl, targetGridPos);
- 		else
- 			PerformBounceBack(itemEntity, dragState);
- 	}
- 
--    /// 处理物品旋转
--    private void HandleItemRotated(Node itemEntity, GridShapeComponent shapeComponent)
--    {
--        if (_currentDrag == null) return;
--
--        // 1. 获取组件 (使用重构后的辅助函数)
--        var followComp = GetFollowComp(itemEntity);
--        var interactionArea = itemEntity.GetNodeOrNull<Control>("%InteractionArea");
--
--        if (followComp == null || interactionArea == null)
--        {
--            GD.PushWarning($"[Rotation] 缺少必要组件！");
--            return;
--        }
--
--        // 2. 执行底层逻辑旋转 (矩阵变换 + 归一化)
--        shapeComponent.Rotate90();
--
--        // 3. 计算当前鼠标抓着的那个格子，在【新矩阵】中的局部中心坐标
--        Vector2I newGrabbedCell = shapeComponent.CurrentLocalCells[_currentDrag.GrabbedCellIndex];
--        Vector2 newGrabbedCellLocalPos = GetCellCenterLocalPos(newGrabbedCell);
--
--        // 4. 同步父节点的抓取偏移 (这一步会让父节点在物理空间瞬间跳变，对齐新网格锚点)
--        followComp.GrabOffset = -newGrabbedCellLocalPos;
--
--        // 5. 视觉补偿动画 (【核心魔法】：利用 PivotOffset 彻底消灭 Position 补间)
--        // 把旋转轴心死死钉在当前鼠标抓取的位置上
--        interactionArea.PivotOffset = newGrabbedCellLocalPos;
--
--        // 父节点跳变后，我们让子节点绕着鼠标逆向旋转 90 度 (-Pi/2)
--        // 此时画面绝对完美重合在上一帧，不差一个像素！完全不需要改 Position！
--        interactionArea.Rotation = -Mathf.Pi / 2f;
--
--        // 6. 仅需平滑还原角度到 0 即可 (极致丝滑的指尖自转)
--        var tween = interactionArea.GetTree().CreateTween();
--        tween.TweenProperty(interactionArea, "rotation", 0f, 0.15f)
--            .SetTrans(Tween.TransitionType.Sine)
--            .SetEase(Tween.EaseType.Out);
--
--        GD.Print($"[{itemEntity.Name}] 丝滑旋转触发：绕点 {newGrabbedCellLocalPos} 旋转");
--    }
-+	/// 处理物品旋转
-+	/// 职责：仅作为指挥官发送逻辑指令（Rotate90）和动画指令（AnimateRotation90）
-+	private void HandleItemRotated(Node itemEntity, GridShapeComponent shapeComponent)
-+	{
-+		if (_currentDrag == null) return;
-+
-+		// 1. 获取必需组件
-+		var followComp = GetFollowComp(itemEntity);
-+		var tweenComp = GetTweenComp(itemEntity);
-+
-+		if (followComp == null || tweenComp == null)
-+		{
-+			GD.PushWarning($"[Rotation] {itemEntity.Name} 缺少必要动画或跟随组件！");
-+			return;
-+		}
-+
-+		// 2. 指令 A：执行底层逻辑旋转
-+		shapeComponent.Rotate90();
-+
-+		// 3. 准备数据：计算新的抓取点中心坐标 (空间换算交给 ViewGrid)
-+		Vector2I newGrabbedCell = shapeComponent.CurrentLocalCells[_currentDrag.GrabbedCellIndex];
-+		Vector2 newPivot = BackpackGridUIComp.GridToLocalCenterPosition(newGrabbedCell);
-+
-+		// 4. 指令 B：同步物理抓取偏移 (消除坐标跳变)
-+		followComp.GrabOffset = -newPivot;
-+
-+		// 5. 指令 C：执行视觉补间动画 (底层补间魔法由 TweenComp 处理)
-+		tweenComp.AnimateRotation90(newPivot);
-+
-+		GD.Print($"[{itemEntity.Name}] 指令：逻辑旋转 + 视觉补间 (Pivot: {newPivot})");
-+	}
- 	#endregion
- 
- 	#region Placement Logic
- 
- 	/// 执行吸附到网格
-@@ -428,10 +418,15 @@
- 	// 获取跟随鼠标组件 (带有容错兜底)
- 	private FollowMouseUIComponent GetFollowComp(Node itemEntity) =>
- 		itemEntity.GetNodeOrNull<FollowMouseUIComponent>("%FollowMouseUIComponent")
- 		?? itemEntity.FindChild("FollowMouseUIComponent", true, false) as FollowMouseUIComponent;
- 
-+	// 获取补间动画组件 (带有容错兜底)
-+	private UITweenInteractComponent GetTweenComp(Node itemEntity) =>
-+		itemEntity.GetNodeOrNull<UITweenInteractComponent>("%UITweenInteractComponent")
-+		?? itemEntity.FindChild("UITweenInteractComponent", true, false) as UITweenInteractComponent;
-+
- 	// 安全获取或构造 ItemData
- 	private ItemData GetItemData(GridShapeComponent shape) =>
- 		new ItemData(shape.Data?.ItemID ?? "unknown");
- 
- 	// 获取网格坐标对应的局部中心像素坐标
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackGridUIComponent.cs
-```diff
---- 
-+++ 
-@@ -112,11 +112,11 @@
- 	{
- 		return new Vector2(gridPos.X * CellSize.X, gridPos.Y * CellSize.Y);
- 	}
- 
- 	/// 网格坐标 → 局部像素坐标（中心点，相对于 InteractionArea）
--	public Vector2 GetCellCenterPosition(Vector2I gridPos)
-+	public Vector2 GridToLocalCenterPosition(Vector2I gridPos)
- 	{
- 		Vector2 topLeft = GridToLocalPosition(gridPos);
- 		return topLeft + CellSize / 2;
- 	}
- 
-@@ -219,10 +219,13 @@
- 
- 	public Vector2 GlobalPosition => InteractionArea?.GlobalPosition ?? Vector2.Zero;
- 
- 	public Vector2 GetGlobalMousePosition() => InteractionArea?.GetGlobalMousePosition() ?? Vector2.Zero;
- 
-+	/// 检查全局点是否在网格范围内
-+	public bool IsPointInside(Vector2 globalPos) => GetGlobalRect().HasPoint(globalPos);
-+
- 	public Rect2 GetCellRect(Vector2I gridPos)
- 	{
- 		Vector2 topLeft = GridToLocalPosition(gridPos);
- 		return new Rect2(topLeft, CellSize);
- 	}
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\MicroUI\UITweenInteractComponent.cs
-```diff
---- 
-+++ 
-@@ -215,21 +215,42 @@
- 		
- 		// 4. 执行缩放动画
- 		_currentTween.TweenProperty(VisualTarget, "scale", targetScale, TweenDuration);
- 	}
- 	
-+	/// 执行 90 度平滑旋转补间 (Counter-Transform 模式)
-+	/// 目的：实现绕特定轴心（通常是鼠标位置）的丝滑补间旋转
-+	/// 算法：1. 立即设置逆向角度补偿偏移 → 2. 设置轴心 → 3. 补间回归 0
-+	public void AnimateRotation90(Vector2 pivotPos, float duration = 0.15f)
-+	{
-+		if (InteractionArea == null) return;
-+
-+		// 1. 杀死当前可能的旋转动画（如果正在快速连续旋转）
-+		_currentTween?.Kill();
-+
-+		// 2. 设置轴心并立即执行逆向补偿 (使视觉上保持不动)
-+		InteractionArea.PivotOffset = pivotPos;
-+		InteractionArea.Rotation = -Mathf.Pi / 2f;
-+
-+		// 3. 创建补间平滑还原到 0
-+		_currentTween = GetTree().CreateTween();
-+		_currentTween.TweenProperty(InteractionArea, "rotation", 0f, duration)
-+			.SetTrans(Tween.TransitionType.Sine)
-+			.SetEase(Tween.EaseType.Out);
-+	}
-+
- 	/// 更新 PivotOffset 为中心点
- 	/// 确保缩放从中心进行，而不是左上角
- 	private void UpdatePivotOffset()
- 	{
- 		if (VisualTarget == null)
- 			return;
--		
-+
- 		// 设置为尺寸的一半（中心点）
- 		VisualTarget.PivotOffset = VisualTarget.Size / 2;
- 	}
--	
-+
- 	#endregion
- 	
- 	#region Public Methods
- 	
- 	/// 手动触发悬停动画
 ```
 </RECENT_CHANGES>
     ]]>
