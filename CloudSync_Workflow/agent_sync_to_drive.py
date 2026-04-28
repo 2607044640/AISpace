@@ -2,7 +2,9 @@ import difflib
 import hashlib
 import json
 import os
+import re
 import shutil
+import sys
 from collections import deque
 from datetime import datetime
 from pathlib import Path
@@ -15,11 +17,13 @@ AGENT_WORKSPACE_DIR = r"C:\Godot\AISpace"
 DRIVE_SYNC_PATH = r"C:\Users\26070\My Drive\Agent_Godot_Brain"
 LOCAL_BACKUP_PATH = r"D:\Agent_Godot_Brain_Backup"
 LOCAL_HUMAN_VIEW_PATH = r"D:\A1GeminiSyncTestForHuman"  # 本地人类视图（5个分类文件）
+LOCAL_WORKSPACE_MASTER_COPY_DIR = r"C:\Godot\AISpace\SyncMasterCopy"
+LOCAL_WORKSPACE_MASTER_COPY_NAME = "AI_Context_Master_Latest.txt"
 
 # rules_global migration: rules live in rules_global/ (replaces .agent/steering/).
 # AGENT_WHITELIST_DIRS are whitelisted subdirs under AGENT_WORKSPACE_DIR to deep-scan for .md/.json/.txt.
 AGENT_WHITELIST_DIRS = ["rules_global", "rules_ide"]
-AGENT_WHITELIST_FILES = ["docLastConversationState.md"]
+AGENT_WHITELIST_FILES = ["AGENTS.md", "docLastConversationState.md"]
 PROJECT_WHITELIST_PREFIXES = ["A1", "B1"]
 PROJECT_WHITELIST_DIRS = ["Scenes"]
 
@@ -134,8 +138,193 @@ IMPORTANT_RULES_FILES = {
     "docLastConversationState.md",
 }
 
+PRIMACY_RECENT_CHANGES_LIMIT = 5
+
 # TetrisBackpack 根目录中的硬链接文件，已通过 AISpace/rules_global/ 同步，跳过避免重复
 PROJECT_ROOT_MD_SKIP = {"AGENTS.md", "CLAUDE.md"}
+
+
+def normalize_virtual_path(path_str):
+    return str(path_str).replace("\\", "/")
+
+
+def extract_virtual_path_from_xml(xml_content):
+    match = re.search(r'path="([^"]+)"', xml_content)
+    if not match:
+        return ""
+    return normalize_virtual_path(match.group(1))
+
+
+def sort_bucket_contents(bucket_key, content_list):
+    if bucket_key == "01_important_rules":
+        return sorted(content_list, key=important_rules_sort_key)
+    return sorted(content_list, key=extract_virtual_path_from_xml)
+
+
+def important_rules_sort_key(xml_content):
+    path = extract_virtual_path_from_xml(xml_content)
+    explicit_priority = {
+        "AISpace/AGENTS.md": 0,
+        "AISpace/rules_global/Always/AGENTS.md": 1,
+        "AISpace/rules_ide/Codex/AGENTS.md": 2,
+        "AISpace/rules_global/ConversationReset.md": 3,
+        "AISpace/docLastConversationState.md": 4,
+    }
+
+    if path in explicit_priority:
+        return (explicit_priority[path], path)
+
+    if path.endswith("/AGENTS.md"):
+        return (10, path)
+    if path.endswith("/ConversationReset.md"):
+        return (20, path)
+    if path.endswith("/DesignPatterns.md"):
+        return (30, path)
+    if path.endswith("/docLastConversationState.md"):
+        return (40, path)
+    return (99, path)
+
+
+def extract_recent_change_entries(changes_content, limit=PRIMACY_RECENT_CHANGES_LIMIT):
+    if not changes_content.strip():
+        return []
+
+    normalized_content = changes_content.replace(
+        "# 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史\n\n", ""
+    )
+    normalized_content = normalized_content.replace(
+        "# 🔄 AI Context 变更历史\n\n", ""
+    )
+    normalized_content = normalized_content.replace("<RECENT_CHANGES>\n", "")
+    normalized_content = normalized_content.replace("</RECENT_CHANGES>\n", "")
+
+    entries = [
+        entry.strip()
+        for entry in re.split(r"\n---\n", normalized_content)
+        if entry.strip().startswith("##")
+    ]
+    return entries[:limit]
+
+
+def build_primacy_changes_content(changes_content):
+    recent_change_entries = extract_recent_change_entries(changes_content)
+    if not recent_change_entries:
+        return ""
+
+    return (
+        "# 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史\n\n"
+        "<RECENT_CHANGES>\n"
+        + "\n---\n".join(recent_change_entries)
+        + "\n</RECENT_CHANGES>\n"
+    )
+
+
+def write_primacy_recent_changes_section(f, primacy_changes_content):
+    if not primacy_changes_content:
+        return
+
+    recent_change_count = len(extract_recent_change_entries(primacy_changes_content))
+
+    f.write(
+        "  <section name='00_primacy_boost' description='Read This First'>\n"
+    )
+    f.write(
+        "    <instruction>Read this section first. Treat these recent changes and the next rules section as highest-priority context.</instruction>\n"
+    )
+    f.write(f"    <urgent_recent_changes count='{recent_change_count}'>\n")
+    f.write("      <![CDATA[\n")
+    f.write(primacy_changes_content)
+    if not primacy_changes_content.endswith("\n"):
+        f.write("\n")
+    f.write("      ]]>\n")
+    f.write("    </urgent_recent_changes>\n")
+    f.write("  </section>\n\n")
+
+
+def load_changes_content(drive_path, human_path):
+    candidate_files = [
+        drive_path / "AI_Context_Changes.md",
+        human_path / "AI_Context_Changes.md",
+    ]
+
+    for changes_file in candidate_files:
+        if changes_file.exists():
+            with open(changes_file, "r", encoding="utf-8") as f:
+                content = f.read()
+            return content.replace(
+                "# 🔄 AI Context 变更历史\n\n",
+                "# 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史\n\n",
+            )
+
+    return ""
+
+
+def archive_existing_master_files(drive_path, backup_folder):
+    for old_file in drive_path.glob("AI_Context_Master_*.txt"):
+        target_path = backup_folder / old_file.name
+        try:
+            if target_path.exists():
+                target_path.unlink()
+            shutil.move(str(old_file), str(target_path))
+        except Exception as e:
+            print(
+                f"⚠️ [Agent Sync] 归档旧 Master 失败，跳过该文件: {old_file.name} | {e}"
+            )
+
+
+def cleanup_workspace_master_copy_files(workspace_copy_dir):
+    for old_file in workspace_copy_dir.glob("AI_Context_Master*.txt"):
+        try:
+            old_file.unlink()
+        except Exception as e:
+            print(
+                f"⚠️ [Agent Sync] 清理工作区 Master 副本失败，跳过该文件: {old_file.name} | {e}"
+            )
+
+
+def cleanup_local_human_view_files(human_path):
+    for old_file in human_path.glob("*.txt"):
+        try:
+            old_file.unlink()
+        except Exception as e:
+            print(
+                f"⚠️ [Agent Sync] 清理本地视图失败，跳过该文件: {old_file.name} | {e}"
+            )
+
+
+def write_human_view_file(local_file, content_list, description, timestamp):
+    target_file = local_file
+
+    try:
+        with open(target_file, "w", encoding="utf-8") as f:
+            f.write(f"# HUMAN VIEW - CATEGORY: {local_file.stem}\n")
+            f.write(f"# {description}\n")
+            f.write(f"# 生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"# 文件数量: {len(content_list)}\n\n")
+            f.write("=" * 80 + "\n\n")
+
+            for xml_content in content_list:
+                f.write(xml_content)
+    except Exception:
+        target_file = local_file.with_name(f"{local_file.stem}_{timestamp}.txt")
+        with open(target_file, "w", encoding="utf-8") as f:
+            f.write(f"# HUMAN VIEW - CATEGORY: {local_file.stem}\n")
+            f.write(f"# {description}\n")
+            f.write(f"# 生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"# 文件数量: {len(content_list)}\n\n")
+            f.write("=" * 80 + "\n\n")
+
+            for xml_content in content_list:
+                f.write(xml_content)
+
+    return target_file
+
+
+def sync_workspace_master_copy(master_file, workspace_copy_dir):
+    cleanup_workspace_master_copy_files(workspace_copy_dir)
+    target_file = workspace_copy_dir / LOCAL_WORKSPACE_MASTER_COPY_NAME
+    shutil.copy2(master_file, target_file)
+    return target_file
 
 
 def classify_file_to_bucket(file_path, source_path, agent_path):
@@ -292,6 +481,7 @@ def build_dual_sync():
     agent_path = Path(AGENT_WORKSPACE_DIR)
     drive_path = Path(DRIVE_SYNC_PATH)
     human_path = Path(LOCAL_HUMAN_VIEW_PATH)
+    workspace_copy_path = Path(LOCAL_WORKSPACE_MASTER_COPY_DIR)
 
     if not source_path.exists():
         print(f"❌ 找不到源目录: {SOURCE_PROJECT_DIR}")
@@ -300,18 +490,17 @@ def build_dual_sync():
     # 创建目标文件夹
     drive_path.mkdir(parents=True, exist_ok=True)
     human_path.mkdir(parents=True, exist_ok=True)
+    workspace_copy_path.mkdir(parents=True, exist_ok=True)
 
     # 备份旧文件
     backup_folder = Path(LOCAL_BACKUP_PATH)
     backup_folder.mkdir(exist_ok=True)
 
     # 清理云端旧的 Master 文件
-    for old_file in drive_path.glob("AI_Context_Master_*.txt"):
-        shutil.move(str(old_file), str(backup_folder / old_file.name))
+    archive_existing_master_files(drive_path, backup_folder)
 
     # 清理本地旧的分类文件
-    for old_file in human_path.glob("*.txt"):
-        old_file.unlink()
+    cleanup_local_human_view_files(human_path)
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -510,15 +699,11 @@ def build_dual_sync():
         print(f"   {key}: {len(bucket)} 个文件")
 
     # 读取变更记录
-    changes_file = human_path / "AI_Context_Changes.md"
-    recent_changes_content = ""
-    if changes_file.exists():
-        with open(changes_file, "r", encoding="utf-8") as f:
-            recent_changes_content = f.read()
-        recent_changes_content = recent_changes_content.replace(
-            "# 🔄 AI Context 变更历史\n\n",
-            "# 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史\n\n",
-        )
+    recent_changes_content = load_changes_content(drive_path, human_path)
+    primacy_changes_content = build_primacy_changes_content(recent_changes_content)
+
+    for bucket_key in buckets:
+        buckets[bucket_key] = sort_bucket_contents(bucket_key, buckets[bucket_key])
 
     # ========== 输出 A：云端 AI 巨无霸 (单一 XML 文件) ==========
     print(f"\n📝 [Agent Sync] 生成云端 AI 巨无霸...")
@@ -534,6 +719,7 @@ def build_dual_sync():
             f"    <generated_time>{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</generated_time>\n"
         )
         f.write("  </metadata>\n\n")
+        write_primacy_recent_changes_section(f, primacy_changes_content)
 
         # 按顺序拼接所有桶的内容
         bucket_names = {
@@ -564,6 +750,10 @@ def build_dual_sync():
 
     master_size_mb = master_file.stat().st_size / (1024 * 1024)
     print(f"   ✅ 云端文件: {master_file.name} ({master_size_mb:.2f} MB)")
+    workspace_master_copy_file = sync_workspace_master_copy(
+        master_file, workspace_copy_path
+    )
+    print(f"   ✅ 工作区副本: {workspace_master_copy_file.name}")
 
     # ========== 输出 B：本地人类分类视图 (5个独立文件) ==========
     print(f"\n📝 [Agent Sync] 生成本地人类分类视图...")
@@ -580,16 +770,12 @@ def build_dual_sync():
         if not content_list:
             continue
 
-        local_file = human_path / f"{key}.txt"
-        with open(local_file, "w", encoding="utf-8") as f:
-            f.write(f"# HUMAN VIEW - CATEGORY: {key}\n")
-            f.write(f"# {bucket_descriptions[key]}\n")
-            f.write(f"# 生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-            f.write(f"# 文件数量: {len(content_list)}\n\n")
-            f.write("=" * 80 + "\n\n")
-
-            for xml_content in content_list:
-                f.write(xml_content)
+        local_file = write_human_view_file(
+            human_path / f"{key}.txt",
+            content_list,
+            bucket_descriptions[key],
+            timestamp,
+        )
 
         local_size_mb = local_file.stat().st_size / (1024 * 1024)
         print(f"   ✅ {key}.txt ({local_size_mb:.2f} MB, {len(content_list)} 文件)")
@@ -599,6 +785,7 @@ def build_dual_sync():
 
     print(f"\n✨ [Agent Sync] 双路同步完成！")
     print(f"   🌐 云端 (AI): {master_file}")
+    print(f"   🤖 工作区副本 (AI): {workspace_master_copy_file}")
     print(f"   🏠 本地 (人): {human_path}")
 
 
@@ -783,4 +970,5 @@ if __name__ == "__main__":
         import traceback
 
         traceback.print_exc()
-        input("\n按 Enter 键退出...")
+        if sys.stdin.isatty():
+            input("\n按 Enter 键退出...")

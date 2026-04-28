@@ -5,13 +5,13 @@ trigger: manual
 <context>
 **Tesseract Backpack (TS)** - Grid-based inventory system with drag-and-drop, rotation, StateChart integration, and Backpack Battles-style synergy system. Supports arbitrary item shapes (Tetris-like) with reactive event streams (R3), MVC architecture, and UI micro-interactions.
 
-**Latest Architecture (2026-04-27):**
-- **Lifecycle Management:** Subjects initialize in `_EnterTree()` (Top-Down), children subscribe in `_Ready()` (Bottom-Up)
-- **UI Component System:** GridCellUI (transparent body + glowing border) + ItemCellGroupController (event aggregator)
-- **MouseFilter Architecture:** Root + InteractionArea = Ignore (2), GridCellUI = Pass (0) - solves L-shape AABB bug
-- **Event Flow:** Multiple GridCellUI → ItemCellGroupController (aggregator) → DraggableItemComponent
-- **Placement Preview System:** R3 `EveryUpdate + DistinctUntilChanged + TakeUntil` stream — math-mapped grid coord triggers `EvaluatePlacementPreview` → `ShowPreview` (green/red glow on background cells)
-- **Single Drag State:** `BackpackInteractionController` uses `ItemDragState _currentDrag` (single field, not dictionary). Player has one mouse, one drag at a time.
+**Latest Architecture (2026-04-28):**
+- **Commander Pattern:** Controller delegates spatial math to the View and visual tweens to the Juice component. Result: Declarative logic, zero visual noise in Controller.
+- **Spatial Delegation:** `BackpackGridUIComponent` handles all coordinate mapping (`IsPointInside`, `GetCellCenterLocalPos`).
+- **Juice Delegation:** `UITweenInteractComponent` encapsulates the complex Counter-Transform rotation animation (`PlayRotationAnimation`).
+- **Pure Math Decoupling:** Grid mapping uses `mouseGridPos - GetGrabbedCellLogicalOffset()`. Immune to pixel warp or visual UI transforms.
+- **Anchor Stability:** `GrabbedCellIndex` pre-calculated at pick-up. Ensures a consistent logical pivot point even across multiple rotations.
+- **Focus Preservation:** Node reuse in `ItemCellGroupController` prevents losing Godot mouse capture during rotation-induced cell rebuilding.
 </context>
 
 <layer_1_quick_start>
@@ -38,12 +38,14 @@ trigger: manual
   </decision_tree>
 
   <minimal_workflow>
-    1. `BackpackInteractionController._Ready()` calls `RegisterItem()` for each item in `ItemsContainerPath`. Subscribes to `OnDragStartedAsObservable`, `OnDragEndedAsObservable`, `OnRotateRequestedAsObservable`.
-    2. Left press → `drag_start` StateChart event → `OnDragStartedAsObservable` emits → `HandleItemPickedUp()` fires.
-    3. `HandleItemPickedUp`: records `_currentDrag` state, calls `LogicGrid.RemoveItem()` (anti-self-occupy), then **starts R3 preview stream** (`EveryUpdate + DistinctUntilChanged + TakeUntil`).
-    4. Preview stream runs every frame: mouse global pos → `GlobalToGridPosition()` math mapping → tuple `(inBounds, gridPos)` → `DistinctUntilChanged` filters sub-cell micro-movements → `EvaluatePlacementPreview()` → `ShowPreview()` (green/red glow on background GridCellUI).
-    5. `TakeUntil(OnDragEndedAsObservable)` auto-terminates preview stream on release.
-    6. Left release → `drag_end` → `HandleItemDropped()`: calls `ClearPreview()`, checks `GetGlobalRect().HasPoint()`, then `TryPlaceItem()` → snap or bounce-back.
+    1. `BackpackInteractionController._Ready()` registers items and subscribes to R3 streams (`DragStart`, `DragEnd`, `Rotate`).
+    2. Left press → `HandleItemPickedUp()`: records state, calls `LogicGrid.RemoveItem()`, and **pre-calculates `GrabbedCellIndex`** (Stable Anchor).
+    3. **R3 Preview Stream (Merged):** `Merge(posStream, shapeStream)` select `mouseGridPos - GetGrabbedCellLogicalOffset()` (Pure Math) → `EvaluatePlacementPreview` → `ShowPreview`.
+    4. Right click during drag → `HandleItemRotated()` (Commander Style):
+       - `shapeComp.Rotate90()` (Logic Order)
+       - `followComp.GrabOffset = -newPivot` (Anchor Order)
+       - `tweenComp.PlayRotationAnimation(node, newPivot)` (Visual Order — Counter-Transform logic is hidden inside).
+    5. Left release → `HandleItemDropped()`: uses `targetGridPos = mouseGridPos - GetGrabbedCellLogicalOffset()` → `TryPlaceItem()` → snap or bounce-back.
   </minimal_workflow>
 
   <top_anti_patterns>
@@ -66,8 +68,9 @@ trigger: manual
     | Class | Methods/Properties | Parameters / Types |
     | :--- | :--- | :--- |
     | `BackpackGridComponent` | `CanPlaceItem`, `TryPlaceItem`, `RemoveItem`, `GetItemAt`, `ClearGrid`, `EvaluatePlacementPreview` | `ItemData[] _gridData`, `OnItemPlacedAsObservable`, `OnItemRemovedAsObservable`. `EvaluatePlacementPreview(Vector2I[] shape, Vector2I targetPos)` returns `List<(Vector2I GridPos, CellState State)>` — no short-circuit, evaluates every cell |
-    | `BackpackGridUIComponent` | `GlobalToGridPosition`, `GridToLocalPosition`, `GetCellCenterPosition`, `LocalToGridPosition`, `IsValidGridPosition`, `GetCellRect`, `GetShapeRect`, `RefreshGrid`, `SetCellSize`, `GenerateBackgroundGrid`, `ShowPreview`, `ClearPreview` | `[GlobalClass]`, `Vector2 CellSize`, `Control GridBackground_Ctrl`, `List<GridCellUI> _backgroundCells`. `ShowPreview(List<(Vector2I, CellState)>)` sets cell states; `ClearPreview()` resets all to Normal |
-    | `BackpackInteractionController` | `RegisterItem`, `RegisterItems`, `IsItemBeingDragged` | `ItemDragState _currentDrag` (single field — KISS). Auto-registers items from `ItemsContainerPath` in `_Ready()`. Starts R3 preview stream in `HandleItemPickedUp` |
+    | `BackpackGridUIComponent` | `IsPointInside`, `GetCellCenterLocalPos`, `GlobalToGridPosition`, `GridToLocalPosition`, `LocalToGridPosition`, `IsValidGridPosition`, `RefreshGrid`, `ShowPreview`, `ClearPreview` | `[GlobalClass]`. `IsPointInside(global)` replaces manual Rect checks. `GetCellCenterLocalPos` handles cell-center pixel math. |
+    | `BackpackInteractionController` | `RegisterItem`, `GetGrabbedCellLogicalOffset`, `IsItemBeingDragged` | **Commander Role**: orchestrates R3 streams and delegates math/visuals to GridUI/Juice components. |
+    | `UITweenInteractComponent` | `PlayRotationAnimation`, `AnimateToScale`, `UpdatePivotOffset` | **Juice Component**: Encapsulates all Tween logic and Counter-Transform visual compensation. |
     | `ItemDataResource` | `GetCellCount`, `GetBoundingSize`, `IsShapeValid` | `ItemID`, `ItemName`, `Icon`, `BaseShape` (Array<Vector2I>) |
     | `GridShapeComponent` | `Rotate90`, `NormalizeShape` | `Vector2I[] CurrentLocalCells`, `OnShapeChangedAsObservable` (initialized in `_EnterTree()`) |
     | `IItemDataProvider` | `DataInitialized` event | Interface for parent-to-child data injection (solves _Ready() lifecycle issue) |
@@ -75,7 +78,6 @@ trigger: manual
     | `ItemCellGroupController` | `SetGroupState`, `ResetGroupState`, `OnGroupInputAsObservable` | Event aggregator for multiple GridCellUI instances, includes hover effect subscriptions |
     | `DraggableItemComponent` | `GuiInput` event handlers | `Control ClickableArea`, `Node StateChart`, `OnDragStartedAsObservable`, `OnDragEndedAsObservable`, `OnRotateRequestedAsObservable` (all initialized in `_EnterTree()`) |
     | `FollowMouseUIComponent` | `AutoBindToParentState`, `OnDragStateEntered`, `OnDragStateExited` | `Control TargetUI`, `Vector2 GrabOffset` |
-    | `UITweenInteractComponent` | `AnimateToScale`, `UpdatePivotOffset` | `Control InteractionArea`, `Control VisualTarget`, `Vector2 HoverScale`, `Vector2 PressScale`, `float TweenDuration` |
     | `SynergyDataResource` | `HasTag`, `GetStarCount`, `IsValid` | `string[] ProvidedTags`, `Array<Vector2I> StarOffsets`, `string RequiredTag`, `string SynergyEffect` |
     | `SynergyComponent` | `CheckSynergies`, `ApplyRotationToOffset` | `HashSet<Vector2I> ActiveStars`, `int _rotationCount`, `OnSynergyChangedAsObservable` |
   </api_reference>
@@ -106,25 +108,9 @@ trigger: manual
     * GridCellUI (children): `mouse_filter = 0` (Pass) - Receives mouse events and bubbles up
     * ItemIcon: `mouse_filter = 2` (Ignore) - Decorative only
     
-    **Why Ignore on InteractionArea?**
-    - InteractionArea is a rectangular container (AABB bounding box)
-    - If set to Stop (0), it blocks mouse events on L-shape holes
-    - Setting to Ignore (2) makes it "transparent" - mouse passes through to GridCellUI children
-    - GridCellUI children are positioned exactly at occupied cells, no holes
-    - Result: Only actual item cells respond to clicks, holes pass through to backpack grid
-    
     *Lifecycle Order (CRITICAL):*
-    * `_EnterTree()`: Top-Down (Parent → Child)
-      - Parent initializes all Subjects here: `new Subject<T>()`
-      - Parent initializes core data structures
-    * `_Ready()`: Bottom-Up (Child → Parent)
-      - Children can safely subscribe to parent Subjects
-      - Parent's _EnterTree has already executed
-    
-    *Event Flow Architecture:*
-    * User clicks GridCellUI → GridCellUI.OnCellInputAsObservable emits
-    * ItemCellGroupController aggregates all GridCellUI events → OnGroupInputAsObservable
-    * DraggableItemComponent subscribes to aggregated stream → handles drag/rotate logic
+    * `_EnterTree()`: Top-Down (Parent → Child) - Parent initializes all Subjects here.
+    * `_Ready()`: Bottom-Up (Child → Parent) - Children subscribe to parent Subjects.
     
     *Placement Preview Stream (R3 — 2026-04-27):*
     ```
@@ -132,45 +118,18 @@ trigger: manual
       → HandleItemPickedUp() [records _currentDrag, removes from LogicGrid]
       → Observable.EveryUpdate()
           .Select(_ => ViewGrid.GetGlobalMousePosition())
-          .Select(mousePos => (inBounds: Rect.HasPoint(mousePos), gridPos: GlobalToGridPosition(mousePos)))
-          .DistinctUntilChanged()           // 只在跨格时触发
-          .TakeUntil(OnDragEndedAsObservable) // 放下时自动终止
-          .Subscribe(state =>
-          {
-              if (!state.inBounds) → ClearPreview()
-              else → ShowPreview(EvaluatePlacementPreview(shape, state.gridPos))
-          })
+          .Select(mousePos => (inBounds: ViewGrid.IsPointInside(mousePos), gridPos: ViewGrid.GlobalToGridPosition(mousePos)))
+          .DistinctUntilChanged()
+          .TakeUntil(OnDragEndedAsObservable)
+          .Subscribe(state => { ... })
           .AddTo(itemEntity)
-    OnDragEnded → HandleItemDropped() [ClearPreview, TryPlaceItem → Snap or BounceBack]
     ```
-    * `DistinctUntilChanged` compares `(bool, Vector2I)` value tuples — filters sub-cell micro-movements
-    * `TakeUntil` uses `OnDragEndedAsObservable` (same Subject as drop handler) — zero manual cleanup
-    * `EvaluatePlacementPreview` evaluates ALL cells without short-circuit — returns `Valid`/`Invalid` per cell
-    
-    *Math Formulas & Core Logic:*
-    * 1D Array Index: `index = y * Width + x`
-    * Clockwise 90° Rotation Matrix: `(x, y) -> (-y, x)`
-    * Global to Grid: `FloorToInt((globalPos - GlobalPosition) / CellSize)` -> Clamp
-    * Grid to Local: `gridPos * CellSize`
-    * Local to Grid: `FloorToInt(localPos / CellSize)` -> Clamp
-    * Cell Center: `GridToLocalPosition + CellSize / 2`
-    * Synergy World Pos: `currentGridPos + rotatedOffset`
-
-    *Default Values & Magic Numbers:*
-    * `CellSize`: `Vector2(64, 64)`
-    * `HoverScale`: `Vector2(1.05, 1.05)`
-    * `PressScale`: `Vector2(0.95, 0.95)`
-    * `TweenDuration`: `0.15f`
-    * `ZIndex` during drag: `+100`
-    * `MouseFilter.Ignore`: `2`
-    * `MouseFilter.Pass`: `0`
-    * `MouseFilter.Stop`: `1` (NEVER use on InteractionArea!)
   </technical_specifications>
 
   <core_rules>
     <rule>
       <description>**CRITICAL: Initialize all Subjects in `_EnterTree()`, NOT `_Ready()`.**</description>
-      <rationale>Godot executes `_EnterTree()` Top-Down (Parent before Child), but `_Ready()` Bottom-Up (Child before Parent). If parent initializes Subjects in `_Ready()`, children's `_Ready()` runs first and encounters null Subjects, causing NullReferenceException.</rationale>
+      <rationale>Godot executes `_EnterTree()` Top-Down (Parent before Child), but `_Ready()` Bottom-Up (Child before Parent).</rationale>
       <enforcement>
         1. Parent: `public override void _EnterTree() { OnShapeChangedAsObservable = new Subject<Unit>(); }`
         2. Child: `public override void _Ready() { _parent.OnShapeChangedAsObservable.Subscribe(...); }`
@@ -178,52 +137,20 @@ trigger: manual
     </rule>
     <rule>
       <description>**CRITICAL: Set InteractionArea MouseFilter to Ignore (2), NEVER Stop (1).**</description>
-      <rationale>InteractionArea is a rectangular AABB container. If set to Stop, it blocks mouse events on L-shape holes, preventing clicks on backpack grid underneath. Setting to Ignore makes it transparent - mouse passes through to GridCellUI children positioned at actual occupied cells.</rationale>
+      <rationale>InteractionArea is a rectangular AABB container. Setting to Stop blocks mouse events on L-shape holes.</rationale>
       <enforcement>
         1. Root Node: `mouse_filter = 2` (Ignore)
         2. InteractionArea: `mouse_filter = 2` (Ignore)
-        3. GridCellUI children: `mouse_filter = 0` (Pass) - receives events
+        3. GridCellUI children: `mouse_filter = 0` (Pass)
       </enforcement>
     </rule>
     <rule>
       <description>**CRITICAL: Call `AddChild()` BEFORE `.Subscribe().AddTo()`.**</description>
-      <rationale>R3's `.AddTo()` requires the node to be in the scene tree for disposal tracking. Calling `.AddTo()` before `AddChild()` throws "AddTo does not support to use before enter tree" error.</rationale>
+      <rationale>R3's `.AddTo()` requires the node to be in the scene tree for disposal tracking.</rationale>
       <enforcement>
-        1. `AddChild(gridCellUI);` // Add to scene tree first
-        2. `gridCellUI.OnCellInputAsObservable.Subscribe(...).AddTo(gridCellUI);` // Then subscribe
+        1. `AddChild(gridCellUI);`
+        2. `gridCellUI.OnCellInputAsObservable.Subscribe(...).AddTo(gridCellUI);`
       </enforcement>
-    </rule>
-    <rule>
-      <description>Inherit `Resource` and mark with `[GlobalClass]` for editor-creatable assets, using `Godot.Collections.Array<T>` for exported arrays.</description>
-      <rationale>Ensures full compatibility and visibility within the Godot editor inspector.</rationale>
-    </rule>
-    <rule>
-      <description>Separate logic and visual UI by nesting `VisualContainer` inside `InteractionArea`. NEVER scale the `InteractionArea`.</description>
-      <rationale>Scaling the InteractionArea corrupts mouse coordinate calculations and grid logic.</rationale>
-    </rule>
-    <rule>
-      <description>Use `Subject<Unit>` for parameterless R3 events, call `OnNext(Unit.Default)` to emit, and dispose all Subjects in `_ExitTree()`.</description>
-      <rationale>Prevents severe memory leaks and ensures correct reactive stream lifecycle management.</rationale>
-    </rule>
-    <rule>
-      <description>Call `NormalizeShape()` immediately after applying the `(x,y) -> (-y,x)` rotation matrix.</description>
-      <rationale>Ensures the shape's local origin strictly maintains a minimum bound of (0,0).</rationale>
-    </rule>
-    <rule>
-      <description>Apply rotation loops to `StarOffsets` based on `_rotationCount` (tracked via `Shape.OnShapeChangedAsObservable`) during synergy checks.</description>
-      <rationale>Ensures Synergy stars accurately follow the item's current geometric orientation.</rationale>
-    </rule>
-    <rule>
-      <description>Set `VisualTarget.PivotOffset = VisualTarget.Size / 2` before any tween animation.</description>
-      <rationale>Guarantees all micro-interactions scale uniformly from the exact center of the item.</rationale>
-    </rule>
-    <rule>
-      <description>Set both `CustomMinimumSize` and `Size` using `Vector2(Width * CellSize.X, Height * CellSize.Y)` in `_Ready()`.</description>
-      <rationale>Forces the UI Control to correctly enclose the entire physical grid area.</rationale>
-    </rule>
-    <rule>
-      <description>Save `_originalZIndex` before elevating to `+100` on drag, and restore it on drop.</description>
-      <rationale>Maintains proper rendering order and prevents permanent UI z-fighting after dragging.</rationale>
     </rule>
   </core_rules>
 </layer_2_detailed_guide>
@@ -231,50 +158,38 @@ trigger: manual
 <layer_3_advanced>
   <troubleshooting>
     <error symptom="NullReferenceException when child tries to subscribe to parent Subject">
-      <cause>Parent initialized Subject in `_Ready()`, but child's `_Ready()` executes first (Bottom-Up execution order).</cause>
-      <fix>Move Subject initialization to parent's `_EnterTree()` (Top-Down execution). Children can then safely subscribe in their `_Ready()`.</fix>
+      <cause>Parent initialized Subject in `_Ready()`, but child's `_Ready()` executes first.</cause>
+      <fix>Move Subject initialization to parent's `_EnterTree()`.</fix>
     </error>
     <error symptom="'AddTo does not support to use before enter tree' error">
       <cause>Called `.Subscribe().AddTo(node)` before `AddChild(node)`.</cause>
-      <fix>Always call `AddChild()` first, then `.Subscribe().AddTo()`. R3 requires node to be in scene tree for disposal tracking.</fix>
+      <fix>Always call `AddChild()` first.</fix>
     </error>
-    <error symptom="L-shape item blocks clicks on empty holes, preventing backpack grid interaction">
-      <cause>InteractionArea MouseFilter set to Stop (1), creating rectangular AABB that blocks mouse events.</cause>
-      <fix>Set InteractionArea `mouse_filter = 2` (Ignore). This makes it transparent - mouse passes through to GridCellUI children at actual occupied cells.</fix>
+    <error symptom="L-shape item blocks clicks on empty holes">
+      <cause>InteractionArea MouseFilter set to Stop (1).</cause>
+      <fix>Set InteractionArea `mouse_filter = 2` (Ignore).</fix>
     </error>
-    <error symptom="StateChart events fail to fire on drag">
-      <cause>Using parent reference mapping `GetParent()?.Call()` which fails in updated Godot StateCharts.</cause>
-      <fix>Use `StateChart.Call("send_event", "event_name")` directly on the referenced `StateChart` node.</fix>
+    <error symptom="Item drop not detected after rotation">
+      <cause>Rotation triggers `QueueFree()` on the node capturing mouse focus.</cause>
+      <fix>Use node reuse in `ItemCellGroupController` when rebuilding visuals.</fix>
     </error>
-    <error symptom="Item shape origin shifts out of bounds after rotation">
-      <cause>Failure to re-anchor the shape coordinates after matrix multiplication.</cause>
-      <fix>Execute `NormalizeShape()` to dynamically shift the shape array so `min(X)` and `min(Y)` equal `0`.</fix>
-    </error>
-    <error symptom="Memory leak warnings / Ghost events firing">
-      <cause>Dangling GUI Input subscriptions or undisposed R3 Subjects.</cause>
-      <fix>Unsubscribe `ClickableArea.GuiInput` and call `Dispose()` on all Subjects in `_ExitTree()`. Use `.AddTo(itemEntity)` for subscriptions.</fix>
-    </error>
-    <error symptom="Item refuses to place in its original spot after pickup">
-      <cause>The grid logic still registers the grid cells as occupied by the dragged item itself.</cause>
-      <fix>Call `LogicGrid.RemoveItem()` within `HandleItemPickedUp()` before evaluating drop logic.</fix>
-    </error>
-    <error symptom="Item drop (mouse release) not detected after rotating during drag">
-      <cause>Rotating triggers `RebuildCells()` which calls `QueueFree()` on the node currently capturing mouse focus. This breaks the Godot input focus chain.</cause>
-      <fix>Implement node reuse in `RebuildCells()`. If the cell count is the same, only update `Position` instead of destroying nodes.</fix>
+    <error symptom="Item jump during rotation">
+      <cause>Lack of Counter-Transform visual compensation.</cause>
+      <fix>Use `UITweenInteractComponent.PlayRotationAnimation()` to smoothly tween visuals while logic updates instantly.</fix>
     </error>
   </troubleshooting>
 
   <implementation_anchors>
-    - **Godot Lifecycle Pattern (_EnterTree vs _Ready):** Parent components initialize Subjects in `_EnterTree()` (Top-Down execution), allowing children to safely subscribe in `_Ready()` (Bottom-Up execution). This solves the classic "child tries to subscribe before parent initializes" problem.
-    - **Event Aggregator Pattern:** `ItemCellGroupController` aggregates input events from multiple `GridCellUI` instances into a single `OnGroupInputAsObservable` stream. This solves the L-shape AABB problem by having discrete clickable cells instead of one large rectangular hitbox.
-    - **MouseFilter Architecture:** Root and InteractionArea use `Ignore (2)` to be transparent to mouse, while GridCellUI children use `Pass (0)` to receive events. This allows L-shape holes to pass clicks through to the backpack grid underneath.
+    - **R3 Placement Preview Stream Pattern:** `Merge(posStream, shapeStream)` ensures previews update on both move and rotate. Use **Pure Math Mapping** (`mouseGridPos - GetGrabbedCellLogicalOffset()`) to decouple logic from visual transforms. `DistinctUntilChanged` filters sub-cell jitter.
+    - **Commander Pattern (Refinement):** Controller delegates spatial math to `ViewGrid.IsPointInside()` and visual juicing to `TweenComp.PlayRotationAnimation()`. Controller only sends high-level instructions: Rotate → Sync → Animate.
+    - **Juice Delegation Pattern:** All Tween logic (Scaling, Counter-Transform Rotation) is moved to `UITweenInteractComponent`. Controller remains clean of implementation details like `TweenDuration` or `EaseType`.
+    - **Spatial Delegation Pattern:** All coordinate-aware math (Pixel-to-Grid, Grid-to-Center, Boundary Checks) is moved to `BackpackGridUIComponent`. Controller treats the grid as a pure logical service.
+    - **Anchor Stability Pattern:** Pre-calculate `GrabbedCellIndex` at pick-up. This persistent logical index ensures the item rotates around the exact cell the player grabbed, regardless of orientation changes.
     - **Node Reuse Pattern (Focus Preservation):** When updating item visuals during interaction (e.g., rotation), reuse existing `GridCellUI` nodes if the count is identical. Only update their `Position`. This prevents losing Godot mouse capture/focus, which would otherwise suppress the 'mouse release' event.
-    - **Interface-Based Data Injection:** `IItemDataProvider` interface with `DataInitialized` event allows parent (TSItemWrapper) to inject data to child (GridShapeComponent) after both are ready, solving the _Ready() execution order issue.
-    - **MVC Controller Concept:** `BackpackInteractionController` bridges `DraggableItemComponent` input with `BackpackGridComponent` backend. Single `ItemDragState _currentDrag` field (KISS — player has one mouse). Auto-registers items from `ItemsContainerPath` in `_Ready()`.
-    - **Power Switch Pattern:** Used by `FollowMouseUIComponent`. Placement strictly under the `Dragging` AtomicState allows `AutoBindToParentState()` to natively handle activation/deactivation hooks (`state_entered`/`state_exited`) without explicit controller toggling.
-    - **Micro-Interaction Tweens:** Inside `UITweenInteractComponent`, execute `_currentTween?.Kill()` before starting a new `AnimateToScale()`. Use `EaseType.Out` and `TransitionType.Sine` for easing math.
-    - **Grid Visualization Anchor:** `BackpackGridUIComponent._Draw()` plots `(Width + 1)` vertical lines and `(Height + 1)` horizontal lines when `DrawDebugLines` is true, followed by `QueueRedraw()` on dependency update.
-    - **R3 Placement Preview Stream Pattern:** When drag starts, launch `Observable.EveryUpdate().Select(math-map).DistinctUntilChanged().TakeUntil(OnDragEnded)`. This is the "ceiling camera" model — one global math transform instead of per-tile pressure sensors (`mouse_entered`). `DistinctUntilChanged` on `(bool, Vector2I)` tuples eliminates sub-cell noise. `TakeUntil` provides zero-boilerplate cleanup. Drop handler calls `ClearPreview()` then handles placement.
+    - **Interface-Based Data Injection:** `IItemDataProvider` interface with `DataInitialized` event allows parent (TSItemWrapper) to inject data to child (GridShapeComponent) after both are ready.
+    - **MVC Controller Concept:** `BackpackInteractionController` bridges `DraggableItemComponent` input with `BackpackGridComponent` backend. Auto-registers items from `ItemsContainerPath` in `_Ready()`.
+    - **Power Switch Pattern:** Used by `FollowMouseUIComponent`. Placement strictly under the `Dragging` AtomicState allows `AutoBindToParentState()` to natively handle activation/deactivation hooks.
+    - **Micro-Interaction Tweens:** Inside `UITweenInteractComponent`, execute `_currentTween?.Kill()` before starting a new `AnimateToScale()`.
   </implementation_anchors>
 
   <critical_constraints>
