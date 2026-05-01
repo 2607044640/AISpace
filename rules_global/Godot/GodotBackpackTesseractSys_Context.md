@@ -5,13 +5,16 @@ trigger: manual
 <context>
 **Tesseract Backpack (TS)** - Grid-based inventory system with drag-and-drop, rotation, StateChart integration, and Backpack Battles-style synergy system. Supports arbitrary item shapes (Tetris-like) with reactive event streams (R3), MVC architecture, and UI micro-interactions.
 
-**Latest Architecture (2026-04-28):**
+**Latest Architecture (2026-05-01):**
+- **Physics-State Authority:** Controller relies on `ItemPhysicsComponent.Freeze` to determine if an item is grabbed from the logic grid or caught mid-air. World-drops preserve their `GlobalPosition` and hand off seamlessly to the physics engine.
+- **Normalization Shift Compensation:** `ItemPhysicsComponent` calculates the visual offset caused by `GridShapeComponent.NormalizeShape()` during a physical rotation and applies an inverse shift to the parent `Control`'s `GlobalPosition`, eliminating pixel jumping when picking up rotated items.
+- **TopLevel Physics Proxy:** The `RigidBody2D` physics proxy MUST set `TopLevel = true` to break the Godot spatial inheritance chain. This prevents the "death spiral" feedback loop (infinite acceleration) when `_PhysicsProcess` synchronizes coordinates with its parent `Control`.
 - **Commander Pattern:** Controller delegates spatial math to the View and visual tweens to the Juice component. Result: Declarative logic, zero visual noise in Controller.
-- **Spatial Delegation:** `BackpackGridUIComponent` handles all coordinate mapping (`IsPointInside`, `GetCellCenterLocalPos`).
+- **Spatial Delegation:** `BackpackGridUIComponent` handles all coordinate mapping (`IsPointInside`, `GridToGlobalPosition`). `GridShapeComponent` handles local shape lookups (`GetCellIndexAtLocalPosition`).
 - **Juice Delegation:** `UITweenInteractComponent` encapsulates the complex Counter-Transform rotation animation (`PlayRotationAnimation`).
 - **Pure Math Decoupling:** Grid mapping uses `mouseGridPos - GetGrabbedCellLogicalOffset()`. Immune to pixel warp or visual UI transforms.
 - **Anchor Stability:** `GrabbedCellIndex` pre-calculated at pick-up. Ensures a consistent logical pivot point even across multiple rotations.
-- **Focus Preservation:** Node reuse in `ItemCellGroupController` prevents losing Godot mouse capture during rotation-induced cell rebuilding.
+- **Focus Preservation:** Node reuse in `GridShapeUIComponent` prevents losing Godot mouse capture during rotation-induced cell rebuilding.
 </context>
 
 <layer_1_quick_start>
@@ -22,7 +25,7 @@ trigger: manual
     - **New Project Root:** `TetrisBackpack/A1TesseractBackpack/` (新场景和资源)
     - **Scene Naming:** All scene files use `TS` prefix (e.g., `TSItem.tscn`)
     - **Core Path:** `TetrisBackpack/addons/A1TetrisBackpack/Core/` (BackpackGridComponent, BackpackInteractionController, BackpackGridUIComponent)
-    - **Items Path:** `TetrisBackpack/addons/A1TetrisBackpack/Items/` (ItemDataResource, GridShapeComponent, ItemCellGroupController, IItemDataProvider)
+    - **Items Path:** `TetrisBackpack/addons/A1TetrisBackpack/Items/` (ItemDataResource, GridShapeComponent, GridShapeUIComponent, IItemDataProvider)
     - **UI Path:** `TetrisBackpack/addons/A1TetrisBackpack/UI/` (GridCellUI - Panel-based cell component)
     - **Interaction Path:** `TetrisBackpack/addons/A1TetrisBackpack/Interaction/` (DraggableItemComponent, FollowMouseUIComponent)
     - **Synergies Path:** `TetrisBackpack/addons/A1TetrisBackpack/Synergies/` (SynergyDataResource, SynergyComponent)
@@ -60,6 +63,8 @@ trigger: manual
     - **NEVER use `_Process` for preview/highlight updates.** (Why: Runs every frame even when idle. Use R3 `EveryUpdate + DistinctUntilChanged + TakeUntil` which fires only on grid-boundary crossings and auto-disposes).
     - **NEVER use `Dictionary<Node, T>` for drag state.** (Why: Over-engineering. Player has one mouse → one drag at a time. Use single `ItemDragState _currentDrag` field).
     - **NEVER use `mouse_entered`/`mouse_exited` for grid highlight.** (Why: Signal order is unreliable on fast drags causing ghost-glow bugs. Use math-mapped `GlobalToGridPosition()` in an R3 stream instead).
+    - **NEVER overwrite GlobalPosition on drop for world items.** (Why: Reverting `GlobalPosition` destroys the `FollowMouseUIComponent` grab offset. For world drops, just call `EnablePhysics()` and let the engine take over).
+    - **NEVER leave RigidBody2D to inherit Control transforms if syncing.** (Why: If `_PhysicsProcess` syncs RB to Control, and RB is a child of Control, a death-spiral positive feedback loop occurs. Always set `TopLevel = true` on the RigidBody2D proxy).
   </top_anti_patterns>
 </layer_1_quick_start>
 
@@ -70,12 +75,13 @@ trigger: manual
     | `BackpackGridComponent` | `CanPlaceItem`, `TryPlaceItem`, `RemoveItem`, `GetItemAt`, `ClearGrid`, `EvaluatePlacementPreview` | `ItemData[] _gridData`, `OnItemPlacedAsObservable`, `OnItemRemovedAsObservable`. `EvaluatePlacementPreview(Vector2I[] shape, Vector2I targetPos)` returns `List<(Vector2I GridPos, CellState State)>` — no short-circuit, evaluates every cell |
     | `BackpackGridUIComponent` | `IsPointInside`, `GetCellCenterLocalPos`, `GlobalToGridPosition`, `GridToLocalPosition`, `LocalToGridPosition`, `IsValidGridPosition`, `RefreshGrid`, `ShowPreview`, `ClearPreview` | `[GlobalClass]`. `IsPointInside(global)` replaces manual Rect checks. `GetCellCenterLocalPos` handles cell-center pixel math. |
     | `BackpackInteractionController` | `RegisterItem`, `GetGrabbedCellLogicalOffset`, `IsItemBeingDragged` | **Commander Role**: orchestrates R3 streams and delegates math/visuals to GridUI/Juice components. |
+    | `ItemPhysicsComponent` | `EnablePhysics`, `DisablePhysics` | `TopLevel = true`. Bridges `RigidBody2D` with UI `Control`. Implements Inverse Normalization Shift compensation. |
     | `UITweenInteractComponent` | `PlayRotationAnimation`, `AnimateToScale`, `UpdatePivotOffset` | **Juice Component**: Encapsulates all Tween logic and Counter-Transform visual compensation. |
     | `ItemDataResource` | `GetCellCount`, `GetBoundingSize`, `IsShapeValid` | `ItemID`, `ItemName`, `Icon`, `BaseShape` (Array<Vector2I>) |
     | `GridShapeComponent` | `Rotate90`, `NormalizeShape` | `Vector2I[] CurrentLocalCells`, `OnShapeChangedAsObservable` (initialized in `_EnterTree()`) |
     | `IItemDataProvider` | `DataInitialized` event | Interface for parent-to-child data injection (solves _Ready() lifecycle issue) |
     | `GridCellUI` | `SetState`, `OnCellInputAsObservable`, `OnCellHoverAsObservable`, `MouseEntered`, `MouseExited` | Panel-based cell with StyleBoxFlat, states: Normal/Hover/Valid/Invalid |
-    | `ItemCellGroupController` | `SetGroupState`, `ResetGroupState`, `OnGroupInputAsObservable` | Event aggregator for multiple GridCellUI instances, includes hover effect subscriptions |
+    | `GridShapeUIComponent` | `SetGroupState`, `ResetGroupState`, `OnGroupInputAsObservable`, `UpdateCellsVisualState` | **View layer** for `GridShapeComponent`. Drives `GridCellUI` instances. Aggregates input events. Handles hover state. |
     | `DraggableItemComponent` | `GuiInput` event handlers | `Control ClickableArea`, `Node StateChart`, `OnDragStartedAsObservable`, `OnDragEndedAsObservable`, `OnRotateRequestedAsObservable` (all initialized in `_EnterTree()`) |
     | `FollowMouseUIComponent` | `AutoBindToParentState`, `OnDragStateEntered`, `OnDragStateExited` | `Control TargetUI`, `Vector2 GrabOffset` |
     | `SynergyDataResource` | `HasTag`, `GetStarCount`, `IsValid` | `string[] ProvidedTags`, `Array<Vector2I> StarOffsets`, `string RequiredTag`, `string SynergyEffect` |
@@ -95,7 +101,7 @@ trigger: manual
               * Dragging (AtomicState) -> Transition: event="drag_end" -> Idle
                 * FollowMouseUIComponent
           * GridShapeComponent (initializes Subject in _EnterTree)
-          * ItemCellGroupController (subscribes in _Ready, generates GridCellUI)
+          * GridShapeUIComponent (subscribes in _Ready, generates GridCellUI)
           * DraggableItemComponent (subscribes in _Ready)
           * InteractionArea (Control) [MouseFilter = Ignore (2), NEVER use Stop!]
             * GridCellUI (Panel) [MouseFilter = Pass (0), dynamically generated]
@@ -171,11 +177,19 @@ trigger: manual
     </error>
     <error symptom="Item drop not detected after rotation">
       <cause>Rotation triggers `QueueFree()` on the node capturing mouse focus.</cause>
-      <fix>Use node reuse in `ItemCellGroupController` when rebuilding visuals.</fix>
+      <fix>Use node reuse in `GridShapeUIComponent` when rebuilding visuals.</fix>
     </error>
     <error symptom="Item jump during rotation">
       <cause>Lack of Counter-Transform visual compensation.</cause>
       <fix>Use `UITweenInteractComponent.PlayRotationAnimation()` to smoothly tween visuals while logic updates instantly.</fix>
+    </error>
+    <error symptom="Item teleports/jumps when picked up after falling">
+      <cause>Physical rotation around origin vs GridShape normalization shift.</cause>
+      <fix>In `DisablePhysics()`, calculate the local shift caused by `NormalizeShape` and apply an inverse offset to the host Control's `GlobalPosition`.</fix>
+    </error>
+    <error symptom="Item accelerates infinitely/bounces wildly on floor">
+      <cause>Positive feedback loop between `_PhysicsProcess` setting parent position and child RigidBody inheriting that transform.</cause>
+      <fix>Set `TopLevel = true` on the `RigidBody2D` to break the inheritance chain.</fix>
     </error>
   </troubleshooting>
 
@@ -212,6 +226,13 @@ trigger: manual
       <rule>GridCellUI positioned at actual occupied cells - no holes, perfect hit detection.</rule>
     </constraint>
     
+    <constraint category="Physics & UI Integration">
+      <rule>**CRITICAL:** Set `TopLevel = true` on `RigidBody2D` if it's a child of a `Control` and synchronizes its position back to the parent to prevent death-spiral feedback loops.</rule>
+      <rule>**CRITICAL:** When transitioning from Physics Rotation to Logic Grid Rotation, calculate the shift caused by `GridShapeComponent.NormalizeShape()` and apply an inverse offset to `GlobalPosition` to prevent visual jumping.</rule>
+      <rule>Use `RigidBody2D.Freeze` state as the single source of truth for whether an item was grabbed from the logical grid or caught in mid-air.</rule>
+      <rule>In `_Process` (drag), force Physics to follow UI. In `_PhysicsProcess` (fall), force UI to follow Physics.</rule>
+    </constraint>
+    
     <constraint category="R3 Subscription Order">
       <rule>**CRITICAL:** Call `AddChild(node)` BEFORE `.Subscribe().AddTo(node)`.</rule>
       <rule>R3 requires node to be in scene tree for disposal tracking.</rule>
@@ -226,7 +247,7 @@ trigger: manual
     </constraint>
     
     <constraint category="Shape Management">
-      <rule>**CRITICAL:** Reuse `GridCellUI` nodes in `ItemCellGroupController` if cell count is unchanged.</rule>
+      <rule>**CRITICAL:** Reuse `GridCellUI` nodes in `GridShapeUIComponent` if cell count is unchanged.</rule>
       <rule>NEVER call `QueueFree()` on the node capturing mouse focus during a drag operation.</rule>
       <rule>Use rotation matrix `(x,y) -> (-y,x)` for clockwise 90°.</rule>
       <rule>Call `NormalizeShape()` after rotation to ensure origin at (0,0).</rule>

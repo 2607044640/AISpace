@@ -8,10 +8,10 @@ trigger: manual
 - **Engine Context**: Godot 4.6.1 stable mono, C#, Windows
 
 ## Decision Tree
-- **IF** Confidence < 7 OR blind spots: ALWAYS trigger web/doc search. (Why: NEVER guess missing facts)
-- **IF** Confidence >= 7 AND search complete: Proceed with execution.
-- **IF** 3 consecutive fails for same issue: HALT and escalate. (Why: Prevents infinite loops)
-- **IF** deadlocks, timing issues, Godot/OS bugs: HALT and escalate.
+- IF Confidence < 7 OR blind spots: ALWAYS trigger web/doc search. (Why: NEVER guess missing facts)
+- IF Confidence >= 7 AND search complete: Proceed with execution.
+- IF 3 consecutive fails for same issue: Check `AISpace/hardbugs/` directory for historical solutions. If no solution is found, HALT and escalate. (Why: Prevents infinite loops while leveraging past fixes)
+- IF deadlocks, timing issues, Godot/OS bugs: Check `hardbugs/`, then HALT and escalate.
 
 ## Implementation Workflow
 1. Execute `mcp_sequential_thinking_sequentialthinking` to catalog Knowledge Inventory.
