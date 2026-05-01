@@ -1,7 +1,7 @@
 <system_context>
   <metadata>
     <description>Godot CsArchitect (构筑师) Project Context Master File (Dual-Sync)</description>
-    <generated_time>2026-05-01 23:22:45</generated_time>
+    <generated_time>2026-05-02 07:47:10</generated_time>
   </metadata>
 
   <section name='00_primacy_boost' description='Read This First'>
@@ -11,925 +11,498 @@
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
-## 📅 20260501_230322
-- ➕ 新增: 2 | 📝 修改: 6 | ❌ 删除: 1
+## 📅 20260502_074630
+- ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 0
 
 #### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
 ```diff
 --- 
 +++ 
-@@ -1,9 +1,10 @@
- [gd_scene format=3 uid="uid://cahw8k8k84k2"]
- 
- [ext_resource type="Script" uid="uid://dkk5driwga8ql" path="res://addons/A1TetrisBackpack/Core/BackpackGridUIComponent.cs" id="1_7o1w7"]
+@@ -4,10 +4,11 @@
  [ext_resource type="Script" uid="uid://1rgai2oppf42" path="res://addons/A1TetrisBackpack/Core/BackpackGridComponent.cs" id="2_ovaqc"]
-+[ext_resource type="Resource" uid="uid://cboscusg2x03w" path="res://A1TesseractBackpack/GVSR_BackgroundGridVisuals.tres" id="3_5mic1"]
+ [ext_resource type="Resource" uid="uid://cboscusg2x03w" path="res://A1TesseractBackpack/GVSR_BackgroundGridVisuals.tres" id="3_5mic1"]
  [ext_resource type="PackedScene" uid="uid://bof44aeoq7w74" path="res://A1TesseractBackpack/TSItem.tscn" id="3_bkm53"]
  [ext_resource type="Script" uid="uid://lelpt5ux6h0d" path="res://addons/A1TetrisBackpack/Items/ItemDataResource.cs" id="4_5mic1"]
  [ext_resource type="Script" uid="uid://drof8dtjnyqs3" path="res://addons/A1TetrisBackpack/Core/BackpackInteractionController.cs" id="5_bic01"]
- [ext_resource type="PackedScene" uid="uid://c6j8k8k84k2" path="res://addons/A1TetrisBackpack/UI/TSGridCellUI.tscn" id="6_cell_prefab"]
++[ext_resource type="Script" path="res://addons/A1TetrisBackpack/Core/LootSpawnAreaController.cs" id="LootController_SC"]
  
-@@ -41,10 +42,11 @@
+ [sub_resource type="AnimatedTexture" id="AnimatedTexture_5ysrk"]
  
- [node name="BackpackGridUIComponent" type="Node" parent="." unique_id=1436944256 node_paths=PackedStringArray("GridBackground", "InteractionArea")]
- unique_name_in_owner = true
- script = ExtResource("1_7o1w7")
- BackpackGridComponentPath = NodePath("../BackpackGridComponent")
-+GridVisualSettings = ExtResource("3_5mic1")
- CellPrefab = ExtResource("6_cell_prefab")
- GridBackground = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/GridBackground")
- InteractionArea = NodePath("../ScreenMargin/MainVBox/BackpackVisuals")
+ [sub_resource type="Resource" id="Resource_0xep6"]
+ script = ExtResource("4_5mic1")
+@@ -97,22 +98,10 @@
+ anchor_bottom = 1.0
+ grow_horizontal = 2
+ grow_vertical = 2
+ mouse_filter = 2
  
- [node name="BackpackInteractionController" type="Node" parent="." unique_id=863928779]
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\DraggableItemComponent.cs
-```diff
---- 
-+++ 
-@@ -4,13 +4,13 @@
- [GlobalClass]
- public partial class DraggableItemComponent : Node
- {
- 	#region Export Properties
- 	
--	[Export] public NodePath ItemCellGroupController_Path { get; set; } = "%ItemCellGroupController";
-+	[Export] public NodePath GridShapeUIComponent_Path { get; set; } = "%GridShapeUIComponent";
- 	
--	private ItemCellGroupController _itemCellGroupController;
-+	private GridShapeUIComponent _gridShapeUIComponent;
- 	
- 	[Export] public NodePath StateChartPath { get; set; } = "%StateChart";
- 	
- 	public Node StateChart { get; private set; }
- 	
-@@ -74,22 +74,22 @@
- 	}
- 	
- 	/// 延迟初始化组件（在 NodePath 解析完成后）
- 	private void InitializeComponent()
- 	{
--		// 解析 ItemCellGroupController 引用
--		_itemCellGroupController = GetNodeOrNull<ItemCellGroupController>(ItemCellGroupController_Path);
-+		// 解析 GridShapeUIComponent 引用
-+		_gridShapeUIComponent = GetNodeOrNull<GridShapeUIComponent>(GridShapeUIComponent_Path);
- 		
--		// 验证 ItemCellGroupController 引用
--		if (_itemCellGroupController == null)
-+		// 验证 GridShapeUIComponent 引用
-+		if (_gridShapeUIComponent == null)
- 		{
--			GD.PushError($"[{Name}] ItemCellGroupController not found at path: {ItemCellGroupController_Path}");
-+			GD.PushError($"[{Name}] GridShapeUIComponent not found at path: {GridShapeUIComponent_Path}");
- 			return;
- 		}
- 		
--		// 订阅 ItemCellGroupController 的聚合输入事件流
--		_itemCellGroupController.OnGroupInputAsObservable
-+		// 订阅 GridShapeUIComponent 的聚合输入事件流
-+		_gridShapeUIComponent.OnGroupInputAsObservable
- 			.Subscribe(x => HandleGuiInput(x.Event))
- 			.AddTo(this);
- 		
- 		StateChart = GetNodeOrNull<Node>(StateChartPath);
- 		if (StateChart == null)
-```
-#### AISpace/rules_global\Godot\GodotBackpackTesseractSys_Context.md
-```diff
---- 
-+++ 
-@@ -12,22 +12,22 @@
- - **Commander Pattern:** Controller delegates spatial math to the View and visual tweens to the Juice component. Result: Declarative logic, zero visual noise in Controller.
- - **Spatial Delegation:** `BackpackGridUIComponent` handles all coordinate mapping (`IsPointInside`, `GridToGlobalPosition`). `GridShapeComponent` handles local shape lookups (`GetCellIndexAtLocalPosition`).
- - **Juice Delegation:** `UITweenInteractComponent` encapsulates the complex Counter-Transform rotation animation (`PlayRotationAnimation`).
- - **Pure Math Decoupling:** Grid mapping uses `mouseGridPos - GetGrabbedCellLogicalOffset()`. Immune to pixel warp or visual UI transforms.
- - **Anchor Stability:** `GrabbedCellIndex` pre-calculated at pick-up. Ensures a consistent logical pivot point even across multiple rotations.
--- **Focus Preservation:** Node reuse in `ItemCellGroupController` prevents losing Godot mouse capture during rotation-induced cell rebuilding.
-+- **Focus Preservation:** Node reuse in `GridShapeUIComponent` prevents losing Godot mouse capture during rotation-induced cell rebuilding.
- </context>
- 
- <layer_1_quick_start>
-   <quick_reference>
-     - **Project Prefix:** TS (Tesseract)
-     - **Rule Storage:** Store ALL rules in `AISpace/`.
-     - **Addon Root (Legacy):** `TetrisBackpack/addons/A1TetrisBackpack/` (旧代码库)
-     - **New Project Root:** `TetrisBackpack/A1TesseractBackpack/` (新场景和资源)
-     - **Scene Naming:** All scene files use `TS` prefix (e.g., `TSItem.tscn`)
-     - **Core Path:** `TetrisBackpack/addons/A1TetrisBackpack/Core/` (BackpackGridComponent, BackpackInteractionController, BackpackGridUIComponent)
--    - **Items Path:** `TetrisBackpack/addons/A1TetrisBackpack/Items/` (ItemDataResource, GridShapeComponent, ItemCellGroupController, IItemDataProvider)
-+    - **Items Path:** `TetrisBackpack/addons/A1TetrisBackpack/Items/` (ItemDataResource, GridShapeComponent, GridShapeUIComponent, IItemDataProvider)
-     - **UI Path:** `TetrisBackpack/addons/A1TetrisBackpack/UI/` (GridCellUI - Panel-based cell component)
-     - **Interaction Path:** `TetrisBackpack/addons/A1TetrisBackpack/Interaction/` (DraggableItemComponent, FollowMouseUIComponent)
-     - **Synergies Path:** `TetrisBackpack/addons/A1TetrisBackpack/Synergies/` (SynergyDataResource, SynergyComponent)
-     - **MicroUI Path:** `TetrisBackpack/addons/A1TetrisBackpack/MicroUI/` (UITweenInteractComponent)
-     - **Core Dependencies:** R3 (Cysharp) for reactive streams, GodotStateCharts for state management.
-@@ -79,11 +79,11 @@
-     | `UITweenInteractComponent` | `PlayRotationAnimation`, `AnimateToScale`, `UpdatePivotOffset` | **Juice Component**: Encapsulates all Tween logic and Counter-Transform visual compensation. |
-     | `ItemDataResource` | `GetCellCount`, `GetBoundingSize`, `IsShapeValid` | `ItemID`, `ItemName`, `Icon`, `BaseShape` (Array<Vector2I>) |
-     | `GridShapeComponent` | `Rotate90`, `NormalizeShape` | `Vector2I[] CurrentLocalCells`, `OnShapeChangedAsObservable` (initialized in `_EnterTree()`) |
-     | `IItemDataProvider` | `DataInitialized` event | Interface for parent-to-child data injection (solves _Ready() lifecycle issue) |
-     | `GridCellUI` | `SetState`, `OnCellInputAsObservable`, `OnCellHoverAsObservable`, `MouseEntered`, `MouseExited` | Panel-based cell with StyleBoxFlat, states: Normal/Hover/Valid/Invalid |
--    | `ItemCellGroupController` | `SetGroupState`, `ResetGroupState`, `OnGroupInputAsObservable` | Event aggregator for multiple GridCellUI instances, includes hover effect subscriptions |
-+    | `GridShapeUIComponent` | `SetGroupState`, `ResetGroupState`, `OnGroupInputAsObservable`, `UpdateCellsVisualState` | **View layer** for `GridShapeComponent`. Drives `GridCellUI` instances. Aggregates input events. Handles hover state. |
-     | `DraggableItemComponent` | `GuiInput` event handlers | `Control ClickableArea`, `Node StateChart`, `OnDragStartedAsObservable`, `OnDragEndedAsObservable`, `OnRotateRequestedAsObservable` (all initialized in `_EnterTree()`) |
-     | `FollowMouseUIComponent` | `AutoBindToParentState`, `OnDragStateEntered`, `OnDragStateExited` | `Control TargetUI`, `Vector2 GrabOffset` |
-     | `SynergyDataResource` | `HasTag`, `GetStarCount`, `IsValid` | `string[] ProvidedTags`, `Array<Vector2I> StarOffsets`, `string RequiredTag`, `string SynergyEffect` |
-     | `SynergyComponent` | `CheckSynergies`, `ApplyRotationToOffset` | `HashSet<Vector2I> ActiveStars`, `int _rotationCount`, `OnSynergyChangedAsObservable` |
-   </api_reference>
-@@ -99,11 +99,11 @@
-             * Root (CompoundState, initial="Idle")
-               * Idle (AtomicState) -> Transition: event="drag_start" -> Dragging
-               * Dragging (AtomicState) -> Transition: event="drag_end" -> Idle
-                 * FollowMouseUIComponent
-           * GridShapeComponent (initializes Subject in _EnterTree)
--          * ItemCellGroupController (subscribes in _Ready, generates GridCellUI)
-+          * GridShapeUIComponent (subscribes in _Ready, generates GridCellUI)
-           * DraggableItemComponent (subscribes in _Ready)
-           * InteractionArea (Control) [MouseFilter = Ignore (2), NEVER use Stop!]
-             * GridCellUI (Panel) [MouseFilter = Pass (0), dynamically generated]
-               * (Multiple instances for L-shape, each handles own input)
-             * ItemIcon (TextureRect) [MouseFilter = Ignore (2)]
-@@ -175,11 +175,11 @@
-       <cause>InteractionArea MouseFilter set to Stop (1).</cause>
-       <fix>Set InteractionArea `mouse_filter = 2` (Ignore).</fix>
-     </error>
-     <error symptom="Item drop not detected after rotation">
-       <cause>Rotation triggers `QueueFree()` on the node capturing mouse focus.</cause>
--      <fix>Use node reuse in `ItemCellGroupController` when rebuilding visuals.</fix>
-+      <fix>Use node reuse in `GridShapeUIComponent` when rebuilding visuals.</fix>
-     </error>
-     <error symptom="Item jump during rotation">
-       <cause>Lack of Counter-Transform visual compensation.</cause>
-       <fix>Use `UITweenInteractComponent.PlayRotationAnimation()` to smoothly tween visuals while logic updates instantly.</fix>
-     </error>
-@@ -245,11 +245,11 @@
-       <rule>Validate bounds before array access.</rule>
-       <rule>Clear grid cells when removing items.</rule>
-     </constraint>
-     
-     <constraint category="Shape Management">
--      <rule>**CRITICAL:** Reuse `GridCellUI` nodes in `ItemCellGroupController` if cell count is unchanged.</rule>
-+      <rule>**CRITICAL:** Reuse `GridCellUI` nodes in `GridShapeUIComponent` if cell count is unchanged.</rule>
-       <rule>NEVER call `QueueFree()` on the node capturing mouse focus during a drag operation.</rule>
-       <rule>Use rotation matrix `(x,y) -> (-y,x)` for clockwise 90°.</rule>
-       <rule>Call `NormalizeShape()` after rotation to ensure origin at (0,0).</rule>
-       <rule>Convert `Godot.Collections.Array<Vector2I>` to `Vector2I[]` for runtime use.</rule>
-     </constraint>
-```
-#### TetrisBackpack/A1TesseractBackpack\TSItem.tscn
-```diff
---- 
-+++ 
-@@ -1,9 +1,9 @@
- [gd_scene format=3 uid="uid://bof44aeoq7w74"]
- 
- [ext_resource type="PackedScene" uid="uid://c6j8k8k84k2" path="res://addons/A1TetrisBackpack/UI/TSGridCellUI.tscn" id="cell_prefab"]
--[ext_resource type="Script" uid="uid://bxypbbiy6mdl5" path="res://addons/A1TetrisBackpack/Items/ItemCellGroupController.cs" id="controller_script"]
-+[ext_resource type="Script" uid="uid://bxypbbiy6mdl5" path="res://addons/A1TetrisBackpack/Items/GridShapeUIComponent.cs" id="controller_script"]
- [ext_resource type="Script" uid="uid://bdka4obxtossd" path="res://addons/A1TetrisBackpack/Interaction/DraggableItemComponent.cs" id="draggable_script"]
- [ext_resource type="Script" uid="uid://d2svbqvyq43tw" path="res://addons/A1TetrisBackpack/Interaction/FollowMouseUIComponent.cs" id="follow_mouse_script"]
- [ext_resource type="Script" uid="uid://cljs2l6httw2" path="res://addons/A1TetrisBackpack/Interaction/ItemPhysicsComponent.cs" id="physics_script"]
- [ext_resource type="Script" uid="uid://cytafq8i1y8qm" path="res://addons/godot_state_charts/atomic_state.gd" id="script_AtomicState"]
- [ext_resource type="Script" uid="uid://jk2jm1g6q853" path="res://addons/godot_state_charts/compound_state.gd" id="script_CompoundState"]
-@@ -76,11 +76,11 @@
- unique_name_in_owner = true
- script = ExtResource("shape_script")
- AutoResizeParent = false
- VisualContainerPath = NodePath("%InteractionArea")
- 
--[node name="ItemCellGroupController" type="Node" parent="." unique_id=2001234567]
-+[node name="GridShapeUIComponent" type="Node" parent="." unique_id=2001234567]
- unique_name_in_owner = true
- script = ExtResource("controller_script")
- CellPrefab = ExtResource("cell_prefab")
- 
- [node name="DraggableItemComponent" type="Node" parent="." unique_id=1027640510]
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\UI\GridVisualSettingsResource.cs
-```diff
---- 
-+++ 
-@@ -1,31 +1,32 @@
- using Godot;
- 
- /// <summary>
-+/// GVSR
- /// 网格视觉设置资源
- /// 用于统一定义背景网格和物品网格的视觉表现（尺寸、纹理、颜色、发光等）
- /// </summary>
- [Tool]
- [GlobalClass]
- public partial class GridVisualSettingsResource : Resource
- {
-     /// <summary>单个格子的像素尺寸</summary>
-     [Export] public Vector2 CellSize { get; set; } = new Vector2(64, 64);
--    
-+
-     /// <summary>格子的基础纹理图片</summary>
-     [Export] public Texture2D CellTexture { get; set; }
--    
-+
-     /// <summary>正常状态下的颜色/Tint（叠加在纹理上）</summary>
-     [Export] public Color NormalColor { get; set; } = new Color(1, 1, 1, 0.5f);
--    
-+
-     /// <summary>鼠标悬停状态下的颜色/Tint</summary>
-     [Export] public Color HoverColor { get; set; } = new Color(1, 1, 1, 1f);
--    
-+
-     /// <summary>可放置状态下的颜色/Tint</summary>
-     [Export] public Color ValidColor { get; set; } = new Color(0.2f, 1.0f, 0.2f, 0.8f);
--    
-+
-     /// <summary>不可放置状态下的颜色/Tint</summary>
-     [Export] public Color InvalidColor { get; set; } = new Color(1.0f, 0.2f, 0.2f, 0.8f);
--    
-+
-     /// <summary>发光乘数（HDR颜色：> 1.0 会在WorldEnvironment开启Glow时产生泛光效果）</summary>
-     [Export] public float GlowMultiplier { get; set; } = 1.0f;
- }
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
-```diff
---- 
-+++ 
-@@ -511,14 +511,14 @@
- 
- 	// 安全获取或构造 ItemData
- 	private ItemData GetItemData(GridShapeComponent shape) =>
- 		new ItemData(shape.Data?.ItemID ?? "unknown");
- 
--	// 获取单元格组控制器
--	private ItemCellGroupController GetItemGroupCtrl(Node itemEntity) =>
--		itemEntity.GetNodeOrNull<ItemCellGroupController>("%ItemCellGroupController")
--		?? itemEntity.FindChild("ItemCellGroupController", true, false) as ItemCellGroupController;
-+	// 获取 GridShapeUIComponent
-+	private GridShapeUIComponent GetItemGroupCtrl(Node itemEntity) =>
-+		itemEntity.GetNodeOrNull<GridShapeUIComponent>("%GridShapeUIComponent")
-+		?? itemEntity.FindChild("GridShapeUIComponent", true, false) as GridShapeUIComponent;
- 
- 	// 计算当前被抓取单元格相对于物品逻辑原点 (0,0) 的逻辑偏移
- 	private Vector2I GetGrabbedCellLogicalOffset(ItemDragState dragState, GridShapeComponent shapeComponent)
- 	{
- 		if (dragState == null || shapeComponent.CurrentLocalCells == null)
-```
----
-## 📅 20260501_140658
-- ➕ 新增: 1 | 📝 修改: 6 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\UI\TSGridCellUI.tscn
-```diff
---- 
-+++ 
-@@ -9,27 +9,16 @@
- offset_right = 64.0
- offset_bottom = 64.0
- mouse_filter = 1
- script = ExtResource("1_script")
- 
--[node name="Background" type="ColorRect" parent="."]
-+[node name="CellImage" type="TextureRect" parent="."]
- unique_name_in_owner = true
- layout_mode = 1
- anchors_preset = 15
+-[node name="TsItem" parent="ScreenMargin/MainVBox/BackpackVisuals/ItemsContainer" unique_id=1959740042 instance=ExtResource("3_bkm53")]
+-layout_mode = 0
+-offset_right = 192.0
+-offset_bottom = 64.0
+-Data = SubResource("Resource_0xep6")
+-
+-[node name="TsItem2" parent="ScreenMargin/MainVBox/BackpackVisuals/ItemsContainer" unique_id=279074725 instance=ExtResource("3_bkm53")]
+-layout_mode = 0
+-offset_right = 192.0
+-offset_bottom = 64.0
+-Data = SubResource("Resource_0xep6")
+-
+ [node name="Instructions" type="Label" parent="ScreenMargin/MainVBox" unique_id=2075687424]
+ layout_mode = 2
+ theme_override_font_sizes/font_size = 16
+ text = "Left Click: Drag | Right Click: Rotate | Drop in backpack to place"
+ horizontal_alignment = 1
+@@ -123,15 +112,53 @@
  anchor_right = 1.0
  anchor_bottom = 1.0
  grow_horizontal = 2
  grow_vertical = 2
  mouse_filter = 2
--color = Color(0.2, 0.2, 0.2, 0.5)
--
--[node name="Border" type="ReferenceRect" parent="."]
--unique_name_in_owner = true
--layout_mode = 1
--anchors_preset = 15
--anchor_right = 1.0
--anchor_bottom = 1.0
--grow_horizontal = 2
--grow_vertical = 2
--mouse_filter = 2
--border_color = Color(1, 1, 1, 0)
--editor_only = false
-+expand_mode = 1
-+stretch_mode = 0
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Items\ItemCellGroupController.cs
-```diff
---- 
-+++ 
-@@ -25,10 +25,13 @@
- 	[Export] public PackedScene CellPrefab { get; set; }
++script = ExtResource("LootController_SC")
++CheckInterval = 2.0
++AllowedBounds = Rect2(-500, -2000, 2500, 4000)
++RespawnPosition = Vector2(576, 100)
  
- 	/// 单个格子的像素尺寸（默认64x64）
- 	[Export] public float CellSize { get; set; } = 64f;
- 
-+	/// 物品网格的视觉设置（如果不设置将使用默认样式）
-+	[Export] public GridVisualSettingsResource ItemVisualSettings { get; set; }
-+
- 	#endregion
- 
- 	#region Private Fields
- 
- 	/// GridShapeComponent引用
-@@ -180,10 +183,14 @@
- 				GD.PushError($"[{Name}] CellPrefab not assigned!");
- 				return;
- 			}
- 
- 			var gridCellUI = CellPrefab.Instantiate<GridCellUI>();
-+			
-+			// 分配视觉设置
-+			gridCellUI.VisualSettings = ItemVisualSettings;
-+			
- 			gridCellUI.Size = new Vector2(CellSize, CellSize);
- 			gridCellUI.Position = new Vector2(cellPos.X * CellSize, cellPos.Y * CellSize);
- 			gridCellUI.Name = $"GridCell_{cellIndex}";
- 			gridCellUI.MouseFilter = Control.MouseFilterEnum.Pass;
- 			gridCellUI.CellIndex = cellIndex;
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackGridUIComponent.cs
-```diff
---- 
-+++ 
-@@ -20,10 +20,13 @@
- 	[Export] public NodePath BackpackGridComponentPath { get; set; } = "%BackpackGridComponent";
- 
- 	/// 逻辑网格组件引用
- 	public BackpackGridComponent BackpackGridComp { get; private set; }
- 
-+	/// <summary>背景网格视觉设置</summary>
-+	[Export] public GridVisualSettingsResource GridVisualSettings { get; set; }
-+
- 	/// 单个网格的像素尺寸
- 	[Export] public Vector2 CellSize { get; set; } = new Vector2(64, 64);
- 
- 	/// 单元格预设（用于生成背景格子）
- 	[Export] public PackedScene CellPrefab { get; set; }
-@@ -62,10 +65,15 @@
- 		BackpackGridComp = GetNodeOrNull<BackpackGridComponent>(BackpackGridComponentPath);
- 		if (BackpackGridComp == null)
- 		{
- 			GD.PushError($"[{Name}] BackpackGridComponent not found: {BackpackGridComponentPath}");
- 			return;
-+		}
-+
-+		if (GridVisualSettings != null && GridVisualSettings.CellSize != Vector2.Zero)
-+		{
-+			CellSize = GridVisualSettings.CellSize;
- 		}
- 
- 		if (GridBackground == null)
- 		{
- 			GD.PushError($"[{Name}] GridBackground is not assigned. Please assign it in the editor.");
-@@ -180,10 +188,14 @@
- 					GD.PushError($"[{Name}] CellPrefab not assigned!");
- 					return;
- 				}
- 
- 				var gridCellUI = CellPrefab.Instantiate<GridCellUI>();
-+				
-+				// 分配视觉设置
-+				gridCellUI.VisualSettings = GridVisualSettings;
-+				
- 				gridCellUI.Size = CellSize;
- 				gridCellUI.Position = new Vector2(x * CellSize.X, y * CellSize.Y);
- 				gridCellUI.Name = $"BackgroundCell_{x}_{y}";
- 				gridCellUI.MouseFilter = Control.MouseFilterEnum.Pass; // 格子需要接收鼠标进入/离开事件
- 
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
-```diff
---- 
-+++ 
-@@ -305,13 +305,13 @@
- 				}
- 				else
- 				{
- 					var previewData = BackpackGridComp.EvaluatePlacementPreview(
- 						shapeComponent.CurrentLocalCells, state.gridPos);
--					
-+
- 					BackpackGridUIComp.ShowPreview(previewData);
--					
-+
- 					// 同步更新物品自己的格子颜色
- 					var cellStates = new GridCellUI.CellState[previewData.Count];
- 					for (int i = 0; i < previewData.Count; i++) {
- 						cellStates[i] = previewData[i].State;
- 					}
-@@ -364,11 +364,11 @@
- 			}
- 			return;
- 		}
- 
- 		Vector2I mouseGridPos = BackpackGridUIComp.GlobalToGridPosition(mousePos);
--		
-+
- 		// 纯数学逻辑计算左上角网格坐标
- 		Vector2I targetGridPos = mouseGridPos - GetGrabbedCellLogicalOffset(dragState, shapeComponent);
- 		var itemData = GetItemData(shapeComponent);
- 		bool placementSuccess = BackpackGridComp.TryPlaceItem(
- 			itemData,
-@@ -479,11 +479,11 @@
- 		var scene = GD.Load<PackedScene>("res://A1TesseractBackpack/TSItem.tscn");
- 		if (scene == null) return;
- 
- 		var itemInstance = scene.Instantiate<Control>();
- 		lootArea.AddChild(itemInstance);
--		
-+
- 		// Spawn somewhere near top-center of the screen
- 		itemInstance.GlobalPosition = new Vector2(GetViewport().GetVisibleRect().Size.X / 2f, 100);
- 
- 		RegisterItem(itemInstance);
- 
-```
-#### AISpace/rules_global\Godot\GodotBackpackTesseractSys_Context.md
-```diff
---- 
-+++ 
-@@ -3,13 +3,16 @@
- ---
- 
- <context>
- **Tesseract Backpack (TS)** - Grid-based inventory system with drag-and-drop, rotation, StateChart integration, and Backpack Battles-style synergy system. Supports arbitrary item shapes (Tetris-like) with reactive event streams (R3), MVC architecture, and UI micro-interactions.
- 
--**Latest Architecture (2026-04-28):**
-+**Latest Architecture (2026-05-01):**
-+- **Physics-State Authority:** Controller relies on `ItemPhysicsComponent.Freeze` to determine if an item is grabbed from the logic grid or caught mid-air. World-drops preserve their `GlobalPosition` and hand off seamlessly to the physics engine.
-+- **Normalization Shift Compensation:** `ItemPhysicsComponent` calculates the visual offset caused by `GridShapeComponent.NormalizeShape()` during a physical rotation and applies an inverse shift to the parent `Control`'s `GlobalPosition`, eliminating pixel jumping when picking up rotated items.
-+- **TopLevel Physics Proxy:** The `RigidBody2D` physics proxy MUST set `TopLevel = true` to break the Godot spatial inheritance chain. This prevents the "death spiral" feedback loop (infinite acceleration) when `_PhysicsProcess` synchronizes coordinates with its parent `Control`.
- - **Commander Pattern:** Controller delegates spatial math to the View and visual tweens to the Juice component. Result: Declarative logic, zero visual noise in Controller.
--- **Spatial Delegation:** `BackpackGridUIComponent` handles all coordinate mapping (`IsPointInside`, `GetCellCenterLocalPos`).
-+- **Spatial Delegation:** `BackpackGridUIComponent` handles all coordinate mapping (`IsPointInside`, `GridToGlobalPosition`). `GridShapeComponent` handles local shape lookups (`GetCellIndexAtLocalPosition`).
- - **Juice Delegation:** `UITweenInteractComponent` encapsulates the complex Counter-Transform rotation animation (`PlayRotationAnimation`).
- - **Pure Math Decoupling:** Grid mapping uses `mouseGridPos - GetGrabbedCellLogicalOffset()`. Immune to pixel warp or visual UI transforms.
- - **Anchor Stability:** `GrabbedCellIndex` pre-calculated at pick-up. Ensures a consistent logical pivot point even across multiple rotations.
- - **Focus Preservation:** Node reuse in `ItemCellGroupController` prevents losing Godot mouse capture during rotation-induced cell rebuilding.
- </context>
-@@ -58,20 +61,23 @@
-     - **NEVER initialize Subjects in `_Ready()`.** (Why: Child `_Ready()` executes before parent `_Ready()`, causing NullReferenceException when children try to subscribe).
-     - **NEVER call `.AddTo()` before `AddChild()`.** (Why: R3 requires node to be in scene tree before subscription disposal tracking).
-     - **NEVER use `_Process` for preview/highlight updates.** (Why: Runs every frame even when idle. Use R3 `EveryUpdate + DistinctUntilChanged + TakeUntil` which fires only on grid-boundary crossings and auto-disposes).
-     - **NEVER use `Dictionary<Node, T>` for drag state.** (Why: Over-engineering. Player has one mouse → one drag at a time. Use single `ItemDragState _currentDrag` field).
-     - **NEVER use `mouse_entered`/`mouse_exited` for grid highlight.** (Why: Signal order is unreliable on fast drags causing ghost-glow bugs. Use math-mapped `GlobalToGridPosition()` in an R3 stream instead).
-+    - **NEVER overwrite GlobalPosition on drop for world items.** (Why: Reverting `GlobalPosition` destroys the `FollowMouseUIComponent` grab offset. For world drops, just call `EnablePhysics()` and let the engine take over).
-+    - **NEVER leave RigidBody2D to inherit Control transforms if syncing.** (Why: If `_PhysicsProcess` syncs RB to Control, and RB is a child of Control, a death-spiral positive feedback loop occurs. Always set `TopLevel = true` on the RigidBody2D proxy).
-   </top_anti_patterns>
- </layer_1_quick_start>
- 
- <layer_2_detailed_guide>
-   <api_reference>
-     | Class | Methods/Properties | Parameters / Types |
-     | :--- | :--- | :--- |
-     | `BackpackGridComponent` | `CanPlaceItem`, `TryPlaceItem`, `RemoveItem`, `GetItemAt`, `ClearGrid`, `EvaluatePlacementPreview` | `ItemData[] _gridData`, `OnItemPlacedAsObservable`, `OnItemRemovedAsObservable`. `EvaluatePlacementPreview(Vector2I[] shape, Vector2I targetPos)` returns `List<(Vector2I GridPos, CellState State)>` — no short-circuit, evaluates every cell |
-     | `BackpackGridUIComponent` | `IsPointInside`, `GetCellCenterLocalPos`, `GlobalToGridPosition`, `GridToLocalPosition`, `LocalToGridPosition`, `IsValidGridPosition`, `RefreshGrid`, `ShowPreview`, `ClearPreview` | `[GlobalClass]`. `IsPointInside(global)` replaces manual Rect checks. `GetCellCenterLocalPos` handles cell-center pixel math. |
-     | `BackpackInteractionController` | `RegisterItem`, `GetGrabbedCellLogicalOffset`, `IsItemBeingDragged` | **Commander Role**: orchestrates R3 streams and delegates math/visuals to GridUI/Juice components. |
-+    | `ItemPhysicsComponent` | `EnablePhysics`, `DisablePhysics` | `TopLevel = true`. Bridges `RigidBody2D` with UI `Control`. Implements Inverse Normalization Shift compensation. |
-     | `UITweenInteractComponent` | `PlayRotationAnimation`, `AnimateToScale`, `UpdatePivotOffset` | **Juice Component**: Encapsulates all Tween logic and Counter-Transform visual compensation. |
-     | `ItemDataResource` | `GetCellCount`, `GetBoundingSize`, `IsShapeValid` | `ItemID`, `ItemName`, `Icon`, `BaseShape` (Array<Vector2I>) |
-     | `GridShapeComponent` | `Rotate90`, `NormalizeShape` | `Vector2I[] CurrentLocalCells`, `OnShapeChangedAsObservable` (initialized in `_EnterTree()`) |
-     | `IItemDataProvider` | `DataInitialized` event | Interface for parent-to-child data injection (solves _Ready() lifecycle issue) |
-     | `GridCellUI` | `SetState`, `OnCellInputAsObservable`, `OnCellHoverAsObservable`, `MouseEntered`, `MouseExited` | Panel-based cell with StyleBoxFlat, states: Normal/Hover/Valid/Invalid |
-@@ -175,10 +181,18 @@
-     </error>
-     <error symptom="Item jump during rotation">
-       <cause>Lack of Counter-Transform visual compensation.</cause>
-       <fix>Use `UITweenInteractComponent.PlayRotationAnimation()` to smoothly tween visuals while logic updates instantly.</fix>
-     </error>
-+    <error symptom="Item teleports/jumps when picked up after falling">
-+      <cause>Physical rotation around origin vs GridShape normalization shift.</cause>
-+      <fix>In `DisablePhysics()`, calculate the local shift caused by `NormalizeShape` and apply an inverse offset to the host Control's `GlobalPosition`.</fix>
-+    </error>
-+    <error symptom="Item accelerates infinitely/bounces wildly on floor">
-+      <cause>Positive feedback loop between `_PhysicsProcess` setting parent position and child RigidBody inheriting that transform.</cause>
-+      <fix>Set `TopLevel = true` on the `RigidBody2D` to break the inheritance chain.</fix>
-+    </error>
-   </troubleshooting>
- 
-   <implementation_anchors>
-     - **R3 Placement Preview Stream Pattern:** `Merge(posStream, shapeStream)` ensures previews update on both move and rotate. Use **Pure Math Mapping** (`mouseGridPos - GetGrabbedCellLogicalOffset()`) to decouple logic from visual transforms. `DistinctUntilChanged` filters sub-cell jitter.
-     - **Commander Pattern (Refinement):** Controller delegates spatial math to `ViewGrid.IsPointInside()` and visual juicing to `TweenComp.PlayRotationAnimation()`. Controller only sends high-level instructions: Rotate → Sync → Animate.
-@@ -210,10 +224,17 @@
-       <rule>**Why Ignore on InteractionArea?** It's a rectangular AABB. Stop would block L-shape holes.</rule>
-       <rule>Ignore makes InteractionArea transparent - mouse passes through to GridCellUI children.</rule>
-       <rule>GridCellUI positioned at actual occupied cells - no holes, perfect hit detection.</rule>
-     </constraint>
-     
-+    <constraint category="Physics & UI Integration">
-+      <rule>**CRITICAL:** Set `TopLevel = true` on `RigidBody2D` if it's a child of a `Control` and synchronizes its position back to the parent to prevent death-spiral feedback loops.</rule>
-+      <rule>**CRITICAL:** When transitioning from Physics Rotation to Logic Grid Rotation, calculate the shift caused by `GridShapeComponent.NormalizeShape()` and apply an inverse offset to `GlobalPosition` to prevent visual jumping.</rule>
-+      <rule>Use `RigidBody2D.Freeze` state as the single source of truth for whether an item was grabbed from the logical grid or caught in mid-air.</rule>
-+      <rule>In `_Process` (drag), force Physics to follow UI. In `_PhysicsProcess` (fall), force UI to follow Physics.</rule>
-+    </constraint>
-+    
-     <constraint category="R3 Subscription Order">
-       <rule>**CRITICAL:** Call `AddChild(node)` BEFORE `.Subscribe().AddTo(node)`.</rule>
-       <rule>R3 requires node to be in scene tree for disposal tracking.</rule>
-       <rule>Calling `.AddTo()` before `AddChild()` throws "AddTo does not support to use before enter tree".</rule>
-       <rule>Correct order: 1. `AddChild(gridCellUI);` 2. `gridCellUI.OnCellInputAsObservable.Subscribe(...).AddTo(gridCellUI);`</rule>
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\UI\GridCellUI.cs
-```diff
---- 
-+++ 
-@@ -9,10 +9,13 @@
- [GlobalClass]
- public partial class GridCellUI : Control
- {
- 	/// <summary>单元格在物品形状数组中的索引</summary>
- 	public int CellIndex { get; set; }
-+
-+	/// <summary>控制格子的视觉外观</summary>
-+	[Export] public GridVisualSettingsResource VisualSettings { get; set; }
- 
- 	#region State Enum
- 
- 	/// 单元格状态枚举
- 	public enum CellState
-@@ -97,33 +100,65 @@
- 	/// 目的：根据状态切换背景颜色和边框
- 	public void SetState(CellState state)
- 	{
- 		_currentState = state;
- 
--		var bg = GetNodeOrNull<ColorRect>("%Background");
--		var border = GetNodeOrNull<ReferenceRect>("%Border");
--		if (bg == null || border == null) return;
-+		var cellImage = GetNodeOrNull<TextureRect>("%CellImage");
-+		if (cellImage == null) return;
- 
--		switch (state)
-+		// 默认颜色回退（在未设置VisualSettings时）
-+		Color targetColor = Colors.White;
-+		float targetGlow = 1.0f;
-+
-+		if (VisualSettings != null)
- 		{
--			case CellState.Normal:
--				bg.Color = new Color(0.2f, 0.2f, 0.2f, 0.5f); // Base color
--				border.BorderColor = Colors.Transparent;
--				break;
--			case CellState.Hover:
--				bg.Color = new Color(0.4f, 0.4f, 0.4f, 0.8f);
--				border.BorderColor = Colors.White;
--				break;
--			case CellState.Valid:
--				bg.Color = new Color(0.2f, 0.8f, 0.2f, 0.6f); // Green hint
--				border.BorderColor = Colors.Green;
--				break;
--			case CellState.Invalid:
--				bg.Color = new Color(0.8f, 0.2f, 0.2f, 0.6f); // Red hint
--				border.BorderColor = Colors.Red;
--				break;
-+			cellImage.Texture = VisualSettings.CellTexture;
-+			
-+			switch (state)
-+			{
-+				case CellState.Normal:
-+					targetColor = VisualSettings.NormalColor;
-+					targetGlow = 1.0f;
-+					break;
-+				case CellState.Hover:
-+					targetColor = VisualSettings.HoverColor;
-+					targetGlow = VisualSettings.GlowMultiplier;
-+					break;
-+				case CellState.Valid:
-+					targetColor = VisualSettings.ValidColor;
-+					targetGlow = VisualSettings.GlowMultiplier;
-+					break;
-+				case CellState.Invalid:
-+					targetColor = VisualSettings.InvalidColor;
-+					targetGlow = 1.0f; // Invalid通常不需要发光，或者可以单独设置
-+					break;
-+			}
- 		}
-+		else
-+		{
-+			// 备用纯色模式（兼容没有配置图片的情况）
-+			switch (state)
-+			{
-+				case CellState.Normal:
-+					targetColor = new Color(0.2f, 0.2f, 0.2f, 0.5f);
-+					break;
-+				case CellState.Hover:
-+					targetColor = new Color(0.4f, 0.4f, 0.4f, 0.8f);
-+					targetGlow = 1.5f;
-+					break;
-+				case CellState.Valid:
-+					targetColor = new Color(0.2f, 0.8f, 0.2f, 0.6f);
-+					targetGlow = 1.5f;
-+					break;
-+				case CellState.Invalid:
-+					targetColor = new Color(0.8f, 0.2f, 0.2f, 0.6f);
-+					break;
-+			}
-+		}
-+
-+		// 应用HDR发光颜色 (RGB 乘以 glow 倍数，A通道保持透明度)
-+		cellImage.Modulate = new Color(targetColor.R * targetGlow, targetColor.G * targetGlow, targetColor.B * targetGlow, targetColor.A);
- 	}
- 
- 	/// 获取当前状态
- 	public CellState GetCurrentState()
- 	{
-```
----
-## 📅 20260501_134857
-- ➕ 新增: 0 | 📝 修改: 3 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
-```diff
---- 
-+++ 
-@@ -240,22 +240,15 @@
- 		if (followComp != null && shapeComponent.CurrentLocalCells != null)
- 		{
- 			// 1. 确保跟随组件已初始化抓取偏移量
- 			followComp.CalculateGrabOffsetFromMouse();
- 
--			// 2. 将物理抓取偏移转换为逻辑网格坐标
-+			// 2. 将物理抓取偏移转换为局部像素坐标
- 			Vector2 localGrabPos = -followComp.GrabOffset;
--			Vector2I grabbedCellPos = new Vector2I(
--				Mathf.FloorToInt(localGrabPos.X / BackpackGridUIComp.CellSize.X),
--				Mathf.FloorToInt(localGrabPos.Y / BackpackGridUIComp.CellSize.Y)
--			);
--
--			// 3. 在当前形状中查找匹配该坐标的单元格索引
--			int grabbedIndex = System.Array.IndexOf(shapeComponent.CurrentLocalCells, grabbedCellPos);
--
--			// 容错处理：如果鼠标正好抓在了格子间的缝隙或空位，默认为第一个格子
--			if (grabbedIndex == -1) grabbedIndex = 0;
-+
-+			// 3. 在当前形状中查找匹配该坐标的单元格索引（逻辑委托给 GridShapeComponent）
-+			int grabbedIndex = shapeComponent.GetCellIndexAtLocalPosition(localGrabPos);
- 
- 			// 4. 持久化到拖拽状态中，供后续旋转逻辑使用
- 			_currentDrag.GrabbedCellIndex = grabbedIndex;
- 		}
- 
-@@ -275,11 +268,11 @@
- 				Vector2I mouseGridPos = BackpackGridUIComp.GlobalToGridPosition(mousePos);
- 				// 纯数学计算：目标位置 = 鼠标所在格子 - 被抓格子的逻辑偏移
- 				Vector2I targetTopLeftGridPos = mouseGridPos - GetGrabbedCellLogicalOffset(_currentDrag, shapeComponent);
- 
- 				return (
--					inBounds: BackpackGridUIComp.GetGlobalRect().HasPoint(mousePos),
-+					inBounds: BackpackGridUIComp.IsPointInside(mousePos),
- 					gridPos:  targetTopLeftGridPos
- 				);
- 			})
- 			.DistinctUntilChanged(); // 只比较坐标元组，不碰形状数组，避免引用比较陷阱
- 
-@@ -443,17 +436,14 @@
- 	/// 执行吸附到网格
- 	/// 目的：将物品精确对齐到网格位置
- 	/// 算法：1. 计算网格局部坐标 → 2. 转换为全局坐标 → 3. 更新物品位置
- 	private void PerformSnapToGrid(Node itemEntity, Control itemControl, Vector2I gridPos)
- 	{
--		// 1. 计算网格位置的局部像素坐标
--		Vector2 localPos = BackpackGridUIComp.GridToLocalPosition(gridPos);
--
--		// 2. 转换为全局坐标
--		Vector2 globalPos = BackpackGridUIComp.GlobalPosition + localPos;
--
--		// 3. 更新物品位置
-+		// 1. 获取网格在全局坐标系下的确切位置
-+		Vector2 globalPos = BackpackGridUIComp.GridToGlobalPosition(gridPos);
-+
-+		// 2. 更新物品位置
- 		itemControl.GlobalPosition = globalPos;
- 
- 		GD.Print($"物品 {itemEntity.Name} 吸附到网格 {gridPos}，全局位置 {globalPos}");
- 	}
- 
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackGridUIComponent.cs
-```diff
---- 
-+++ 
-@@ -114,10 +114,16 @@
- 	public Vector2 GridToLocalPosition(Vector2I gridPos)
- 	{
- 		return new Vector2(gridPos.X * CellSize.X, gridPos.Y * CellSize.Y);
- 	}
- 
-+	/// 网格坐标 → 全局像素坐标
-+	public Vector2 GridToGlobalPosition(Vector2I gridPos)
-+	{
-+		return GlobalPosition + GridToLocalPosition(gridPos);
-+	}
-+
- 	/// 网格坐标 → 局部像素坐标（中心点，相对于 InteractionArea）
- 	public Vector2 GetCellCenterLocalPos(Vector2I gridPos)
- 	{
- 		Vector2 topLeft = GridToLocalPosition(gridPos);
- 		return topLeft + CellSize / 2;
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Items\GridShapeComponent.cs
-```diff
---- 
-+++ 
-@@ -306,8 +306,25 @@
- 			sum += new Vector2(cell.X, cell.Y);
- 		}
- 		
- 		return sum / CurrentLocalCells.Length;
- 	}
-+
-+	/// <summary>
-+	/// 根据局部像素坐标，查找对应的格子索引
-+	/// 如果没有匹配的格子，默认返回 0（容错）
-+	/// </summary>
-+	public int GetCellIndexAtLocalPosition(Vector2 localPos)
-+	{
-+		if (CurrentLocalCells == null || CurrentLocalCells.Length == 0) return 0;
-+
-+		Vector2I cellPos = new Vector2I(
-+			Mathf.FloorToInt(localPos.X / CellSize.X),
-+			Mathf.FloorToInt(localPos.Y / CellSize.Y)
-+		);
-+
-+		int index = System.Array.IndexOf(CurrentLocalCells, cellPos);
-+		return index == -1 ? 0 : index;
-+	}
- 	
- 	#endregion
- }
-```
----
-## 📅 20260501_134311
-- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\ItemPhysicsComponent.cs
-```diff
---- 
-+++ 
-@@ -130,17 +130,32 @@
- 		AngularVelocity = 0;
- 
- 		// 将物理旋转折算为离散的 90° 网格旋转
- 		// 理由：物理引擎可能将物品旋转到任意角度（如 127°），
- 		// 但网格系统只支持 0/90/180/270°，所以需要四舍五入到最近的 90° 并写入网格数据。
--		if (_gridShapeComp != null)
--		{
-+		if (_gridShapeComp != null && _hostControl != null && _gridShapeComp.CurrentLocalCells != null && _gridShapeComp.CurrentLocalCells.Length > 0)
-+		{
-+			// 【修复位移BUG】记录旋转和归一化（Normalize）前的第0个格子的世界坐标位置
-+			Vector2I oldCell = _gridShapeComp.CurrentLocalCells[0];
-+			Vector2 oldLocalPos = oldCell * _gridShapeComp.CellSize;
-+			Vector2 rotatedOffset = oldLocalPos.Rotated(Rotation);
-+
- 			int rotationSteps = CalculateRotationSteps();
- 			for (int i = 0; i < rotationSteps; i++)
- 			{
- 				_gridShapeComp.Rotate90();
- 			}
-+
-+			// 旋转后，由于 GridShapeComponent 内部会 Normalize（强制左上角为0,0），
-+			// 这会导致所有格子的局部坐标发生平移。
-+			// 为了确保物品在屏幕上的视觉位置不发生瞬间跳变（瞬移），
-+			// 必须反向平移 _hostControl.GlobalPosition，以抵消内部的 Normalize 偏移和旋转。
-+			Vector2I newCell = _gridShapeComp.CurrentLocalCells[0];
-+			Vector2 newLocalPos = newCell * _gridShapeComp.CellSize;
-+
-+			_hostControl.GlobalPosition = _hostControl.GlobalPosition + rotatedOffset - newLocalPos;
-+			GlobalPosition = _hostControl.GlobalPosition;
- 		}
- 
- 		// 重置物理旋转到 0°
- 		// 理由：旋转信息已经被折算进 GridShapeComponent.CurrentLocalCells，
- 		// 视觉和碰撞体会通过 OnShapeChanged 订阅自动重建到正确方向。
-```
----
-## 📅 20260501_133504
-- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
-
-#### TetrisBackpack/A1TesseractBackpack\TSItem.tscn
-```diff
---- 
-+++ 
-@@ -25,10 +25,20 @@
+ [node name="FloorStaticBody" type="StaticBody2D" parent="LootSpawnArea" unique_id=599388112]
  unique_name_in_owner = true
+ physics_interpolation_mode = 1
+ position = Vector2(565, 648)
  collision_layer = 16
  collision_mask = 16
- freeze = true
- script = ExtResource("physics_script")
+ 
+ [node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/FloorStaticBody" unique_id=599388113]
+ shape = SubResource("RectangleShape2D_floor")
 +
-+[node name="InteractionArea" type="Control" parent="PhysicsProxy" unique_id=860289969]
-+unique_name_in_owner = true
-+layout_mode = 3
-+anchors_preset = 15
-+anchor_right = 1.0
-+anchor_bottom = 1.0
-+grow_horizontal = 2
-+grow_vertical = 2
-+mouse_filter = 2
- 
- [node name="StateChart" type="Node" parent="." unique_id=1344843508]
- unique_name_in_owner = true
- script = ExtResource("script_StateChart")
- 
-@@ -79,23 +89,13 @@
- 
- [node name="UITweenInteractComponent" type="Node" parent="." unique_id=987654321 node_paths=PackedStringArray("InteractionArea", "VisualTarget")]
- unique_name_in_owner = true
- script = ExtResource("tween_script")
- InteractionArea = NodePath("../PhysicsProxy/InteractionArea")
--VisualTarget = NodePath("../PhysicsProxy/InteractionArea/ItemIcon")
-+VisualTarget = NodePath("../PhysicsProxy/InteractionArea")
- 
--[node name="InteractionArea" type="Control" parent="PhysicsProxy" unique_id=860289969]
--unique_name_in_owner = true
--layout_mode = 1
--anchors_preset = 15
--anchor_right = 1.0
--anchor_bottom = 1.0
--grow_horizontal = 2
--grow_vertical = 2
--mouse_filter = 2
--
--[node name="ItemIcon" type="TextureRect" parent="InteractionArea" unique_id=1600377566]
-+[node name="InteractionArea#ItemIcon" type="TextureRect" parent="." unique_id=1600377566]
- layout_mode = 1
- anchors_preset = 15
- anchor_right = 1.0
- anchor_bottom = 1.0
- grow_horizontal = 2
++[node name="LeftWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388114]
++position = Vector2(-50, 300)
++collision_layer = 16
++collision_mask = 16
++
++[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/LeftWall" unique_id=899388115]
++rotation = 1.5708
++shape = SubResource("RectangleShape2D_floor")
++
++[node name="RightWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388116]
++position = Vector2(1202, 300)
++collision_layer = 16
++collision_mask = 16
++
++[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/RightWall" unique_id=899388117]
++rotation = 1.5708
++shape = SubResource("RectangleShape2D_floor")
++
++[node name="TsItem" parent="LootSpawnArea" unique_id=1959740042 instance=ExtResource("3_bkm53")]
++layout_mode = 0
++offset_left = 400.0
++offset_top = 100.0
++offset_right = 592.0
++offset_bottom = 164.0
++Data = SubResource("Resource_0xep6")
++
++[node name="TsItem2" parent="LootSpawnArea" unique_id=279074725 instance=ExtResource("3_bkm53")]
++layout_mode = 0
++offset_left = 600.0
++offset_top = 100.0
++offset_right = 792.0
++offset_bottom = 164.0
++Data = SubResource("Resource_0xep6")
+```
+---
+## 📅 20260502_073649
+- ➕ 新增: 4 | 📝 修改: 0 | ❌ 删除: 4
+---
+## 📅 20260502_024243
+- ➕ 新增: 0 | 📝 修改: 3 | ❌ 删除: 0
+
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackGridComponent.cs
+```diff
+--- 
++++ 
+@@ -15,29 +15,29 @@
+ 	#endregion
+ 	
+ 	#region Private Fields
+ 	
+ 	// 一维数组模拟二维网格，索引计算：index = y * Width + x
+-	private ItemData[] _gridData;
++	private Node[] _gridData;
+ 	
+ 	#endregion
+ 	
+ 	#region R3 Reactive Streams
+ 	
+-	public Subject<(ItemData item, Vector2I position)> OnItemPlacedAsObservable { get; private set; }
+-	public Subject<(ItemData item, Vector2I position)> OnItemRemovedAsObservable { get; private set; }
++	public Subject<(Node itemEntity, Vector2I position)> OnItemPlacedAsObservable { get; private set; }
++	public Subject<(Node itemEntity, Vector2I position)> OnItemRemovedAsObservable { get; private set; }
+ 	
+ 	#endregion
+ 	
+ 	#region Godot Lifecycle
+ 	
+ 	public override void _EnterTree()
+ 	{
+ 		// 【架构修正】在 _EnterTree 中初始化核心数据和 Subjects
+-		_gridData = new ItemData[Width * Height];
+-		OnItemPlacedAsObservable = new Subject<(ItemData, Vector2I)>();
+-		OnItemRemovedAsObservable = new Subject<(ItemData, Vector2I)>();
++		_gridData = new Node[Width * Height];
++		OnItemPlacedAsObservable = new Subject<(Node, Vector2I)>();
++		OnItemRemovedAsObservable = new Subject<(Node, Vector2I)>();
+ 	}
+ 	
+ 	public override void _Ready()
+ 	{
+ 		GD.Print($"BackpackGridComponent 初始化完成：{Width}x{Height} = {_gridData.Length} 格子");
+@@ -52,13 +52,13 @@
+ 	#endregion
+ 	
+ 	#region Core Grid Logic
+ 	
+ 	// 检测是否可以放置物品：遍历物品形状 -> 计算世界坐标 -> 检查越界 -> 检查占用状态
+-	public bool CanPlaceItem(ItemData item, Vector2I[] localShape, Vector2I targetPos)
+-	{
+-		if (item == null || localShape == null || localShape.Length == 0)
++	public bool CanPlaceItem(Node itemEntity, Vector2I[] localShape, Vector2I targetPos)
++	{
++		if (itemEntity == null || localShape == null || localShape.Length == 0)
+ 		{
+ 			GD.PushWarning("CanPlaceItem: 物品或形状数据无效");
+ 			return false;
+ 		}
+ 		
+@@ -70,62 +70,67 @@
+ 			{
+ 				return false;
+ 			}
+ 			
+ 			int index = GetIndex(worldPos);
+-			if (_gridData[index] != null)
++			// 只有非空且不是自己占据的格子才视为阻挡
++			if (_gridData[index] != null && _gridData[index] != itemEntity)
+ 			{
+ 				return false;
+ 			}
+ 		}
+ 		
+ 		return true;
+ 	}
+ 	
+-	public bool TryPlaceItem(ItemData item, Vector2I[] localShape, Vector2I targetPos)
+-	{
+-		if (!CanPlaceItem(item, localShape, targetPos))
++	public bool TryPlaceItem(Node itemEntity, Vector2I[] localShape, Vector2I targetPos)
++	{
++		if (!CanPlaceItem(itemEntity, localShape, targetPos))
+ 		{
+ 			return false;
+ 		}
++		
++		// 放置前先安全移除旧位置的占用（防止形状变化或原位覆盖出错）
++		RemoveItem(itemEntity);
+ 		
+ 		foreach (var localOffset in localShape)
+ 		{
+ 			Vector2I worldPos = targetPos + localOffset;
+ 			int index = GetIndex(worldPos);
+-			_gridData[index] = item;
+-		}
+-		
+-		OnItemPlacedAsObservable.OnNext((item, targetPos));
+-		GD.Print($"物品 {item.ItemID} 已放置在 {targetPos}");
++			_gridData[index] = itemEntity;
++		}
++		
++		OnItemPlacedAsObservable.OnNext((itemEntity, targetPos));
++		GD.Print($"物品 {itemEntity.Name} 已放置在 {targetPos}");
+ 		return true;
+ 	}
+ 	
+-	public void RemoveItem(ItemData item, Vector2I[] localShape, Vector2I position)
+-	{
+-		if (item == null || localShape == null)
+-		{
+-			GD.PushWarning("RemoveItem: 物品或形状数据无效");
+-			return;
+-		}
+-		
+-		foreach (var localOffset in localShape)
+-		{
+-			Vector2I worldPos = position + localOffset;
+-			
+-			if (worldPos.X >= 0 && worldPos.X < Width && worldPos.Y >= 0 && worldPos.Y < Height)
+-			{
+-				int index = GetIndex(worldPos);
+-				_gridData[index] = null;
+-			}
+-		}
+-		
+-		OnItemRemovedAsObservable.OnNext((item, position));
+-		GD.Print($"物品 {item.ItemID} 已从 {position} 移除");
+-	}
+-	
+-	public ItemData GetItemAt(Vector2I position)
++	/// <summary>
++	/// 完全依赖实例比较来移除物品，不依赖坐标，绝对不会移除错！
++	/// </summary>
++	public void RemoveItem(Node itemEntity)
++	{
++		if (itemEntity == null) return;
++
++		bool removedAny = false;
++		for (int i = 0; i < _gridData.Length; i++)
++		{
++			if (_gridData[i] == itemEntity)
++			{
++				_gridData[i] = null;
++				removedAny = true;
++			}
++		}
++		
++		if (removedAny)
++		{
++			OnItemRemovedAsObservable.OnNext((itemEntity, Vector2I.Zero));
++			GD.Print($"物品 {itemEntity.Name} 已从网格彻底移除");
++		}
++	}
++	
++	public Node GetItemAt(Vector2I position)
+ 	{
+ 		if (position.X < 0 || position.X >= Width || position.Y < 0 || position.Y >= Height)
+ 		{
+ 			return null;
+ 		}
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Synergies\SynergyComponent.cs
+```diff
+--- 
++++ 
+@@ -171,37 +171,29 @@
+ 			
+ 			// 4. 计算星星在背包中的绝对网格坐标
+ 			Vector2I starWorldPos = currentGridPos + rotatedOffset;
+ 			
+ 			// 5. 查询该位置的物品
+-			ItemData itemAtStar = backpackGridComp.GetItemAt(starWorldPos);
++			Node itemAtStar = backpackGridComp.GetItemAt(starWorldPos);
+ 			
+ 			if (itemAtStar == null)
+ 			{
+ 				// 该位置没有物品，星星不激活
+ 				continue;
+ 			}
+ 			
+ 			// 6. 获取该物品的 SynergyComponent
+-			// 注意：需要通过某种方式找到对应的物品实体节点
+-			// 这里简化处理：假设 ItemData 包含了 SynergyDataResource 引用
+-			// 实际项目中可能需要维护一个 ItemData → Node 的映射表
+-			
+-			// 简化方案：直接检查 ItemData 是否有 SynergyData
+-			// 这需要扩展 ItemData 类，或者使用其他方式关联
+-			
+-			// 临时方案：假设可以通过某种方式获取 SynergyDataResource
+-			// 这里先跳过实际查询，留待后续完善
+-			
+-			// TODO: 实现物品查询逻辑
+-			// 可能的方案：
+-			// 1. 在 BackpackInteractionController 中维护 Dictionary<Vector2I, Node>
+-			// 2. 在 ItemData 中添加 Node 引用
+-			// 3. 使用全局管理器查询
+-			
+-			// 暂时使用占位逻辑
+-			bool hasRequiredTag = CheckItemHasTag(itemAtStar, SynergyData.RequiredTag);
++			// 从节点获取其 GridShapeComponent 以获取 ItemData
++			var shapeComp = itemAtStar.GetNodeOrNull<GridShapeComponent>("%GridShapeComponent");
++			if (shapeComp == null || shapeComp.Data == null)
++			{
++				continue;
++			}
++			
++			ItemData itemData = new ItemData(shapeComp.Data.ItemID);
++			
++			bool hasRequiredTag = CheckItemHasTag(itemData, SynergyData.RequiredTag);
+ 			
+ 			if (hasRequiredTag)
+ 			{
+ 				// 7. 标签匹配，激活星星
+ 				ActiveStars.Add(rotatedOffset);
+@@ -213,21 +205,13 @@
+ 		
+ 		GD.Print($"SynergyComponent: 检测完成，激活 {ActiveStars.Count}/{SynergyData.StarOffsets.Count} 颗星星");
+ 	}
+ 	
+ 	/// 检查物品是否有指定标签（占位实现）
+-	/// 
+-	/// TODO: 实现实际的标签查询逻辑
+-	/// 需要从 ItemData 关联到实际的物品节点，再获取其 SynergyComponent
+ 	private bool CheckItemHasTag(ItemData item, string requiredTag)
+ 	{
+ 		// 占位实现：总是返回 false
+-		// 实际项目中需要：
+-		// 1. 从 ItemData 获取对应的物品节点
+-		// 2. 获取该节点的 SynergyComponent
+-		// 3. 检查 SynergyData.ProvidedTags 是否包含 requiredTag
+-		
+ 		GD.PushWarning("SynergyComponent.CheckItemHasTag: 占位实现，需要完善");
+ 		return false;
+ 	}
+ 	
+ 	#endregion
 ```
 #### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
 ```diff
 --- 
 +++ 
-@@ -201,24 +201,24 @@
- 	/// 处理物品拾取（拖拽开始）
- 	/// 目的：记录原始状态并从网格移除，防止"自我占用"；启动 R3 预览流
- 	/// 算法：1. 记录位置 → 2. 从网格移除 → 3. 保存状态 → 4. 启动预览流（TakeUntil 自动停止）
- 	private void HandleItemPickedUp(Node itemEntity, Control itemControl, GridShapeComponent shapeComponent, DraggableItemComponent draggable)
- 	{
-+		bool wasInGrid = true;
- 		var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
- 		if (itemPhysics != null)
- 		{
-+			// 如果物理是激活的（没有被 Freeze），说明它是从空中（世界）抓取的，而不是网格里。
-+			wasInGrid = itemPhysics.Freeze;
- 			itemPhysics.DisablePhysics();
- 		}
+@@ -214,17 +214,13 @@
  
  		Vector2 originalGlobalPos = itemControl.GlobalPosition;
  		Vector2I originalGridPos = BackpackGridUIComp.GlobalToGridPosition(originalGlobalPos);
  
  		// 从逻辑网格移除，防止"自我占用"
--		// CRITICAL CLAMP FIX: Do NOT blindly trust GlobalToGridPosition as it clamps!
--		// Only call RemoveItem IF the item was actually inside the grid.
--		bool wasInBackpack = BackpackGridUIComp.GetGlobalRect().HasPoint(originalGlobalPos);
--		if (wasInBackpack && BackpackGridUIComp.IsValidGridPosition(originalGridPos))
-+		if (wasInGrid && BackpackGridUIComp.IsValidGridPosition(originalGridPos))
+-		if (wasInGrid && BackpackGridUIComp.IsValidGridPosition(originalGridPos))
+-		{
+-			BackpackGridComp.RemoveItem(
+-				GetItemData(shapeComponent),
+-				shapeComponent.CurrentLocalCells,
+-				originalGridPos
+-			);
++		if (wasInGrid)
++		{
++			BackpackGridComp.RemoveItem(itemEntity);
+ 		}
+ 
+ 		_currentDrag = new ItemDragState
  		{
- 			BackpackGridComp.RemoveItem(
- 				GetItemData(shapeComponent),
- 				shapeComponent.CurrentLocalCells,
- 				originalGridPos
-@@ -228,11 +228,12 @@
+ 			OriginalGlobalPos = originalGlobalPos,
+@@ -297,10 +293,12 @@
+ 
+ 		Observable.Merge(posStream, shapeStream)
+ 			.TakeUntil(draggable.OnDragEndedAsObservable)
+ 			.Subscribe(state =>
+ 			{
++				if (_currentDrag == null) return; // 防止在放置回调中恢复形状时触发幽灵预览
++
+ 				if (!state.inBounds)
+ 				{
+ 					BackpackGridUIComp.ClearPreview();
+ 					itemGroupCtrl?.ResetCellsVisualState();
+ 				}
+@@ -368,13 +366,12 @@
+ 
+ 		Vector2I mouseGridPos = BackpackGridUIComp.GlobalToGridPosition(mousePos);
+ 
+ 		// 纯数学逻辑计算左上角网格坐标
+ 		Vector2I targetGridPos = mouseGridPos - GetGrabbedCellLogicalOffset(dragState, shapeComponent);
+-		var itemData = GetItemData(shapeComponent);
+ 		bool placementSuccess = BackpackGridComp.TryPlaceItem(
+-			itemData,
++			itemEntity,
+ 			shapeComponent.CurrentLocalCells,
+ 			targetGridPos
+ 		);
+ 
+ 		if (placementSuccess)
+@@ -460,13 +457,12 @@
+ 		{
+ 			dragState.ShapeComponent.CurrentLocalCells = dragState.OriginalLocalCells;
+ 			dragState.ShapeComponent.OnShapeChangedAsObservable?.OnNext(Unit.Default); // 通知视图层重建
+ 		}
+ 
+-		var itemData = GetItemData(dragState.ShapeComponent);
+ 		BackpackGridComp.TryPlaceItem(
+-			itemData,
++			itemEntity,
+ 			dragState.ShapeComponent.CurrentLocalCells,
+ 			dragState.OriginalGridPos
+ 		);
+ 
+ 		// 使用正确的网格吸附逻辑
+```
+---
+## 📅 20260502_022627
+- ➕ 新增: 0 | 📝 修改: 4 | ❌ 删除: 1
+
+#### TetrisBackpack/addons\A1TetrisBackpack\Items\GridShapeComponent.cs
+```diff
+--- 
++++ 
+@@ -28,12 +28,12 @@
+ 	
+ 	#endregion
+ 	
+ 	#region Public Properties
+ 	
+-	// 当前运行时占用的局部格子数组（只读）
+-	public Vector2I[] CurrentLocalCells { get; private set; }
++	// 当前运行时占用的局部格子数组（Controller 可通过 internal set 恢复快照）
++	public Vector2I[] CurrentLocalCells { get; internal set; }
+ 	
+ 	/// 获取当前的 ItemDataResource（只读）
+ 	public ItemDataResource Data => _data;
+ 	
+ 	#endregion
+```
+#### TetrisBackpack/A1TesseractBackpack\TSItem.tscn
+```diff
+--- 
++++ 
+@@ -1,8 +1,9 @@
+ [gd_scene format=3 uid="uid://bof44aeoq7w74"]
+ 
+ [ext_resource type="Script" uid="uid://ectrqmvemuyb" path="res://addons/A1TetrisBackpack/Items/GridShapeUIComponent.cs" id="9_cvdq4"]
++[ext_resource type="Resource" uid="uid://cboscusg2x03w" path="res://A1TesseractBackpack/GVSR_BackgroundGridVisuals.tres" id="10_f7ie4"]
+ [ext_resource type="Script" uid="uid://bdka4obxtossd" path="res://addons/A1TetrisBackpack/Interaction/DraggableItemComponent.cs" id="draggable_script"]
+ [ext_resource type="Script" uid="uid://d2svbqvyq43tw" path="res://addons/A1TetrisBackpack/Interaction/FollowMouseUIComponent.cs" id="follow_mouse_script"]
+ [ext_resource type="Script" uid="uid://cljs2l6httw2" path="res://addons/A1TetrisBackpack/Interaction/ItemPhysicsComponent.cs" id="physics_script"]
+ [ext_resource type="Script" uid="uid://cytafq8i1y8qm" path="res://addons/godot_state_charts/atomic_state.gd" id="script_AtomicState"]
+ [ext_resource type="Script" uid="uid://jk2jm1g6q853" path="res://addons/godot_state_charts/compound_state.gd" id="script_CompoundState"]
+@@ -78,10 +79,11 @@
+ VisualContainerPath = NodePath("%InteractionArea")
+ 
+ [node name="GridShapeUIComponent" type="Node" parent="." unique_id=2001234567]
+ unique_name_in_owner = true
+ script = ExtResource("9_cvdq4")
++ItemVisualSettings = ExtResource("10_f7ie4")
+ 
+ [node name="DraggableItemComponent" type="Node" parent="." unique_id=1027640510]
+ unique_name_in_owner = true
+ script = ExtResource("draggable_script")
+ 
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
+```diff
+--- 
++++ 
+@@ -227,10 +227,11 @@
+ 
  		_currentDrag = new ItemDragState
  		{
  			OriginalGlobalPos = originalGlobalPos,
  			OriginalGridPos = originalGridPos,
++			OriginalLocalCells = (Vector2I[])shapeComponent.CurrentLocalCells.Clone(), // 快照！防止旋转后形状被修改
  			ShapeComponent = shapeComponent,
--			ItemControl = itemControl
-+			ItemControl = itemControl,
-+			OriginallyInGrid = wasInGrid
+ 			ItemControl = itemControl,
+ 			OriginallyInGrid = wasInGrid
  		};
  
- 		// 【架构重构】在拾取瞬间预计算被抓取的单元格索引
- 		var followComp = GetFollowComp(itemEntity);
- 
-@@ -386,12 +387,11 @@
- 		{
- 			PerformSnapToGrid(itemEntity, itemControl, targetGridPos);
- 		}
- 		else
- 		{
--			bool originallyInBackpack = BackpackGridUIComp.GetGlobalRect().HasPoint(dragState.OriginalGlobalPos);
--			if (originallyInBackpack)
-+			if (dragState.OriginallyInGrid)
- 			{
- 				PerformBounceBack(itemEntity, dragState);
- 			}
- 			else
- 			{
-@@ -460,23 +460,23 @@
+@@ -450,20 +451,27 @@
  	/// 执行回弹到原位置
  	/// 目的：放置失败时恢复物品到拾取前的位置
  	/// 算法：1. 恢复全局位置 → 2. 强制放回逻辑网格 → 3. 记录日志
  	private void PerformBounceBack(Node itemEntity, ItemDragState dragState)
  	{
--		// 1. 恢复原始全局位置
--		dragState.ItemControl.GlobalPosition = dragState.OriginalGlobalPos;
--
--		// 2. 强制放回逻辑网格的原位置
-+		// 1. 强制放回逻辑网格的原位置
- 		// 【关键】这里不检查返回值，因为原位置一定是合法的（拾取前就在那里）
+-		// 1. 强制放回逻辑网格的原位置
+-		// 【关键】这里不检查返回值，因为原位置一定是合法的（拾取前就在那里）
++		// 【关键修复】恢复旋转前的原始形状
++		// 因为拖拽过程中可能旋转了 N 次，CurrentLocalCells 已经是新形状了。
++		// 必须先把形状还原，再尝试放回原始网格位置，否则旋转后的形状可能放不进去！
++		if (dragState.OriginalLocalCells != null)
++		{
++			dragState.ShapeComponent.CurrentLocalCells = dragState.OriginalLocalCells;
++			dragState.ShapeComponent.OnShapeChangedAsObservable?.OnNext(Unit.Default); // 通知视图层重建
++		}
++
  		var itemData = GetItemData(dragState.ShapeComponent);
  		BackpackGridComp.TryPlaceItem(
  			itemData,
@@ -937,28 +510,254 @@
  			dragState.OriginalGridPos
  		);
  
--		GD.Print($"物品 {itemEntity.Name} 回弹到原位置 {dragState.OriginalGlobalPos}，网格坐标 {dragState.OriginalGridPos}");
-+		// 2. 彻底消灭恢复 GlobalPosition 的冗余代码！使用正确的网格吸附逻辑！
-+		PerformSnapToGrid(itemEntity, dragState.ItemControl, dragState.OriginalGridPos);
-+
-+		GD.Print($"物品 {itemEntity.Name} 回弹到原位置，网格坐标 {dragState.OriginalGridPos}");
+-		// 2. 彻底消灭恢复 GlobalPosition 的冗余代码！使用正确的网格吸附逻辑！
++		// 使用正确的网格吸附逻辑
+ 		PerformSnapToGrid(itemEntity, dragState.ItemControl, dragState.OriginalGridPos);
+ 
+ 		GD.Print($"物品 {itemEntity.Name} 回弹到原位置，网格坐标 {dragState.OriginalGridPos}");
  	}
  
- 	#endregion
+@@ -544,10 +552,13 @@
+ 		public Vector2 OriginalGlobalPos { get; set; }
  
- 	#region Helper Methods
-@@ -562,9 +562,12 @@
+ 		/// 原始网格坐标（用于回弹时放回逻辑网格）
+ 		public Vector2I OriginalGridPos { get; set; }
+ 
++		/// 拾取时的原始形状快照【关键】：防止回弹时使用旋转后的错误形状
++		public Vector2I[] OriginalLocalCells { get; set; }
++
+ 		/// 形状组件引用（用于获取当前形状）
+ 		public GridShapeComponent ShapeComponent { get; set; }
+ 
  		/// 物品 Control 节点引用（用于设置位置）
  		public Control ItemControl { get; set; }
+```
+#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
+```diff
+--- 
++++ 
+@@ -4,11 +4,10 @@
+ [ext_resource type="Script" uid="uid://1rgai2oppf42" path="res://addons/A1TetrisBackpack/Core/BackpackGridComponent.cs" id="2_ovaqc"]
+ [ext_resource type="Resource" uid="uid://cboscusg2x03w" path="res://A1TesseractBackpack/GVSR_BackgroundGridVisuals.tres" id="3_5mic1"]
+ [ext_resource type="PackedScene" uid="uid://bof44aeoq7w74" path="res://A1TesseractBackpack/TSItem.tscn" id="3_bkm53"]
+ [ext_resource type="Script" uid="uid://lelpt5ux6h0d" path="res://addons/A1TetrisBackpack/Items/ItemDataResource.cs" id="4_5mic1"]
+ [ext_resource type="Script" uid="uid://drof8dtjnyqs3" path="res://addons/A1TetrisBackpack/Core/BackpackInteractionController.cs" id="5_bic01"]
+-[ext_resource type="PackedScene" uid="uid://c6j8k8k84k2" path="res://addons/A1TetrisBackpack/UI/TSGridCellUI.tscn" id="6_cell_prefab"]
  
- 		/// 抓取时的单元格索引
- 		public int GrabbedCellIndex { get; set; }
-+
-+		/// 标识物品被抓取前是否真正在网格中（而不是正在物理掉落）
-+		public bool OriginallyInGrid { get; set; }
+ [sub_resource type="AnimatedTexture" id="AnimatedTexture_5ysrk"]
+ 
+ [sub_resource type="Resource" id="Resource_0xep6"]
+ script = ExtResource("4_5mic1")
+```
+---
+## 📅 20260501_232245
+- ➕ 新增: 0 | 📝 修改: 5 | ❌ 删除: 0
+
+#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
+```diff
+--- 
++++ 
+@@ -43,11 +43,10 @@
+ [node name="BackpackGridUIComponent" type="Node" parent="." unique_id=1436944256 node_paths=PackedStringArray("GridBackground", "InteractionArea")]
+ unique_name_in_owner = true
+ script = ExtResource("1_7o1w7")
+ BackpackGridComponentPath = NodePath("../BackpackGridComponent")
+ GridVisualSettings = ExtResource("3_5mic1")
+-CellPrefab = ExtResource("6_cell_prefab")
+ GridBackground = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/GridBackground")
+ InteractionArea = NodePath("../ScreenMargin/MainVBox/BackpackVisuals")
+ 
+ [node name="BackpackInteractionController" type="Node" parent="." unique_id=863928779]
+ script = ExtResource("5_bic01")
+```
+#### TetrisBackpack/A1TesseractBackpack\TSItem.tscn
+```diff
+--- 
++++ 
+@@ -1,9 +1,8 @@
+ [gd_scene format=3 uid="uid://bof44aeoq7w74"]
+ 
+-[ext_resource type="PackedScene" uid="uid://c6j8k8k84k2" path="res://addons/A1TetrisBackpack/UI/TSGridCellUI.tscn" id="cell_prefab"]
+-[ext_resource type="Script" uid="uid://bxypbbiy6mdl5" path="res://addons/A1TetrisBackpack/Items/GridShapeUIComponent.cs" id="controller_script"]
++[ext_resource type="Script" uid="uid://ectrqmvemuyb" path="res://addons/A1TetrisBackpack/Items/GridShapeUIComponent.cs" id="9_cvdq4"]
+ [ext_resource type="Script" uid="uid://bdka4obxtossd" path="res://addons/A1TetrisBackpack/Interaction/DraggableItemComponent.cs" id="draggable_script"]
+ [ext_resource type="Script" uid="uid://d2svbqvyq43tw" path="res://addons/A1TetrisBackpack/Interaction/FollowMouseUIComponent.cs" id="follow_mouse_script"]
+ [ext_resource type="Script" uid="uid://cljs2l6httw2" path="res://addons/A1TetrisBackpack/Interaction/ItemPhysicsComponent.cs" id="physics_script"]
+ [ext_resource type="Script" uid="uid://cytafq8i1y8qm" path="res://addons/godot_state_charts/atomic_state.gd" id="script_AtomicState"]
+ [ext_resource type="Script" uid="uid://jk2jm1g6q853" path="res://addons/godot_state_charts/compound_state.gd" id="script_CompoundState"]
+@@ -78,12 +77,11 @@
+ AutoResizeParent = false
+ VisualContainerPath = NodePath("%InteractionArea")
+ 
+ [node name="GridShapeUIComponent" type="Node" parent="." unique_id=2001234567]
+ unique_name_in_owner = true
+-script = ExtResource("controller_script")
+-CellPrefab = ExtResource("cell_prefab")
++script = ExtResource("9_cvdq4")
+ 
+ [node name="DraggableItemComponent" type="Node" parent="." unique_id=1027640510]
+ unique_name_in_owner = true
+ script = ExtResource("draggable_script")
+ 
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Items\GridShapeUIComponent.cs
+```diff
+--- 
++++ 
+@@ -18,13 +18,10 @@
+ 	[Export] public NodePath GridShapeComp_Path { get; set; } = "%GridShapeComponent";
+ 
+ 	/// 交互区域容器路径（用于放置生成的单元格）
+ 	[Export] public NodePath InteractionArea_Path { get; set; } = "%InteractionArea";
+ 
+-	/// 单元格预设（用于生成背景和物品格子）
+-	[Export] public PackedScene CellPrefab { get; set; }
+-
+ 	/// 单个格子的像素尺寸（默认64x64）
+ 	[Export] public float CellSize { get; set; } = 64f;
+ 
+ 	/// 物品网格的视觉设置（如果不设置将使用默认样式）
+ 	[Export] public GridVisualSettingsResource ItemVisualSettings { get; set; }
+@@ -174,18 +171,11 @@
+ 
+ 		// 3. 遍历局部坐标生成GridCellUI
+ 		int cellIndex = 0;
+ 		foreach (Vector2I cellPos in _gridShapeComp.CurrentLocalCells)
+ 		{
+-			// 实例化GridCellUI预设
+-			if (CellPrefab == null)
+-			{
+-				GD.PushError($"[{Name}] CellPrefab not assigned!");
+-				return;
+-			}
+-
+-			var gridCellUI = CellPrefab.Instantiate<GridCellUI>();
++			var gridCellUI = CreateCell();
+ 			
+ 			// 分配视觉设置
+ 			gridCellUI.VisualSettings = ItemVisualSettings;
+ 			
+ 			gridCellUI.Size = new Vector2(CellSize, CellSize);
+@@ -257,6 +247,33 @@
+ 	{
+ 		ResetGroupState();
  	}
  
  	#endregion
++
++	#region Private Helpers
++
++	/// 在代码中构建 GridCellUI 节点树（无需 .tscn 预设）
++	/// 目的：视觉完全由 ItemVisualSettings 控制，CellPrefab 已无存在意义
++	private GridCellUI CreateCell()
++	{
++		var cell = new GridCellUI();
++
++		// 构建 %CellImage 子节点（与 GridCellUI.SetState 中的 GetNodeOrNull 对应）
++		var cellImage = new TextureRect();
++		cellImage.Name = "CellImage";
++		cellImage.LayoutMode = 1;
++		cellImage.AnchorsPreset = (int)Control.LayoutPreset.FullRect;
++		cellImage.AnchorRight = 1.0f;
++		cellImage.AnchorBottom = 1.0f;
++		cellImage.GrowHorizontal = Control.GrowDirection.Both;
++		cellImage.GrowVertical = Control.GrowDirection.Both;
++		cellImage.MouseFilter = Control.MouseFilterEnum.Ignore;
++		cellImage.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
++		cellImage.StretchMode = TextureRect.StretchModeEnum.Scale;
++		cell.AddChild(cellImage);
++
++		return cell;
++	}
++
++	#endregion
+ }
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\UI\GridCellUI.cs
+```diff
+--- 
++++ 
+@@ -100,11 +100,11 @@
+ 	/// 目的：根据状态切换背景颜色和边框
+ 	public void SetState(CellState state)
+ 	{
+ 		_currentState = state;
+ 
+-		var cellImage = GetNodeOrNull<TextureRect>("%CellImage");
++		var cellImage = GetNodeOrNull<TextureRect>("CellImage");
+ 		if (cellImage == null) return;
+ 
+ 		// 默认颜色回退（在未设置VisualSettings时）
+ 		Color targetColor = Colors.White;
+ 		float targetGlow = 1.0f;
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackGridUIComponent.cs
+```diff
+--- 
++++ 
+@@ -26,12 +26,10 @@
+ 	[Export] public GridVisualSettingsResource GridVisualSettings { get; set; }
+ 
+ 	/// 单个网格的像素尺寸
+ 	[Export] public Vector2 CellSize { get; set; } = new Vector2(64, 64);
+ 
+-	/// 单元格预设（用于生成背景格子）
+-	[Export] public PackedScene CellPrefab { get; set; }
+ 
+ 	/// 背景网格容器（外部注入，格子将生成在此节点下）
+ 	[Export] public Control GridBackground { get; set; }
+ 
+ 	/// 交互区域锚点（外部注入，用于坐标转换的基准位置）
+@@ -181,17 +179,11 @@
+ 
+ 		for (int y = 0; y < BackpackGridComp.Height; y++)
+ 		{
+ 			for (int x = 0; x < BackpackGridComp.Width; x++)
+ 			{
+-				if (CellPrefab == null)
+-				{
+-					GD.PushError($"[{Name}] CellPrefab not assigned!");
+-					return;
+-				}
+-
+-				var gridCellUI = CellPrefab.Instantiate<GridCellUI>();
++				var gridCellUI = CreateCell();
+ 				
+ 				// 分配视觉设置
+ 				gridCellUI.VisualSettings = GridVisualSettings;
+ 				
+ 				gridCellUI.Size = CellSize;
+@@ -260,6 +252,31 @@
+ 		if (InteractionArea == null) return new Rect2();
+ 		return InteractionArea.GetGlobalRect();
+ 	}
+ 
+ 	#endregion
++
++	#region Private Helpers
++
++	/// 在代码中构建 GridCellUI 节点树（无需 .tscn 预设）
++	private GridCellUI CreateCell()
++	{
++		var cell = new GridCellUI();
++
++		var cellImage = new TextureRect();
++		cellImage.Name = "CellImage";
++		cellImage.LayoutMode = 1;
++		cellImage.AnchorsPreset = (int)Control.LayoutPreset.FullRect;
++		cellImage.AnchorRight = 1.0f;
++		cellImage.AnchorBottom = 1.0f;
++		cellImage.GrowHorizontal = Control.GrowDirection.Both;
++		cellImage.GrowVertical = Control.GrowDirection.Both;
++		cellImage.MouseFilter = Control.MouseFilterEnum.Ignore;
++		cellImage.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
++		cellImage.StretchMode = TextureRect.StretchModeEnum.Scale;
++		cell.AddChild(cellImage);
++
++		return cell;
++	}
++
++	#endregion
  }
 ```
 </RECENT_CHANGES>
@@ -3916,7 +3715,7 @@ Never guess plugin names or NuGet packages. If a verified tool does not exist, c
 ]]>
     </file>
 
-    <file path="AISpace/rules_global\StableOrOther\BugInvestigation.md" priority="NORMAL">
+    <file path="AISpace/rules_global\Stable\BugInvestigation.md" priority="NORMAL">
 <![CDATA[
 ---
 trigger: manual
@@ -3979,7 +3778,7 @@ ALWAYS halt execution and output the Escalation Template upon meeting any escala
 ]]>
     </file>
 
-    <file path="AISpace/rules_global\StableOrOther\ClaudeReportToGemini.md" priority="NORMAL">
+    <file path="AISpace/rules_global\Stable\ClaudeReportToGemini.md" priority="NORMAL">
 <![CDATA[
 ---
 trigger: manual
@@ -4039,7 +3838,7 @@ Generate a Gemini Update Report when crossing AI boundaries.
 ]]>
     </file>
 
-    <file path="AISpace/rules_global\StableOrOther\InstructionDesignPrinciples.md" priority="NORMAL">
+    <file path="AISpace/rules_global\Stable\InstructionDesignPrinciples.md" priority="NORMAL">
 <![CDATA[
 ---
 trigger: manual
@@ -4251,6 +4050,76 @@ If multiple bottlenecks are identified, prioritize by impact and optimize ONE at
 ]]>
     </file>
 
+    <file path="AISpace/rules_global\Uncommon\RembgUsage.md" priority="NORMAL">
+<![CDATA[
+---
+trigger: manual
+---
+
+## Rembg Setup & Installation
+- **Install:** `pip install "rembg[cli]"` (append `--break-system-packages` if needed)
+- **Pre-download Model:** `rembg d`
+- **Verify:** `rembg --version`
+
+## GPU Acceleration (RTX 4070+)
+- **Switch to GPU:** `pip uninstall onnxruntime -y` then `pip install onnxruntime-gpu`
+- **Verify GPU:** `python -c "import onnxruntime; print(onnxruntime.get_available_providers())"` (Look for `CUDAExecutionProvider`)
+- **Performance:** 10-20x faster than CPU (birefnet-general takes <1s per image).
+
+## Core & Advanced Commands
+- **Single Image:** `rembg i <input.jpg> <output.png>`
+- **Batch Folder:** `rembg p <input_folder/> <output_folder/>`
+- **Watch Mode (Auto-process):** `rembg p --watch <input_folder/> <output_folder/>`
+- **Alpha Matting (Hair/Fur):** `rembg i -a <input.jpg> <output.png>` (Options: `-af 240 -ab 10 -ae 10`)
+- **Custom BG Color:** `rembg i --bgcolor 255 255 255 255 <input.jpg> <output.png>` (RGBA)
+- **Output Mask Only:** `rembg i --only-mask <input.jpg> <output.png>`
+- **Start Local API:** `rembg s --host 0.0.0.0 --port 7000`
+
+## Model Selection
+- **u2net (Default):** General purpose, very fast.
+- **birefnet-general:** General purpose, higher precision.
+- **birefnet-portrait:** Portrait/Hair focused, fine details.
+- **isnet-anime:** Anime/Illustration specific.
+
+<rule>
+  <description>API Service Usage & Python Integration</description>
+  <rationale>Allows constant access via HTTP or code without restarting the model in memory.</rationale>
+  <example>
+    # HTTP API
+    curl -s http://localhost:7000/api/remove -F "file=@input.jpg" -o output.png
+    
+    # Python API
+    from rembg import remove, new_session
+    from PIL import Image
+    session = new_session("birefnet-portrait")
+    output_img = remove(Image.open("input.jpg"), session=session)
+  </example>
+</rule>
+
+<complex_pattern>
+  <description>Persistent API Server (Linux/Systemd)</description>
+  <rationale>Ensures the rembg API service starts automatically on boot.</rationale>
+  <example>
+    # 1. Create /etc/systemd/system/rembg.service
+    [Unit]
+    Description=rembg background removal API
+    After=network.target
+
+    [Service]
+    ExecStart=rembg s --host 0.0.0.0 --port 7000
+    Restart=always
+
+    [Install]
+    WantedBy=multi-user.target
+
+    # 2. Enable and Start
+    sudo systemctl enable rembg
+    sudo systemctl start rembg
+  </example>
+</complex_pattern>
+]]>
+    </file>
+
     <file path="AISpace/rules_global\Uncommon\StaticAnalysis.md" priority="NORMAL">
 <![CDATA[
 ---
@@ -4297,48 +4166,6 @@ trigger: manual
 
 <system_reminder>
 If analyzers aren't running, the build cache may be stale. Run `dotnet clean`, `dotnet restore`, and `dotnet build`.
-</system_reminder>
-]]>
-    </file>
-
-    <file path="AISpace/rules_global\_AntigravityRulesSystem.md" priority="NORMAL">
-<![CDATA[
----
-trigger: manual
----
-
-## Objective
-Guide for Antigravity-specific rules infrastructure, triggers, and file paths.
-
-## Architecture Overview
-- **Global Rules (`GEMINI.md`)**: Located at `~\.gemini\GEMINI.md`. Applies across ALL workspaces.
-- **Workspace Rules (`.agents\rules\`)**: Located at `C:\Godot\TetrisBackpack\.agents\rules\`. Applies to current project.
-- **Single Source of Truth**: Edit in `C:\Godot\AISpace\rules_global\`. Hardlinks replicate edits instantly to `.agents\rules\` and `.windsurf\rules\`.
-
-## Antigravity Trigger Mapping
-- **Always On**: `trigger: always_on` (Automatically injected)
-- **Manual**: `trigger: manual` (Requires @-mention)
-- **Glob**: `trigger: glob` (Fires on matched files, e.g., `**/*.cs`)
-- **Model Decision**: AI implicitly decides based on natural language.
-
-## Stop Hook (`agentStop`)
-- Fires immediately BEFORE the AI completes its response.
-- Used to execute CloudSync (`SYNC_TO_GEMINI_SILENT.bat`) or validate artifacts.
-- Configured via Antigravity Settings -> Hooks.
-
-## File Inventory (Key Paths)
-- **Universal Rules**: `Always\AGENTS.md`
-- **Debug Protocol**: `StableOrOther\BugInvestigation.md`
-- **C# Rules**: `Glob\core_godot_rx.md` (`**/*.cs`)
-- **App Data Dir**: `C:\Users\26070\.gemini\antigravity\` (Logs: `brain\<conversation-id>\.system_generated\logs\`)
-
-## Common Operations
-1. **Add New Rule**: Create in `rules_global\`, add hardlinks in `setup-symlinks.ps1` (for Windsurf AND Antigravity). Re-run script.
-2. **Edit Global Rules**: `notepad "C:\Users\26070\.gemini\GEMINI.md"`
-3. **Manual CloudSync**: `cd C:\Godot\AISpace\CloudSync_Workflow; python agent_sync_to_drive.py`
-
-<system_reminder>
-Never copy-paste rule files. ALWAYS use Windows hardlinks via `setup-symlinks.ps1` so changes propagate across all IDE configurations (`.agents`, `.windsurf`, `AGENTS.md`).
 </system_reminder>
 ]]>
     </file>
@@ -4416,7 +4243,10 @@ CellTexture = ExtResource("1_ffikg")
 [ext_resource type="PackedScene" uid="uid://bof44aeoq7w74" path="res://A1TesseractBackpack/TSItem.tscn" id="3_bkm53"]
 [ext_resource type="Script" uid="uid://lelpt5ux6h0d" path="res://addons/A1TetrisBackpack/Items/ItemDataResource.cs" id="4_5mic1"]
 [ext_resource type="Script" uid="uid://drof8dtjnyqs3" path="res://addons/A1TetrisBackpack/Core/BackpackInteractionController.cs" id="5_bic01"]
-[ext_resource type="PackedScene" uid="uid://c6j8k8k84k2" path="res://addons/A1TetrisBackpack/UI/TSGridCellUI.tscn" id="6_cell_prefab"]
+[ext_resource type="Script" uid="uid://cm0frndbwap0l" path="res://addons/A1TetrisBackpack/Core/LootSpawnAreaController.cs" id="LootController_SC"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
+size = Vector2(5000, 100)
 
 [sub_resource type="AnimatedTexture" id="AnimatedTexture_5ysrk"]
 
@@ -4425,9 +4255,6 @@ script = ExtResource("4_5mic1")
 Icon = SubResource("AnimatedTexture_5ysrk")
 BaseShape = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(1, 1), Vector2i(0, 3)])
 metadata/_custom_type_script = "uid://lelpt5ux6h0d"
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
-size = Vector2(5000, 100)
 
 [node name="TSBackpack" type="Control" unique_id=1221362850]
 layout_mode = 3
@@ -4510,18 +4337,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="TsItem" parent="ScreenMargin/MainVBox/BackpackVisuals/ItemsContainer" unique_id=1959740042 instance=ExtResource("3_bkm53")]
-layout_mode = 0
-offset_right = 192.0
-offset_bottom = 64.0
-Data = SubResource("Resource_0xep6")
-
-[node name="TsItem2" parent="ScreenMargin/MainVBox/BackpackVisuals/ItemsContainer" unique_id=279074725 instance=ExtResource("3_bkm53")]
-layout_mode = 0
-offset_right = 192.0
-offset_bottom = 64.0
-Data = SubResource("Resource_0xep6")
-
 [node name="Instructions" type="Label" parent="ScreenMargin/MainVBox" unique_id=2075687424]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
@@ -4536,6 +4351,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+script = ExtResource("LootController_SC")
 
 [node name="FloorStaticBody" type="StaticBody2D" parent="LootSpawnArea" unique_id=599388112]
 unique_name_in_owner = true
@@ -4546,6 +4362,40 @@ collision_mask = 16
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/FloorStaticBody" unique_id=599388113]
 shape = SubResource("RectangleShape2D_floor")
+
+[node name="LeftWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388114]
+position = Vector2(-50, 300)
+collision_layer = 16
+collision_mask = 16
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/LeftWall" unique_id=899388115]
+rotation = 1.5708
+shape = SubResource("RectangleShape2D_floor")
+
+[node name="RightWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388116]
+position = Vector2(1202, 300)
+collision_layer = 16
+collision_mask = 16
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/RightWall" unique_id=899388117]
+rotation = 1.5708
+shape = SubResource("RectangleShape2D_floor")
+
+[node name="TsItem" parent="LootSpawnArea" unique_id=1959740042 instance=ExtResource("3_bkm53")]
+layout_mode = 0
+offset_left = 400.0
+offset_top = 100.0
+offset_right = 592.0
+offset_bottom = 164.0
+Data = SubResource("Resource_0xep6")
+
+[node name="TsItem2" parent="LootSpawnArea" unique_id=279074725 instance=ExtResource("3_bkm53")]
+layout_mode = 0
+offset_left = 600.0
+offset_top = 100.0
+offset_right = 792.0
+offset_bottom = 164.0
+Data = SubResource("Resource_0xep6")
 ]]>
     </file>
 
@@ -4554,6 +4404,7 @@ shape = SubResource("RectangleShape2D_floor")
 [gd_scene format=3 uid="uid://bof44aeoq7w74"]
 
 [ext_resource type="Script" uid="uid://ectrqmvemuyb" path="res://addons/A1TetrisBackpack/Items/GridShapeUIComponent.cs" id="9_cvdq4"]
+[ext_resource type="Resource" uid="uid://cboscusg2x03w" path="res://A1TesseractBackpack/GVSR_BackgroundGridVisuals.tres" id="10_f7ie4"]
 [ext_resource type="Script" uid="uid://bdka4obxtossd" path="res://addons/A1TetrisBackpack/Interaction/DraggableItemComponent.cs" id="draggable_script"]
 [ext_resource type="Script" uid="uid://d2svbqvyq43tw" path="res://addons/A1TetrisBackpack/Interaction/FollowMouseUIComponent.cs" id="follow_mouse_script"]
 [ext_resource type="Script" uid="uid://cljs2l6httw2" path="res://addons/A1TetrisBackpack/Interaction/ItemPhysicsComponent.cs" id="physics_script"]
@@ -4633,6 +4484,7 @@ VisualContainerPath = NodePath("%InteractionArea")
 [node name="GridShapeUIComponent" type="Node" parent="." unique_id=2001234567]
 unique_name_in_owner = true
 script = ExtResource("9_cvdq4")
+ItemVisualSettings = ExtResource("10_f7ie4")
 
 [node name="DraggableItemComponent" type="Node" parent="." unique_id=1027640510]
 unique_name_in_owner = true
@@ -19292,14 +19144,14 @@ public partial class BackpackGridComponent : Node
 	#region Private Fields
 	
 	// 一维数组模拟二维网格，索引计算：index = y * Width + x
-	private ItemData[] _gridData;
+	private Node[] _gridData;
 	
 	#endregion
 	
 	#region R3 Reactive Streams
 	
-	public Subject<(ItemData item, Vector2I position)> OnItemPlacedAsObservable { get; private set; }
-	public Subject<(ItemData item, Vector2I position)> OnItemRemovedAsObservable { get; private set; }
+	public Subject<(Node itemEntity, Vector2I position)> OnItemPlacedAsObservable { get; private set; }
+	public Subject<(Node itemEntity, Vector2I position)> OnItemRemovedAsObservable { get; private set; }
 	
 	#endregion
 	
@@ -19308,9 +19160,9 @@ public partial class BackpackGridComponent : Node
 	public override void _EnterTree()
 	{
 		// 【架构修正】在 _EnterTree 中初始化核心数据和 Subjects
-		_gridData = new ItemData[Width * Height];
-		OnItemPlacedAsObservable = new Subject<(ItemData, Vector2I)>();
-		OnItemRemovedAsObservable = new Subject<(ItemData, Vector2I)>();
+		_gridData = new Node[Width * Height];
+		OnItemPlacedAsObservable = new Subject<(Node, Vector2I)>();
+		OnItemRemovedAsObservable = new Subject<(Node, Vector2I)>();
 	}
 	
 	public override void _Ready()
@@ -19329,9 +19181,9 @@ public partial class BackpackGridComponent : Node
 	#region Core Grid Logic
 	
 	// 检测是否可以放置物品：遍历物品形状 -> 计算世界坐标 -> 检查越界 -> 检查占用状态
-	public bool CanPlaceItem(ItemData item, Vector2I[] localShape, Vector2I targetPos)
+	public bool CanPlaceItem(Node itemEntity, Vector2I[] localShape, Vector2I targetPos)
 	{
-		if (item == null || localShape == null || localShape.Length == 0)
+		if (itemEntity == null || localShape == null || localShape.Length == 0)
 		{
 			GD.PushWarning("CanPlaceItem: 物品或形状数据无效");
 			return false;
@@ -19347,7 +19199,8 @@ public partial class BackpackGridComponent : Node
 			}
 			
 			int index = GetIndex(worldPos);
-			if (_gridData[index] != null)
+			// 只有非空且不是自己占据的格子才视为阻挡
+			if (_gridData[index] != null && _gridData[index] != itemEntity)
 			{
 				return false;
 			}
@@ -19356,49 +19209,53 @@ public partial class BackpackGridComponent : Node
 		return true;
 	}
 	
-	public bool TryPlaceItem(ItemData item, Vector2I[] localShape, Vector2I targetPos)
+	public bool TryPlaceItem(Node itemEntity, Vector2I[] localShape, Vector2I targetPos)
 	{
-		if (!CanPlaceItem(item, localShape, targetPos))
+		if (!CanPlaceItem(itemEntity, localShape, targetPos))
 		{
 			return false;
 		}
+		
+		// 放置前先安全移除旧位置的占用（防止形状变化或原位覆盖出错）
+		RemoveItem(itemEntity);
 		
 		foreach (var localOffset in localShape)
 		{
 			Vector2I worldPos = targetPos + localOffset;
 			int index = GetIndex(worldPos);
-			_gridData[index] = item;
+			_gridData[index] = itemEntity;
 		}
 		
-		OnItemPlacedAsObservable.OnNext((item, targetPos));
-		GD.Print($"物品 {item.ItemID} 已放置在 {targetPos}");
+		OnItemPlacedAsObservable.OnNext((itemEntity, targetPos));
+		GD.Print($"物品 {itemEntity.Name} 已放置在 {targetPos}");
 		return true;
 	}
 	
-	public void RemoveItem(ItemData item, Vector2I[] localShape, Vector2I position)
+	/// <summary>
+	/// 完全依赖实例比较来移除物品，不依赖坐标，绝对不会移除错！
+	/// </summary>
+	public void RemoveItem(Node itemEntity)
 	{
-		if (item == null || localShape == null)
+		if (itemEntity == null) return;
+
+		bool removedAny = false;
+		for (int i = 0; i < _gridData.Length; i++)
 		{
-			GD.PushWarning("RemoveItem: 物品或形状数据无效");
-			return;
-		}
-		
-		foreach (var localOffset in localShape)
-		{
-			Vector2I worldPos = position + localOffset;
-			
-			if (worldPos.X >= 0 && worldPos.X < Width && worldPos.Y >= 0 && worldPos.Y < Height)
+			if (_gridData[i] == itemEntity)
 			{
-				int index = GetIndex(worldPos);
-				_gridData[index] = null;
+				_gridData[i] = null;
+				removedAny = true;
 			}
 		}
 		
-		OnItemRemovedAsObservable.OnNext((item, position));
-		GD.Print($"物品 {item.ItemID} 已从 {position} 移除");
+		if (removedAny)
+		{
+			OnItemRemovedAsObservable.OnNext((itemEntity, Vector2I.Zero));
+			GD.Print($"物品 {itemEntity.Name} 已从网格彻底移除");
+		}
 	}
 	
-	public ItemData GetItemAt(Vector2I position)
+	public Node GetItemAt(Vector2I position)
 	{
 		if (position.X < 0 || position.X >= Width || position.Y < 0 || position.Y >= Height)
 		{
@@ -19999,19 +19856,16 @@ public partial class BackpackInteractionController : Node
 		Vector2I originalGridPos = BackpackGridUIComp.GlobalToGridPosition(originalGlobalPos);
 
 		// 从逻辑网格移除，防止"自我占用"
-		if (wasInGrid && BackpackGridUIComp.IsValidGridPosition(originalGridPos))
+		if (wasInGrid)
 		{
-			BackpackGridComp.RemoveItem(
-				GetItemData(shapeComponent),
-				shapeComponent.CurrentLocalCells,
-				originalGridPos
-			);
+			BackpackGridComp.RemoveItem(itemEntity);
 		}
 
 		_currentDrag = new ItemDragState
 		{
 			OriginalGlobalPos = originalGlobalPos,
 			OriginalGridPos = originalGridPos,
+			OriginalLocalCells = (Vector2I[])shapeComponent.CurrentLocalCells.Clone(), // 快照！防止旋转后形状被修改
 			ShapeComponent = shapeComponent,
 			ItemControl = itemControl,
 			OriginallyInGrid = wasInGrid
@@ -20081,6 +19935,8 @@ public partial class BackpackInteractionController : Node
 			.TakeUntil(draggable.OnDragEndedAsObservable)
 			.Subscribe(state =>
 			{
+				if (_currentDrag == null) return; // 防止在放置回调中恢复形状时触发幽灵预览
+
 				if (!state.inBounds)
 				{
 					BackpackGridUIComp.ClearPreview();
@@ -20152,9 +20008,8 @@ public partial class BackpackInteractionController : Node
 
 		// 纯数学逻辑计算左上角网格坐标
 		Vector2I targetGridPos = mouseGridPos - GetGrabbedCellLogicalOffset(dragState, shapeComponent);
-		var itemData = GetItemData(shapeComponent);
 		bool placementSuccess = BackpackGridComp.TryPlaceItem(
-			itemData,
+			itemEntity,
 			shapeComponent.CurrentLocalCells,
 			targetGridPos
 		);
@@ -20235,16 +20090,22 @@ public partial class BackpackInteractionController : Node
 	/// 算法：1. 恢复全局位置 → 2. 强制放回逻辑网格 → 3. 记录日志
 	private void PerformBounceBack(Node itemEntity, ItemDragState dragState)
 	{
-		// 1. 强制放回逻辑网格的原位置
-		// 【关键】这里不检查返回值，因为原位置一定是合法的（拾取前就在那里）
-		var itemData = GetItemData(dragState.ShapeComponent);
+		// 【关键修复】恢复旋转前的原始形状
+		// 因为拖拽过程中可能旋转了 N 次，CurrentLocalCells 已经是新形状了。
+		// 必须先把形状还原，再尝试放回原始网格位置，否则旋转后的形状可能放不进去！
+		if (dragState.OriginalLocalCells != null)
+		{
+			dragState.ShapeComponent.CurrentLocalCells = dragState.OriginalLocalCells;
+			dragState.ShapeComponent.OnShapeChangedAsObservable?.OnNext(Unit.Default); // 通知视图层重建
+		}
+
 		BackpackGridComp.TryPlaceItem(
-			itemData,
+			itemEntity,
 			dragState.ShapeComponent.CurrentLocalCells,
 			dragState.OriginalGridPos
 		);
 
-		// 2. 彻底消灭恢复 GlobalPosition 的冗余代码！使用正确的网格吸附逻辑！
+		// 使用正确的网格吸附逻辑
 		PerformSnapToGrid(itemEntity, dragState.ItemControl, dragState.OriginalGridPos);
 
 		GD.Print($"物品 {itemEntity.Name} 回弹到原位置，网格坐标 {dragState.OriginalGridPos}");
@@ -20329,6 +20190,9 @@ public partial class BackpackInteractionController : Node
 		/// 原始网格坐标（用于回弹时放回逻辑网格）
 		public Vector2I OriginalGridPos { get; set; }
 
+		/// 拾取时的原始形状快照【关键】：防止回弹时使用旋转后的错误形状
+		public Vector2I[] OriginalLocalCells { get; set; }
+
 		/// 形状组件引用（用于获取当前形状）
 		public GridShapeComponent ShapeComponent { get; set; }
 
@@ -20343,6 +20207,87 @@ public partial class BackpackInteractionController : Node
 	}
 
 	#endregion
+}
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1TetrisBackpack\Core\LootSpawnAreaController.cs" priority="NORMAL">
+<![CDATA[
+using Godot;
+using R3;
+using System;
+
+[GlobalClass]
+public partial class LootSpawnAreaController : Control
+{
+	[Export]
+	public float CheckInterval = 2.0f; // 检测间隔
+
+	[Export]
+	public Rect2 AllowedBounds = new Rect2(-500, -2000, 2500, 4000); // 允许的范围，飞出这个范围就算越界
+
+	[Export]
+	public Vector2 RespawnPosition = new Vector2(576, 100); // 越界后重生的位置（屏幕中上方）
+
+	private CompositeDisposable _disposables = new CompositeDisposable();
+
+	public override void _Ready()
+	{
+		// 每隔指定时间检测一次
+		Observable.Interval(TimeSpan.FromSeconds(CheckInterval))
+			.Subscribe(_ => CheckOutOfBoundsItems())
+			.AddTo(_disposables);
+			
+		GD.Print("LootSpawnAreaController initialized. Checking bounds every " + CheckInterval + "s.");
+	}
+
+	public override void _ExitTree()
+	{
+		_disposables.Dispose();
+	}
+
+	private void CheckOutOfBoundsItems()
+	{
+		foreach (Node child in GetChildren())
+		{
+			// 只检测可拖拽的物品实体
+			if (child is Control itemControl && child.HasNode("%PhysicsProxy"))
+			{
+				Vector2 pos = itemControl.GlobalPosition;
+				
+				// 检查是否越界
+				if (!AllowedBounds.HasPoint(pos))
+				{
+					GD.Print($"Item {child.Name} flew out of bounds at {pos}! Respawning at {RespawnPosition}...");
+					
+					// 如果有物理组件，重置其物理状态并瞬移
+					var physicsComp = child.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
+					if (physicsComp != null && physicsComp.GetParent() is RigidBody2D rb)
+					{
+						// 先禁用物理避免冲突
+						rb.Freeze = true;
+						
+						// 随机一点偏移，防止多个物品重生在同一个绝对像素上导致爆开
+						float randomX = (float)GD.RandRange(-50.0, 50.0);
+						Vector2 finalPos = RespawnPosition + new Vector2(randomX, 0);
+						
+						// 设置位置（注意我们要设置根节点位置）
+						itemControl.GlobalPosition = finalPos;
+						
+						// 消除速度并重新启用物理
+						rb.LinearVelocity = Vector2.Zero;
+						rb.AngularVelocity = 0;
+						rb.Freeze = false;
+					}
+					else
+					{
+						// 没有物理，直接重置位置
+						itemControl.GlobalPosition = RespawnPosition;
+					}
+				}
+			}
+		}
+	}
 }
 ]]>
     </file>
@@ -21029,8 +20974,8 @@ public partial class GridShapeComponent : Node
 	
 	#region Public Properties
 	
-	// 当前运行时占用的局部格子数组（只读）
-	public Vector2I[] CurrentLocalCells { get; private set; }
+	// 当前运行时占用的局部格子数组（Controller 可通过 internal set 恢复快照）
+	public Vector2I[] CurrentLocalCells { get; internal set; }
 	
 	/// 获取当前的 ItemDataResource（只读）
 	public ItemDataResource Data => _data;
@@ -22200,7 +22145,7 @@ public partial class SynergyComponent : Node
 			Vector2I starWorldPos = currentGridPos + rotatedOffset;
 			
 			// 5. 查询该位置的物品
-			ItemData itemAtStar = backpackGridComp.GetItemAt(starWorldPos);
+			Node itemAtStar = backpackGridComp.GetItemAt(starWorldPos);
 			
 			if (itemAtStar == null)
 			{
@@ -22209,24 +22154,16 @@ public partial class SynergyComponent : Node
 			}
 			
 			// 6. 获取该物品的 SynergyComponent
-			// 注意：需要通过某种方式找到对应的物品实体节点
-			// 这里简化处理：假设 ItemData 包含了 SynergyDataResource 引用
-			// 实际项目中可能需要维护一个 ItemData → Node 的映射表
+			// 从节点获取其 GridShapeComponent 以获取 ItemData
+			var shapeComp = itemAtStar.GetNodeOrNull<GridShapeComponent>("%GridShapeComponent");
+			if (shapeComp == null || shapeComp.Data == null)
+			{
+				continue;
+			}
 			
-			// 简化方案：直接检查 ItemData 是否有 SynergyData
-			// 这需要扩展 ItemData 类，或者使用其他方式关联
+			ItemData itemData = new ItemData(shapeComp.Data.ItemID);
 			
-			// 临时方案：假设可以通过某种方式获取 SynergyDataResource
-			// 这里先跳过实际查询，留待后续完善
-			
-			// TODO: 实现物品查询逻辑
-			// 可能的方案：
-			// 1. 在 BackpackInteractionController 中维护 Dictionary<Vector2I, Node>
-			// 2. 在 ItemData 中添加 Node 引用
-			// 3. 使用全局管理器查询
-			
-			// 暂时使用占位逻辑
-			bool hasRequiredTag = CheckItemHasTag(itemAtStar, SynergyData.RequiredTag);
+			bool hasRequiredTag = CheckItemHasTag(itemData, SynergyData.RequiredTag);
 			
 			if (hasRequiredTag)
 			{
@@ -22242,17 +22179,9 @@ public partial class SynergyComponent : Node
 	}
 	
 	/// 检查物品是否有指定标签（占位实现）
-	/// 
-	/// TODO: 实现实际的标签查询逻辑
-	/// 需要从 ItemData 关联到实际的物品节点，再获取其 SynergyComponent
 	private bool CheckItemHasTag(ItemData item, string requiredTag)
 	{
 		// 占位实现：总是返回 false
-		// 实际项目中需要：
-		// 1. 从 ItemData 获取对应的物品节点
-		// 2. 获取该节点的 SynergyComponent
-		// 3. 检查 SynergyData.ProvidedTags 是否包含 requiredTag
-		
 		GD.PushWarning("SynergyComponent.CheckItemHasTag: 占位实现，需要完善");
 		return false;
 	}
@@ -22718,35 +22647,6 @@ public partial class GridVisualSettingsResource : Resource
     /// <summary>发光乘数（HDR颜色：> 1.0 会在WorldEnvironment开启Glow时产生泛光效果）</summary>
     [Export] public float GlowMultiplier { get; set; } = 1.0f;
 }
-]]>
-    </file>
-
-    <file path="TetrisBackpack/addons\A1TetrisBackpack\UI\TSGridCellUI.tscn" priority="NORMAL">
-<![CDATA[
-[gd_scene format=3 uid="uid://c6j8k8k84k2"]
-
-[ext_resource type="Script" uid="uid://d2ueixqsotts4" path="res://addons/A1TetrisBackpack/UI/GridCellUI.cs" id="1_script"]
-
-[node name="GridCellUI" type="Control"]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 3
-anchors_preset = 0
-offset_right = 64.0
-offset_bottom = 64.0
-mouse_filter = 1
-script = ExtResource("1_script")
-
-[node name="CellImage" type="TextureRect" parent="."]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-expand_mode = 1
-stretch_mode = 0
 ]]>
     </file>
 
@@ -30723,6 +30623,757 @@ rendering_device/driver.windows="d3d12"
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260502_074630
+- ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 0
+
+#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
+```diff
+--- 
++++ 
+@@ -4,10 +4,11 @@
+ [ext_resource type="Script" uid="uid://1rgai2oppf42" path="res://addons/A1TetrisBackpack/Core/BackpackGridComponent.cs" id="2_ovaqc"]
+ [ext_resource type="Resource" uid="uid://cboscusg2x03w" path="res://A1TesseractBackpack/GVSR_BackgroundGridVisuals.tres" id="3_5mic1"]
+ [ext_resource type="PackedScene" uid="uid://bof44aeoq7w74" path="res://A1TesseractBackpack/TSItem.tscn" id="3_bkm53"]
+ [ext_resource type="Script" uid="uid://lelpt5ux6h0d" path="res://addons/A1TetrisBackpack/Items/ItemDataResource.cs" id="4_5mic1"]
+ [ext_resource type="Script" uid="uid://drof8dtjnyqs3" path="res://addons/A1TetrisBackpack/Core/BackpackInteractionController.cs" id="5_bic01"]
++[ext_resource type="Script" path="res://addons/A1TetrisBackpack/Core/LootSpawnAreaController.cs" id="LootController_SC"]
+ 
+ [sub_resource type="AnimatedTexture" id="AnimatedTexture_5ysrk"]
+ 
+ [sub_resource type="Resource" id="Resource_0xep6"]
+ script = ExtResource("4_5mic1")
+@@ -97,22 +98,10 @@
+ anchor_bottom = 1.0
+ grow_horizontal = 2
+ grow_vertical = 2
+ mouse_filter = 2
+ 
+-[node name="TsItem" parent="ScreenMargin/MainVBox/BackpackVisuals/ItemsContainer" unique_id=1959740042 instance=ExtResource("3_bkm53")]
+-layout_mode = 0
+-offset_right = 192.0
+-offset_bottom = 64.0
+-Data = SubResource("Resource_0xep6")
+-
+-[node name="TsItem2" parent="ScreenMargin/MainVBox/BackpackVisuals/ItemsContainer" unique_id=279074725 instance=ExtResource("3_bkm53")]
+-layout_mode = 0
+-offset_right = 192.0
+-offset_bottom = 64.0
+-Data = SubResource("Resource_0xep6")
+-
+ [node name="Instructions" type="Label" parent="ScreenMargin/MainVBox" unique_id=2075687424]
+ layout_mode = 2
+ theme_override_font_sizes/font_size = 16
+ text = "Left Click: Drag | Right Click: Rotate | Drop in backpack to place"
+ horizontal_alignment = 1
+@@ -123,15 +112,53 @@
+ anchor_right = 1.0
+ anchor_bottom = 1.0
+ grow_horizontal = 2
+ grow_vertical = 2
+ mouse_filter = 2
++script = ExtResource("LootController_SC")
++CheckInterval = 2.0
++AllowedBounds = Rect2(-500, -2000, 2500, 4000)
++RespawnPosition = Vector2(576, 100)
+ 
+ [node name="FloorStaticBody" type="StaticBody2D" parent="LootSpawnArea" unique_id=599388112]
+ unique_name_in_owner = true
+ physics_interpolation_mode = 1
+ position = Vector2(565, 648)
+ collision_layer = 16
+ collision_mask = 16
+ 
+ [node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/FloorStaticBody" unique_id=599388113]
+ shape = SubResource("RectangleShape2D_floor")
++
++[node name="LeftWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388114]
++position = Vector2(-50, 300)
++collision_layer = 16
++collision_mask = 16
++
++[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/LeftWall" unique_id=899388115]
++rotation = 1.5708
++shape = SubResource("RectangleShape2D_floor")
++
++[node name="RightWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388116]
++position = Vector2(1202, 300)
++collision_layer = 16
++collision_mask = 16
++
++[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/RightWall" unique_id=899388117]
++rotation = 1.5708
++shape = SubResource("RectangleShape2D_floor")
++
++[node name="TsItem" parent="LootSpawnArea" unique_id=1959740042 instance=ExtResource("3_bkm53")]
++layout_mode = 0
++offset_left = 400.0
++offset_top = 100.0
++offset_right = 592.0
++offset_bottom = 164.0
++Data = SubResource("Resource_0xep6")
++
++[node name="TsItem2" parent="LootSpawnArea" unique_id=279074725 instance=ExtResource("3_bkm53")]
++layout_mode = 0
++offset_left = 600.0
++offset_top = 100.0
++offset_right = 792.0
++offset_bottom = 164.0
++Data = SubResource("Resource_0xep6")
+```
+
+---
+## 📅 20260502_073649
+- ➕ 新增: 4 | 📝 修改: 0 | ❌ 删除: 4
+---
+## 📅 20260502_024243
+- ➕ 新增: 0 | 📝 修改: 3 | ❌ 删除: 0
+
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackGridComponent.cs
+```diff
+--- 
++++ 
+@@ -15,29 +15,29 @@
+ 	#endregion
+ 	
+ 	#region Private Fields
+ 	
+ 	// 一维数组模拟二维网格，索引计算：index = y * Width + x
+-	private ItemData[] _gridData;
++	private Node[] _gridData;
+ 	
+ 	#endregion
+ 	
+ 	#region R3 Reactive Streams
+ 	
+-	public Subject<(ItemData item, Vector2I position)> OnItemPlacedAsObservable { get; private set; }
+-	public Subject<(ItemData item, Vector2I position)> OnItemRemovedAsObservable { get; private set; }
++	public Subject<(Node itemEntity, Vector2I position)> OnItemPlacedAsObservable { get; private set; }
++	public Subject<(Node itemEntity, Vector2I position)> OnItemRemovedAsObservable { get; private set; }
+ 	
+ 	#endregion
+ 	
+ 	#region Godot Lifecycle
+ 	
+ 	public override void _EnterTree()
+ 	{
+ 		// 【架构修正】在 _EnterTree 中初始化核心数据和 Subjects
+-		_gridData = new ItemData[Width * Height];
+-		OnItemPlacedAsObservable = new Subject<(ItemData, Vector2I)>();
+-		OnItemRemovedAsObservable = new Subject<(ItemData, Vector2I)>();
++		_gridData = new Node[Width * Height];
++		OnItemPlacedAsObservable = new Subject<(Node, Vector2I)>();
++		OnItemRemovedAsObservable = new Subject<(Node, Vector2I)>();
+ 	}
+ 	
+ 	public override void _Ready()
+ 	{
+ 		GD.Print($"BackpackGridComponent 初始化完成：{Width}x{Height} = {_gridData.Length} 格子");
+@@ -52,13 +52,13 @@
+ 	#endregion
+ 	
+ 	#region Core Grid Logic
+ 	
+ 	// 检测是否可以放置物品：遍历物品形状 -> 计算世界坐标 -> 检查越界 -> 检查占用状态
+-	public bool CanPlaceItem(ItemData item, Vector2I[] localShape, Vector2I targetPos)
+-	{
+-		if (item == null || localShape == null || localShape.Length == 0)
++	public bool CanPlaceItem(Node itemEntity, Vector2I[] localShape, Vector2I targetPos)
++	{
++		if (itemEntity == null || localShape == null || localShape.Length == 0)
+ 		{
+ 			GD.PushWarning("CanPlaceItem: 物品或形状数据无效");
+ 			return false;
+ 		}
+ 		
+@@ -70,62 +70,67 @@
+ 			{
+ 				return false;
+ 			}
+ 			
+ 			int index = GetIndex(worldPos);
+-			if (_gridData[index] != null)
++			// 只有非空且不是自己占据的格子才视为阻挡
++			if (_gridData[index] != null && _gridData[index] != itemEntity)
+ 			{
+ 				return false;
+ 			}
+ 		}
+ 		
+ 		return true;
+ 	}
+ 	
+-	public bool TryPlaceItem(ItemData item, Vector2I[] localShape, Vector2I targetPos)
+-	{
+-		if (!CanPlaceItem(item, localShape, targetPos))
++	public bool TryPlaceItem(Node itemEntity, Vector2I[] localShape, Vector2I targetPos)
++	{
++		if (!CanPlaceItem(itemEntity, localShape, targetPos))
+ 		{
+ 			return false;
+ 		}
++		
++		// 放置前先安全移除旧位置的占用（防止形状变化或原位覆盖出错）
++		RemoveItem(itemEntity);
+ 		
+ 		foreach (var localOffset in localShape)
+ 		{
+ 			Vector2I worldPos = targetPos + localOffset;
+ 			int index = GetIndex(worldPos);
+-			_gridData[index] = item;
+-		}
+-		
+-		OnItemPlacedAsObservable.OnNext((item, targetPos));
+-		GD.Print($"物品 {item.ItemID} 已放置在 {targetPos}");
++			_gridData[index] = itemEntity;
++		}
++		
++		OnItemPlacedAsObservable.OnNext((itemEntity, targetPos));
++		GD.Print($"物品 {itemEntity.Name} 已放置在 {targetPos}");
+ 		return true;
+ 	}
+ 	
+-	public void RemoveItem(ItemData item, Vector2I[] localShape, Vector2I position)
+-	{
+-		if (item == null || localShape == null)
+-		{
+-			GD.PushWarning("RemoveItem: 物品或形状数据无效");
+-			return;
+-		}
+-		
+-		foreach (var localOffset in localShape)
+-		{
+-			Vector2I worldPos = position + localOffset;
+-			
+-			if (worldPos.X >= 0 && worldPos.X < Width && worldPos.Y >= 0 && worldPos.Y < Height)
+-			{
+-				int index = GetIndex(worldPos);
+-				_gridData[index] = null;
+-			}
+-		}
+-		
+-		OnItemRemovedAsObservable.OnNext((item, position));
+-		GD.Print($"物品 {item.ItemID} 已从 {position} 移除");
+-	}
+-	
+-	public ItemData GetItemAt(Vector2I position)
++	/// <summary>
++	/// 完全依赖实例比较来移除物品，不依赖坐标，绝对不会移除错！
++	/// </summary>
++	public void RemoveItem(Node itemEntity)
++	{
++		if (itemEntity == null) return;
++
++		bool removedAny = false;
++		for (int i = 0; i < _gridData.Length; i++)
++		{
++			if (_gridData[i] == itemEntity)
++			{
++				_gridData[i] = null;
++				removedAny = true;
++			}
++		}
++		
++		if (removedAny)
++		{
++			OnItemRemovedAsObservable.OnNext((itemEntity, Vector2I.Zero));
++			GD.Print($"物品 {itemEntity.Name} 已从网格彻底移除");
++		}
++	}
++	
++	public Node GetItemAt(Vector2I position)
+ 	{
+ 		if (position.X < 0 || position.X >= Width || position.Y < 0 || position.Y >= Height)
+ 		{
+ 			return null;
+ 		}
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Synergies\SynergyComponent.cs
+```diff
+--- 
++++ 
+@@ -171,37 +171,29 @@
+ 			
+ 			// 4. 计算星星在背包中的绝对网格坐标
+ 			Vector2I starWorldPos = currentGridPos + rotatedOffset;
+ 			
+ 			// 5. 查询该位置的物品
+-			ItemData itemAtStar = backpackGridComp.GetItemAt(starWorldPos);
++			Node itemAtStar = backpackGridComp.GetItemAt(starWorldPos);
+ 			
+ 			if (itemAtStar == null)
+ 			{
+ 				// 该位置没有物品，星星不激活
+ 				continue;
+ 			}
+ 			
+ 			// 6. 获取该物品的 SynergyComponent
+-			// 注意：需要通过某种方式找到对应的物品实体节点
+-			// 这里简化处理：假设 ItemData 包含了 SynergyDataResource 引用
+-			// 实际项目中可能需要维护一个 ItemData → Node 的映射表
+-			
+-			// 简化方案：直接检查 ItemData 是否有 SynergyData
+-			// 这需要扩展 ItemData 类，或者使用其他方式关联
+-			
+-			// 临时方案：假设可以通过某种方式获取 SynergyDataResource
+-			// 这里先跳过实际查询，留待后续完善
+-			
+-			// TODO: 实现物品查询逻辑
+-			// 可能的方案：
+-			// 1. 在 BackpackInteractionController 中维护 Dictionary<Vector2I, Node>
+-			// 2. 在 ItemData 中添加 Node 引用
+-			// 3. 使用全局管理器查询
+-			
+-			// 暂时使用占位逻辑
+-			bool hasRequiredTag = CheckItemHasTag(itemAtStar, SynergyData.RequiredTag);
++			// 从节点获取其 GridShapeComponent 以获取 ItemData
++			var shapeComp = itemAtStar.GetNodeOrNull<GridShapeComponent>("%GridShapeComponent");
++			if (shapeComp == null || shapeComp.Data == null)
++			{
++				continue;
++			}
++			
++			ItemData itemData = new ItemData(shapeComp.Data.ItemID);
++			
++			bool hasRequiredTag = CheckItemHasTag(itemData, SynergyData.RequiredTag);
+ 			
+ 			if (hasRequiredTag)
+ 			{
+ 				// 7. 标签匹配，激活星星
+ 				ActiveStars.Add(rotatedOffset);
+@@ -213,21 +205,13 @@
+ 		
+ 		GD.Print($"SynergyComponent: 检测完成，激活 {ActiveStars.Count}/{SynergyData.StarOffsets.Count} 颗星星");
+ 	}
+ 	
+ 	/// 检查物品是否有指定标签（占位实现）
+-	/// 
+-	/// TODO: 实现实际的标签查询逻辑
+-	/// 需要从 ItemData 关联到实际的物品节点，再获取其 SynergyComponent
+ 	private bool CheckItemHasTag(ItemData item, string requiredTag)
+ 	{
+ 		// 占位实现：总是返回 false
+-		// 实际项目中需要：
+-		// 1. 从 ItemData 获取对应的物品节点
+-		// 2. 获取该节点的 SynergyComponent
+-		// 3. 检查 SynergyData.ProvidedTags 是否包含 requiredTag
+-		
+ 		GD.PushWarning("SynergyComponent.CheckItemHasTag: 占位实现，需要完善");
+ 		return false;
+ 	}
+ 	
+ 	#endregion
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
+```diff
+--- 
++++ 
+@@ -214,17 +214,13 @@
+ 
+ 		Vector2 originalGlobalPos = itemControl.GlobalPosition;
+ 		Vector2I originalGridPos = BackpackGridUIComp.GlobalToGridPosition(originalGlobalPos);
+ 
+ 		// 从逻辑网格移除，防止"自我占用"
+-		if (wasInGrid && BackpackGridUIComp.IsValidGridPosition(originalGridPos))
+-		{
+-			BackpackGridComp.RemoveItem(
+-				GetItemData(shapeComponent),
+-				shapeComponent.CurrentLocalCells,
+-				originalGridPos
+-			);
++		if (wasInGrid)
++		{
++			BackpackGridComp.RemoveItem(itemEntity);
+ 		}
+ 
+ 		_currentDrag = new ItemDragState
+ 		{
+ 			OriginalGlobalPos = originalGlobalPos,
+@@ -297,10 +293,12 @@
+ 
+ 		Observable.Merge(posStream, shapeStream)
+ 			.TakeUntil(draggable.OnDragEndedAsObservable)
+ 			.Subscribe(state =>
+ 			{
++				if (_currentDrag == null) return; // 防止在放置回调中恢复形状时触发幽灵预览
++
+ 				if (!state.inBounds)
+ 				{
+ 					BackpackGridUIComp.ClearPreview();
+ 					itemGroupCtrl?.ResetCellsVisualState();
+ 				}
+@@ -368,13 +366,12 @@
+ 
+ 		Vector2I mouseGridPos = BackpackGridUIComp.GlobalToGridPosition(mousePos);
+ 
+ 		// 纯数学逻辑计算左上角网格坐标
+ 		Vector2I targetGridPos = mouseGridPos - GetGrabbedCellLogicalOffset(dragState, shapeComponent);
+-		var itemData = GetItemData(shapeComponent);
+ 		bool placementSuccess = BackpackGridComp.TryPlaceItem(
+-			itemData,
++			itemEntity,
+ 			shapeComponent.CurrentLocalCells,
+ 			targetGridPos
+ 		);
+ 
+ 		if (placementSuccess)
+@@ -460,13 +457,12 @@
+ 		{
+ 			dragState.ShapeComponent.CurrentLocalCells = dragState.OriginalLocalCells;
+ 			dragState.ShapeComponent.OnShapeChangedAsObservable?.OnNext(Unit.Default); // 通知视图层重建
+ 		}
+ 
+-		var itemData = GetItemData(dragState.ShapeComponent);
+ 		BackpackGridComp.TryPlaceItem(
+-			itemData,
++			itemEntity,
+ 			dragState.ShapeComponent.CurrentLocalCells,
+ 			dragState.OriginalGridPos
+ 		);
+ 
+ 		// 使用正确的网格吸附逻辑
+```
+---
+## 📅 20260502_022627
+- ➕ 新增: 0 | 📝 修改: 4 | ❌ 删除: 1
+
+#### TetrisBackpack/addons\A1TetrisBackpack\Items\GridShapeComponent.cs
+```diff
+--- 
++++ 
+@@ -28,12 +28,12 @@
+ 	
+ 	#endregion
+ 	
+ 	#region Public Properties
+ 	
+-	// 当前运行时占用的局部格子数组（只读）
+-	public Vector2I[] CurrentLocalCells { get; private set; }
++	// 当前运行时占用的局部格子数组（Controller 可通过 internal set 恢复快照）
++	public Vector2I[] CurrentLocalCells { get; internal set; }
+ 	
+ 	/// 获取当前的 ItemDataResource（只读）
+ 	public ItemDataResource Data => _data;
+ 	
+ 	#endregion
+```
+#### TetrisBackpack/A1TesseractBackpack\TSItem.tscn
+```diff
+--- 
++++ 
+@@ -1,8 +1,9 @@
+ [gd_scene format=3 uid="uid://bof44aeoq7w74"]
+ 
+ [ext_resource type="Script" uid="uid://ectrqmvemuyb" path="res://addons/A1TetrisBackpack/Items/GridShapeUIComponent.cs" id="9_cvdq4"]
++[ext_resource type="Resource" uid="uid://cboscusg2x03w" path="res://A1TesseractBackpack/GVSR_BackgroundGridVisuals.tres" id="10_f7ie4"]
+ [ext_resource type="Script" uid="uid://bdka4obxtossd" path="res://addons/A1TetrisBackpack/Interaction/DraggableItemComponent.cs" id="draggable_script"]
+ [ext_resource type="Script" uid="uid://d2svbqvyq43tw" path="res://addons/A1TetrisBackpack/Interaction/FollowMouseUIComponent.cs" id="follow_mouse_script"]
+ [ext_resource type="Script" uid="uid://cljs2l6httw2" path="res://addons/A1TetrisBackpack/Interaction/ItemPhysicsComponent.cs" id="physics_script"]
+ [ext_resource type="Script" uid="uid://cytafq8i1y8qm" path="res://addons/godot_state_charts/atomic_state.gd" id="script_AtomicState"]
+ [ext_resource type="Script" uid="uid://jk2jm1g6q853" path="res://addons/godot_state_charts/compound_state.gd" id="script_CompoundState"]
+@@ -78,10 +79,11 @@
+ VisualContainerPath = NodePath("%InteractionArea")
+ 
+ [node name="GridShapeUIComponent" type="Node" parent="." unique_id=2001234567]
+ unique_name_in_owner = true
+ script = ExtResource("9_cvdq4")
++ItemVisualSettings = ExtResource("10_f7ie4")
+ 
+ [node name="DraggableItemComponent" type="Node" parent="." unique_id=1027640510]
+ unique_name_in_owner = true
+ script = ExtResource("draggable_script")
+ 
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
+```diff
+--- 
++++ 
+@@ -227,10 +227,11 @@
+ 
+ 		_currentDrag = new ItemDragState
+ 		{
+ 			OriginalGlobalPos = originalGlobalPos,
+ 			OriginalGridPos = originalGridPos,
++			OriginalLocalCells = (Vector2I[])shapeComponent.CurrentLocalCells.Clone(), // 快照！防止旋转后形状被修改
+ 			ShapeComponent = shapeComponent,
+ 			ItemControl = itemControl,
+ 			OriginallyInGrid = wasInGrid
+ 		};
+ 
+@@ -450,20 +451,27 @@
+ 	/// 执行回弹到原位置
+ 	/// 目的：放置失败时恢复物品到拾取前的位置
+ 	/// 算法：1. 恢复全局位置 → 2. 强制放回逻辑网格 → 3. 记录日志
+ 	private void PerformBounceBack(Node itemEntity, ItemDragState dragState)
+ 	{
+-		// 1. 强制放回逻辑网格的原位置
+-		// 【关键】这里不检查返回值，因为原位置一定是合法的（拾取前就在那里）
++		// 【关键修复】恢复旋转前的原始形状
++		// 因为拖拽过程中可能旋转了 N 次，CurrentLocalCells 已经是新形状了。
++		// 必须先把形状还原，再尝试放回原始网格位置，否则旋转后的形状可能放不进去！
++		if (dragState.OriginalLocalCells != null)
++		{
++			dragState.ShapeComponent.CurrentLocalCells = dragState.OriginalLocalCells;
++			dragState.ShapeComponent.OnShapeChangedAsObservable?.OnNext(Unit.Default); // 通知视图层重建
++		}
++
+ 		var itemData = GetItemData(dragState.ShapeComponent);
+ 		BackpackGridComp.TryPlaceItem(
+ 			itemData,
+ 			dragState.ShapeComponent.CurrentLocalCells,
+ 			dragState.OriginalGridPos
+ 		);
+ 
+-		// 2. 彻底消灭恢复 GlobalPosition 的冗余代码！使用正确的网格吸附逻辑！
++		// 使用正确的网格吸附逻辑
+ 		PerformSnapToGrid(itemEntity, dragState.ItemControl, dragState.OriginalGridPos);
+ 
+ 		GD.Print($"物品 {itemEntity.Name} 回弹到原位置，网格坐标 {dragState.OriginalGridPos}");
+ 	}
+ 
+@@ -544,10 +552,13 @@
+ 		public Vector2 OriginalGlobalPos { get; set; }
+ 
+ 		/// 原始网格坐标（用于回弹时放回逻辑网格）
+ 		public Vector2I OriginalGridPos { get; set; }
+ 
++		/// 拾取时的原始形状快照【关键】：防止回弹时使用旋转后的错误形状
++		public Vector2I[] OriginalLocalCells { get; set; }
++
+ 		/// 形状组件引用（用于获取当前形状）
+ 		public GridShapeComponent ShapeComponent { get; set; }
+ 
+ 		/// 物品 Control 节点引用（用于设置位置）
+ 		public Control ItemControl { get; set; }
+```
+#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
+```diff
+--- 
++++ 
+@@ -4,11 +4,10 @@
+ [ext_resource type="Script" uid="uid://1rgai2oppf42" path="res://addons/A1TetrisBackpack/Core/BackpackGridComponent.cs" id="2_ovaqc"]
+ [ext_resource type="Resource" uid="uid://cboscusg2x03w" path="res://A1TesseractBackpack/GVSR_BackgroundGridVisuals.tres" id="3_5mic1"]
+ [ext_resource type="PackedScene" uid="uid://bof44aeoq7w74" path="res://A1TesseractBackpack/TSItem.tscn" id="3_bkm53"]
+ [ext_resource type="Script" uid="uid://lelpt5ux6h0d" path="res://addons/A1TetrisBackpack/Items/ItemDataResource.cs" id="4_5mic1"]
+ [ext_resource type="Script" uid="uid://drof8dtjnyqs3" path="res://addons/A1TetrisBackpack/Core/BackpackInteractionController.cs" id="5_bic01"]
+-[ext_resource type="PackedScene" uid="uid://c6j8k8k84k2" path="res://addons/A1TetrisBackpack/UI/TSGridCellUI.tscn" id="6_cell_prefab"]
+ 
+ [sub_resource type="AnimatedTexture" id="AnimatedTexture_5ysrk"]
+ 
+ [sub_resource type="Resource" id="Resource_0xep6"]
+ script = ExtResource("4_5mic1")
+```
+---
+## 📅 20260501_232245
+- ➕ 新增: 0 | 📝 修改: 5 | ❌ 删除: 0
+
+#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
+```diff
+--- 
++++ 
+@@ -43,11 +43,10 @@
+ [node name="BackpackGridUIComponent" type="Node" parent="." unique_id=1436944256 node_paths=PackedStringArray("GridBackground", "InteractionArea")]
+ unique_name_in_owner = true
+ script = ExtResource("1_7o1w7")
+ BackpackGridComponentPath = NodePath("../BackpackGridComponent")
+ GridVisualSettings = ExtResource("3_5mic1")
+-CellPrefab = ExtResource("6_cell_prefab")
+ GridBackground = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/GridBackground")
+ InteractionArea = NodePath("../ScreenMargin/MainVBox/BackpackVisuals")
+ 
+ [node name="BackpackInteractionController" type="Node" parent="." unique_id=863928779]
+ script = ExtResource("5_bic01")
+```
+#### TetrisBackpack/A1TesseractBackpack\TSItem.tscn
+```diff
+--- 
++++ 
+@@ -1,9 +1,8 @@
+ [gd_scene format=3 uid="uid://bof44aeoq7w74"]
+ 
+-[ext_resource type="PackedScene" uid="uid://c6j8k8k84k2" path="res://addons/A1TetrisBackpack/UI/TSGridCellUI.tscn" id="cell_prefab"]
+-[ext_resource type="Script" uid="uid://bxypbbiy6mdl5" path="res://addons/A1TetrisBackpack/Items/GridShapeUIComponent.cs" id="controller_script"]
++[ext_resource type="Script" uid="uid://ectrqmvemuyb" path="res://addons/A1TetrisBackpack/Items/GridShapeUIComponent.cs" id="9_cvdq4"]
+ [ext_resource type="Script" uid="uid://bdka4obxtossd" path="res://addons/A1TetrisBackpack/Interaction/DraggableItemComponent.cs" id="draggable_script"]
+ [ext_resource type="Script" uid="uid://d2svbqvyq43tw" path="res://addons/A1TetrisBackpack/Interaction/FollowMouseUIComponent.cs" id="follow_mouse_script"]
+ [ext_resource type="Script" uid="uid://cljs2l6httw2" path="res://addons/A1TetrisBackpack/Interaction/ItemPhysicsComponent.cs" id="physics_script"]
+ [ext_resource type="Script" uid="uid://cytafq8i1y8qm" path="res://addons/godot_state_charts/atomic_state.gd" id="script_AtomicState"]
+ [ext_resource type="Script" uid="uid://jk2jm1g6q853" path="res://addons/godot_state_charts/compound_state.gd" id="script_CompoundState"]
+@@ -78,12 +77,11 @@
+ AutoResizeParent = false
+ VisualContainerPath = NodePath("%InteractionArea")
+ 
+ [node name="GridShapeUIComponent" type="Node" parent="." unique_id=2001234567]
+ unique_name_in_owner = true
+-script = ExtResource("controller_script")
+-CellPrefab = ExtResource("cell_prefab")
++script = ExtResource("9_cvdq4")
+ 
+ [node name="DraggableItemComponent" type="Node" parent="." unique_id=1027640510]
+ unique_name_in_owner = true
+ script = ExtResource("draggable_script")
+ 
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Items\GridShapeUIComponent.cs
+```diff
+--- 
++++ 
+@@ -18,13 +18,10 @@
+ 	[Export] public NodePath GridShapeComp_Path { get; set; } = "%GridShapeComponent";
+ 
+ 	/// 交互区域容器路径（用于放置生成的单元格）
+ 	[Export] public NodePath InteractionArea_Path { get; set; } = "%InteractionArea";
+ 
+-	/// 单元格预设（用于生成背景和物品格子）
+-	[Export] public PackedScene CellPrefab { get; set; }
+-
+ 	/// 单个格子的像素尺寸（默认64x64）
+ 	[Export] public float CellSize { get; set; } = 64f;
+ 
+ 	/// 物品网格的视觉设置（如果不设置将使用默认样式）
+ 	[Export] public GridVisualSettingsResource ItemVisualSettings { get; set; }
+@@ -174,18 +171,11 @@
+ 
+ 		// 3. 遍历局部坐标生成GridCellUI
+ 		int cellIndex = 0;
+ 		foreach (Vector2I cellPos in _gridShapeComp.CurrentLocalCells)
+ 		{
+-			// 实例化GridCellUI预设
+-			if (CellPrefab == null)
+-			{
+-				GD.PushError($"[{Name}] CellPrefab not assigned!");
+-				return;
+-			}
+-
+-			var gridCellUI = CellPrefab.Instantiate<GridCellUI>();
++			var gridCellUI = CreateCell();
+ 			
+ 			// 分配视觉设置
+ 			gridCellUI.VisualSettings = ItemVisualSettings;
+ 			
+ 			gridCellUI.Size = new Vector2(CellSize, CellSize);
+@@ -257,6 +247,33 @@
+ 	{
+ 		ResetGroupState();
+ 	}
+ 
+ 	#endregion
++
++	#region Private Helpers
++
++	/// 在代码中构建 GridCellUI 节点树（无需 .tscn 预设）
++	/// 目的：视觉完全由 ItemVisualSettings 控制，CellPrefab 已无存在意义
++	private GridCellUI CreateCell()
++	{
++		var cell = new GridCellUI();
++
++		// 构建 %CellImage 子节点（与 GridCellUI.SetState 中的 GetNodeOrNull 对应）
++		var cellImage = new TextureRect();
++		cellImage.Name = "CellImage";
++		cellImage.LayoutMode = 1;
++		cellImage.AnchorsPreset = (int)Control.LayoutPreset.FullRect;
++		cellImage.AnchorRight = 1.0f;
++		cellImage.AnchorBottom = 1.0f;
++		cellImage.GrowHorizontal = Control.GrowDirection.Both;
++		cellImage.GrowVertical = Control.GrowDirection.Both;
++		cellImage.MouseFilter = Control.MouseFilterEnum.Ignore;
++		cellImage.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
++		cellImage.StretchMode = TextureRect.StretchModeEnum.Scale;
++		cell.AddChild(cellImage);
++
++		return cell;
++	}
++
++	#endregion
+ }
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\UI\GridCellUI.cs
+```diff
+--- 
++++ 
+@@ -100,11 +100,11 @@
+ 	/// 目的：根据状态切换背景颜色和边框
+ 	public void SetState(CellState state)
+ 	{
+ 		_currentState = state;
+ 
+-		var cellImage = GetNodeOrNull<TextureRect>("%CellImage");
++		var cellImage = GetNodeOrNull<TextureRect>("CellImage");
+ 		if (cellImage == null) return;
+ 
+ 		// 默认颜色回退（在未设置VisualSettings时）
+ 		Color targetColor = Colors.White;
+ 		float targetGlow = 1.0f;
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackGridUIComponent.cs
+```diff
+--- 
++++ 
+@@ -26,12 +26,10 @@
+ 	[Export] public GridVisualSettingsResource GridVisualSettings { get; set; }
+ 
+ 	/// 单个网格的像素尺寸
+ 	[Export] public Vector2 CellSize { get; set; } = new Vector2(64, 64);
+ 
+-	/// 单元格预设（用于生成背景格子）
+-	[Export] public PackedScene CellPrefab { get; set; }
+ 
+ 	/// 背景网格容器（外部注入，格子将生成在此节点下）
+ 	[Export] public Control GridBackground { get; set; }
+ 
+ 	/// 交互区域锚点（外部注入，用于坐标转换的基准位置）
+@@ -181,17 +179,11 @@
+ 
+ 		for (int y = 0; y < BackpackGridComp.Height; y++)
+ 		{
+ 			for (int x = 0; x < BackpackGridComp.Width; x++)
+ 			{
+-				if (CellPrefab == null)
+-				{
+-					GD.PushError($"[{Name}] CellPrefab not assigned!");
+-					return;
+-				}
+-
+-				var gridCellUI = CellPrefab.Instantiate<GridCellUI>();
++				var gridCellUI = CreateCell();
+ 				
+ 				// 分配视觉设置
+ 				gridCellUI.VisualSettings = GridVisualSettings;
+ 				
+ 				gridCellUI.Size = CellSize;
+@@ -260,6 +252,31 @@
+ 		if (InteractionArea == null) return new Rect2();
+ 		return InteractionArea.GetGlobalRect();
+ 	}
+ 
+ 	#endregion
++
++	#region Private Helpers
++
++	/// 在代码中构建 GridCellUI 节点树（无需 .tscn 预设）
++	private GridCellUI CreateCell()
++	{
++		var cell = new GridCellUI();
++
++		var cellImage = new TextureRect();
++		cellImage.Name = "CellImage";
++		cellImage.LayoutMode = 1;
++		cellImage.AnchorsPreset = (int)Control.LayoutPreset.FullRect;
++		cellImage.AnchorRight = 1.0f;
++		cellImage.AnchorBottom = 1.0f;
++		cellImage.GrowHorizontal = Control.GrowDirection.Both;
++		cellImage.GrowVertical = Control.GrowDirection.Both;
++		cellImage.MouseFilter = Control.MouseFilterEnum.Ignore;
++		cellImage.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
++		cellImage.StretchMode = TextureRect.StretchModeEnum.Scale;
++		cell.AddChild(cellImage);
++
++		return cell;
++	}
++
++	#endregion
+ }
+```
+---
 ## 📅 20260501_230322
 - ➕ 新增: 2 | 📝 修改: 6 | ❌ 删除: 1
 
@@ -30984,7 +31635,6 @@ rendering_device/driver.windows="d3d12"
  	{
  		if (dragState == null || shapeComponent.CurrentLocalCells == null)
 ```
-
 ---
 ## 📅 20260501_140658
 - ➕ 新增: 1 | 📝 修改: 6 | ❌ 删除: 0
@@ -31673,814 +32323,6 @@ rendering_device/driver.windows="d3d12"
  
  	#endregion
  }
-```
----
-## 📅 20260501_132249
-- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
-```diff
---- 
-+++ 
-@@ -359,11 +359,12 @@
- 		bool isInBackpack = BackpackGridUIComp.IsPointInside(mousePos);
- 
- 		if (!isInBackpack)
- 		{
- 			// Dropped OUTSIDE: Do NOT bounce back.
--			itemControl.GlobalPosition = mousePos;
-+			// 不要在这里手动设置 GlobalPosition = mousePos，否则会导致物品左上角瞬间对齐鼠标（瞬移）。
-+			// FollowMouseUIComponent 已经考虑了抓取偏移，保持原位直接启用物理即可。
- 			var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
- 			if (itemPhysics != null)
- 			{
- 				itemPhysics.EnablePhysics();
- 			}
-```
----
-## 📅 20260501_131448
-- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\ItemPhysicsComponent.cs
-```diff
---- 
-+++ 
-@@ -27,13 +27,10 @@
- 	private Control _hostControl;
- 
- 	/// 格子形状组件（碰撞体生成来源 + 离散旋转管理）
- 	private GridShapeComponent _gridShapeComp;
- 
--	/// 视觉容器（旋转同步目标，GridCellUI 的父节点）
--	private Control _interactionArea;
--
- 	/// 物理激活标志
- 	/// 理由：区分 Freeze 是由业务逻辑控制还是引擎默认状态
- 	private bool _physicsActive = false;
- 
- 	#endregion
-@@ -58,16 +55,10 @@
- 		{
- 			GD.PushError($"[{Name}] 父节点不是 Control，物理同步将失效！");
- 			return;
- 		}
- 
--		_interactionArea = _hostControl.GetNodeOrNull<Control>("%InteractionArea");
--		if (_interactionArea == null)
--		{
--			GD.PushError($"[{Name}] 找不到 InteractionArea，视觉旋转同步将失效！");
--		}
--
- 		_gridShapeComp = _hostControl.GetNodeOrNull<GridShapeComponent>("%GridShapeComponent");
- 		if (_gridShapeComp == null)
- 		{
- 			GD.PushError($"[{Name}] 找不到 GridShapeComponent，无法生成碰撞体！");
- 			return;
-@@ -86,26 +77,28 @@
- 		_gridShapeComp.OnShapeChangedAsObservable
- 			.Subscribe(_ => RebuildCollisionShapes())
- 			.AddTo(this);
- 	}
- 
-+	public override void _Process(double delta)
-+	{
-+		// 拖拽时（物理休眠），强制物理代理跟随宿主 UI。
-+		// 必须在 _Process 同步，因为 FollowMouseUIComponent 在 _Process 移动宿主。
-+		// 如果在 _PhysicsProcess 同步，由于帧率差异会导致视觉（此时作为物理的子节点）严重抖动。
-+		if (!_physicsActive && _hostControl != null)
-+		{
-+			GlobalPosition = _hostControl.GlobalPosition;
-+			Rotation = _hostControl.Rotation;
-+		}
-+	}
-+
- 	public override void _PhysicsProcess(double delta)
- 	{
--		if (!_physicsActive) return;
--		if (_hostControl == null) return;
--
--		// 物理驱动位置同步
--		_hostControl.GlobalPosition = GlobalPosition;
--
--		// 物理驱动旋转同步
--		// 理由：物理引擎旋转 RB 至任意角度（如 23.5°），视觉必须跟随，
--		// 否则 collision debug 和实际画面完全对不上。
--		// PivotOffset = Zero 确保 InteractionArea 绕左上角旋转，与 RB2D 的旋转原点一致。
--		if (_interactionArea != null)
--		{
--			_interactionArea.PivotOffset = Vector2.Zero;
--			_interactionArea.Rotation = Rotation;
-+		// 物理下落时（物理激活），物理代理自由运动，宿主 UI 被迫跟随物理。
-+		if (_physicsActive && _hostControl != null)
-+		{
-+			_hostControl.GlobalPosition = GlobalPosition;
- 		}
- 	}
- 
- 	#endregion
- 
-@@ -114,20 +107,13 @@
- 	/// 启用物理模拟（物品掉落到世界空间）
- 	public void EnablePhysics()
- 	{
- 		if (_hostControl == null) return;
- 
--		// 先同步位置，防止瞬间跳变
-+		// 再次强制同步位置和旋转，确保无缝接管
- 		GlobalPosition = _hostControl.GlobalPosition;
--
--		// 进入物理前，确保视觉和物理旋转都从 0° 开始
--		Rotation = 0;
--		if (_interactionArea != null)
--		{
--			_interactionArea.PivotOffset = Vector2.Zero;
--			_interactionArea.Rotation = 0;
--		}
-+		Rotation = _hostControl.Rotation;
- 
- 		Freeze = false;
- 		_physicsActive = true;
- 
- 		GD.Print($"[{Name}] 物理已激活：{GlobalPosition}");
-@@ -153,18 +139,14 @@
- 			{
- 				_gridShapeComp.Rotate90();
- 			}
- 		}
- 
--		// 重置物理和视觉旋转到 0°
-+		// 重置物理旋转到 0°
- 		// 理由：旋转信息已经被折算进 GridShapeComponent.CurrentLocalCells，
- 		// 视觉和碰撞体会通过 OnShapeChanged 订阅自动重建到正确方向。
- 		Rotation = 0;
--		if (_interactionArea != null)
--		{
--			_interactionArea.Rotation = 0;
--		}
- 
- 		GD.Print($"[{Name}] 物理已休眠。");
- 	}
- 
- 	#endregion
-```
-#### TetrisBackpack/A1TesseractBackpack\TSItem.tscn
-```diff
---- 
-+++ 
-@@ -78,14 +78,14 @@
- script = ExtResource("draggable_script")
- 
- [node name="UITweenInteractComponent" type="Node" parent="." unique_id=987654321 node_paths=PackedStringArray("InteractionArea", "VisualTarget")]
- unique_name_in_owner = true
- script = ExtResource("tween_script")
--InteractionArea = NodePath("../InteractionArea")
--VisualTarget = NodePath("../InteractionArea/ItemIcon")
-+InteractionArea = NodePath("../PhysicsProxy/InteractionArea")
-+VisualTarget = NodePath("../PhysicsProxy/InteractionArea/ItemIcon")
- 
--[node name="InteractionArea" type="Control" parent="." unique_id=860289969]
-+[node name="InteractionArea" type="Control" parent="PhysicsProxy" unique_id=860289969]
- unique_name_in_owner = true
- layout_mode = 1
- anchors_preset = 15
- anchor_right = 1.0
- anchor_bottom = 1.0
-```
----
-## 📅 20260501_130022
-- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\ItemPhysicsComponent.cs
-```diff
---- 
-+++ 
-@@ -4,35 +4,38 @@
- /// 物品物理组件 - 处理物品在世界空间中的物理行为
- ///
- /// 职责：
- /// - 动态生成与物品形状匹配的碰撞体（CollisionShape2D）
- /// - 管理物理状态的切换（Freeze 属性控制）
--/// - 在物理激活时，将物理位置同步给宿主 Control 节点
-+/// - 在物理激活时，将物理位置和旋转同步给宿主 UI 节点
- ///
- /// 架构定位：
- /// - 宿主：TSItem 根节点下的 RigidBody2D 节点
- /// - 数据源：GridShapeComponent 提供逻辑网格数据
--/// - 同步方向：单向同步（物理引擎 -> UI 坐标）
-+/// - 同步方向：单向同步（物理引擎 -> UI 坐标 + 旋转）
- ///
- /// 工作流程：
--/// 1. 初始化：在 _Ready 中自动清理旧碰撞体并根据网格数据重建
-+/// 1. 初始化：清理旧碰撞体，根据网格数据重建
- /// 2. 形状变化：订阅形状变化事件，旋转时自动更新碰撞体布局
--/// 3. 物理启用：解冻 RigidBody，接管宿主 Control 的 GlobalPosition
--/// 4. 物理禁用：冻结 RigidBody，停止同步，通常在进入网格或被拖拽时触发
-+/// 3. 物理启用：解冻 RigidBody，接管宿主 Control 的位置和旋转
-+/// 4. 物理禁用：冻结 RigidBody，将任意角度旋转折算为离散 90° 并写回网格数据
- [GlobalClass]
- public partial class ItemPhysicsComponent : RigidBody2D
- {
- 	#region Private Fields
- 
- 	/// 宿主 Control 节点（位置同步目标）
- 	private Control _hostControl;
- 
--	/// 格子形状组件（碰撞体生成来源）
-+	/// 格子形状组件（碰撞体生成来源 + 离散旋转管理）
- 	private GridShapeComponent _gridShapeComp;
- 
-+	/// 视觉容器（旋转同步目标，GridCellUI 的父节点）
-+	private Control _interactionArea;
-+
- 	/// 物理激活标志
--	/// 理由：用于区分 Freeze 状态是由业务逻辑（如拖拽）控制，还是由引擎默认状态控制
-+	/// 理由：区分 Freeze 是由业务逻辑控制还是引擎默认状态
- 	private bool _physicsActive = false;
- 
- 	#endregion
- 
- 	#region Godot Lifecycle
-@@ -40,104 +43,139 @@
- 	public override void _Ready()
- 	{
- 		InitializeComponent();
- 	}
- 
--	/// 延迟初始化组件
- 	private void InitializeComponent()
- 	{
--		// 【关键修复】脱离父节点 Transform 链
--		// 理由：RigidBody2D 作为 Control 的子节点时，移动父 Control 会同时移动 RB，
--		// 而 _PhysicsProcess 又把 RB 位置写回 Control，形成 Transform 反馈循环，
--		// 导致弹跳、滑动、瞬移等一切物理异常。
--		// TopLevel = true 使 RB 的坐标独立于父节点，等效于用户测试中 RB 作为根节点的效果。
-+		// 【关键】脱离父节点 Transform 链
-+		// 理由：RigidBody2D 作为 Control 子节点时，移动父 Control 会连带移动 RB，
-+		// 而 _PhysicsProcess 又把 RB 位置写回 Control，形成反馈循环。
-+		// TopLevel = true 使 RB 坐标独立于父节点。
- 		TopLevel = true;
- 
- 		_hostControl = GetParent<Control>();
- 		if (_hostControl == null)
- 		{
- 			GD.PushError($"[{Name}] 父节点不是 Control，物理同步将失效！");
- 			return;
- 		}
- 
-+		_interactionArea = _hostControl.GetNodeOrNull<Control>("%InteractionArea");
-+		if (_interactionArea == null)
-+		{
-+			GD.PushError($"[{Name}] 找不到 InteractionArea，视觉旋转同步将失效！");
-+		}
-+
- 		_gridShapeComp = _hostControl.GetNodeOrNull<GridShapeComponent>("%GridShapeComponent");
- 		if (_gridShapeComp == null)
- 		{
- 			GD.PushError($"[{Name}] 找不到 GridShapeComponent，无法生成碰撞体！");
- 			return;
- 		}
- 
--		// 清除场景编辑器中可能存在的占位 CollisionShape2D
--		// 理由：确保运行时碰撞体完全由逻辑网格数据驱动，避免冗余碰撞干扰
-+		// 清除场景中可能存在的占位 CollisionShape2D
- 		foreach (var child in GetChildren())
- 		{
- 			if (child is CollisionShape2D) child.QueueFree();
- 		}
- 
--		// 初始构建碰撞体
- 		RebuildCollisionShapes();
- 
- 		// 订阅形状变化流（如旋转）
--		// 理由：当物品在网格内或被拖拽旋转时，物理碰撞体必须同步更新位置以保持一致性
-+		// 理由：网格旋转时碰撞体必须同步更新
- 		_gridShapeComp.OnShapeChangedAsObservable
- 			.Subscribe(_ => RebuildCollisionShapes())
- 			.AddTo(this);
- 	}
- 
- 	public override void _PhysicsProcess(double delta)
- 	{
- 		if (!_physicsActive) return;
--
- 		if (_hostControl == null) return;
- 
--		// 物理驱动同步
--		// 理由：当物理激活时，RigidBody2D 是运动真理，UI 必须跟随物理位置
-+		// 物理驱动位置同步
- 		_hostControl.GlobalPosition = GlobalPosition;
-+
-+		// 物理驱动旋转同步
-+		// 理由：物理引擎旋转 RB 至任意角度（如 23.5°），视觉必须跟随，
-+		// 否则 collision debug 和实际画面完全对不上。
-+		// PivotOffset = Zero 确保 InteractionArea 绕左上角旋转，与 RB2D 的旋转原点一致。
-+		if (_interactionArea != null)
-+		{
-+			_interactionArea.PivotOffset = Vector2.Zero;
-+			_interactionArea.Rotation = Rotation;
-+		}
- 	}
- 
- 	#endregion
- 
- 	#region Public API
- 
--	/// 启用物理模拟
--	/// 理由：用于物品掉落到世界空间，使其受重力和碰撞影响
-+	/// 启用物理模拟（物品掉落到世界空间）
- 	public void EnablePhysics()
- 	{
- 		if (_hostControl == null) return;
- 
--		// 先将物理节点同步到 UI 当前位置，防止瞬间位移跳变
-+		// 先同步位置，防止瞬间跳变
- 		GlobalPosition = _hostControl.GlobalPosition;
-+
-+		// 进入物理前，确保视觉和物理旋转都从 0° 开始
-+		Rotation = 0;
-+		if (_interactionArea != null)
-+		{
-+			_interactionArea.PivotOffset = Vector2.Zero;
-+			_interactionArea.Rotation = 0;
-+		}
- 
- 		Freeze = false;
- 		_physicsActive = true;
- 
- 		GD.Print($"[{Name}] 物理已激活：{GlobalPosition}");
- 	}
- 
--	/// 禁用物理模拟
--	/// 理由：用于物品进入网格或被玩家拾取，此时位置由 UI 逻辑或鼠标跟随控制
-+	/// 禁用物理模拟（进入网格或被拾取）
- 	public void DisablePhysics()
- 	{
- 		Freeze = true;
- 		_physicsActive = false;
- 
--		// 强制归零速度，防止下次启用时继承旧的惯性
-+		// 强制归零速度，防止下次启用时继承旧惯性
- 		LinearVelocity = Vector2.Zero;
- 		AngularVelocity = 0;
- 
-+		// 将物理旋转折算为离散的 90° 网格旋转
-+		// 理由：物理引擎可能将物品旋转到任意角度（如 127°），
-+		// 但网格系统只支持 0/90/180/270°，所以需要四舍五入到最近的 90° 并写入网格数据。
-+		if (_gridShapeComp != null)
-+		{
-+			int rotationSteps = CalculateRotationSteps();
-+			for (int i = 0; i < rotationSteps; i++)
-+			{
-+				_gridShapeComp.Rotate90();
-+			}
-+		}
-+
-+		// 重置物理和视觉旋转到 0°
-+		// 理由：旋转信息已经被折算进 GridShapeComponent.CurrentLocalCells，
-+		// 视觉和碰撞体会通过 OnShapeChanged 订阅自动重建到正确方向。
-+		Rotation = 0;
-+		if (_interactionArea != null)
-+		{
-+			_interactionArea.Rotation = 0;
-+		}
-+
- 		GD.Print($"[{Name}] 物理已休眠。");
- 	}
- 
- 	#endregion
- 
- 	#region Helper Methods
- 
- 	/// 根据 GridShapeComponent 数据动态重建碰撞体
-
-... (diff截断, 共 250 行)
-```
-#### AISpace/rules_global\StableOrOther\BugInvestigation.md
-```diff
---- 
-+++ 
-@@ -6,14 +6,14 @@
- - **Tool**: `mcp_sequential_thinking_sequentialthinking`
- - **Core Rule**: 3-Strike Rule (Max 3 failed fix attempts before escalation)
- - **Engine Context**: Godot 4.6.1 stable mono, C#, Windows
- 
- ## Decision Tree
--- **IF** Confidence < 7 OR blind spots: ALWAYS trigger web/doc search. (Why: NEVER guess missing facts)
--- **IF** Confidence >= 7 AND search complete: Proceed with execution.
--- **IF** 3 consecutive fails for same issue: HALT and escalate. (Why: Prevents infinite loops)
--- **IF** deadlocks, timing issues, Godot/OS bugs: HALT and escalate.
-+- IF Confidence < 7 OR blind spots: ALWAYS trigger web/doc search. (Why: NEVER guess missing facts)
-+- IF Confidence >= 7 AND search complete: Proceed with execution.
-+- IF 3 consecutive fails for same issue: Check `AISpace/hardbugs/` directory for historical solutions. If no solution is found, HALT and escalate. (Why: Prevents infinite loops while leveraging past fixes)
-+- IF deadlocks, timing issues, Godot/OS bugs: Check `hardbugs/`, then HALT and escalate.
- 
- ## Implementation Workflow
- 1. Execute `mcp_sequential_thinking_sequentialthinking` to catalog Knowledge Inventory.
- 2. Pinpoint blind spots and assign Confidence Score (1-10).
- 3. Trigger search if Confidence < 7.
-```
----
-## 📅 20260501_122922
-- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
-
-#### TetrisBackpack/A1TesseractBackpack\TSItem.tscn
-```diff
---- 
-+++ 
-@@ -11,27 +11,24 @@
- [ext_resource type="Script" uid="uid://cf1nsco3w0mf6" path="res://addons/godot_state_charts/transition.gd" id="script_Transition"]
- [ext_resource type="Script" uid="uid://bbykh8wvhqtcj" path="res://addons/A1TetrisBackpack/Items/GridShapeComponent.cs" id="shape_script"]
- [ext_resource type="Script" uid="uid://bp3kxm28rswm" path="res://addons/A1TetrisBackpack/MicroUI/UITweenInteractComponent.cs" id="tween_script"]
- [ext_resource type="Script" uid="uid://c1c4n42ng8gwf" path="res://A1TesseractBackpack/TSItemWrapper.cs" id="wrapper_script"]
- 
--
- [node name="TetrisDraggableItem" type="Control" unique_id=279074725]
- unique_name_in_owner = true
- custom_minimum_size = Vector2(64, 64)
- layout_mode = 3
- anchors_preset = 0
- mouse_filter = 2
- script = ExtResource("wrapper_script")
- 
- [node name="PhysicsProxy" type="RigidBody2D" parent="." unique_id=516043968]
- unique_name_in_owner = true
--physics_interpolation_mode = 1
- collision_layer = 16
- collision_mask = 16
- freeze = true
- script = ExtResource("physics_script")
--
- 
- [node name="StateChart" type="Node" parent="." unique_id=1344843508]
- unique_name_in_owner = true
- script = ExtResource("script_StateChart")
- 
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\ItemPhysicsComponent.cs
-```diff
---- 
-+++ 
-@@ -1,20 +1,20 @@
- using Godot;
- using R3;
- 
- /// 物品物理组件 - 处理物品在世界空间中的物理行为
--/// 
-+///
- /// 职责：
- /// - 动态生成与物品形状匹配的碰撞体（CollisionShape2D）
- /// - 管理物理状态的切换（Freeze 属性控制）
- /// - 在物理激活时，将物理位置同步给宿主 Control 节点
--/// 
-+///
- /// 架构定位：
- /// - 宿主：TSItem 根节点下的 RigidBody2D 节点
- /// - 数据源：GridShapeComponent 提供逻辑网格数据
- /// - 同步方向：单向同步（物理引擎 -> UI 坐标）
--/// 
-+///
- /// 工作流程：
- /// 1. 初始化：在 _Ready 中自动清理旧碰撞体并根据网格数据重建
- /// 2. 形状变化：订阅形状变化事件，旋转时自动更新碰撞体布局
- /// 3. 物理启用：解冻 RigidBody，接管宿主 Control 的 GlobalPosition
- /// 4. 物理禁用：冻结 RigidBody，停止同步，通常在进入网格或被拖拽时触发
-@@ -25,11 +25,11 @@
- 
- 	/// 宿主 Control 节点（位置同步目标）
- 	private Control _hostControl;
- 
- 	/// 格子形状组件（碰撞体生成来源）
--	private GridShapeComponent _shapeComponent;
-+	private GridShapeComponent _gridShapeComp;
- 
- 	/// 物理激活标志
- 	/// 理由：用于区分 Freeze 状态是由业务逻辑（如拖拽）控制，还是由引擎默认状态控制
- 	private bool _physicsActive = false;
- 
-@@ -43,19 +43,26 @@
- 	}
- 
- 	/// 延迟初始化组件
- 	private void InitializeComponent()
- 	{
-+		// 【关键修复】脱离父节点 Transform 链
-+		// 理由：RigidBody2D 作为 Control 的子节点时，移动父 Control 会同时移动 RB，
-+		// 而 _PhysicsProcess 又把 RB 位置写回 Control，形成 Transform 反馈循环，
-+		// 导致弹跳、滑动、瞬移等一切物理异常。
-+		// TopLevel = true 使 RB 的坐标独立于父节点，等效于用户测试中 RB 作为根节点的效果。
-+		TopLevel = true;
-+
- 		_hostControl = GetParent<Control>();
- 		if (_hostControl == null)
- 		{
- 			GD.PushError($"[{Name}] 父节点不是 Control，物理同步将失效！");
- 			return;
- 		}
- 
--		_shapeComponent = _hostControl.GetNodeOrNull<GridShapeComponent>("%GridShapeComponent");
--		if (_shapeComponent == null)
-+		_gridShapeComp = _hostControl.GetNodeOrNull<GridShapeComponent>("%GridShapeComponent");
-+		if (_gridShapeComp == null)
- 		{
- 			GD.PushError($"[{Name}] 找不到 GridShapeComponent，无法生成碰撞体！");
- 			return;
- 		}
- 
-@@ -69,11 +76,11 @@
- 		// 初始构建碰撞体
- 		RebuildCollisionShapes();
- 
- 		// 订阅形状变化流（如旋转）
- 		// 理由：当物品在网格内或被拖拽旋转时，物理碰撞体必须同步更新位置以保持一致性
--		_shapeComponent.OnShapeChangedAsObservable
-+		_gridShapeComp.OnShapeChangedAsObservable
- 			.Subscribe(_ => RebuildCollisionShapes())
- 			.AddTo(this);
- 	}
- 
- 	public override void _PhysicsProcess(double delta)
-@@ -97,28 +104,28 @@
- 	{
- 		if (_hostControl == null) return;
- 
- 		// 先将物理节点同步到 UI 当前位置，防止瞬间位移跳变
- 		GlobalPosition = _hostControl.GlobalPosition;
--		
-+
- 		Freeze = false;
- 		_physicsActive = true;
--		
-+
- 		GD.Print($"[{Name}] 物理已激活：{GlobalPosition}");
- 	}
- 
- 	/// 禁用物理模拟
- 	/// 理由：用于物品进入网格或被玩家拾取，此时位置由 UI 逻辑或鼠标跟随控制
- 	public void DisablePhysics()
- 	{
- 		Freeze = true;
- 		_physicsActive = false;
--		
-+
- 		// 强制归零速度，防止下次启用时继承旧的惯性
- 		LinearVelocity = Vector2.Zero;
- 		AngularVelocity = 0;
--		
-+
- 		GD.Print($"[{Name}] 物理已休眠。");
- 	}
- 
- 	#endregion
- 
-@@ -132,35 +139,35 @@
- 		foreach (var child in GetChildren())
- 		{
- 			if (child is CollisionShape2D) child.QueueFree();
- 		}
- 
--		var cells = _shapeComponent.CurrentLocalCells;
-+		var cells = _gridShapeComp.CurrentLocalCells;
- 		if (cells == null) return;
- 
--		var cellSize = _shapeComponent.CellSize;
-+		var cellSize = _gridShapeComp.CellSize;
- 		var halfSize = cellSize / 2f;
- 
- 		for (int i = 0; i < cells.Length; i++)
- 		{
- 			// 为每个逻辑格子创建一个物理矩形
- 			var shape = new RectangleShape2D();
- 			shape.Size = cellSize;
- 
- 			var collider = new CollisionShape2D();
- 			collider.Shape = shape;
--			
-+
- 			// 计算局部偏移量
- 			// 公式：格子坐标 * 格子尺寸 + 半格偏移（使中心对齐）
- 			collider.Position = new Vector2(
- 				cells[i].X * cellSize.X + halfSize.X,
- 				cells[i].Y * cellSize.Y + halfSize.Y
- 			);
- 
- 			AddChild(collider);
- 		}
--		
-+
- 		GD.Print($"[{Name}] 碰撞体已重建，共 {cells.Length} 个单元。");
- 	}
- 
- 	#endregion
- }
-```
----
-## 📅 20260501_120512
-- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\ItemPhysicsComponent.cs
-```diff
---- 
-+++ 
-@@ -1,56 +1,136 @@
- using Godot;
- using R3;
- 
-+/// 物品物理组件 - 处理物品在世界空间中的物理行为
-+/// 
-+/// 职责：
-+/// - 动态生成与物品形状匹配的碰撞体（CollisionShape2D）
-+/// - 管理物理状态的切换（Freeze 属性控制）
-+/// - 在物理激活时，将物理位置同步给宿主 Control 节点
-+/// 
-+/// 架构定位：
-+/// - 宿主：TSItem 根节点下的 RigidBody2D 节点
-+/// - 数据源：GridShapeComponent 提供逻辑网格数据
-+/// - 同步方向：单向同步（物理引擎 -> UI 坐标）
-+/// 
-+/// 工作流程：
-+/// 1. 初始化：在 _Ready 中自动清理旧碰撞体并根据网格数据重建
-+/// 2. 形状变化：订阅形状变化事件，旋转时自动更新碰撞体布局
-+/// 3. 物理启用：解冻 RigidBody，接管宿主 Control 的 GlobalPosition
-+/// 4. 物理禁用：冻结 RigidBody，停止同步，通常在进入网格或被拖拽时触发
- [GlobalClass]
- public partial class ItemPhysicsComponent : RigidBody2D
- {
--	// 宿主 Control 节点（位置同步目标）
-+	#region Private Fields
-+
-+	/// 宿主 Control 节点（位置同步目标）
- 	private Control _hostControl;
- 
--	// 格子形状组件（碰撞体生成来源）
-+	/// 格子形状组件（碰撞体生成来源）
- 	private GridShapeComponent _shapeComponent;
- 
--	// 物理激活标志（区分 Freeze 状态来源：代码冻结 vs 默认冻结）
-+	/// 物理激活标志
-+	/// 理由：用于区分 Freeze 状态是由业务逻辑（如拖拽）控制，还是由引擎默认状态控制
- 	private bool _physicsActive = false;
- 
-+	#endregion
-+
-+	#region Godot Lifecycle
-+
- 	public override void _Ready()
-+	{
-+		InitializeComponent();
-+	}
-+
-+	/// 延迟初始化组件
-+	private void InitializeComponent()
- 	{
- 		_hostControl = GetParent<Control>();
- 		if (_hostControl == null)
- 		{
--			GD.PushError($"[{Name}] 父节点不是 Control！");
-+			GD.PushError($"[{Name}] 父节点不是 Control，物理同步将失效！");
- 			return;
- 		}
- 
- 		_shapeComponent = _hostControl.GetNodeOrNull<GridShapeComponent>("%GridShapeComponent");
- 		if (_shapeComponent == null)
- 		{
--			GD.PushError($"[{Name}] 找不到 GridShapeComponent！");
-+			GD.PushError($"[{Name}] 找不到 GridShapeComponent，无法生成碰撞体！");
- 			return;
- 		}
- 
--		// 清除场景编辑器中的占位 CollisionShape2D
-+		// 清除场景编辑器中可能存在的占位 CollisionShape2D
-+		// 理由：确保运行时碰撞体完全由逻辑网格数据驱动，避免冗余碰撞干扰
- 		foreach (var child in GetChildren())
- 		{
- 			if (child is CollisionShape2D) child.QueueFree();
- 		}
- 
--		// 根据当前形状动态生成碰撞体
-+		// 初始构建碰撞体
- 		RebuildCollisionShapes();
- 
--		// 订阅形状变化（旋转时重建碰撞体位置）
-+		// 订阅形状变化流（如旋转）
-+		// 理由：当物品在网格内或被拖拽旋转时，物理碰撞体必须同步更新位置以保持一致性
- 		_shapeComponent.OnShapeChangedAsObservable
- 			.Subscribe(_ => RebuildCollisionShapes())
- 			.AddTo(this);
- 	}
- 
--	// 根据 GridShapeComponent.CurrentLocalCells 生成碰撞体
--	// 每个格子 = 一个 CollisionShape2D（RectangleShape2D），完全复刻用户测试方案
-+	public override void _PhysicsProcess(double delta)
-+	{
-+		if (!_physicsActive) return;
-+
-+		if (_hostControl == null) return;
-+
-+		// 物理驱动同步
-+		// 理由：当物理激活时，RigidBody2D 是运动真理，UI 必须跟随物理位置
-+		_hostControl.GlobalPosition = GlobalPosition;
-+	}
-+
-+	#endregion
-+
-+	#region Public API
-+
-+	/// 启用物理模拟
-+	/// 理由：用于物品掉落到世界空间，使其受重力和碰撞影响
-+	public void EnablePhysics()
-+	{
-+		if (_hostControl == null) return;
-+
-+		// 先将物理节点同步到 UI 当前位置，防止瞬间位移跳变
-+		GlobalPosition = _hostControl.GlobalPosition;
-+		
-+		Freeze = false;
-+		_physicsActive = true;
-+		
-+		GD.Print($"[{Name}] 物理已激活：{GlobalPosition}");
-+	}
-+
-+	/// 禁用物理模拟
-+	/// 理由：用于物品进入网格或被玩家拾取，此时位置由 UI 逻辑或鼠标跟随控制
-+	public void DisablePhysics()
-+	{
-+		Freeze = true;
-+		_physicsActive = false;
-+		
-+		// 强制归零速度，防止下次启用时继承旧的惯性
-+		LinearVelocity = Vector2.Zero;
-+		AngularVelocity = 0;
-+		
-+		GD.Print($"[{Name}] 物理已休眠。");
-+	}
-+
-+	#endregion
-+
-+	#region Helper Methods
-+
-+	/// 根据 GridShapeComponent 数据动态重建碰撞体
-+	/// 理由：复刻 Tetris 风格的多方块碰撞逻辑，确保不规则形状物品碰撞精确
- 	private void RebuildCollisionShapes()
- 	{
--		// 清除旧碰撞体
-+		// 清理现有的 CollisionShape2D
- 		foreach (var child in GetChildren())
- 		{
- 			if (child is CollisionShape2D) child.QueueFree();
- 		}
- 
-@@ -60,46 +140,27 @@
- 		var cellSize = _shapeComponent.CellSize;
- 		var halfSize = cellSize / 2f;
- 
- 		for (int i = 0; i < cells.Length; i++)
- 		{
-+			// 为每个逻辑格子创建一个物理矩形
- 			var shape = new RectangleShape2D();
- 			shape.Size = cellSize;
- 
- 			var collider = new CollisionShape2D();
- 			collider.Shape = shape;
--			// 每个格子的中心位置 = 格子坐标 * 格子大小 + 半格偏移
-+			
-+			// 计算局部偏移量
-+			// 公式：格子坐标 * 格子尺寸 + 半格偏移（使中心对齐）
- 			collider.Position = new Vector2(
- 				cells[i].X * cellSize.X + halfSize.X,
- 				cells[i].Y * cellSize.Y + halfSize.Y
- 			);
- 
- 			AddChild(collider);
- 		}
-+		
-+		GD.Print($"[{Name}] 碰撞体已重建，共 {cells.Length} 个单元。");
- 	}
- 
--	// 启用物理（掉落、碰撞）
--	public void EnablePhysics()
--	{
--		// 同步 RigidBody 位置到当前 Control 位置（先定位再解冻）
--		GlobalPosition = _hostControl.GlobalPosition;
--		Freeze = false;
--		_physicsActive = true;
--	}
--
--	// 禁用物理（网格模式 / 拖拽中）
--	public void DisablePhysics()
--	{
--		Freeze = true;
--		_physicsActive = false;
--		LinearVelocity = Vector2.Zero;
--		AngularVelocity = 0;
--	}
--
--	public override void _PhysicsProcess(double delta)
--	{
--		if (!_physicsActive) return;
--
--		// 物理驱动 Control 位置（单向同步：Physics → UI）
-
-... (diff截断, 共 204 行)
 ```
 </RECENT_CHANGES>
     ]]>
