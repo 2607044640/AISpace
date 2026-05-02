@@ -1,7 +1,7 @@
 <system_context>
   <metadata>
     <description>Godot CsArchitect (构筑师) Project Context Master File (Dual-Sync)</description>
-    <generated_time>2026-05-03 02:49:35</generated_time>
+    <generated_time>2026-05-03 02:53:45</generated_time>
   </metadata>
 
   <section name='00_primacy_boost' description='Read This First'>
@@ -11,6 +11,79 @@
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260503_024934
+- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 1
+
+#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
+```diff
+--- 
++++ 
+@@ -61,13 +61,13 @@
+ FallenpointPath = NodePath("../Fallenpoint")
+ 
+ [node name="Fallenpoint" type="Control" parent="." unique_id=145081264]
+ anchors_preset = 0
+ offset_left = 565.0
+-offset_top = -153.0
++offset_top = -243.0
+ offset_right = 605.0
+-offset_bottom = -113.0
++offset_bottom = -203.0
+ 
+ [node name="ScreenMargin" type="MarginContainer" parent="." unique_id=632711132]
+ layout_mode = 1
+ anchors_preset = 15
+ anchor_right = 1.0
+@@ -165,11 +165,11 @@
+ position = Vector2(565, 0)
+ collision_layer = 16
+ collision_mask = 16
+ 
+ [node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/TopWall" unique_id=899388119]
+-position = Vector2(0, -1383)
++position = Vector2(0, -2019)
+ shape = SubResource("RectangleShape2D_floor")
+ 
+ [node name="TsItem" parent="LootSpawnArea" unique_id=1959740042 instance=ExtResource("3_bkm53")]
+ layout_mode = 0
+ offset_left = 400.0
+```
+#### AISpace/rules_global\Godot\GodotBackpackTesseractSys_Context.md
+```diff
+--- 
++++ 
+@@ -7,11 +7,13 @@
+ 
+ **Latest Architecture (2026-05-02):**
+ - **Polygon Merging (Ghost Collision Fix):** `ItemPhysicsComponent` uses `Geometry2D.MergePolygons` (with a 0.5px overlap) to seamlessly fuse multiple grid cells into a single `CollisionPolygon2D`. This eliminates "ghost collisions" where items snagged on internal seams between grid cells.
+ - **Continuous Collision Detection (CCD):** Physics proxies use `ContinuousCd = CcdMode.CastRay` to prevent high-speed tunneling through the floor when spawned overlapping.
+ - **Physics-State Authority:** Controller relies on `ItemPhysicsComponent.Freeze` to determine if an item is grabbed from the logic grid or caught mid-air. World-drops preserve their `GlobalPosition` and hand off seamlessly to the physics engine.
+-- **Out-of-Bounds Respawn Logic:** `LootSpawnAreaController` directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity` instead of just moving the UI Control. Supports dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
++- **Out-of-Bounds Caching & Respawn:** `ItemStorageManager` caches all `WorldPhysicsItems` on initialization. `LootSpawnAreaController` loops this cache directly instead of `HasNode("%PhysicsProxy")` per-tick. Controller directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity`, supporting dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
++- **Throw Velocity (Physical Drop):** `FollowMouseUIComponent` tracks cursor velocity via exponential smoothing in `_Process`. When dropped in the world, `BackpackInteractionController` passes this `ThrowVelocity` to `ItemPhysicsComponent.EnablePhysics(Vector2)`, which applies it to `LinearVelocity` after unfreezing, creating a natural throw.
++- **TopWall Collision:** `TSBackpack.tscn` uses a massive shared `RectangleShape2D` (5000x2776). The TopWall is placed at y=0 with shape offset -1383, perfectly aligning its bottom face with the screen top (y=5) to bounce thrown items back.
+ - **Normalization Shift Compensation:** `ItemPhysicsComponent` calculates the visual offset caused by `GridShapeComponent.NormalizeShape()` during a physical rotation and applies an inverse shift to the parent `Control`'s `GlobalPosition`, eliminating pixel jumping when picking up rotated items.
+ - **TopLevel Physics Proxy:** The `RigidBody2D` physics proxy MUST set `TopLevel = true` to break the Godot spatial inheritance chain. This prevents the "death spiral" feedback loop (infinite acceleration) when `_PhysicsProcess` synchronizes coordinates with its parent `Control`.
+ - **Backpack-Physics Decoupling:** Items inside the backpack set `CollisionLayer/Mask = 0` (NONE) and `Freeze = true`. This prevents them from acting as physical obstacles that could deflect dragged items or interfere with other loot. They only restore `CollisionLayer/Mask = 16` (ITEM_LAYER) and `Freeze = false` when taken out or spawned in the world.
+ - **Commander Pattern:** Controller delegates spatial math to the View and visual tweens to the Juice component. Result: Declarative logic, zero visual noise in Controller.
+ - **Spatial Delegation:** `BackpackGridUIComponent` handles all coordinate mapping (`IsPointInside`, `GridToGlobalPosition`). `GridShapeComponent` handles local shape lookups (`GetCellIndexAtLocalPosition`).
+@@ -197,10 +199,14 @@
+     </error>
+     <error symptom="Item continuously respawns out of bounds (infinite falling loop)">
+       <cause>Respawn code teleported the UI Control but ignored the `TopLevel` RigidBody, keeping its extreme falling velocity and position intact.</cause>
+       <fix>In `LootSpawnAreaController`, directly set the `ItemPhysicsComponent.GlobalPosition` and zero out its `LinearVelocity` and `AngularVelocity`.</fix>
+     </error>
++    <error symptom="Performance drops when checking for out of bounds items">
++      <cause>Using `HasNode("%PhysicsProxy")` inside a frequent tick loop traverses the tree using string lookups.</cause>
++      <fix>Cache valid physics proxies in a `List<ItemPhysicsComponent>` inside `ItemStorageManager` and iterate that list instead.</fix>
++    </error>
+     <error symptom="Items sliding against each other suddenly get stuck/snag on invisible edges">
+       <cause>"Ghost collisions" caused by internal seams when a RigidBody is composed of multiple adjacent `CollisionShape2D` rectangles.</cause>
+       <fix>Use `Geometry2D.MergePolygons` to combine the individual grid cells into a single, seamless `CollisionPolygon2D`.</fix>
+     </error>
+     <error symptom="Items spawned in the same location fall completely through the floor">
+```
+---
 ## 📅 20260503_005333
 - ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
 
@@ -556,134 +629,6 @@
  
  [node name="TsItem" parent="LootSpawnArea" unique_id=1959740042 instance=ExtResource("3_bkm53")]
  layout_mode = 0
-```
----
-## 📅 20260502_225049
-- ➕ 新增: 1 | 📝 修改: 2 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\ItemPhysicsComponent.cs
-```diff
---- 
-+++ 
-@@ -189,33 +189,67 @@
- 	/// 根据 GridShapeComponent 数据动态重建碰撞体
- 	private void RebuildCollisionShapes()
- 	{
- 		foreach (var child in GetChildren())
- 		{
--			if (child is CollisionShape2D) child.QueueFree();
-+			if (child is CollisionShape2D || child is CollisionPolygon2D) child.QueueFree();
- 		}
- 
- 		var cells = _gridShapeComp.CurrentLocalCells;
--		if (cells == null) return;
-+		if (cells == null || cells.Length == 0) return;
- 
- 		var cellSize = _gridShapeComp.CellSize;
--		var halfSize = cellSize / 2f;
--
--		for (int i = 0; i < cells.Length; i++)
--		{
--			var shape = new RectangleShape2D();
--			shape.Size = cellSize;
--
--			var collider = new CollisionShape2D();
--			collider.Shape = shape;
--
--			// 公式：格子坐标 * 格子尺寸 + 半格偏移（使中心对齐）
--			collider.Position = new Vector2(
--				cells[i].X * cellSize.X + halfSize.X,
--				cells[i].Y * cellSize.Y + halfSize.Y
--			);
--
-+
-+		// 收集所有合并后的多边形
-+		var mergedPolygons = new System.Collections.Generic.List<Vector2[]>();
-+
-+		foreach (var cell in cells)
-+		{
-+			// 为了确保完美合并（解决浮点精度或相邻边不被认为是相交的问题），将格子放大 0.5 像素产生微小重叠
-+			Vector2 topLeft = new Vector2(cell.X * cellSize.X - 0.5f, cell.Y * cellSize.Y - 0.5f);
-+			Vector2 size = cellSize + new Vector2(1.0f, 1.0f);
-+			
-+			// 顺时针定义一个矩形多边形
-+			Vector2[] cellPoly = new Vector2[]
-+			{
-+				topLeft,
-+				topLeft + new Vector2(size.X, 0),
-+				topLeft + new Vector2(size.X, size.Y),
-+				topLeft + new Vector2(0, size.Y)
-+			};
-+
-+			var nextMerged = new System.Collections.Generic.List<Vector2[]>();
-+			Vector2[] polyToMerge = cellPoly;
-+
-+			for (int i = 0; i < mergedPolygons.Count; i++)
-+			{
-+				var existingPoly = mergedPolygons[i];
-+				var mergeResult = Geometry2D.MergePolygons(existingPoly, polyToMerge);
-+				
-+				// 如果合并后结果是 1 个多边形，说明它们相交，更新 polyToMerge 以吸收合并结果
-+				if (mergeResult.Count == 1)
-+				{
-+					polyToMerge = mergeResult[0];
-+				}
-+				else
-+				{
-+					// 没合并成功，保留原本的 existingPoly
-+					nextMerged.Add(existingPoly);
-+				}
-+			}
-+			
-+			// 将当前融合了所有能相交部分的多边形加入
-+			nextMerged.Add(polyToMerge);
-+			mergedPolygons = nextMerged;
-+		}
-+
-+		// 创建合并后的碰撞多边形
-+		foreach (var poly in mergedPolygons)
-+		{
-+			var collider = new CollisionPolygon2D();
-+			collider.Polygon = poly;
-+			// 顶点已经是相对坐标，无需再设置 Position
- 			AddChild(collider);
- 		}
- 	}
- 
- 	/// 将当前物理旋转角度折算为 90° 的整数倍
-```
-#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
-```diff
---- 
-+++ 
-@@ -61,13 +61,13 @@
- FallenpointPath = NodePath("../Fallenpoint")
- 
- [node name="Fallenpoint" type="Control" parent="." unique_id=145081264]
- anchors_preset = 0
- offset_left = 565.0
--offset_top = -960.0
-+offset_top = -153.0
- offset_right = 605.0
--offset_bottom = -920.0
-+offset_bottom = -113.0
- 
- [node name="ScreenMargin" type="MarginContainer" parent="." unique_id=632711132]
- layout_mode = 1
- anchors_preset = 15
- anchor_right = 1.0
-@@ -136,10 +136,11 @@
- position = Vector2(565, 648)
- collision_layer = 16
- collision_mask = 16
- 
- [node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/FloorStaticBody" unique_id=599388113]
-+position = Vector2(0, 53)
- shape = SubResource("RectangleShape2D_floor")
- 
- [node name="LeftWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388114]
- position = Vector2(-50, 300)
- collision_layer = 16
 ```
 </RECENT_CHANGES>
       ]]>
@@ -3994,6 +3939,81 @@ trigger: manual
 <system_reminder>
 If multiple bottlenecks are identified, prioritize by impact and optimize ONE at a time. If an engine/OS bug is suspected, document and escalate to the user. Do NOT hack around core engine bugs with micro-optimizations.
 </system_reminder>
+]]>
+    </file>
+
+    <file path="AISpace/rules_global\Uncommon\RembgUsage.md" priority="NORMAL">
+<![CDATA[
+---
+trigger: manual
+---
+
+## Rembg Setup & Installation
+- **Install:** `pip install "rembg[cli]"` (append `--break-system-packages` if needed)
+- **Pre-download Model:** `rembg d`
+- **Verify:** `rembg --version`
+
+## GPU Acceleration (RTX 4070+)
+- **Switch to GPU:** `pip uninstall onnxruntime -y` then `pip install onnxruntime-gpu`
+- **Verify GPU:** `python -c "import onnxruntime; print(onnxruntime.get_available_providers())"` (Look for `CUDAExecutionProvider`)
+- **Performance:** 10-20x faster than CPU (birefnet-general takes <1s per image).
+
+## Project Standard Paths
+- **Mandatory Output:** All processed images and generated assets MUST be stored in: `C:\Godot\AISpace\Rembg_Output\`
+- **Rationale:** Centralized asset management and multi-device sync integrity. NEVER use external drives or local temp folders.
+
+
+## Core & Advanced Commands
+- **Single Image:** `rembg i <input.jpg> <output.png>`
+- **Batch Folder:** `rembg p <input_folder/> C:\Godot\AISpace\Rembg_Output\`
+- **Watch Mode (Auto-process):** `rembg p --watch <input_folder/> C:\Godot\AISpace\Rembg_Output\`
+- **Alpha Matting (Hair/Fur):** `rembg i -a <input.jpg> <output.png>` (Options: `-af 240 -ab 10 -ae 10`)
+- **Custom BG Color:** `rembg i --bgcolor 255 255 255 255 <input.jpg> <output.png>` (RGBA)
+- **Output Mask Only:** `rembg i --only-mask <input.jpg> <output.png>`
+- **Start Local API:** `rembg s --host 0.0.0.0 --port 7000`
+
+## Model Selection
+- **u2net (Default):** General purpose, very fast.
+- **birefnet-general:** General purpose, higher precision.
+- **birefnet-portrait:** Portrait/Hair focused, fine details.
+- **isnet-anime:** Anime/Illustration specific.
+
+<rule>
+  <description>API Service Usage & Python Integration</description>
+  <rationale>Allows constant access via HTTP or code without restarting the model in memory.</rationale>
+  <example>
+    # HTTP API
+    curl -s http://localhost:7000/api/remove -F "file=@input.jpg" -o output.png
+    
+    # Python API
+    from rembg import remove, new_session
+    from PIL import Image
+    session = new_session("birefnet-portrait")
+    output_img = remove(Image.open("input.jpg"), session=session)
+  </example>
+</rule>
+
+<complex_pattern>
+  <description>Persistent API Server (Linux/Systemd)</description>
+  <rationale>Ensures the rembg API service starts automatically on boot.</rationale>
+  <example>
+    # 1. Create /etc/systemd/system/rembg.service
+    [Unit]
+    Description=rembg background removal API
+    After=network.target
+
+    [Service]
+    ExecStart=rembg s --host 0.0.0.0 --port 7000
+    Restart=always
+
+    [Install]
+    WantedBy=multi-user.target
+
+    # 2. Enable and Start
+    sudo systemctl enable rembg
+    sudo systemctl start rembg
+  </example>
+</complex_pattern>
 ]]>
     </file>
 
@@ -19923,10 +19943,10 @@ public partial class BackpackInteractionController : Node
 			var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
 			if (itemPhysics != null)
 			{
-				// 读取 FollowMouseUIComponent 记录的鼠标速度，乘以礩飞倍率传入物理引擎
+				// 读取 FollowMouseUIComponent 记录的鼠标速度，传入物理引擎
 				var followComp = GetFollowComp(itemEntity);
-				Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
-				itemPhysics.EnablePhysics(throwVelocity);
+				if (followComp != null) followComp.ApplyThrowVelocityTo(itemPhysics);
+				else itemPhysics.EnablePhysics();
 			}
 			return;
 		}
@@ -19958,8 +19978,8 @@ public partial class BackpackInteractionController : Node
 				if (itemPhysics != null)
 				{
 					var followComp = GetFollowComp(itemEntity);
-					Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
-					itemPhysics.EnablePhysics(throwVelocity);
+					if (followComp != null) followComp.ApplyThrowVelocityTo(itemPhysics);
+					else itemPhysics.EnablePhysics();
 				}
 			}
 		}
@@ -20770,6 +20790,14 @@ public partial class FollowMouseUIComponent : Node
 	public void SetGrabOffset(Vector2 offset)
 	{
 		GrabOffset = offset;
+	}
+
+	/// 将当前计算的甩飞速度应用到目标物理组件，并激活物理模拟
+	public void ApplyThrowVelocityTo(ItemPhysicsComponent physicsComp)
+	{
+		if (physicsComp == null) return;
+		Vector2 throwVelocity = ThrowVelocity * physicsComp.ThrowMultiplier;
+		physicsComp.EnablePhysics(throwVelocity);
 	}
 	
 	/// 根据当前鼠标位置自动计算抓取偏移
@@ -30762,6 +30790,80 @@ rendering_device/driver.windows="d3d12"
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260503_024934
+- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 1
+
+#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
+```diff
+--- 
++++ 
+@@ -61,13 +61,13 @@
+ FallenpointPath = NodePath("../Fallenpoint")
+ 
+ [node name="Fallenpoint" type="Control" parent="." unique_id=145081264]
+ anchors_preset = 0
+ offset_left = 565.0
+-offset_top = -153.0
++offset_top = -243.0
+ offset_right = 605.0
+-offset_bottom = -113.0
++offset_bottom = -203.0
+ 
+ [node name="ScreenMargin" type="MarginContainer" parent="." unique_id=632711132]
+ layout_mode = 1
+ anchors_preset = 15
+ anchor_right = 1.0
+@@ -165,11 +165,11 @@
+ position = Vector2(565, 0)
+ collision_layer = 16
+ collision_mask = 16
+ 
+ [node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/TopWall" unique_id=899388119]
+-position = Vector2(0, -1383)
++position = Vector2(0, -2019)
+ shape = SubResource("RectangleShape2D_floor")
+ 
+ [node name="TsItem" parent="LootSpawnArea" unique_id=1959740042 instance=ExtResource("3_bkm53")]
+ layout_mode = 0
+ offset_left = 400.0
+```
+#### AISpace/rules_global\Godot\GodotBackpackTesseractSys_Context.md
+```diff
+--- 
++++ 
+@@ -7,11 +7,13 @@
+ 
+ **Latest Architecture (2026-05-02):**
+ - **Polygon Merging (Ghost Collision Fix):** `ItemPhysicsComponent` uses `Geometry2D.MergePolygons` (with a 0.5px overlap) to seamlessly fuse multiple grid cells into a single `CollisionPolygon2D`. This eliminates "ghost collisions" where items snagged on internal seams between grid cells.
+ - **Continuous Collision Detection (CCD):** Physics proxies use `ContinuousCd = CcdMode.CastRay` to prevent high-speed tunneling through the floor when spawned overlapping.
+ - **Physics-State Authority:** Controller relies on `ItemPhysicsComponent.Freeze` to determine if an item is grabbed from the logic grid or caught mid-air. World-drops preserve their `GlobalPosition` and hand off seamlessly to the physics engine.
+-- **Out-of-Bounds Respawn Logic:** `LootSpawnAreaController` directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity` instead of just moving the UI Control. Supports dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
++- **Out-of-Bounds Caching & Respawn:** `ItemStorageManager` caches all `WorldPhysicsItems` on initialization. `LootSpawnAreaController` loops this cache directly instead of `HasNode("%PhysicsProxy")` per-tick. Controller directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity`, supporting dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
++- **Throw Velocity (Physical Drop):** `FollowMouseUIComponent` tracks cursor velocity via exponential smoothing in `_Process`. When dropped in the world, `BackpackInteractionController` passes this `ThrowVelocity` to `ItemPhysicsComponent.EnablePhysics(Vector2)`, which applies it to `LinearVelocity` after unfreezing, creating a natural throw.
++- **TopWall Collision:** `TSBackpack.tscn` uses a massive shared `RectangleShape2D` (5000x2776). The TopWall is placed at y=0 with shape offset -1383, perfectly aligning its bottom face with the screen top (y=5) to bounce thrown items back.
+ - **Normalization Shift Compensation:** `ItemPhysicsComponent` calculates the visual offset caused by `GridShapeComponent.NormalizeShape()` during a physical rotation and applies an inverse shift to the parent `Control`'s `GlobalPosition`, eliminating pixel jumping when picking up rotated items.
+ - **TopLevel Physics Proxy:** The `RigidBody2D` physics proxy MUST set `TopLevel = true` to break the Godot spatial inheritance chain. This prevents the "death spiral" feedback loop (infinite acceleration) when `_PhysicsProcess` synchronizes coordinates with its parent `Control`.
+ - **Backpack-Physics Decoupling:** Items inside the backpack set `CollisionLayer/Mask = 0` (NONE) and `Freeze = true`. This prevents them from acting as physical obstacles that could deflect dragged items or interfere with other loot. They only restore `CollisionLayer/Mask = 16` (ITEM_LAYER) and `Freeze = false` when taken out or spawned in the world.
+ - **Commander Pattern:** Controller delegates spatial math to the View and visual tweens to the Juice component. Result: Declarative logic, zero visual noise in Controller.
+ - **Spatial Delegation:** `BackpackGridUIComponent` handles all coordinate mapping (`IsPointInside`, `GridToGlobalPosition`). `GridShapeComponent` handles local shape lookups (`GetCellIndexAtLocalPosition`).
+@@ -197,10 +199,14 @@
+     </error>
+     <error symptom="Item continuously respawns out of bounds (infinite falling loop)">
+       <cause>Respawn code teleported the UI Control but ignored the `TopLevel` RigidBody, keeping its extreme falling velocity and position intact.</cause>
+       <fix>In `LootSpawnAreaController`, directly set the `ItemPhysicsComponent.GlobalPosition` and zero out its `LinearVelocity` and `AngularVelocity`.</fix>
+     </error>
++    <error symptom="Performance drops when checking for out of bounds items">
++      <cause>Using `HasNode("%PhysicsProxy")` inside a frequent tick loop traverses the tree using string lookups.</cause>
++      <fix>Cache valid physics proxies in a `List<ItemPhysicsComponent>` inside `ItemStorageManager` and iterate that list instead.</fix>
++    </error>
+     <error symptom="Items sliding against each other suddenly get stuck/snag on invisible edges">
+       <cause>"Ghost collisions" caused by internal seams when a RigidBody is composed of multiple adjacent `CollisionShape2D` rectangles.</cause>
+       <fix>Use `Geometry2D.MergePolygons` to combine the individual grid cells into a single, seamless `CollisionPolygon2D`.</fix>
+     </error>
+     <error symptom="Items spawned in the same location fall completely through the floor">
+```
+
+---
 ## 📅 20260503_005333
 - ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
 
@@ -30790,7 +30892,6 @@ rendering_device/driver.windows="d3d12"
  offset_top = 100.0
  offset_right = 592.0
 ```
-
 ---
 ## 📅 20260503_000515
 - ➕ 新增: 0 | 📝 修改: 3 | ❌ 删除: 0
@@ -31780,93 +31881,6 @@ rendering_device/driver.windows="d3d12"
  <rule>
    <description>API Service Usage & Python Integration</description>
    <rationale>Allows constant access via HTTP or code without restarting the model in memory.</rationale>
-```
----
-## 📅 20260502_114120
-- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
-
-#### AISpace/rules_global\Godot\GodotBackpackTesseractSys_Context.md
-```diff
---- 
-+++ 
-@@ -7,10 +7,11 @@
- 
- **Latest Architecture (2026-05-01):**
- - **Physics-State Authority:** Controller relies on `ItemPhysicsComponent.Freeze` to determine if an item is grabbed from the logic grid or caught mid-air. World-drops preserve their `GlobalPosition` and hand off seamlessly to the physics engine.
- - **Normalization Shift Compensation:** `ItemPhysicsComponent` calculates the visual offset caused by `GridShapeComponent.NormalizeShape()` during a physical rotation and applies an inverse shift to the parent `Control`'s `GlobalPosition`, eliminating pixel jumping when picking up rotated items.
- - **TopLevel Physics Proxy:** The `RigidBody2D` physics proxy MUST set `TopLevel = true` to break the Godot spatial inheritance chain. This prevents the "death spiral" feedback loop (infinite acceleration) when `_PhysicsProcess` synchronizes coordinates with its parent `Control`.
-+- **Backpack-Physics Decoupling:** Items inside the backpack set `CollisionLayer/Mask = 0` (NONE) and `Freeze = true`. This prevents them from acting as physical obstacles that could deflect dragged items or interfere with other loot. They only restore `CollisionLayer/Mask = 16` (ITEM_LAYER) and `Freeze = false` when taken out or spawned in the world.
- - **Commander Pattern:** Controller delegates spatial math to the View and visual tweens to the Juice component. Result: Declarative logic, zero visual noise in Controller.
- - **Spatial Delegation:** `BackpackGridUIComponent` handles all coordinate mapping (`IsPointInside`, `GridToGlobalPosition`). `GridShapeComponent` handles local shape lookups (`GetCellIndexAtLocalPosition`).
- - **Juice Delegation:** `UITweenInteractComponent` encapsulates the complex Counter-Transform rotation animation (`PlayRotationAnimation`).
- - **Pure Math Decoupling:** Grid mapping uses `mouseGridPos - GetGrabbedCellLogicalOffset()`. Immune to pixel warp or visual UI transforms.
- - **Anchor Stability:** `GrabbedCellIndex` pre-calculated at pick-up. Ensures a consistent logical pivot point even across multiple rotations.
-@@ -73,11 +74,11 @@
-     | Class | Methods/Properties | Parameters / Types |
-     | :--- | :--- | :--- |
-     | `BackpackGridComponent` | `CanPlaceItem`, `TryPlaceItem`, `RemoveItem`, `GetItemAt`, `ClearGrid`, `EvaluatePlacementPreview` | `ItemData[] _gridData`, `OnItemPlacedAsObservable`, `OnItemRemovedAsObservable`. `EvaluatePlacementPreview(Vector2I[] shape, Vector2I targetPos)` returns `List<(Vector2I GridPos, CellState State)>` — no short-circuit, evaluates every cell |
-     | `BackpackGridUIComponent` | `IsPointInside`, `GetCellCenterLocalPos`, `GlobalToGridPosition`, `GridToLocalPosition`, `LocalToGridPosition`, `IsValidGridPosition`, `RefreshGrid`, `ShowPreview`, `ClearPreview` | `[GlobalClass]`. `IsPointInside(global)` replaces manual Rect checks. `GetCellCenterLocalPos` handles cell-center pixel math. |
-     | `BackpackInteractionController` | `RegisterItem`, `GetGrabbedCellLogicalOffset`, `IsItemBeingDragged` | **Commander Role**: orchestrates R3 streams and delegates math/visuals to GridUI/Juice components. |
--    | `ItemPhysicsComponent` | `EnablePhysics`, `DisablePhysics` | `TopLevel = true`. Bridges `RigidBody2D` with UI `Control`. Implements Inverse Normalization Shift compensation. |
-+    | `ItemPhysicsComponent` | `EnablePhysics`, `DisablePhysics`, `ITEM_LAYER`, `NONE` | `TopLevel = true`. Bridges `RigidBody2D` with UI `Control`. Implements Inverse Normalization Shift compensation. Toggles `CollisionLayer/Mask` (16 vs 0) to prevent backpack interference. |
-     | `UITweenInteractComponent` | `PlayRotationAnimation`, `AnimateToScale`, `UpdatePivotOffset` | **Juice Component**: Encapsulates all Tween logic and Counter-Transform visual compensation. |
-     | `ItemDataResource` | `GetCellCount`, `GetBoundingSize`, `IsShapeValid` | `ItemID`, `ItemName`, `Icon`, `BaseShape` (Array<Vector2I>) |
-     | `GridShapeComponent` | `Rotate90`, `NormalizeShape` | `Vector2I[] CurrentLocalCells`, `OnShapeChangedAsObservable` (initialized in `_EnterTree()`) |
-     | `IItemDataProvider` | `DataInitialized` event | Interface for parent-to-child data injection (solves _Ready() lifecycle issue) |
-     | `GridCellUI` | `SetState`, `OnCellInputAsObservable`, `OnCellHoverAsObservable`, `MouseEntered`, `MouseExited` | Panel-based cell with StyleBoxFlat, states: Normal/Hover/Valid/Invalid |
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\ItemPhysicsComponent.cs
-```diff
---- 
-+++ 
-@@ -19,10 +19,17 @@
- /// 3. 物理启用：解冻 RigidBody，接管宿主 Control 的位置和旋转
- /// 4. 物理禁用：冻结 RigidBody，将任意角度旋转折算为离散 90° 并写回网格数据
- [GlobalClass]
- public partial class ItemPhysicsComponent : RigidBody2D
- {
-+	#region Constants
-+	
-+	public const uint NONE = 0;
-+	public const uint ITEM_LAYER = 16; // 第 5 层 (2^4)
-+	
-+	#endregion
-+
- 	#region Private Fields
- 
- 	/// 宿主 Control 节点（位置同步目标）
- 	private Control _hostControl;
- 
-@@ -112,12 +119,12 @@
- 		// 再次强制同步位置和旋转，确保无缝接管
- 		GlobalPosition = _hostControl.GlobalPosition;
- 		Rotation = _hostControl.Rotation;
- 
- 		// 恢复碰撞
--		CollisionLayer = 16;
--		CollisionMask = 16;
-+		CollisionLayer = ITEM_LAYER;
-+		CollisionMask = ITEM_LAYER;
- 
- 		Freeze = false;
- 		_physicsActive = true;
- 
- 		GD.Print($"[{Name}] 物理已激活：{GlobalPosition}");
-@@ -128,12 +135,12 @@
- 	{
- 		Freeze = true;
- 		_physicsActive = false;
- 
- 		// 移除碰撞，防止在背包中时挡住其他物品
--		CollisionLayer = 0;
--		CollisionMask = 0;
-+		CollisionLayer = NONE;
-+		CollisionMask = NONE;
- 
- 		// 强制归零速度，防止下次启用时继承旧惯性
- 		LinearVelocity = Vector2.Zero;
- 		AngularVelocity = 0;
- 
 ```
 </RECENT_CHANGES>
     ]]>
