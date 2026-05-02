@@ -38,13 +38,14 @@ trigger: always_on
 ## 4. Architecture & R3 Strictness
 
 <prime_directive>
-  <description>CRITICAL: Execution Strictness, KISS & Anti-Over-Engineering</description>
-  <rationale>While component-based design is required, over-engineering breaks pixel-perfect layouts and ruins the Architect's intent.</rationale>
+  <description>CRITICAL: Clean Architecture, Cross-Project Generality & Pragmatic KISS</description>
+  <rationale>Core systems (like Object Pools) must be designed as pristine, decoupled, and generic frameworks ready for drop-in reuse in future projects. However, this generality must NOT infect simple, domain-specific logic. Do not over-engineer what should be a simple script.</rationale>
   <rules>
-    1. EXACT BLUEPRINT OBEDIENCE: Execute hotfixes EXACTLY. Do NOT generalize into `[Export]` unless commanded.
-    2. KISS & YAGNI: Keep It Simple. Never invent abstractions that complicate straightforward tasks.
-    3. COMPONENT STRICTNESS: Composition > Inheritance. Components do ONE thing.
-    4. NAMING ENFORCEMENT: Injected component variables MUST match their Type names.
+    1. CORE FRAMEWORK GENERALITY: Global systems, managers, and architectural foundations MUST use generic (`T`), type-safe, and highly decoupled code to ensure 100% cross-project reusability. Keep the core perfectly clean.
+    2. PRAGMATIC SIMPLICITY (KISS): For everyday game logic and simple requirements, the most effective and direct code is the best. Do not invent abstractions or premature generalizations (like unnecessary `[Export]` vars) unless specifically commanded.
+    3. COMPONENT STRICTNESS: Composition > Inheritance. Components do EXACTLY ONE thing. Entities are just mediators.
+    4. NAMING ENFORCEMENT: Injected component variables MUST match their Type names (e.g., `NodePath_InitPoint`).
+    5. EXACT BLUEPRINT OBEDIENCE: Execute bug fixes and hotfixes EXACTLY as diagnosed. Do not silently refactor or "generalize" unrelated code during a fix.
   </rules>
 </prime_directive>
 
@@ -80,10 +81,16 @@ trigger: always_on
 
 ## 5. Coding Standards
 
-### Naming & Access
-- **[Export]**: `TypeName_Purpose` (e.g., `OptionButton_Theme`).
-- **Private**: `_camelCase`.
-- **Nodes**: `%Name` -> `GetNodeOrNull<T>` + `GD.PushError`.
+### Naming
+- **Strict Node-to-Variable Matching (Anti-Alias Rule)**: 
+  Variables that reference Nodes MUST contain the exact Node name string.
+  1. **No Synonyms or Abbreviations**: If a node is named `InitPoint`, the variable MUST contain `InitPoint`. Changing it to `spawnPlace` or `init` is STRICTLY FORBIDDEN.
+  2. **Format (`TypeName_NodeName`)**: Variables must follow the type prefix format. Example: `[Export] NodePath NodePath_InitPoint;` or `Control control_InitPoint;`.
+  3. **Domain Explicit Names**: Node names must be unambiguous. Use `InsideBackpackItems` instead of a generic `ItemsContainer`.
+- **Private Variables**: `_camelCase` for internal state.
+
+### Component & Node Access
+- **Nodes Lookup**: Use `%Name` -> `GetNodeOrNull<T>("%Name")` + `GD.PushError`.
 
 ### Documentation Rules
 - **FORBIDDEN**: XML comments (`/// <summary>`) or inline comments for standard Godot lifecycle (`_Ready`, `_Process`).

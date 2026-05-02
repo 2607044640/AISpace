@@ -1,7 +1,7 @@
 <system_context>
   <metadata>
     <description>Godot CsArchitect (构筑师) Project Context Master File (Dual-Sync)</description>
-    <generated_time>2026-05-03 02:53:45</generated_time>
+    <generated_time>2026-05-03 05:17:01</generated_time>
   </metadata>
 
   <section name='00_primacy_boost' description='Read This First'>
@@ -11,6 +11,926 @@
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260503_051228
+- ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -36,15 +36,15 @@
+ </system_reminder>
+ 
+ ## 4. Architecture & R3 Strictness
+ 
+ <prime_directive>
+-  <description>CRITICAL: Execution Strictness, KISS & Anti-Over-Engineering</description>
+-  <rationale>While component-based design is required, over-engineering breaks pixel-perfect layouts and ruins the Architect's intent.</rationale>
++  <description>CRITICAL: Clean Code, Generality & Cross-Project Reuse vs. KISS</description>
++  <rationale>Core systems must be clean, universal, and ready for cross-project reuse. However, simple requirements MUST NOT be over-complicated. The most effective, simplest code is always the best.</rationale>
+   <rules>
+-    1. EXACT BLUEPRINT OBEDIENCE: Execute hotfixes EXACTLY. Do NOT generalize into `[Export]` unless commanded.
+-    2. KISS & YAGNI: Keep It Simple. Never invent abstractions that complicate straightforward tasks.
++    1. GENERALITY & REUSE: Design core architecture (e.g., Object Pools, Managers) to be clean, generic, and decoupled so they can be directly used in the next project.
++    2. ELEGANT SIMPLICITY (KISS): Never over-engineer simple features. Simple problems demand the most direct, straightforward, and simple code possible.
+     3. COMPONENT STRICTNESS: Composition > Inheritance. Components do ONE thing.
+     4. NAMING ENFORCEMENT: Injected component variables MUST match their Type names.
+   </rules>
+ </prime_directive>
+ 
+```
+---
+## 📅 20260503_041739
+- ➕ 新增: 0 | 📝 修改: 6 | ❌ 删除: 0
+
+#### AISpace/rules_global\Godot\GodotBackpackTesseractSys_Context.md
+```diff
+--- 
++++ 
+@@ -7,11 +7,11 @@
+ 
+ **Latest Architecture (2026-05-02):**
+ - **Polygon Merging (Ghost Collision Fix):** `ItemPhysicsComponent` uses `Geometry2D.MergePolygons` (with a 0.5px overlap) to seamlessly fuse multiple grid cells into a single `CollisionPolygon2D`. This eliminates "ghost collisions" where items snagged on internal seams between grid cells.
+ - **Continuous Collision Detection (CCD):** Physics proxies use `ContinuousCd = CcdMode.CastRay` to prevent high-speed tunneling through the floor when spawned overlapping.
+ - **Physics-State Authority:** Controller relies on `ItemPhysicsComponent.Freeze` to determine if an item is grabbed from the logic grid or caught mid-air. World-drops preserve their `GlobalPosition` and hand off seamlessly to the physics engine.
+-- **Out-of-Bounds Caching & Respawn:** `ItemStorageManager` caches all `WorldPhysicsItems` on initialization. `LootSpawnAreaController` loops this cache directly instead of `HasNode("%PhysicsProxy")` per-tick. Controller directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity`, supporting dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
++- **Out-of-Bounds Caching & Respawn:** `ItemStorageManager` caches all `WorldPhysicsItems` on initialization. `OutsideBackpackItemsComp` loops this cache directly instead of `HasNode("%PhysicsProxy")` per-tick. Controller directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity`, supporting dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
+ - **Throw Velocity (Physical Drop):** `FollowMouseUIComponent` tracks cursor velocity via exponential smoothing in `_Process`. When dropped in the world, `BackpackInteractionController` passes this `ThrowVelocity` to `ItemPhysicsComponent.EnablePhysics(Vector2)`, which applies it to `LinearVelocity` after unfreezing, creating a natural throw.
+ - **TopWall Collision:** `TSBackpack.tscn` uses a massive shared `RectangleShape2D` (5000x2776). The TopWall is placed at y=0 with shape offset -1383, perfectly aligning its bottom face with the screen top (y=5) to bounce thrown items back.
+ - **Normalization Shift Compensation:** `ItemPhysicsComponent` calculates the visual offset caused by `GridShapeComponent.NormalizeShape()` during a physical rotation and applies an inverse shift to the parent `Control`'s `GlobalPosition`, eliminating pixel jumping when picking up rotated items.
+ - **TopLevel Physics Proxy:** The `RigidBody2D` physics proxy MUST set `TopLevel = true` to break the Godot spatial inheritance chain. This prevents the "death spiral" feedback loop (infinite acceleration) when `_PhysicsProcess` synchronizes coordinates with its parent `Control`.
+ - **Backpack-Physics Decoupling:** Items inside the backpack set `CollisionLayer/Mask = 0` (NONE) and `Freeze = true`. This prevents them from acting as physical obstacles that could deflect dragged items or interfere with other loot. They only restore `CollisionLayer/Mask = 16` (ITEM_LAYER) and `Freeze = false` when taken out or spawned in the world.
+@@ -97,11 +97,11 @@
+   <technical_specifications>
+     *Scene Tree Hierarchy (Updated 2026-04-23):*
+     * BackpackPanel (BackpackGridUIComponent)
+       * BackpackInteractionController
+       * BackpackGridComponent (LogicGrid)
+-      * Items Container
++      * InsideBackpackItems
+         * TetrisDraggableItem (Control) [ROOT: MouseFilter = Ignore (2)]
+           * StateChart
+             * Root (CompoundState, initial="Idle")
+               * Idle (AtomicState) -> Transition: event="drag_start" -> Dragging
+               * Dragging (AtomicState) -> Transition: event="drag_end" -> Idle
+@@ -197,11 +197,11 @@
+       <cause>Positive feedback loop between `_PhysicsProcess` setting parent position and child RigidBody inheriting that transform.</cause>
+       <fix>Set `TopLevel = true` on the `RigidBody2D` to break the inheritance chain.</fix>
+     </error>
+     <error symptom="Item continuously respawns out of bounds (infinite falling loop)">
+       <cause>Respawn code teleported the UI Control but ignored the `TopLevel` RigidBody, keeping its extreme falling velocity and position intact.</cause>
+-      <fix>In `LootSpawnAreaController`, directly set the `ItemPhysicsComponent.GlobalPosition` and zero out its `LinearVelocity` and `AngularVelocity`.</fix>
++      <fix>In `OutsideBackpackItemsComp`, directly set the `ItemPhysicsComponent.GlobalPosition` and zero out its `LinearVelocity` and `AngularVelocity`.</fix>
+     </error>
+     <error symptom="Performance drops when checking for out of bounds items">
+       <cause>Using `HasNode("%PhysicsProxy")` inside a frequent tick loop traverses the tree using string lookups.</cause>
+       <fix>Cache valid physics proxies in a `List<ItemPhysicsComponent>` inside `ItemStorageManager` and iterate that list instead.</fix>
+     </error>
+@@ -221,11 +221,11 @@
+     - **Juice Delegation Pattern:** All Tween logic (Scaling, Counter-Transform Rotation) is moved to `UITweenInteractComponent`. Controller remains clean of implementation details like `TweenDuration` or `EaseType`.
+     - **Spatial Delegation Pattern:** All coordinate-aware math (Pixel-to-Grid, Grid-to-Center, Boundary Checks) is moved to `BackpackGridUIComponent`. Controller treats the grid as a pure logical service.
+     - **Anchor Stability Pattern:** Pre-calculate `GrabbedCellIndex` at pick-up. This persistent logical index ensures the item rotates around the exact cell the player grabbed, regardless of orientation changes.
+     - **Node Reuse Pattern (Focus Preservation):** When updating item visuals during interaction (e.g., rotation), reuse existing `GridCellUI` nodes if the count is identical. Only update their `Position`. This prevents losing Godot mouse capture/focus, which would otherwise suppress the 'mouse release' event.
+     - **Interface-Based Data Injection:** `IItemDataProvider` interface with `DataInitialized` event allows parent (TSItemWrapper) to inject data to child (GridShapeComponent) after both are ready.
+-    - **MVC Controller Concept:** `BackpackInteractionController` bridges `DraggableItemComponent` input with `BackpackGridComponent` backend. Auto-registers items from `ItemsContainerPath` in `_Ready()`.
++    - **MVC Controller Concept:** `BackpackInteractionController` bridges `DraggableItemComponent` input with `BackpackGridComponent` backend. Auto-registers items from `NodePath_InsideBackpackItems` in `_Ready()`.
+     - **Power Switch Pattern:** Used by `FollowMouseUIComponent`. Placement strictly under the `Dragging` AtomicState allows `AutoBindToParentState()` to natively handle activation/deactivation hooks.
+     - **Micro-Interaction Tweens:** Inside `UITweenInteractComponent`, execute `_currentTween?.Kill()` before starting a new `AnimateToScale()`.
+   </implementation_anchors>
+ 
+   <critical_constraints>
+```
+#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
+```diff
+--- 
++++ 
+@@ -35,40 +35,10 @@
+ anchor_bottom = 1.0
+ grow_horizontal = 2
+ grow_vertical = 2
+ color = Color(0.1, 0.1, 0.12, 1)
+ 
+-[node name="BackpackGridComponent" type="Node" parent="." unique_id=155700214]
+-unique_name_in_owner = true
+-script = ExtResource("2_ovaqc")
+-
+-[node name="BackpackGridUIComponent" type="Node" parent="." unique_id=1436944256 node_paths=PackedStringArray("GridBackground", "InteractionArea")]
+-unique_name_in_owner = true
+-script = ExtResource("1_7o1w7")
+-BackpackGridComponentPath = NodePath("../BackpackGridComponent")
+-GridVisualSettings = ExtResource("3_5mic1")
+-GridBackground = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/GridBackground")
+-InteractionArea = NodePath("../ScreenMargin/MainVBox/BackpackVisuals")
+-
+-[node name="BackpackInteractionController" type="Node" parent="." unique_id=863928779]
+-script = ExtResource("5_bic01")
+-ItemsContainerPath = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/ItemsContainer")
+-LootSpawnAreaPath = NodePath("../LootSpawnArea")
+-
+-[node name="ItemStorageManager" type="Node" parent="." unique_id=987654321]
+-script = ExtResource("ItemStorage_SC")
+-LootSpawnAreaPath = NodePath("../LootSpawnArea")
+-ItemsContainerPath = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/ItemsContainer")
+-FallenpointPath = NodePath("../Fallenpoint")
+-
+-[node name="Fallenpoint" type="Control" parent="." unique_id=145081264]
+-anchors_preset = 0
+-offset_left = 565.0
+-offset_top = -243.0
+-offset_right = 605.0
+-offset_bottom = -203.0
+-
+ [node name="ScreenMargin" type="MarginContainer" parent="." unique_id=632711132]
+ layout_mode = 1
+ anchors_preset = 15
+ anchor_right = 1.0
+ anchor_bottom = 1.0
+@@ -103,85 +73,117 @@
+ anchor_bottom = 1.0
+ grow_horizontal = 2
+ grow_vertical = 2
+ mouse_filter = 2
+ 
+-[node name="ItemsContainer" type="Control" parent="ScreenMargin/MainVBox/BackpackVisuals" unique_id=822530628]
+-layout_mode = 1
+-anchors_preset = 15
+-anchor_right = 1.0
+-anchor_bottom = 1.0
+-grow_horizontal = 2
+-grow_vertical = 2
+-mouse_filter = 2
+-
+ [node name="Instructions" type="Label" parent="ScreenMargin/MainVBox" unique_id=2075687424]
+ layout_mode = 2
+ theme_override_font_sizes/font_size = 16
+ text = "Left Click: Drag | Right Click: Rotate | Drop in backpack to place"
+ horizontal_alignment = 1
+ 
+-[node name="LootSpawnArea" type="Control" parent="." unique_id=599388111]
++[node name="OutsideBackpackItems" type="Control" parent="." unique_id=599388111]
+ layout_mode = 1
+ anchors_preset = 15
+ anchor_right = 1.0
+ anchor_bottom = 1.0
+ grow_horizontal = 2
+ grow_vertical = 2
+ mouse_filter = 2
+ script = ExtResource("LootController_SC")
+ 
+-[node name="FloorStaticBody" type="StaticBody2D" parent="LootSpawnArea" unique_id=599388112]
++[node name="FloorStaticBody" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=599388112]
+ unique_name_in_owner = true
+ physics_interpolation_mode = 1
+ position = Vector2(565, 648)
+ collision_layer = 16
+ collision_mask = 16
+ 
+-[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/FloorStaticBody" unique_id=599388113]
++[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/FloorStaticBody" unique_id=599388113]
+ position = Vector2(0, 1383)
+ shape = SubResource("RectangleShape2D_floor")
+ 
+-[node name="LeftWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388114]
++[node name="LeftWall" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=899388114]
+ position = Vector2(-50, 300)
+ collision_layer = 16
+ collision_mask = 16
+ 
+-[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/LeftWall" unique_id=899388115]
++[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/LeftWall" unique_id=899388115]
+ position = Vector2(-1336, 0)
+ rotation = 1.5708
+ shape = SubResource("RectangleShape2D_floor")
+ 
+-[node name="RightWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388116]
++[node name="RightWall" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=899388116]
+ position = Vector2(1202, 300)
+ collision_layer = 16
+ collision_mask = 16
+ 
+-[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/RightWall" unique_id=899388117]
++[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/RightWall" unique_id=899388117]
+ position = Vector2(1344, 0)
+ rotation = 1.5708
+ shape = SubResource("RectangleShape2D_floor")
+ 
+-[node name="TopWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388118]
++[node name="TopWall" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=899388118]
+ position = Vector2(565, 0)
+ collision_layer = 16
+ collision_mask = 16
+ 
+-[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/TopWall" unique_id=899388119]
++[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/TopWall" unique_id=899388119]
+ position = Vector2(0, -2019)
+ shape = SubResource("RectangleShape2D_floor")
+ 
+-[node name="TsItem" parent="LootSpawnArea" unique_id=1959740042 instance=ExtResource("3_bkm53")]
++[node name="TsItem" parent="OutsideBackpackItems" unique_id=1959740042 instance=ExtResource("3_bkm53")]
+ layout_mode = 0
+ offset_left = 400.0
+ offset_top = 100.0
+ offset_right = 592.0
+ offset_bottom = 164.0
+ Data = SubResource("Resource_0xep6")
+ 
+-[node name="TsItem2" parent="LootSpawnArea" unique_id=279074725 instance=ExtResource("3_bkm53")]
++[node name="TsItem2" parent="OutsideBackpackItems" unique_id=279074725 instance=ExtResource("3_bkm53")]
+ layout_mode = 0
+ offset_left = 600.0
+ offset_top = 100.0
+ offset_right = 792.0
+ offset_bottom = 164.0
+ Data = SubResource("Resource_0xep6")
++
++[node name="InsideBackpackItems" type="Control" parent="." unique_id=822530628]
++layout_mode = 1
++anchors_preset = 15
++anchor_right = 1.0
++anchor_bottom = 1.0
++grow_horizontal = 2
++grow_vertical = 2
++mouse_filter = 2
++
++[node name="Fallenpoint" type="Control" parent="." unique_id=145081264]
++anchors_preset = 0
++offset_left = 565.0
++offset_top = -243.0
++offset_right = 605.0
++offset_bottom = -203.0
++
++[node name="BackpackGridComponent" type="Node" parent="." unique_id=155700214]
++unique_name_in_owner = true
++script = ExtResource("2_ovaqc")
++
++[node name="BackpackGridUIComponent" type="Node" parent="." unique_id=1436944256 node_paths=PackedStringArray("GridBackground", "InteractionArea")]
++unique_name_in_owner = true
++script = ExtResource("1_7o1w7")
++BackpackGridComponentPath = NodePath("../BackpackGridComponent")
++GridVisualSettings = ExtResource("3_5mic1")
++GridBackground = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/GridBackground")
++InteractionArea = NodePath("../ScreenMargin/MainVBox/BackpackVisuals")
++
++[node name="BackpackInteractionController" type="Node" parent="." unique_id=863928779]
++script = ExtResource("5_bic01")
++BackpackGridComponentPath = NodePath("../BackpackGridComponent")
++ViewGridPath = NodePath("../BackpackGridUIComponent")
++NodePath_InsideBackpackItems = NodePath("../InsideBackpackItems")
++NodePath_OutsideBackpackItems = NodePath("../OutsideBackpackItems")
++
++[node name="ItemStorageManager" type="Node" parent="." unique_id=987654321]
++script = ExtResource("ItemStorage_SC")
++NodePath_OutsideBackpackItems = NodePath("../OutsideBackpackItems")
++NodePath_InsideBackpackItems = NodePath("../InsideBackpackItems")
++FallenpointPath = NodePath("../Fallenpoint")
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\ItemStorageManager.cs
+```diff
+--- 
++++ 
+@@ -3,19 +3,19 @@
+ using System.Collections.Generic;
+ 
+ [GlobalClass]
+ public partial class ItemStorageManager : Node
+ {
+-	[Export] public NodePath LootSpawnAreaPath { get; set; }
+-	[Export] public NodePath ItemsContainerPath { get; set; }
++	[Export] public NodePath NodePath_OutsideBackpackItems { get; set; }
++	[Export] public NodePath NodePath_InsideBackpackItems { get; set; }
+ 	[Export] public NodePath FallenpointPath { get; set; }
+ 
+ 	[Export] public int MaxItemsPerRow = 3;
+ 	[Export] public float SpacingX = 100f;
+ 	[Export] public float SpacingY = 100f;
+ 
+-	// 世界中具有物理代理的所有 Loot 物品缓存，供 LootSpawnAreaController 定期检查越界使用
++	// 世界中具有物理代理的所有 Loot 物品缓存，供 Control_OutsideBackpackItemsController 定期检查越界使用
+ 	// 理由：避免 Controller 每帧遇历子节点 + HasNode 字符串查找的性能开销
+ 	public List<ItemPhysicsComponent> WorldPhysicsItems { get; private set; } = new();
+ 
+ 	public void RegisterWorldItem(ItemPhysicsComponent physicsComp)
+ 	{
+@@ -47,12 +47,12 @@
+ 		GD.Print("ItemStorageManager: 开局物品布局初始化完成。");
+ 	}
+ 
+ 	private void HandleBackpackItems()
+ 	{
+-		if (string.IsNullOrEmpty(ItemsContainerPath)) return;
+-		var container = GetNodeOrNull(ItemsContainerPath);
++		if (string.IsNullOrEmpty(NodePath_InsideBackpackItems)) return;
++		var container = GetNodeOrNull(NodePath_InsideBackpackItems);
+ 		if (container == null) return;
+ 
+ 		foreach (Node child in container.GetChildren())
+ 		{
+ 			if (child is Control itemControl && child.HasNode("%GridShapeComponent"))
+@@ -69,12 +69,12 @@
+ 		}
+ 	}
+ 
+ 	private void HandleLootItems()
+ 	{
+-		if (string.IsNullOrEmpty(LootSpawnAreaPath)) return;
+-		var lootArea = GetNodeOrNull(LootSpawnAreaPath);
++		if (string.IsNullOrEmpty(NodePath_OutsideBackpackItems)) return;
++		var lootArea = GetNodeOrNull(NodePath_OutsideBackpackItems);
+ 		if (lootArea == null) return;
+ 
+ 		Control fallenpoint = null;
+ 		if (!string.IsNullOrEmpty(FallenpointPath))
+ 		{
+@@ -123,11 +123,11 @@
+ 					physicsComp.AngularVelocity = 0;
+ 					
+ 					// 核心修复：调用专门的方法完全激活物理代理（不仅解冻，还启用向 UI 的数据反向同步）
+ 					physicsComp.EnablePhysics();
+ 
+-					// 加入缓存，供 LootSpawnAreaController 直接轮询
++					// 加入缓存，供 Control_OutsideBackpackItemsController 直接轮询
+ 					WorldPhysicsItems.Add(physicsComp);
+ 				}
+ 
+ 				currentIndex++;
+ 			}
+```
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -78,13 +78,19 @@
+ 4. Subscribe: In `OnEntityReady()`. Append `.AddTo(_disposables)`.
+ </workflow>
+ 
+ ## 5. Coding Standards
+ 
+-### Naming & Access
+-- **[Export]**: `TypeName_Purpose` (e.g., `OptionButton_Theme`).
+-- **Private**: `_camelCase`.
+-- **Nodes**: `%Name` -> `GetNodeOrNull<T>` + `GD.PushError`.
++### Naming
++- **Strict Node-to-Variable Matching (Anti-Alias Rule)**: 
++  Variables that reference Nodes MUST contain the exact Node name string.
++  1. **No Synonyms or Abbreviations**: If a node is named `InitPoint`, the variable MUST contain `InitPoint`. Changing it to `spawnPlace` or `init` is STRICTLY FORBIDDEN.
++  2. **Format (`TypeName_NodeName`)**: Variables must follow the type prefix format. Example: `[Export] NodePath NodePath_InitPoint;` or `Control control_InitPoint;`.
++  3. **Domain Explicit Names**: Node names must be unambiguous. Use `InsideBackpackItems` instead of a generic `ItemsContainer`.
++- **Private Variables**: `_camelCase` for internal state.
++
++### Component & Node Access
++- **Nodes Lookup**: Use `%Name` -> `GetNodeOrNull<T>("%Name")` + `GD.PushError`.
+ 
+ ### Documentation Rules
+ - **FORBIDDEN**: XML comments (`/// <summary>`) or inline comments for standard Godot lifecycle (`_Ready`, `_Process`).
+ - **MANDATORY**: Inline `//` comments (in Chinese) explaining WHY for custom Rx streams, math formulas, and complex logic.
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\DraggableItemComponent.cs
+```diff
+--- 
++++ 
+@@ -18,15 +18,17 @@
+ 	[Export] public string DragStartEventName { get; set; } = "drag_start";
+ 	
+ 	// 拖拽结束事件名称（发送给 StateChart），可在编辑器中配置
+ 	[Export] public string DragEndEventName { get; set; } = "drag_end";
+ 	
++	private bool _isDragging = false;
++	
+ 	#endregion
+ 	
+ 	#region R3 Reactive Streams
+ 	
+-	public Subject<Unit> OnDragStartedAsObservable { get; private set; }
++	public Subject<int> OnDragStartedAsObservable { get; private set; }
+ 	
+ 	/// 拖拽结束事件流
+ 	/// 
+ 	/// 触发时机：鼠标左键松开
+ 	/// 
+@@ -60,11 +62,11 @@
+ 	#region Godot Lifecycle
+ 	
+ 	public override void _EnterTree()
+ 	{
+ 		// 【架构修正】在 _EnterTree 中初始化所有 Subjects
+-		OnDragStartedAsObservable = new Subject<Unit>();
++		OnDragStartedAsObservable = new Subject<int>();
+ 		OnDragEndedAsObservable = new Subject<Unit>();
+ 		OnRotateRequestedAsObservable = new Subject<Unit>();
+ 	}
+ 	
+ 	public override void _Ready()
+@@ -86,11 +88,11 @@
+ 			return;
+ 		}
+ 		
+ 		// 订阅 GridShapeUIComponent 的聚合输入事件流
+ 		_gridShapeUIComponent.OnGroupInputAsObservable
+-			.Subscribe(x => HandleGuiInput(x.Event))
++			.Subscribe(x => HandleGuiInput(x.Event, x.CellIndex))
+ 			.AddTo(this);
+ 		
+ 		StateChart = GetNodeOrNull<Node>(StateChartPath);
+ 		if (StateChart == null)
+ 		{
+@@ -104,10 +106,23 @@
+ 		// R3 规则：释放所有 Subjects
+ 		OnDragStartedAsObservable?.Dispose();
+ 		OnDragEndedAsObservable?.Dispose();
+ 		OnRotateRequestedAsObservable?.Dispose();
+ 	}
++	public override void _Notification(int what)
++	{
++		base._Notification(what);
++		
++		if (what == 1005 || what == 2015) // 1005: NotificationWmWindowFocusOut, 2015: NotificationApplicationFocusOut
++		{
++			if (_isDragging)
++			{
++				GD.Print($"[{Name}] 游戏失去焦点，强制结束拖拽状态！");
++				HandleDragEnd();
++			}
++		}
++	}
+ 	
+ 	#endregion
+ 	
+ 	#region Input Handling
+ 	
+@@ -117,20 +132,20 @@
+ 	/// 
+ 	/// 算法：
+ 	/// 1. 判断事件类型（只处理 InputEventMouseButton）
+ 	/// 2. 根据按键类型和状态分发到不同的处理逻辑
+ 	/// 3. 触发对应的 R3 Subject 和 StateChart 事件
+-	private void HandleGuiInput(InputEvent @event)
++	private void HandleGuiInput(InputEvent @event, int cellIndex)
+ 	{
+ 		// 只处理鼠标按键事件
+ 		if (@event is not InputEventMouseButton mouseEvent)
+ 			return;
+ 		
+ 		// 左键按下 → 开始拖拽
+ 		if (mouseEvent.ButtonIndex == MouseButton.Left && mouseEvent.Pressed)
+ 		{
+-			HandleDragStart();
++			HandleDragStart(cellIndex);
+ 		}
+ 		// 左键松开 → 结束拖拽
+ 		else if (mouseEvent.ButtonIndex == MouseButton.Left && !mouseEvent.Pressed)
+ 		{
+ 			HandleDragEnd();
+@@ -141,14 +156,17 @@
+ 			HandleRotateRequest();
+ 		}
+ 	}
+ 	
+ 	/// 处理拖拽开始
+-	private void HandleDragStart()
+-	{
+-		// 【R3 响应式】通知订阅者
+-		OnDragStartedAsObservable.OnNext(Unit.Default);
++	private void HandleDragStart(int cellIndex)
++	{
++		if (_isDragging) return;
++		_isDragging = true;
++		
++		// 【R3 响应式】通知订阅者，传递抓取的格子索引
++		OnDragStartedAsObservable.OnNext(cellIndex);
+ 		
+ 		// 【StateChart】发送状态机事件
+ 		if (StateChart != null)
+ 		{
+ 			// 使用可配置的事件名称，避免硬编码
+@@ -157,10 +175,13 @@
+ 	}
+ 	
+ 	/// 处理拖拽结束
+ 	private void HandleDragEnd()
+ 	{
++		if (!_isDragging) return;
++		_isDragging = false;
++		
+ 		// 【R3 响应式】通知订阅者
+ 		OnDragEndedAsObservable.OnNext(Unit.Default);
+ 		
+ 		// 【StateChart】发送状态机事件
+ 		if (StateChart != null)
+@@ -181,13 +202,13 @@
+ 	#endregion
+ 	
+ 	#region Helper Methods
+ 	
+ 	/// 手动触发拖拽开始（用于程序化控制）
+-	public void TriggerDragStart()
+-	{
+-		HandleDragStart();
++	public void TriggerDragStart(int cellIndex = 0)
++	{
++		HandleDragStart(cellIndex);
+ 	}
+ 	
+ 	/// 手动触发拖拽结束（用于程序化控制）
+ 	public void TriggerDragEnd()
+ 	{
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
+```diff
+--- 
++++ 
+@@ -56,14 +56,14 @@
+ 
+ 	/// UI 网格视图组件引用（View 层）
+ 	[Export] public NodePath ViewGridPath { get; set; } = "%BackpackGridUIComponent";
+ 
+ 	/// 物品容器路径（在背包内的物品）
+-	[Export] public NodePath ItemsContainerPath { get; set; }
++	[Export] public NodePath NodePath_InsideBackpackItems { get; set; }
+ 
+ 	/// 生成区容器路径（在地上的物品）
+-	[Export] public NodePath LootSpawnAreaPath { get; set; } = "";
++	[Export] public NodePath NodePath_OutsideBackpackItems { get; set; } = "";
+ 
+ 	/// ItemStorageManager 路径
+ 	[Export] public NodePath ItemStorageManagerPath { get; set; } = "../../ItemStorageManager";
+ 
+ 	#endregion
+@@ -98,44 +98,44 @@
+ 		{
+ 			GD.PushError($"[{Name}] ViewGrid not found: {ViewGridPath}");
+ 			return;
+ 		}
+ 
+-		// 自动注册 ItemsContainer 内所有物品
+-		if (!string.IsNullOrEmpty(ItemsContainerPath))
+-		{
+-			var container = GetNodeOrNull(ItemsContainerPath);
+-			if (container != null)
+-			{
+-				foreach (Node child in container.GetChildren())
++		// 自动注册 InsideBackpackItems 内所有物品
++		if (!string.IsNullOrEmpty(NodePath_InsideBackpackItems))
++		{
++			var control_InsideBackpackItems = GetNodeOrNull(NodePath_InsideBackpackItems);
++			if (control_InsideBackpackItems != null)
++			{
++				foreach (Node child in control_InsideBackpackItems.GetChildren())
+ 				{
+ 					if (child is Control && child.HasNode("%GridShapeComponent")) // 简单过滤有效物品
+ 						RegisterItem(child);
+ 				}
+ 			}
+ 			else
+ 			{
+-				GD.PushWarning($"[{Name}] ItemsContainer not found: {ItemsContainerPath}");
+-			}
+-		}
+-
+-		// 自动注册 LootSpawnArea 内所有物品
+-		if (!string.IsNullOrEmpty(LootSpawnAreaPath))
+-		{
+-			var lootContainer = GetNodeOrNull(LootSpawnAreaPath);
+-			if (lootContainer != null)
+-			{
+-				foreach (Node child in lootContainer.GetChildren())
++				GD.PushWarning($"[{Name}] InsideBackpackItems not found: {NodePath_InsideBackpackItems}");
++			}
++		}
++
++		// 自动注册 OutsideBackpackItems 内所有物品
++		if (!string.IsNullOrEmpty(NodePath_OutsideBackpackItems))
++		{
++			var control_OutsideBackpackItems = GetNodeOrNull(NodePath_OutsideBackpackItems);
++			if (control_OutsideBackpackItems != null)
++			{
++				foreach (Node child in control_OutsideBackpackItems.GetChildren())
+ 				{
+-					// LootSpawnArea 里有墙和地板（StaticBody2D），必须过滤掉！只有具有 GridShapeComponent 的才是物品
++					// OutsideBackpackItems 里有墙和地板（StaticBody2D），必须过滤掉！只有具有 GridShapeComponent 的才是物品
+ 					if (child is Control && child.HasNode("%GridShapeComponent"))
+ 						RegisterItem(child);
+ 				}
+ 			}
+ 			else
+ 			{
+-				GD.PushWarning($"[{Name}] LootSpawnArea not found: {LootSpawnAreaPath}");
++				GD.PushWarning($"[{Name}] OutsideBackpackItems not found: {NodePath_OutsideBackpackItems}");
+ 			}
+ 		}
+ 
+ 		if (ItemStorageManagerPath != null && !ItemStorageManagerPath.IsEmpty)
+ 			_itemStorageManager = GetNodeOrNull<ItemStorageManager>(ItemStorageManagerPath);
+@@ -201,11 +201,11 @@
+ 
+ 		// 2. 订阅拖拽事件（使用 R3）
+ 		// 【关键】使用 .AddTo(itemEntity) 确保物品销毁时自动取消订阅
+ 
+ 		draggable.OnDragStartedAsObservable
+-			.Subscribe(_ => HandleItemPickedUp(itemEntity, itemControl, shapeComponent, draggable))
++			.Subscribe(grabbedCellIndex => HandleItemPickedUp(itemEntity, itemControl, shapeComponent, draggable, grabbedCellIndex))
+ 			.AddTo(itemEntity);
+ 
+ 		draggable.OnDragEndedAsObservable
+ 			.Subscribe(_ => HandleItemDropped(itemEntity, itemControl, shapeComponent))
+ 			.AddTo(itemEntity);
+@@ -231,11 +231,11 @@
+ 	#region Drag Event Handlers
+ 
+ 	/// 处理物品拾取（拖拽开始）
+ 	/// 目的：记录原始状态并从网格移除，防止"自我占用"；启动 R3 预览流
+ 	/// 算法：1. 记录位置 → 2. 从网格移除 → 3. 保存状态 → 4. 启动预览流（TakeUntil 自动停止）
+-	private void HandleItemPickedUp(Node itemEntity, Control itemControl, GridShapeComponent shapeComponent, DraggableItemComponent draggable)
++	private void HandleItemPickedUp(Node itemEntity, Control itemControl, GridShapeComponent shapeComponent, DraggableItemComponent draggable, int grabbedCellIndex)
+ 	{
+ 		bool wasInGrid = true;
+ 		var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
+ 		if (itemPhysics != null)
+ 		{
+@@ -262,26 +262,40 @@
+ 			ShapeComponent = shapeComponent,
+ 			ItemControl = itemControl,
+ 			OriginallyInGrid = wasInGrid
+ 		};
+ 
+-		// 【架构重构】在拾取瞬间预计算被抓取的单元格索引
++		// 记录我们实际点击的格子索引
++		_currentDrag.GrabbedCellIndex = grabbedCellIndex;
++
+ 		var followComp = GetFollowComp(itemEntity);
+-
+ 		if (followComp != null && shapeComponent.CurrentLocalCells != null)
+ 		{
+-			// 1. 确保跟随组件已初始化抓取偏移量
+-			followComp.CalculateGrabOffsetFromMouse();
+-
+-			// 2. 将物理抓取偏移转换为局部像素坐标
+-			Vector2 localGrabPos = -followComp.GrabOffset;
+-
+-			// 3. 在当前形状中查找匹配该坐标的单元格索引（逻辑委托给 GridShapeComponent）
+-			int grabbedIndex = shapeComponent.GetCellIndexAtLocalPosition(localGrabPos);
+-
+-			// 4. 持久化到拖拽状态中，供后续旋转逻辑使用
+-			_currentDrag.GrabbedCellIndex = grabbedIndex;
++			if (wasInGrid)
++			{
++				// 如果原本在网格中，没有物理旋转的影响，直接获取鼠标局部位置保持原样偏差
++				followComp.CalculateGrabOffsetFromMouse();
++			}
++			else
++			{
++				// 从世界中抓取：由于 DisablePhysics() 会进行离散旋转归零，并移动了 GlobalPosition，
++				// 此时 GetLocalMousePosition() 得到的是旋转前的位置！
++				// 解决方案：我们确切知道抓取的是哪个逻辑网格，强制将鼠标对齐到该格子的中心。
++				if (grabbedCellIndex >= 0 && grabbedCellIndex < shapeComponent.CurrentLocalCells.Length)
++				{
++					Vector2I grabbedCellLocal = shapeComponent.CurrentLocalCells[grabbedCellIndex];
++					Vector2 cellCenterLocal = new Vector2(
++						grabbedCellLocal.X * shapeComponent.CellSize.X + shapeComponent.CellSize.X / 2f,
++						grabbedCellLocal.Y * shapeComponent.CellSize.Y + shapeComponent.CellSize.Y / 2f
++					);
++					followComp.GrabOffset = -cellCenterLocal;
++				}
++				else
++				{
++					followComp.CalculateGrabOffsetFromMouse();
++				}
++			}
+ 		}
+ 
+ 		// 【视觉修正】锁定 Hover 状态，防止拖拽时闪烁白光
+ 		var itemGroupCtrl = GetItemGroupCtrl(itemEntity);
+ 		if (itemGroupCtrl != null)
+@@ -515,11 +529,11 @@
+ 
+ 	#region Helper Methods
+ 
+ 	public async void SpawnLootItem(ItemData itemData)
+ 	{
+-		var lootArea = GetNodeOrNull<Control>(LootSpawnAreaPath);
++		var lootArea = GetNodeOrNull<Control>(NodePath_OutsideBackpackItems);
+ 		if (lootArea == null) return;
+ 
+ 		var scene = GD.Load<PackedScene>("res://A1TesseractBackpack/TSItem.tscn");
+ 		if (scene == null) return;
+ 
+```
+---
+## 📅 20260503_031125
+- ➕ 新增: 0 | 📝 修改: 3 | ❌ 删除: 0
+
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\ItemStorageManager.cs
+```diff
+--- 
++++ 
+@@ -14,10 +14,26 @@
+ 	[Export] public float SpacingY = 100f;
+ 
+ 	// 世界中具有物理代理的所有 Loot 物品缓存，供 LootSpawnAreaController 定期检查越界使用
+ 	// 理由：避免 Controller 每帧遇历子节点 + HasNode 字符串查找的性能开销
+ 	public List<ItemPhysicsComponent> WorldPhysicsItems { get; private set; } = new();
++
++	public void RegisterWorldItem(ItemPhysicsComponent physicsComp)
++	{
++		if (physicsComp != null && !WorldPhysicsItems.Contains(physicsComp))
++		{
++			WorldPhysicsItems.Add(physicsComp);
++		}
++	}
++
++	public void UnregisterWorldItem(ItemPhysicsComponent physicsComp)
++	{
++		if (physicsComp != null)
++		{
++			WorldPhysicsItems.Remove(physicsComp);
++		}
++	}
+ 
+ 	public override async void _Ready()
+ 	{
+ 		// 必须延迟一帧执行，以确保所有子节点的 _Ready 已经完成，物理引擎代理已绑定
+ 		await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\FollowMouseUIComponent.cs
+```diff
+--- 
++++ 
+@@ -205,18 +205,10 @@
+ 	/// 设置抓取偏移量（通常在拖拽开始时调用）
+ 	public void SetGrabOffset(Vector2 offset)
+ 	{
+ 		GrabOffset = offset;
+ 	}
+-
+-	/// 将当前计算的甩飞速度应用到目标物理组件，并激活物理模拟
+-	public void ApplyThrowVelocityTo(ItemPhysicsComponent physicsComp)
+-	{
+-		if (physicsComp == null) return;
+-		Vector2 throwVelocity = ThrowVelocity * physicsComp.ThrowMultiplier;
+-		physicsComp.EnablePhysics(throwVelocity);
+-	}
+ 	
+ 	/// 根据当前鼠标位置自动计算抓取偏移
+ 	public void CalculateGrabOffsetFromMouse()
+ 	{
+ 		if (TargetUI == null)
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
+```diff
+--- 
++++ 
+@@ -61,16 +61,20 @@
+ 	[Export] public NodePath ItemsContainerPath { get; set; }
+ 
+ 	/// 生成区容器路径（在地上的物品）
+ 	[Export] public NodePath LootSpawnAreaPath { get; set; } = "";
+ 
++	/// ItemStorageManager 路径
++	[Export] public NodePath ItemStorageManagerPath { get; set; } = "../../ItemStorageManager";
++
+ 	#endregion
+ 
+ 	#region Private Fields
+ 
+ 	private BackpackGridComponent BackpackGridComp;
+ 	private BackpackGridUIComponent BackpackGridUIComp;
++	private ItemStorageManager _itemStorageManager;
+ 
+ 	// 当前拖拽状态（单一物品，玩家只有一个鼠标）
+ 	private ItemDragState _currentDrag;
+ 
+ 	/// CompositeDisposable - 管理所有订阅
+@@ -131,10 +135,16 @@
+ 			{
+ 				GD.PushWarning($"[{Name}] LootSpawnArea not found: {LootSpawnAreaPath}");
+ 			}
+ 		}
+ 
++		if (ItemStorageManagerPath != null && !ItemStorageManagerPath.IsEmpty)
++			_itemStorageManager = GetNodeOrNull<ItemStorageManager>(ItemStorageManagerPath);
++		
++		if (_itemStorageManager == null)
++			_itemStorageManager = GetNodeOrNull<ItemStorageManager>("../../ItemStorageManager");
++
+ 		GD.Print("BackpackInteractionController: 初始化完成");
+ 	}
+ 
+ 
+ 	public override void _ExitTree()
+@@ -230,10 +240,11 @@
+ 		if (itemPhysics != null)
+ 		{
+ 			// 如果物理是激活的（没有被 Freeze），说明它是从空中（世界）抓取的，而不是网格里。
+ 			wasInGrid = itemPhysics.Freeze;
+ 			itemPhysics.DisablePhysics();
++			_itemStorageManager?.UnregisterWorldItem(itemPhysics);
+ 		}
+ 
+ 		Vector2 originalGlobalPos = itemControl.GlobalPosition;
+ 		Vector2I originalGridPos = BackpackGridUIComp.GlobalToGridPosition(originalGlobalPos);
+ 
+@@ -378,14 +389,15 @@
+ 			// Dropped OUTSIDE: Do NOT bounce back.
+ 			// FollowMouseUIComponent 已经考虑了抓取偏移，保持原位直接启用物理即可。
+ 			var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
+ 			if (itemPhysics != null)
+ 			{
+-				// 读取 FollowMouseUIComponent 记录的鼠标速度，传入物理引擎
++				// 读取 FollowMouseUIComponent 记录的鼠标速度，乘以礩飞倍率传入物理引擎
+ 				var followComp = GetFollowComp(itemEntity);
+-				if (followComp != null) followComp.ApplyThrowVelocityTo(itemPhysics);
+-				else itemPhysics.EnablePhysics();
++				Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
++				itemPhysics.EnablePhysics(throwVelocity);
++				_itemStorageManager?.RegisterWorldItem(itemPhysics);
+ 			}
+ 			return;
+ 		}
+ 
+ 		Vector2I mouseGridPos = BackpackGridUIComp.GlobalToGridPosition(mousePos);
+@@ -413,12 +425,13 @@
+ 				// 世界内投抛失败（拖取物品均属世界和背包内放失败）：保持物理模式
+ 				var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
+ 				if (itemPhysics != null)
+ 				{
+ 					var followComp = GetFollowComp(itemEntity);
+-					if (followComp != null) followComp.ApplyThrowVelocityTo(itemPhysics);
+-					else itemPhysics.EnablePhysics();
++					Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
++					itemPhysics.EnablePhysics(throwVelocity);
++					_itemStorageManager?.RegisterWorldItem(itemPhysics);
+ 				}
+ 			}
+ 		}
+ 	}
+ 
+```
+---
+## 📅 20260503_025345
+- ➕ 新增: 1 | 📝 修改: 2 | ❌ 删除: 0
+
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
+```diff
+--- 
++++ 
+@@ -378,14 +378,14 @@
+ 			// Dropped OUTSIDE: Do NOT bounce back.
+ 			// FollowMouseUIComponent 已经考虑了抓取偏移，保持原位直接启用物理即可。
+ 			var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
+ 			if (itemPhysics != null)
+ 			{
+-				// 读取 FollowMouseUIComponent 记录的鼠标速度，乘以礩飞倍率传入物理引擎
++				// 读取 FollowMouseUIComponent 记录的鼠标速度，传入物理引擎
+ 				var followComp = GetFollowComp(itemEntity);
+-				Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
+-				itemPhysics.EnablePhysics(throwVelocity);
++				if (followComp != null) followComp.ApplyThrowVelocityTo(itemPhysics);
++				else itemPhysics.EnablePhysics();
+ 			}
+ 			return;
+ 		}
+ 
+ 		Vector2I mouseGridPos = BackpackGridUIComp.GlobalToGridPosition(mousePos);
+@@ -413,12 +413,12 @@
+ 				// 世界内投抛失败（拖取物品均属世界和背包内放失败）：保持物理模式
+ 				var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
+ 				if (itemPhysics != null)
+ 				{
+ 					var followComp = GetFollowComp(itemEntity);
+-					Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
+-					itemPhysics.EnablePhysics(throwVelocity);
++					if (followComp != null) followComp.ApplyThrowVelocityTo(itemPhysics);
++					else itemPhysics.EnablePhysics();
+ 				}
+ 			}
+ 		}
+ 	}
+ 
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\FollowMouseUIComponent.cs
+```diff
+--- 
++++ 
+@@ -205,10 +205,18 @@
+ 	/// 设置抓取偏移量（通常在拖拽开始时调用）
+ 	public void SetGrabOffset(Vector2 offset)
+ 	{
+ 		GrabOffset = offset;
+ 	}
++
++	/// 将当前计算的甩飞速度应用到目标物理组件，并激活物理模拟
++	public void ApplyThrowVelocityTo(ItemPhysicsComponent physicsComp)
++	{
++		if (physicsComp == null) return;
++		Vector2 throwVelocity = ThrowVelocity * physicsComp.ThrowMultiplier;
++		physicsComp.EnablePhysics(throwVelocity);
++	}
+ 	
+ 	/// 根据当前鼠标位置自动计算抓取偏移
+ 	public void CalculateGrabOffsetFromMouse()
+ 	{
+ 		if (TargetUI == null)
+```
+---
 ## 📅 20260503_024934
 - ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 1
 
@@ -83,553 +1003,6 @@
      </error>
      <error symptom="Items spawned in the same location fall completely through the floor">
 ```
----
-## 📅 20260503_005333
-- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
-
-#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
-```diff
---- 
-+++ 
-@@ -159,10 +159,19 @@
- [node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/RightWall" unique_id=899388117]
- position = Vector2(1344, 0)
- rotation = 1.5708
- shape = SubResource("RectangleShape2D_floor")
- 
-+[node name="TopWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388118]
-+position = Vector2(565, 0)
-+collision_layer = 16
-+collision_mask = 16
-+
-+[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/TopWall" unique_id=899388119]
-+position = Vector2(0, -1383)
-+shape = SubResource("RectangleShape2D_floor")
-+
- [node name="TsItem" parent="LootSpawnArea" unique_id=1959740042 instance=ExtResource("3_bkm53")]
- layout_mode = 0
- offset_left = 400.0
- offset_top = 100.0
- offset_right = 592.0
-```
----
-## 📅 20260503_000515
-- ➕ 新增: 0 | 📝 修改: 3 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
-```diff
---- 
-+++ 
-@@ -374,16 +374,18 @@
- 		bool isInBackpack = BackpackGridUIComp.IsPointInside(mousePos);
- 
- 		if (!isInBackpack)
- 		{
- 			// Dropped OUTSIDE: Do NOT bounce back.
--			// 不要在这里手动设置 GlobalPosition = mousePos，否则会导致物品左上角瞬间对齐鼠标（瞬移）。
- 			// FollowMouseUIComponent 已经考虑了抓取偏移，保持原位直接启用物理即可。
- 			var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
- 			if (itemPhysics != null)
- 			{
--				itemPhysics.EnablePhysics();
-+				// 读取 FollowMouseUIComponent 记录的鼠标速度，乘以礩飞倍率传入物理引擎
-+				var followComp = GetFollowComp(itemEntity);
-+				Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
-+				itemPhysics.EnablePhysics(throwVelocity);
- 			}
- 			return;
- 		}
- 
- 		Vector2I mouseGridPos = BackpackGridUIComp.GlobalToGridPosition(mousePos);
-@@ -406,14 +408,17 @@
- 			{
- 				PerformBounceBack(itemEntity, dragState);
- 			}
- 			else
- 			{
-+				// 世界内投抛失败（拖取物品均属世界和背包内放失败）：保持物理模式
- 				var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
- 				if (itemPhysics != null)
- 				{
--					itemPhysics.EnablePhysics();
-+					var followComp = GetFollowComp(itemEntity);
-+					Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
-+					itemPhysics.EnablePhysics(throwVelocity);
- 				}
- 			}
- 		}
- 	}
- 
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\ItemPhysicsComponent.cs
-```diff
---- 
-+++ 
-@@ -20,14 +20,17 @@
- /// 4. 物理禁用：冻结 RigidBody，将任意角度旋转折算为离散 90° 并写回网格数据
- [GlobalClass]
- public partial class ItemPhysicsComponent : RigidBody2D
- {
- 	#region Constants
--	
-+
- 	public const uint NONE = 0;
--	public const uint ITEM_LAYER = 16; // 第 5 层 (2^4)
--	
-+	public const uint ITEM_LAYER = 16;
-+
-+	/// 甩飞强度倍率 - 1.0 = 原始鼠标速度，调大后物品更容易甩出去
-+	[Export] public float ThrowMultiplier { get; set; } = 1.2f; // 第 5 层 (2^4)
-+
- 	#endregion
- 
- 	#region Private Fields
- 
- 	/// 宿主 Control 节点（位置同步目标）
-@@ -113,26 +116,28 @@
- 	#endregion
- 
- 	#region Public API
- 
- 	/// 启用物理模拟（物品掉落到世界空间）
--	public void EnablePhysics()
-+	/// <param name="initialVelocity">初始速度，用于甩飞投抷。默认为零向量（单纯掉落）。</param>
-+	public void EnablePhysics(Vector2 initialVelocity = default)
- 	{
- 		if (_hostControl == null) return;
- 
--		// 再次强制同步位置和旋转，确保无缝接管
- 		GlobalPosition = _hostControl.GlobalPosition;
- 		Rotation = _hostControl.Rotation;
- 
--		// 恢复碰撞
- 		CollisionLayer = ITEM_LAYER;
- 		CollisionMask = ITEM_LAYER;
- 
- 		Freeze = false;
- 		_physicsActive = true;
- 
--		GD.Print($"[{Name}] 物理已激活：{GlobalPosition}");
-+		// 应用初始速度（特意放在 Freeze=false 之后，否则物理引擎会覆盖它）
-+		LinearVelocity = initialVelocity;
-+
-+		GD.Print($"[{Name}] 物理已激活：{GlobalPosition}，初始速度：{initialVelocity}");
- 	}
- 
- 	/// 禁用物理模拟（进入网格或被拾取）
- 	public void DisablePhysics()
- 	{
-@@ -205,11 +210,11 @@
- 		foreach (var cell in cells)
- 		{
- 			// 为了确保完美合并（解决浮点精度或相邻边不被认为是相交的问题），将格子放大 0.5 像素产生微小重叠
- 			Vector2 topLeft = new Vector2(cell.X * cellSize.X - 0.5f, cell.Y * cellSize.Y - 0.5f);
- 			Vector2 size = cellSize + new Vector2(1.0f, 1.0f);
--			
-+
- 			// 顺时针定义一个矩形多边形
- 			Vector2[] cellPoly = new Vector2[]
- 			{
- 				topLeft,
- 				topLeft + new Vector2(size.X, 0),
-@@ -222,11 +227,11 @@
- 
- 			for (int i = 0; i < mergedPolygons.Count; i++)
- 			{
- 				var existingPoly = mergedPolygons[i];
- 				var mergeResult = Geometry2D.MergePolygons(existingPoly, polyToMerge);
--				
-+
- 				// 如果合并后结果是 1 个多边形，说明它们相交，更新 polyToMerge 以吸收合并结果
- 				if (mergeResult.Count == 1)
- 				{
- 					polyToMerge = mergeResult[0];
- 				}
-@@ -234,11 +239,11 @@
- 				{
- 					// 没合并成功，保留原本的 existingPoly
- 					nextMerged.Add(existingPoly);
- 				}
- 			}
--			
-+
- 			// 将当前融合了所有能相交部分的多边形加入
- 			nextMerged.Add(polyToMerge);
- 			mergedPolygons = nextMerged;
- 		}
- 
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\FollowMouseUIComponent.cs
-```diff
---- 
-+++ 
-@@ -87,13 +87,24 @@
- 	/// 原始 ZIndex（用于退出拖拽时恢复）
- 	private int _originalZIndex;
- 	
- 	/// 拖拽时的 ZIndex 提升值
- 	private const int DragZIndexBoost = 100;
--	
--	#endregion
--	
-+
-+	/// 上一帧鼠标全局位置（用于计算甩飞速度）
-+	private Vector2 _lastMousePos;
-+
-+	#endregion
-+
-+	#region Public Properties
-+
-+	/// 当前帧估算的鼠标速度（像素/秒），用于物品甩飞
-+	/// 理由：松手时直接把这个值赋给 RigidBody2D.LinearVelocity，实现抛物感
-+	public Vector2 ThrowVelocity { get; private set; }
-+
-+	#endregion
-+
- 	#region Godot Lifecycle
- 	
- 	public override void _Ready()
- 	{
- 		// NodePath 在 _Ready 时已解析完成，直接初始化
-@@ -138,20 +149,24 @@
- 		GD.Print($"FollowMouseUIComponent: 已初始化并绑定到父状态 '{GetParent()?.Name}'");
- 	}
- 	
- 	public override void _Process(double delta)
- 	{
--		// 注意：此方法仅在 Dragging 状态激活时运行
--		// AutoBindToParentState 会自动控制 SetProcess 的启停
--		
--		if (TargetUI == null)
--			return;
--		
--		// 获取全局鼠标位置
-+		if (TargetUI == null)
-+			return;
-+
- 		Vector2 mousePos = TargetUI.GetGlobalMousePosition();
--		
--		// 应用偏移量并更新位置
-+
-+		// 计算鼠标速度并用指数平滑过滤抖动
-+		// 理由：原始帧间差值受帧率波动影响大，平滑后甩飞手感更稳定
-+		if (delta > 0)
-+		{
-+			Vector2 rawVelocity = (mousePos - _lastMousePos) / (float)delta;
-+			ThrowVelocity = ThrowVelocity.Lerp(rawVelocity, 0.3f);
-+		}
-+		_lastMousePos = mousePos;
-+
- 		TargetUI.GlobalPosition = mousePos + GrabOffset;
- 	}
- 	
- 	#endregion
- 	
-@@ -160,14 +175,16 @@
- 	/// 拖拽状态进入时的处理
- 	private void OnDragStateEntered()
- 	{
- 		if (TargetUI == null)
- 			return;
--		
--		// 提升 ZIndex 确保在最上层显示
-+
-+		// 重置速度追踪，防止上一次拖拽的速度污染本次甩飞
-+		_lastMousePos = TargetUI.GetGlobalMousePosition();
-+		ThrowVelocity = Vector2.Zero;
-+
- 		TargetUI.ZIndex = _originalZIndex + DragZIndexBoost;
--		
- 		GD.Print($"FollowMouseUIComponent: 拖拽开始，ZIndex {_originalZIndex} → {TargetUI.ZIndex}");
- 	}
- 	
- 	/// 拖拽状态退出时的处理
- 	private void OnDragStateExited()
-```
----
-## 📅 20260502_230709
-- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\LootSpawnAreaController.cs
-```diff
---- 
-+++ 
-@@ -3,31 +3,36 @@
- using System;
- 
- [GlobalClass]
- public partial class LootSpawnAreaController : Control
- {
--	[Export]
--	public float CheckInterval = 2.0f; // 检测间隔
--
--	[Export]
--	public Rect2 AllowedBounds = new Rect2(-500, -2000, 2500, 4000); // 允许的范围，飞出这个范围就算越界
--
--	[Export]
--	public Vector2 RespawnPosition = new Vector2(576, 100); // 越界后重生的位置（如果没有设置节点路径时的备用）
--
--	[Export]
--	public NodePath RespawnPointPath { get; set; } // 指定重生点的节点路径（如 Fallenpoint）
-+	[Export] public float CheckInterval = 2.0f;
-+	[Export] public Rect2 AllowedBounds = new Rect2(-500, -2000, 2500, 4000);
-+	[Export] public Vector2 RespawnPosition = new Vector2(576, 100); // 没有设置节点路径时的备用
-+	[Export] public NodePath RespawnPointPath { get; set; }         // 重生点节点（如 Fallenpoint）
-+	[Export] public NodePath ItemStorageManagerPath { get; set; }   // ItemStorageManager 引用，用于读取 WorldPhysicsItems 缓存
- 
- 	private CompositeDisposable _disposables = new CompositeDisposable();
-+	private ItemStorageManager _itemStorageManager;
- 
- 	public override void _Ready()
- 	{
--		// 每隔指定时间检测一次
-+		// 获取 ItemStorageManager 缓存引用
-+		// 理由：避免每次检测都用 HasNode 字符串遍历子节点，统一由 Manager 维护权威的世界物品列表
-+		if (ItemStorageManagerPath != null && !ItemStorageManagerPath.IsEmpty)
-+			_itemStorageManager = GetNodeOrNull<ItemStorageManager>(ItemStorageManagerPath);
-+
-+		if (_itemStorageManager == null)
-+			_itemStorageManager = GetNodeOrNull<ItemStorageManager>("../ItemStorageManager");
-+
-+		if (_itemStorageManager == null)
-+			GD.PushWarning("[LootSpawnAreaController] 未找到 ItemStorageManager，越界检测将无法运行！");
-+
- 		Observable.Interval(TimeSpan.FromSeconds(CheckInterval))
- 			.Subscribe(_ => CheckOutOfBoundsItems())
- 			.AddTo(_disposables);
--			
-+
- 		GD.Print("LootSpawnAreaController initialized. Checking bounds every " + CheckInterval + "s.");
- 	}
- 
- 	public override void _ExitTree()
- 	{
-@@ -39,57 +44,43 @@
- 		if (RespawnPointPath != null && !RespawnPointPath.IsEmpty)
- 		{
- 			var node = GetNodeOrNull<Control>(RespawnPointPath);
- 			if (node != null) return node.GlobalPosition;
- 		}
--		
--		// 备用查找（如果尚未在编辑器中设置路径，尝试直接寻找 ../Fallenpoint）
--		var fallbackNode = GetNodeOrNull<Control>("../Fallenpoint");
--		if (fallbackNode != null) return fallbackNode.GlobalPosition;
-+
-+		// 备用：尝试直接寻找同级 Fallenpoint
-+		var fallback = GetNodeOrNull<Control>("../Fallenpoint");
-+		if (fallback != null) return fallback.GlobalPosition;
- 
- 		return RespawnPosition;
- 	}
- 
- 	private void CheckOutOfBoundsItems()
- 	{
--		foreach (Node child in GetChildren())
-+		if (_itemStorageManager == null) return;
-+
-+		// 直接遍历 Manager 预构建的缓存列表，无需 HasNode 字符串查找，无需类型判断
-+		// 理由：Manager 在初始化时已确认哪些是合法的物理物品并缓存，这里是纯数据消费
-+		foreach (var physicsComp in _itemStorageManager.WorldPhysicsItems)
- 		{
--			// 只检测可拖拽的物品实体
--			if (child is Control itemControl && child.HasNode("%PhysicsProxy"))
-+			if (!IsInstanceValid(physicsComp) || !physicsComp.IsInsideTree()) continue;
-+
-+			// 使用物理体的真实 GlobalPosition 做越界判断（比 Control 更准确，减少 1 帧同步延迟）
-+			Vector2 pos = physicsComp.GlobalPosition;
-+			if (!AllowedBounds.HasPoint(pos))
- 			{
--				Vector2 pos = itemControl.GlobalPosition;
--				
--				// 检查是否越界
--				if (!AllowedBounds.HasPoint(pos))
--				{
--					Vector2 actualRespawnPos = GetActualRespawnPosition();
--					GD.Print($"Item {child.Name} flew out of bounds at {pos}! Respawning at {actualRespawnPos}...");
--					
--					// 如果有物理组件，重置其物理状态并瞬移
--					var physicsComp = child.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
--					if (physicsComp != null)
--					{
--						// 先禁用物理避免冲突
--						physicsComp.Freeze = true;
--						
--						// 随机一点偏移，防止多个物品重生在同一个绝对像素上导致爆开
--						float randomX = (float)GD.RandRange(-50.0, 50.0);
--						Vector2 finalPos = actualRespawnPos + new Vector2(randomX, 0);
--						
--						// 【核心修复】必须设置 physicsComp 的位置，因为它是 TopLevel
--						physicsComp.GlobalPosition = finalPos;
--						
--						// 消除速度并重新启用物理
--						physicsComp.LinearVelocity = Vector2.Zero;
--						physicsComp.AngularVelocity = 0;
--						physicsComp.Freeze = false;
--					}
--					else
--					{
--						// 没有物理，直接重置位置
--						itemControl.GlobalPosition = actualRespawnPos;
--					}
--				}
-+				Vector2 respawnPos = GetActualRespawnPosition();
-+				GD.Print($"Item {physicsComp.GetParent()?.Name} flew out of bounds at {pos}! Respawning at {respawnPos}...");
-+
-+				physicsComp.Freeze = true;
-+
-+				// 随机偏移防止多个物品重生在同一坐标产生爆炸性排斥力
-+				float randomX = (float)GD.RandRange(-50.0, 50.0);
-+				physicsComp.GlobalPosition = respawnPos + new Vector2(randomX, 0);
-+				physicsComp.LinearVelocity = Vector2.Zero;
-+				physicsComp.AngularVelocity = 0;
-+
-+				physicsComp.Freeze = false;
- 			}
- 		}
- 	}
- }
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\ItemStorageManager.cs
-```diff
---- 
-+++ 
-@@ -7,13 +7,17 @@
- {
- 	[Export] public NodePath LootSpawnAreaPath { get; set; }
- 	[Export] public NodePath ItemsContainerPath { get; set; }
- 	[Export] public NodePath FallenpointPath { get; set; }
- 
--	[Export] public int MaxItemsPerRow = 3; // 方阵每行最多物品数
--	[Export] public float SpacingX = 100f;   // X轴间距
--	[Export] public float SpacingY = 100f;   // Y轴间距
-+	[Export] public int MaxItemsPerRow = 3;
-+	[Export] public float SpacingX = 100f;
-+	[Export] public float SpacingY = 100f;
-+
-+	// 世界中具有物理代理的所有 Loot 物品缓存，供 LootSpawnAreaController 定期检查越界使用
-+	// 理由：避免 Controller 每帧遇历子节点 + HasNode 字符串查找的性能开销
-+	public List<ItemPhysicsComponent> WorldPhysicsItems { get; private set; } = new();
- 
- 	public override async void _Ready()
- 	{
- 		// 必须延迟一帧执行，以确保所有子节点的 _Ready 已经完成，物理引擎代理已绑定
- 		await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-@@ -101,11 +105,14 @@
- 					physicsComp.GlobalPosition = targetPos;
- 					physicsComp.LinearVelocity = Vector2.Zero;
- 					physicsComp.AngularVelocity = 0;
- 					
- 					// 核心修复：调用专门的方法完全激活物理代理（不仅解冻，还启用向 UI 的数据反向同步）
--					physicsComp.EnablePhysics(); 
-+					physicsComp.EnablePhysics();
-+
-+					// 加入缓存，供 LootSpawnAreaController 直接轮询
-+					WorldPhysicsItems.Add(physicsComp);
- 				}
- 
- 				currentIndex++;
- 			}
- 		}
-```
----
-## 📅 20260502_230247
-- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
-
-#### AISpace/rules_global\Godot\GodotBackpackTesseractSys_Context.md
-```diff
---- 
-+++ 
-@@ -3,12 +3,15 @@
- ---
- 
- <context>
- **Tesseract Backpack (TS)** - Grid-based inventory system with drag-and-drop, rotation, StateChart integration, and Backpack Battles-style synergy system. Supports arbitrary item shapes (Tetris-like) with reactive event streams (R3), MVC architecture, and UI micro-interactions.
- 
--**Latest Architecture (2026-05-01):**
-+**Latest Architecture (2026-05-02):**
-+- **Polygon Merging (Ghost Collision Fix):** `ItemPhysicsComponent` uses `Geometry2D.MergePolygons` (with a 0.5px overlap) to seamlessly fuse multiple grid cells into a single `CollisionPolygon2D`. This eliminates "ghost collisions" where items snagged on internal seams between grid cells.
-+- **Continuous Collision Detection (CCD):** Physics proxies use `ContinuousCd = CcdMode.CastRay` to prevent high-speed tunneling through the floor when spawned overlapping.
- - **Physics-State Authority:** Controller relies on `ItemPhysicsComponent.Freeze` to determine if an item is grabbed from the logic grid or caught mid-air. World-drops preserve their `GlobalPosition` and hand off seamlessly to the physics engine.
-+- **Out-of-Bounds Respawn Logic:** `LootSpawnAreaController` directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity` instead of just moving the UI Control. Supports dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
- - **Normalization Shift Compensation:** `ItemPhysicsComponent` calculates the visual offset caused by `GridShapeComponent.NormalizeShape()` during a physical rotation and applies an inverse shift to the parent `Control`'s `GlobalPosition`, eliminating pixel jumping when picking up rotated items.
- - **TopLevel Physics Proxy:** The `RigidBody2D` physics proxy MUST set `TopLevel = true` to break the Godot spatial inheritance chain. This prevents the "death spiral" feedback loop (infinite acceleration) when `_PhysicsProcess` synchronizes coordinates with its parent `Control`.
- - **Backpack-Physics Decoupling:** Items inside the backpack set `CollisionLayer/Mask = 0` (NONE) and `Freeze = true`. This prevents them from acting as physical obstacles that could deflect dragged items or interfere with other loot. They only restore `CollisionLayer/Mask = 16` (ITEM_LAYER) and `Freeze = false` when taken out or spawned in the world.
- - **Commander Pattern:** Controller delegates spatial math to the View and visual tweens to the Juice component. Result: Declarative logic, zero visual noise in Controller.
- - **Spatial Delegation:** `BackpackGridUIComponent` handles all coordinate mapping (`IsPointInside`, `GridToGlobalPosition`). `GridShapeComponent` handles local shape lookups (`GetCellIndexAtLocalPosition`).
-@@ -190,10 +193,22 @@
-     </error>
-     <error symptom="Item accelerates infinitely/bounces wildly on floor">
-       <cause>Positive feedback loop between `_PhysicsProcess` setting parent position and child RigidBody inheriting that transform.</cause>
-       <fix>Set `TopLevel = true` on the `RigidBody2D` to break the inheritance chain.</fix>
-     </error>
-+    <error symptom="Item continuously respawns out of bounds (infinite falling loop)">
-+      <cause>Respawn code teleported the UI Control but ignored the `TopLevel` RigidBody, keeping its extreme falling velocity and position intact.</cause>
-+      <fix>In `LootSpawnAreaController`, directly set the `ItemPhysicsComponent.GlobalPosition` and zero out its `LinearVelocity` and `AngularVelocity`.</fix>
-+    </error>
-+    <error symptom="Items sliding against each other suddenly get stuck/snag on invisible edges">
-+      <cause>"Ghost collisions" caused by internal seams when a RigidBody is composed of multiple adjacent `CollisionShape2D` rectangles.</cause>
-+      <fix>Use `Geometry2D.MergePolygons` to combine the individual grid cells into a single, seamless `CollisionPolygon2D`.</fix>
-+    </error>
-+    <error symptom="Items spawned in the same location fall completely through the floor">
-+      <cause>Initial overlap creates extreme repulsion force, causing tunneling (passing through floor in a single frame).</cause>
-+      <fix>Enable Continuous Collision Detection (`ContinuousCd = CcdMode.CastRay`) on the RigidBody2D.</fix>
-+    </error>
-   </troubleshooting>
- 
-   <implementation_anchors>
-     - **R3 Placement Preview Stream Pattern:** `Merge(posStream, shapeStream)` ensures previews update on both move and rotate. Use **Pure Math Mapping** (`mouseGridPos - GetGrabbedCellLogicalOffset()`) to decouple logic from visual transforms. `DistinctUntilChanged` filters sub-cell jitter.
-     - **Commander Pattern (Refinement):** Controller delegates spatial math to `ViewGrid.IsPointInside()` and visual juicing to `TweenComp.PlayRotationAnimation()`. Controller only sends high-level instructions: Rotate → Sync → Animate.
-```
-#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
-```diff
---- 
-+++ 
-@@ -8,11 +8,11 @@
- [ext_resource type="Script" uid="uid://drof8dtjnyqs3" path="res://addons/A1TetrisBackpack/Core/BackpackInteractionController.cs" id="5_bic01"]
- [ext_resource type="Script" uid="uid://rh7awfskjxho" path="res://addons/A1TetrisBackpack/Core/ItemStorageManager.cs" id="ItemStorage_SC"]
- [ext_resource type="Script" uid="uid://cm0frndbwap0l" path="res://addons/A1TetrisBackpack/Core/LootSpawnAreaController.cs" id="LootController_SC"]
- 
- [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
--size = Vector2(5000, 100)
-+size = Vector2(5000, 2776)
- 
- [sub_resource type="AnimatedTexture" id="AnimatedTexture_5ysrk"]
- 
- [sub_resource type="Resource" id="Resource_0xep6"]
- script = ExtResource("4_5mic1")
-@@ -136,28 +136,30 @@
- position = Vector2(565, 648)
- collision_layer = 16
- collision_mask = 16
- 
- [node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/FloorStaticBody" unique_id=599388113]
--position = Vector2(0, 53)
-+position = Vector2(0, 1383)
- shape = SubResource("RectangleShape2D_floor")
- 
- [node name="LeftWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388114]
- position = Vector2(-50, 300)
- collision_layer = 16
- collision_mask = 16
- 
- [node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/LeftWall" unique_id=899388115]
-+position = Vector2(-1336, 0)
- rotation = 1.5708
- shape = SubResource("RectangleShape2D_floor")
- 
- [node name="RightWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388116]
- position = Vector2(1202, 300)
- collision_layer = 16
- collision_mask = 16
- 
- [node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/RightWall" unique_id=899388117]
-+position = Vector2(1344, 0)
- rotation = 1.5708
- shape = SubResource("RectangleShape2D_floor")
- 
- [node name="TsItem" parent="LootSpawnArea" unique_id=1959740042 instance=ExtResource("3_bkm53")]
- layout_mode = 0
-```
 </RECENT_CHANGES>
       ]]>
     </urgent_recent_changes>
@@ -678,13 +1051,14 @@ trigger: always_on
 ## 4. Architecture & R3 Strictness
 
 <prime_directive>
-  <description>CRITICAL: Execution Strictness, KISS & Anti-Over-Engineering</description>
-  <rationale>While component-based design is required, over-engineering breaks pixel-perfect layouts and ruins the Architect's intent.</rationale>
+  <description>CRITICAL: Clean Architecture, Cross-Project Generality & Pragmatic KISS</description>
+  <rationale>Core systems (like Object Pools) must be designed as pristine, decoupled, and generic frameworks ready for drop-in reuse in future projects. However, this generality must NOT infect simple, domain-specific logic. Do not over-engineer what should be a simple script.</rationale>
   <rules>
-    1. EXACT BLUEPRINT OBEDIENCE: Execute hotfixes EXACTLY. Do NOT generalize into `[Export]` unless commanded.
-    2. KISS & YAGNI: Keep It Simple. Never invent abstractions that complicate straightforward tasks.
-    3. COMPONENT STRICTNESS: Composition > Inheritance. Components do ONE thing.
-    4. NAMING ENFORCEMENT: Injected component variables MUST match their Type names.
+    1. CORE FRAMEWORK GENERALITY: Global systems, managers, and architectural foundations MUST use generic (`T`), type-safe, and highly decoupled code to ensure 100% cross-project reusability. Keep the core perfectly clean.
+    2. PRAGMATIC SIMPLICITY (KISS): For everyday game logic and simple requirements, the most effective and direct code is the best. Do not invent abstractions or premature generalizations (like unnecessary `[Export]` vars) unless specifically commanded.
+    3. COMPONENT STRICTNESS: Composition > Inheritance. Components do EXACTLY ONE thing. Entities are just mediators.
+    4. NAMING ENFORCEMENT: Injected component variables MUST match their Type names (e.g., `NodePath_InitPoint`).
+    5. EXACT BLUEPRINT OBEDIENCE: Execute bug fixes and hotfixes EXACTLY as diagnosed. Do not silently refactor or "generalize" unrelated code during a fix.
   </rules>
 </prime_directive>
 
@@ -720,10 +1094,16 @@ trigger: always_on
 
 ## 5. Coding Standards
 
-### Naming & Access
-- **[Export]**: `TypeName_Purpose` (e.g., `OptionButton_Theme`).
-- **Private**: `_camelCase`.
-- **Nodes**: `%Name` -> `GetNodeOrNull<T>` + `GD.PushError`.
+### Naming
+- **Strict Node-to-Variable Matching (Anti-Alias Rule)**: 
+  Variables that reference Nodes MUST contain the exact Node name string.
+  1. **No Synonyms or Abbreviations**: If a node is named `InitPoint`, the variable MUST contain `InitPoint`. Changing it to `spawnPlace` or `init` is STRICTLY FORBIDDEN.
+  2. **Format (`TypeName_NodeName`)**: Variables must follow the type prefix format. Example: `[Export] NodePath NodePath_InitPoint;` or `Control control_InitPoint;`.
+  3. **Domain Explicit Names**: Node names must be unambiguous. Use `InsideBackpackItems` instead of a generic `ItemsContainer`.
+- **Private Variables**: `_camelCase` for internal state.
+
+### Component & Node Access
+- **Nodes Lookup**: Use `%Name` -> `GetNodeOrNull<T>("%Name")` + `GD.PushError`.
 
 ### Documentation Rules
 - **FORBIDDEN**: XML comments (`/// <summary>`) or inline comments for standard Godot lifecycle (`_Ready`, `_Process`).
@@ -1138,7 +1518,7 @@ trigger: manual
 - **Polygon Merging (Ghost Collision Fix):** `ItemPhysicsComponent` uses `Geometry2D.MergePolygons` (with a 0.5px overlap) to seamlessly fuse multiple grid cells into a single `CollisionPolygon2D`. This eliminates "ghost collisions" where items snagged on internal seams between grid cells.
 - **Continuous Collision Detection (CCD):** Physics proxies use `ContinuousCd = CcdMode.CastRay` to prevent high-speed tunneling through the floor when spawned overlapping.
 - **Physics-State Authority:** Controller relies on `ItemPhysicsComponent.Freeze` to determine if an item is grabbed from the logic grid or caught mid-air. World-drops preserve their `GlobalPosition` and hand off seamlessly to the physics engine.
-- **Out-of-Bounds Caching & Respawn:** `ItemStorageManager` caches all `WorldPhysicsItems` on initialization. `LootSpawnAreaController` loops this cache directly instead of `HasNode("%PhysicsProxy")` per-tick. Controller directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity`, supporting dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
+- **Out-of-Bounds Caching & Respawn:** `ItemStorageManager` caches all `WorldPhysicsItems` on initialization. `OutsideBackpackItemsComp` loops this cache directly instead of `HasNode("%PhysicsProxy")` per-tick. Controller directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity`, supporting dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
 - **Throw Velocity (Physical Drop):** `FollowMouseUIComponent` tracks cursor velocity via exponential smoothing in `_Process`. When dropped in the world, `BackpackInteractionController` passes this `ThrowVelocity` to `ItemPhysicsComponent.EnablePhysics(Vector2)`, which applies it to `LinearVelocity` after unfreezing, creating a natural throw.
 - **TopWall Collision:** `TSBackpack.tscn` uses a massive shared `RectangleShape2D` (5000x2776). The TopWall is placed at y=0 with shape offset -1383, perfectly aligning its bottom face with the screen top (y=5) to bounce thrown items back.
 - **Normalization Shift Compensation:** `ItemPhysicsComponent` calculates the visual offset caused by `GridShapeComponent.NormalizeShape()` during a physical rotation and applies an inverse shift to the parent `Control`'s `GlobalPosition`, eliminating pixel jumping when picking up rotated items.
@@ -1228,7 +1608,7 @@ trigger: manual
     * BackpackPanel (BackpackGridUIComponent)
       * BackpackInteractionController
       * BackpackGridComponent (LogicGrid)
-      * Items Container
+      * InsideBackpackItems
         * TetrisDraggableItem (Control) [ROOT: MouseFilter = Ignore (2)]
           * StateChart
             * Root (CompoundState, initial="Idle")
@@ -1328,7 +1708,7 @@ trigger: manual
     </error>
     <error symptom="Item continuously respawns out of bounds (infinite falling loop)">
       <cause>Respawn code teleported the UI Control but ignored the `TopLevel` RigidBody, keeping its extreme falling velocity and position intact.</cause>
-      <fix>In `LootSpawnAreaController`, directly set the `ItemPhysicsComponent.GlobalPosition` and zero out its `LinearVelocity` and `AngularVelocity`.</fix>
+      <fix>In `OutsideBackpackItemsComp`, directly set the `ItemPhysicsComponent.GlobalPosition` and zero out its `LinearVelocity` and `AngularVelocity`.</fix>
     </error>
     <error symptom="Performance drops when checking for out of bounds items">
       <cause>Using `HasNode("%PhysicsProxy")` inside a frequent tick loop traverses the tree using string lookups.</cause>
@@ -1352,7 +1732,7 @@ trigger: manual
     - **Anchor Stability Pattern:** Pre-calculate `GrabbedCellIndex` at pick-up. This persistent logical index ensures the item rotates around the exact cell the player grabbed, regardless of orientation changes.
     - **Node Reuse Pattern (Focus Preservation):** When updating item visuals during interaction (e.g., rotation), reuse existing `GridCellUI` nodes if the count is identical. Only update their `Position`. This prevents losing Godot mouse capture/focus, which would otherwise suppress the 'mouse release' event.
     - **Interface-Based Data Injection:** `IItemDataProvider` interface with `DataInitialized` event allows parent (TSItemWrapper) to inject data to child (GridShapeComponent) after both are ready.
-    - **MVC Controller Concept:** `BackpackInteractionController` bridges `DraggableItemComponent` input with `BackpackGridComponent` backend. Auto-registers items from `ItemsContainerPath` in `_Ready()`.
+    - **MVC Controller Concept:** `BackpackInteractionController` bridges `DraggableItemComponent` input with `BackpackGridComponent` backend. Auto-registers items from `NodePath_InsideBackpackItems` in `_Ready()`.
     - **Power Switch Pattern:** Used by `FollowMouseUIComponent`. Placement strictly under the `Dragging` AtomicState allows `AutoBindToParentState()` to natively handle activation/deactivation hooks.
     - **Micro-Interaction Tweens:** Inside `UITweenInteractComponent`, execute `_currentTween?.Kill()` before starting a new `AnimateToScale()`.
   </implementation_anchors>
@@ -3942,7 +4322,7 @@ If multiple bottlenecks are identified, prioritize by impact and optimize ONE at
 ]]>
     </file>
 
-    <file path="AISpace/rules_global\Uncommon\RembgUsage.md" priority="NORMAL">
+    <file path="AISpace/rules_global\Uncommon\RembgUsage_RemoveBackground.md" priority="NORMAL">
 <![CDATA[
 ---
 trigger: manual
@@ -3959,14 +4339,14 @@ trigger: manual
 - **Performance:** 10-20x faster than CPU (birefnet-general takes <1s per image).
 
 ## Project Standard Paths
-- **Mandatory Output:** All processed images and generated assets MUST be stored in: `C:\Godot\AISpace\Rembg_Output\`
+- **Mandatory Output:** All processed images and generated assets MUST be stored in: `C:\Godot\MyResources\Rembg_Output\`
 - **Rationale:** Centralized asset management and multi-device sync integrity. NEVER use external drives or local temp folders.
 
 
 ## Core & Advanced Commands
 - **Single Image:** `rembg i <input.jpg> <output.png>`
-- **Batch Folder:** `rembg p <input_folder/> C:\Godot\AISpace\Rembg_Output\`
-- **Watch Mode (Auto-process):** `rembg p --watch <input_folder/> C:\Godot\AISpace\Rembg_Output\`
+- **Batch Folder:** `rembg p <input_folder/> C:\Godot\MyResources\Rembg_Output\`
+- **Watch Mode (Auto-process):** `rembg p --watch <input_folder/> C:\Godot\MyResources\Rembg_Output\`
 - **Alpha Matting (Hair/Fur):** `rembg i -a <input.jpg> <output.png>` (Options: `-af 240 -ab 10 -ae 10`)
 - **Custom BG Color:** `rembg i --bgcolor 255 255 255 255 <input.jpg> <output.png>` (RGBA)
 - **Output Mask Only:** `rembg i --only-mask <input.jpg> <output.png>`
@@ -4171,36 +4551,6 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.1, 0.1, 0.12, 1)
 
-[node name="BackpackGridComponent" type="Node" parent="." unique_id=155700214]
-unique_name_in_owner = true
-script = ExtResource("2_ovaqc")
-
-[node name="BackpackGridUIComponent" type="Node" parent="." unique_id=1436944256 node_paths=PackedStringArray("GridBackground", "InteractionArea")]
-unique_name_in_owner = true
-script = ExtResource("1_7o1w7")
-BackpackGridComponentPath = NodePath("../BackpackGridComponent")
-GridVisualSettings = ExtResource("3_5mic1")
-GridBackground = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/GridBackground")
-InteractionArea = NodePath("../ScreenMargin/MainVBox/BackpackVisuals")
-
-[node name="BackpackInteractionController" type="Node" parent="." unique_id=863928779]
-script = ExtResource("5_bic01")
-ItemsContainerPath = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/ItemsContainer")
-LootSpawnAreaPath = NodePath("../LootSpawnArea")
-
-[node name="ItemStorageManager" type="Node" parent="." unique_id=987654321]
-script = ExtResource("ItemStorage_SC")
-LootSpawnAreaPath = NodePath("../LootSpawnArea")
-ItemsContainerPath = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/ItemsContainer")
-FallenpointPath = NodePath("../Fallenpoint")
-
-[node name="Fallenpoint" type="Control" parent="." unique_id=145081264]
-anchors_preset = 0
-offset_left = 565.0
-offset_top = -243.0
-offset_right = 605.0
-offset_bottom = -203.0
-
 [node name="ScreenMargin" type="MarginContainer" parent="." unique_id=632711132]
 layout_mode = 1
 anchors_preset = 15
@@ -4239,22 +4589,13 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="ItemsContainer" type="Control" parent="ScreenMargin/MainVBox/BackpackVisuals" unique_id=822530628]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
 [node name="Instructions" type="Label" parent="ScreenMargin/MainVBox" unique_id=2075687424]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "Left Click: Drag | Right Click: Rotate | Drop in backpack to place"
 horizontal_alignment = 1
 
-[node name="LootSpawnArea" type="Control" parent="." unique_id=599388111]
+[node name="OutsideBackpackItems" type="Control" parent="." unique_id=599388111]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -4264,47 +4605,47 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("LootController_SC")
 
-[node name="FloorStaticBody" type="StaticBody2D" parent="LootSpawnArea" unique_id=599388112]
+[node name="FloorStaticBody" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=599388112]
 unique_name_in_owner = true
 physics_interpolation_mode = 1
 position = Vector2(565, 648)
 collision_layer = 16
 collision_mask = 16
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/FloorStaticBody" unique_id=599388113]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/FloorStaticBody" unique_id=599388113]
 position = Vector2(0, 1383)
 shape = SubResource("RectangleShape2D_floor")
 
-[node name="LeftWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388114]
+[node name="LeftWall" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=899388114]
 position = Vector2(-50, 300)
 collision_layer = 16
 collision_mask = 16
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/LeftWall" unique_id=899388115]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/LeftWall" unique_id=899388115]
 position = Vector2(-1336, 0)
 rotation = 1.5708
 shape = SubResource("RectangleShape2D_floor")
 
-[node name="RightWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388116]
+[node name="RightWall" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=899388116]
 position = Vector2(1202, 300)
 collision_layer = 16
 collision_mask = 16
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/RightWall" unique_id=899388117]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/RightWall" unique_id=899388117]
 position = Vector2(1344, 0)
 rotation = 1.5708
 shape = SubResource("RectangleShape2D_floor")
 
-[node name="TopWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388118]
+[node name="TopWall" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=899388118]
 position = Vector2(565, 0)
 collision_layer = 16
 collision_mask = 16
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/TopWall" unique_id=899388119]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/TopWall" unique_id=899388119]
 position = Vector2(0, -2019)
 shape = SubResource("RectangleShape2D_floor")
 
-[node name="TsItem" parent="LootSpawnArea" unique_id=1959740042 instance=ExtResource("3_bkm53")]
+[node name="TsItem" parent="OutsideBackpackItems" unique_id=1959740042 instance=ExtResource("3_bkm53")]
 layout_mode = 0
 offset_left = 400.0
 offset_top = 100.0
@@ -4312,13 +4653,54 @@ offset_right = 592.0
 offset_bottom = 164.0
 Data = SubResource("Resource_0xep6")
 
-[node name="TsItem2" parent="LootSpawnArea" unique_id=279074725 instance=ExtResource("3_bkm53")]
+[node name="TsItem2" parent="OutsideBackpackItems" unique_id=279074725 instance=ExtResource("3_bkm53")]
 layout_mode = 0
 offset_left = 600.0
 offset_top = 100.0
 offset_right = 792.0
 offset_bottom = 164.0
 Data = SubResource("Resource_0xep6")
+
+[node name="InsideBackpackItems" type="Control" parent="." unique_id=822530628]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Fallenpoint" type="Control" parent="." unique_id=145081264]
+anchors_preset = 0
+offset_left = 565.0
+offset_top = -243.0
+offset_right = 605.0
+offset_bottom = -203.0
+
+[node name="BackpackGridComponent" type="Node" parent="." unique_id=155700214]
+unique_name_in_owner = true
+script = ExtResource("2_ovaqc")
+
+[node name="BackpackGridUIComponent" type="Node" parent="." unique_id=1436944256 node_paths=PackedStringArray("GridBackground", "InteractionArea")]
+unique_name_in_owner = true
+script = ExtResource("1_7o1w7")
+BackpackGridComponentPath = NodePath("../BackpackGridComponent")
+GridVisualSettings = ExtResource("3_5mic1")
+GridBackground = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/GridBackground")
+InteractionArea = NodePath("../ScreenMargin/MainVBox/BackpackVisuals")
+
+[node name="BackpackInteractionController" type="Node" parent="." unique_id=863928779]
+script = ExtResource("5_bic01")
+BackpackGridComponentPath = NodePath("../BackpackGridComponent")
+ViewGridPath = NodePath("../BackpackGridUIComponent")
+NodePath_InsideBackpackItems = NodePath("../InsideBackpackItems")
+NodePath_OutsideBackpackItems = NodePath("../OutsideBackpackItems")
+
+[node name="ItemStorageManager" type="Node" parent="." unique_id=987654321]
+script = ExtResource("ItemStorage_SC")
+NodePath_OutsideBackpackItems = NodePath("../OutsideBackpackItems")
+NodePath_InsideBackpackItems = NodePath("../InsideBackpackItems")
+FallenpointPath = NodePath("../Fallenpoint")
 ]]>
     </file>
 
@@ -19621,10 +20003,13 @@ public partial class BackpackInteractionController : Node
 	[Export] public NodePath ViewGridPath { get; set; } = "%BackpackGridUIComponent";
 
 	/// 物品容器路径（在背包内的物品）
-	[Export] public NodePath ItemsContainerPath { get; set; }
+	[Export] public NodePath NodePath_InsideBackpackItems { get; set; }
 
 	/// 生成区容器路径（在地上的物品）
-	[Export] public NodePath LootSpawnAreaPath { get; set; } = "";
+	[Export] public NodePath NodePath_OutsideBackpackItems { get; set; } = "";
+
+	/// ItemStorageManager 路径
+	[Export] public NodePath ItemStorageManagerPath { get; set; } = "../../ItemStorageManager";
 
 	#endregion
 
@@ -19632,6 +20017,7 @@ public partial class BackpackInteractionController : Node
 
 	private BackpackGridComponent BackpackGridComp;
 	private BackpackGridUIComponent BackpackGridUIComp;
+	private ItemStorageManager _itemStorageManager;
 
 	// 当前拖拽状态（单一物品，玩家只有一个鼠标）
 	private ItemDragState _currentDrag;
@@ -19659,13 +20045,13 @@ public partial class BackpackInteractionController : Node
 			return;
 		}
 
-		// 自动注册 ItemsContainer 内所有物品
-		if (!string.IsNullOrEmpty(ItemsContainerPath))
+		// 自动注册 InsideBackpackItems 内所有物品
+		if (!string.IsNullOrEmpty(NodePath_InsideBackpackItems))
 		{
-			var container = GetNodeOrNull(ItemsContainerPath);
-			if (container != null)
+			var control_InsideBackpackItems = GetNodeOrNull(NodePath_InsideBackpackItems);
+			if (control_InsideBackpackItems != null)
 			{
-				foreach (Node child in container.GetChildren())
+				foreach (Node child in control_InsideBackpackItems.GetChildren())
 				{
 					if (child is Control && child.HasNode("%GridShapeComponent")) // 简单过滤有效物品
 						RegisterItem(child);
@@ -19673,28 +20059,34 @@ public partial class BackpackInteractionController : Node
 			}
 			else
 			{
-				GD.PushWarning($"[{Name}] ItemsContainer not found: {ItemsContainerPath}");
+				GD.PushWarning($"[{Name}] InsideBackpackItems not found: {NodePath_InsideBackpackItems}");
 			}
 		}
 
-		// 自动注册 LootSpawnArea 内所有物品
-		if (!string.IsNullOrEmpty(LootSpawnAreaPath))
+		// 自动注册 OutsideBackpackItems 内所有物品
+		if (!string.IsNullOrEmpty(NodePath_OutsideBackpackItems))
 		{
-			var lootContainer = GetNodeOrNull(LootSpawnAreaPath);
-			if (lootContainer != null)
+			var control_OutsideBackpackItems = GetNodeOrNull(NodePath_OutsideBackpackItems);
+			if (control_OutsideBackpackItems != null)
 			{
-				foreach (Node child in lootContainer.GetChildren())
+				foreach (Node child in control_OutsideBackpackItems.GetChildren())
 				{
-					// LootSpawnArea 里有墙和地板（StaticBody2D），必须过滤掉！只有具有 GridShapeComponent 的才是物品
+					// OutsideBackpackItems 里有墙和地板（StaticBody2D），必须过滤掉！只有具有 GridShapeComponent 的才是物品
 					if (child is Control && child.HasNode("%GridShapeComponent"))
 						RegisterItem(child);
 				}
 			}
 			else
 			{
-				GD.PushWarning($"[{Name}] LootSpawnArea not found: {LootSpawnAreaPath}");
+				GD.PushWarning($"[{Name}] OutsideBackpackItems not found: {NodePath_OutsideBackpackItems}");
 			}
 		}
+
+		if (ItemStorageManagerPath != null && !ItemStorageManagerPath.IsEmpty)
+			_itemStorageManager = GetNodeOrNull<ItemStorageManager>(ItemStorageManagerPath);
+		
+		if (_itemStorageManager == null)
+			_itemStorageManager = GetNodeOrNull<ItemStorageManager>("../../ItemStorageManager");
 
 		GD.Print("BackpackInteractionController: 初始化完成");
 	}
@@ -19756,7 +20148,7 @@ public partial class BackpackInteractionController : Node
 		// 【关键】使用 .AddTo(itemEntity) 确保物品销毁时自动取消订阅
 
 		draggable.OnDragStartedAsObservable
-			.Subscribe(_ => HandleItemPickedUp(itemEntity, itemControl, shapeComponent, draggable))
+			.Subscribe(grabbedCellIndex => HandleItemPickedUp(itemEntity, itemControl, shapeComponent, draggable, grabbedCellIndex))
 			.AddTo(itemEntity);
 
 		draggable.OnDragEndedAsObservable
@@ -19786,7 +20178,7 @@ public partial class BackpackInteractionController : Node
 	/// 处理物品拾取（拖拽开始）
 	/// 目的：记录原始状态并从网格移除，防止"自我占用"；启动 R3 预览流
 	/// 算法：1. 记录位置 → 2. 从网格移除 → 3. 保存状态 → 4. 启动预览流（TakeUntil 自动停止）
-	private void HandleItemPickedUp(Node itemEntity, Control itemControl, GridShapeComponent shapeComponent, DraggableItemComponent draggable)
+	private void HandleItemPickedUp(Node itemEntity, Control itemControl, GridShapeComponent shapeComponent, DraggableItemComponent draggable, int grabbedCellIndex)
 	{
 		bool wasInGrid = true;
 		var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
@@ -19795,6 +20187,7 @@ public partial class BackpackInteractionController : Node
 			// 如果物理是激活的（没有被 Freeze），说明它是从空中（世界）抓取的，而不是网格里。
 			wasInGrid = itemPhysics.Freeze;
 			itemPhysics.DisablePhysics();
+			_itemStorageManager?.UnregisterWorldItem(itemPhysics);
 		}
 
 		Vector2 originalGlobalPos = itemControl.GlobalPosition;
@@ -19816,22 +20209,36 @@ public partial class BackpackInteractionController : Node
 			OriginallyInGrid = wasInGrid
 		};
 
-		// 【架构重构】在拾取瞬间预计算被抓取的单元格索引
-		var followComp = GetFollowComp(itemEntity);
+		// 记录我们实际点击的格子索引
+		_currentDrag.GrabbedCellIndex = grabbedCellIndex;
 
+		var followComp = GetFollowComp(itemEntity);
 		if (followComp != null && shapeComponent.CurrentLocalCells != null)
 		{
-			// 1. 确保跟随组件已初始化抓取偏移量
-			followComp.CalculateGrabOffsetFromMouse();
-
-			// 2. 将物理抓取偏移转换为局部像素坐标
-			Vector2 localGrabPos = -followComp.GrabOffset;
-
-			// 3. 在当前形状中查找匹配该坐标的单元格索引（逻辑委托给 GridShapeComponent）
-			int grabbedIndex = shapeComponent.GetCellIndexAtLocalPosition(localGrabPos);
-
-			// 4. 持久化到拖拽状态中，供后续旋转逻辑使用
-			_currentDrag.GrabbedCellIndex = grabbedIndex;
+			if (wasInGrid)
+			{
+				// 如果原本在网格中，没有物理旋转的影响，直接获取鼠标局部位置保持原样偏差
+				followComp.CalculateGrabOffsetFromMouse();
+			}
+			else
+			{
+				// 从世界中抓取：由于 DisablePhysics() 会进行离散旋转归零，并移动了 GlobalPosition，
+				// 此时 GetLocalMousePosition() 得到的是旋转前的位置！
+				// 解决方案：我们确切知道抓取的是哪个逻辑网格，强制将鼠标对齐到该格子的中心。
+				if (grabbedCellIndex >= 0 && grabbedCellIndex < shapeComponent.CurrentLocalCells.Length)
+				{
+					Vector2I grabbedCellLocal = shapeComponent.CurrentLocalCells[grabbedCellIndex];
+					Vector2 cellCenterLocal = new Vector2(
+						grabbedCellLocal.X * shapeComponent.CellSize.X + shapeComponent.CellSize.X / 2f,
+						grabbedCellLocal.Y * shapeComponent.CellSize.Y + shapeComponent.CellSize.Y / 2f
+					);
+					followComp.GrabOffset = -cellCenterLocal;
+				}
+				else
+				{
+					followComp.CalculateGrabOffsetFromMouse();
+				}
+			}
 		}
 
 		// 【视觉修正】锁定 Hover 状态，防止拖拽时闪烁白光
@@ -19943,10 +20350,11 @@ public partial class BackpackInteractionController : Node
 			var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
 			if (itemPhysics != null)
 			{
-				// 读取 FollowMouseUIComponent 记录的鼠标速度，传入物理引擎
+				// 读取 FollowMouseUIComponent 记录的鼠标速度，乘以礩飞倍率传入物理引擎
 				var followComp = GetFollowComp(itemEntity);
-				if (followComp != null) followComp.ApplyThrowVelocityTo(itemPhysics);
-				else itemPhysics.EnablePhysics();
+				Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
+				itemPhysics.EnablePhysics(throwVelocity);
+				_itemStorageManager?.RegisterWorldItem(itemPhysics);
 			}
 			return;
 		}
@@ -19978,8 +20386,9 @@ public partial class BackpackInteractionController : Node
 				if (itemPhysics != null)
 				{
 					var followComp = GetFollowComp(itemEntity);
-					if (followComp != null) followComp.ApplyThrowVelocityTo(itemPhysics);
-					else itemPhysics.EnablePhysics();
+					Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
+					itemPhysics.EnablePhysics(throwVelocity);
+					_itemStorageManager?.RegisterWorldItem(itemPhysics);
 				}
 			}
 		}
@@ -20067,7 +20476,7 @@ public partial class BackpackInteractionController : Node
 
 	public async void SpawnLootItem(ItemData itemData)
 	{
-		var lootArea = GetNodeOrNull<Control>(LootSpawnAreaPath);
+		var lootArea = GetNodeOrNull<Control>(NodePath_OutsideBackpackItems);
 		if (lootArea == null) return;
 
 		var scene = GD.Load<PackedScene>("res://A1TesseractBackpack/TSItem.tscn");
@@ -20170,17 +20579,33 @@ using System.Collections.Generic;
 [GlobalClass]
 public partial class ItemStorageManager : Node
 {
-	[Export] public NodePath LootSpawnAreaPath { get; set; }
-	[Export] public NodePath ItemsContainerPath { get; set; }
+	[Export] public NodePath NodePath_OutsideBackpackItems { get; set; }
+	[Export] public NodePath NodePath_InsideBackpackItems { get; set; }
 	[Export] public NodePath FallenpointPath { get; set; }
 
 	[Export] public int MaxItemsPerRow = 3;
 	[Export] public float SpacingX = 100f;
 	[Export] public float SpacingY = 100f;
 
-	// 世界中具有物理代理的所有 Loot 物品缓存，供 LootSpawnAreaController 定期检查越界使用
+	// 世界中具有物理代理的所有 Loot 物品缓存，供 Control_OutsideBackpackItemsController 定期检查越界使用
 	// 理由：避免 Controller 每帧遇历子节点 + HasNode 字符串查找的性能开销
 	public List<ItemPhysicsComponent> WorldPhysicsItems { get; private set; } = new();
+
+	public void RegisterWorldItem(ItemPhysicsComponent physicsComp)
+	{
+		if (physicsComp != null && !WorldPhysicsItems.Contains(physicsComp))
+		{
+			WorldPhysicsItems.Add(physicsComp);
+		}
+	}
+
+	public void UnregisterWorldItem(ItemPhysicsComponent physicsComp)
+	{
+		if (physicsComp != null)
+		{
+			WorldPhysicsItems.Remove(physicsComp);
+		}
+	}
 
 	public override async void _Ready()
 	{
@@ -20198,8 +20623,8 @@ public partial class ItemStorageManager : Node
 
 	private void HandleBackpackItems()
 	{
-		if (string.IsNullOrEmpty(ItemsContainerPath)) return;
-		var container = GetNodeOrNull(ItemsContainerPath);
+		if (string.IsNullOrEmpty(NodePath_InsideBackpackItems)) return;
+		var container = GetNodeOrNull(NodePath_InsideBackpackItems);
 		if (container == null) return;
 
 		foreach (Node child in container.GetChildren())
@@ -20220,8 +20645,8 @@ public partial class ItemStorageManager : Node
 
 	private void HandleLootItems()
 	{
-		if (string.IsNullOrEmpty(LootSpawnAreaPath)) return;
-		var lootArea = GetNodeOrNull(LootSpawnAreaPath);
+		if (string.IsNullOrEmpty(NodePath_OutsideBackpackItems)) return;
+		var lootArea = GetNodeOrNull(NodePath_OutsideBackpackItems);
 		if (lootArea == null) return;
 
 		Control fallenpoint = null;
@@ -20274,7 +20699,7 @@ public partial class ItemStorageManager : Node
 					// 核心修复：调用专门的方法完全激活物理代理（不仅解冻，还启用向 UI 的数据反向同步）
 					physicsComp.EnablePhysics();
 
-					// 加入缓存，供 LootSpawnAreaController 直接轮询
+					// 加入缓存，供 Control_OutsideBackpackItemsController 直接轮询
 					WorldPhysicsItems.Add(physicsComp);
 				}
 
@@ -20401,11 +20826,13 @@ public partial class DraggableItemComponent : Node
 	// 拖拽结束事件名称（发送给 StateChart），可在编辑器中配置
 	[Export] public string DragEndEventName { get; set; } = "drag_end";
 	
+	private bool _isDragging = false;
+	
 	#endregion
 	
 	#region R3 Reactive Streams
 	
-	public Subject<Unit> OnDragStartedAsObservable { get; private set; }
+	public Subject<int> OnDragStartedAsObservable { get; private set; }
 	
 	/// 拖拽结束事件流
 	/// 
@@ -20443,7 +20870,7 @@ public partial class DraggableItemComponent : Node
 	public override void _EnterTree()
 	{
 		// 【架构修正】在 _EnterTree 中初始化所有 Subjects
-		OnDragStartedAsObservable = new Subject<Unit>();
+		OnDragStartedAsObservable = new Subject<int>();
 		OnDragEndedAsObservable = new Subject<Unit>();
 		OnRotateRequestedAsObservable = new Subject<Unit>();
 	}
@@ -20469,7 +20896,7 @@ public partial class DraggableItemComponent : Node
 		
 		// 订阅 GridShapeUIComponent 的聚合输入事件流
 		_gridShapeUIComponent.OnGroupInputAsObservable
-			.Subscribe(x => HandleGuiInput(x.Event))
+			.Subscribe(x => HandleGuiInput(x.Event, x.CellIndex))
 			.AddTo(this);
 		
 		StateChart = GetNodeOrNull<Node>(StateChartPath);
@@ -20487,6 +20914,19 @@ public partial class DraggableItemComponent : Node
 		OnDragEndedAsObservable?.Dispose();
 		OnRotateRequestedAsObservable?.Dispose();
 	}
+	public override void _Notification(int what)
+	{
+		base._Notification(what);
+		
+		if (what == 1005 || what == 2015) // 1005: NotificationWmWindowFocusOut, 2015: NotificationApplicationFocusOut
+		{
+			if (_isDragging)
+			{
+				GD.Print($"[{Name}] 游戏失去焦点，强制结束拖拽状态！");
+				HandleDragEnd();
+			}
+		}
+	}
 	
 	#endregion
 	
@@ -20500,7 +20940,7 @@ public partial class DraggableItemComponent : Node
 	/// 1. 判断事件类型（只处理 InputEventMouseButton）
 	/// 2. 根据按键类型和状态分发到不同的处理逻辑
 	/// 3. 触发对应的 R3 Subject 和 StateChart 事件
-	private void HandleGuiInput(InputEvent @event)
+	private void HandleGuiInput(InputEvent @event, int cellIndex)
 	{
 		// 只处理鼠标按键事件
 		if (@event is not InputEventMouseButton mouseEvent)
@@ -20509,7 +20949,7 @@ public partial class DraggableItemComponent : Node
 		// 左键按下 → 开始拖拽
 		if (mouseEvent.ButtonIndex == MouseButton.Left && mouseEvent.Pressed)
 		{
-			HandleDragStart();
+			HandleDragStart(cellIndex);
 		}
 		// 左键松开 → 结束拖拽
 		else if (mouseEvent.ButtonIndex == MouseButton.Left && !mouseEvent.Pressed)
@@ -20524,10 +20964,13 @@ public partial class DraggableItemComponent : Node
 	}
 	
 	/// 处理拖拽开始
-	private void HandleDragStart()
+	private void HandleDragStart(int cellIndex)
 	{
-		// 【R3 响应式】通知订阅者
-		OnDragStartedAsObservable.OnNext(Unit.Default);
+		if (_isDragging) return;
+		_isDragging = true;
+		
+		// 【R3 响应式】通知订阅者，传递抓取的格子索引
+		OnDragStartedAsObservable.OnNext(cellIndex);
 		
 		// 【StateChart】发送状态机事件
 		if (StateChart != null)
@@ -20540,6 +20983,9 @@ public partial class DraggableItemComponent : Node
 	/// 处理拖拽结束
 	private void HandleDragEnd()
 	{
+		if (!_isDragging) return;
+		_isDragging = false;
+		
 		// 【R3 响应式】通知订阅者
 		OnDragEndedAsObservable.OnNext(Unit.Default);
 		
@@ -20564,9 +21010,9 @@ public partial class DraggableItemComponent : Node
 	#region Helper Methods
 	
 	/// 手动触发拖拽开始（用于程序化控制）
-	public void TriggerDragStart()
+	public void TriggerDragStart(int cellIndex = 0)
 	{
-		HandleDragStart();
+		HandleDragStart(cellIndex);
 	}
 	
 	/// 手动触发拖拽结束（用于程序化控制）
@@ -20790,14 +21236,6 @@ public partial class FollowMouseUIComponent : Node
 	public void SetGrabOffset(Vector2 offset)
 	{
 		GrabOffset = offset;
-	}
-
-	/// 将当前计算的甩飞速度应用到目标物理组件，并激活物理模拟
-	public void ApplyThrowVelocityTo(ItemPhysicsComponent physicsComp)
-	{
-		if (physicsComp == null) return;
-		Vector2 throwVelocity = ThrowVelocity * physicsComp.ThrowMultiplier;
-		physicsComp.EnablePhysics(throwVelocity);
 	}
 	
 	/// 根据当前鼠标位置自动计算抓取偏移
@@ -30790,6 +31228,927 @@ rendering_device/driver.windows="d3d12"
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260503_051228
+- ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -36,15 +36,15 @@
+ </system_reminder>
+ 
+ ## 4. Architecture & R3 Strictness
+ 
+ <prime_directive>
+-  <description>CRITICAL: Execution Strictness, KISS & Anti-Over-Engineering</description>
+-  <rationale>While component-based design is required, over-engineering breaks pixel-perfect layouts and ruins the Architect's intent.</rationale>
++  <description>CRITICAL: Clean Code, Generality & Cross-Project Reuse vs. KISS</description>
++  <rationale>Core systems must be clean, universal, and ready for cross-project reuse. However, simple requirements MUST NOT be over-complicated. The most effective, simplest code is always the best.</rationale>
+   <rules>
+-    1. EXACT BLUEPRINT OBEDIENCE: Execute hotfixes EXACTLY. Do NOT generalize into `[Export]` unless commanded.
+-    2. KISS & YAGNI: Keep It Simple. Never invent abstractions that complicate straightforward tasks.
++    1. GENERALITY & REUSE: Design core architecture (e.g., Object Pools, Managers) to be clean, generic, and decoupled so they can be directly used in the next project.
++    2. ELEGANT SIMPLICITY (KISS): Never over-engineer simple features. Simple problems demand the most direct, straightforward, and simple code possible.
+     3. COMPONENT STRICTNESS: Composition > Inheritance. Components do ONE thing.
+     4. NAMING ENFORCEMENT: Injected component variables MUST match their Type names.
+   </rules>
+ </prime_directive>
+ 
+```
+
+---
+## 📅 20260503_041739
+- ➕ 新增: 0 | 📝 修改: 6 | ❌ 删除: 0
+
+#### AISpace/rules_global\Godot\GodotBackpackTesseractSys_Context.md
+```diff
+--- 
++++ 
+@@ -7,11 +7,11 @@
+ 
+ **Latest Architecture (2026-05-02):**
+ - **Polygon Merging (Ghost Collision Fix):** `ItemPhysicsComponent` uses `Geometry2D.MergePolygons` (with a 0.5px overlap) to seamlessly fuse multiple grid cells into a single `CollisionPolygon2D`. This eliminates "ghost collisions" where items snagged on internal seams between grid cells.
+ - **Continuous Collision Detection (CCD):** Physics proxies use `ContinuousCd = CcdMode.CastRay` to prevent high-speed tunneling through the floor when spawned overlapping.
+ - **Physics-State Authority:** Controller relies on `ItemPhysicsComponent.Freeze` to determine if an item is grabbed from the logic grid or caught mid-air. World-drops preserve their `GlobalPosition` and hand off seamlessly to the physics engine.
+-- **Out-of-Bounds Caching & Respawn:** `ItemStorageManager` caches all `WorldPhysicsItems` on initialization. `LootSpawnAreaController` loops this cache directly instead of `HasNode("%PhysicsProxy")` per-tick. Controller directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity`, supporting dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
++- **Out-of-Bounds Caching & Respawn:** `ItemStorageManager` caches all `WorldPhysicsItems` on initialization. `OutsideBackpackItemsComp` loops this cache directly instead of `HasNode("%PhysicsProxy")` per-tick. Controller directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity`, supporting dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
+ - **Throw Velocity (Physical Drop):** `FollowMouseUIComponent` tracks cursor velocity via exponential smoothing in `_Process`. When dropped in the world, `BackpackInteractionController` passes this `ThrowVelocity` to `ItemPhysicsComponent.EnablePhysics(Vector2)`, which applies it to `LinearVelocity` after unfreezing, creating a natural throw.
+ - **TopWall Collision:** `TSBackpack.tscn` uses a massive shared `RectangleShape2D` (5000x2776). The TopWall is placed at y=0 with shape offset -1383, perfectly aligning its bottom face with the screen top (y=5) to bounce thrown items back.
+ - **Normalization Shift Compensation:** `ItemPhysicsComponent` calculates the visual offset caused by `GridShapeComponent.NormalizeShape()` during a physical rotation and applies an inverse shift to the parent `Control`'s `GlobalPosition`, eliminating pixel jumping when picking up rotated items.
+ - **TopLevel Physics Proxy:** The `RigidBody2D` physics proxy MUST set `TopLevel = true` to break the Godot spatial inheritance chain. This prevents the "death spiral" feedback loop (infinite acceleration) when `_PhysicsProcess` synchronizes coordinates with its parent `Control`.
+ - **Backpack-Physics Decoupling:** Items inside the backpack set `CollisionLayer/Mask = 0` (NONE) and `Freeze = true`. This prevents them from acting as physical obstacles that could deflect dragged items or interfere with other loot. They only restore `CollisionLayer/Mask = 16` (ITEM_LAYER) and `Freeze = false` when taken out or spawned in the world.
+@@ -97,11 +97,11 @@
+   <technical_specifications>
+     *Scene Tree Hierarchy (Updated 2026-04-23):*
+     * BackpackPanel (BackpackGridUIComponent)
+       * BackpackInteractionController
+       * BackpackGridComponent (LogicGrid)
+-      * Items Container
++      * InsideBackpackItems
+         * TetrisDraggableItem (Control) [ROOT: MouseFilter = Ignore (2)]
+           * StateChart
+             * Root (CompoundState, initial="Idle")
+               * Idle (AtomicState) -> Transition: event="drag_start" -> Dragging
+               * Dragging (AtomicState) -> Transition: event="drag_end" -> Idle
+@@ -197,11 +197,11 @@
+       <cause>Positive feedback loop between `_PhysicsProcess` setting parent position and child RigidBody inheriting that transform.</cause>
+       <fix>Set `TopLevel = true` on the `RigidBody2D` to break the inheritance chain.</fix>
+     </error>
+     <error symptom="Item continuously respawns out of bounds (infinite falling loop)">
+       <cause>Respawn code teleported the UI Control but ignored the `TopLevel` RigidBody, keeping its extreme falling velocity and position intact.</cause>
+-      <fix>In `LootSpawnAreaController`, directly set the `ItemPhysicsComponent.GlobalPosition` and zero out its `LinearVelocity` and `AngularVelocity`.</fix>
++      <fix>In `OutsideBackpackItemsComp`, directly set the `ItemPhysicsComponent.GlobalPosition` and zero out its `LinearVelocity` and `AngularVelocity`.</fix>
+     </error>
+     <error symptom="Performance drops when checking for out of bounds items">
+       <cause>Using `HasNode("%PhysicsProxy")` inside a frequent tick loop traverses the tree using string lookups.</cause>
+       <fix>Cache valid physics proxies in a `List<ItemPhysicsComponent>` inside `ItemStorageManager` and iterate that list instead.</fix>
+     </error>
+@@ -221,11 +221,11 @@
+     - **Juice Delegation Pattern:** All Tween logic (Scaling, Counter-Transform Rotation) is moved to `UITweenInteractComponent`. Controller remains clean of implementation details like `TweenDuration` or `EaseType`.
+     - **Spatial Delegation Pattern:** All coordinate-aware math (Pixel-to-Grid, Grid-to-Center, Boundary Checks) is moved to `BackpackGridUIComponent`. Controller treats the grid as a pure logical service.
+     - **Anchor Stability Pattern:** Pre-calculate `GrabbedCellIndex` at pick-up. This persistent logical index ensures the item rotates around the exact cell the player grabbed, regardless of orientation changes.
+     - **Node Reuse Pattern (Focus Preservation):** When updating item visuals during interaction (e.g., rotation), reuse existing `GridCellUI` nodes if the count is identical. Only update their `Position`. This prevents losing Godot mouse capture/focus, which would otherwise suppress the 'mouse release' event.
+     - **Interface-Based Data Injection:** `IItemDataProvider` interface with `DataInitialized` event allows parent (TSItemWrapper) to inject data to child (GridShapeComponent) after both are ready.
+-    - **MVC Controller Concept:** `BackpackInteractionController` bridges `DraggableItemComponent` input with `BackpackGridComponent` backend. Auto-registers items from `ItemsContainerPath` in `_Ready()`.
++    - **MVC Controller Concept:** `BackpackInteractionController` bridges `DraggableItemComponent` input with `BackpackGridComponent` backend. Auto-registers items from `NodePath_InsideBackpackItems` in `_Ready()`.
+     - **Power Switch Pattern:** Used by `FollowMouseUIComponent`. Placement strictly under the `Dragging` AtomicState allows `AutoBindToParentState()` to natively handle activation/deactivation hooks.
+     - **Micro-Interaction Tweens:** Inside `UITweenInteractComponent`, execute `_currentTween?.Kill()` before starting a new `AnimateToScale()`.
+   </implementation_anchors>
+ 
+   <critical_constraints>
+```
+#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
+```diff
+--- 
++++ 
+@@ -35,40 +35,10 @@
+ anchor_bottom = 1.0
+ grow_horizontal = 2
+ grow_vertical = 2
+ color = Color(0.1, 0.1, 0.12, 1)
+ 
+-[node name="BackpackGridComponent" type="Node" parent="." unique_id=155700214]
+-unique_name_in_owner = true
+-script = ExtResource("2_ovaqc")
+-
+-[node name="BackpackGridUIComponent" type="Node" parent="." unique_id=1436944256 node_paths=PackedStringArray("GridBackground", "InteractionArea")]
+-unique_name_in_owner = true
+-script = ExtResource("1_7o1w7")
+-BackpackGridComponentPath = NodePath("../BackpackGridComponent")
+-GridVisualSettings = ExtResource("3_5mic1")
+-GridBackground = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/GridBackground")
+-InteractionArea = NodePath("../ScreenMargin/MainVBox/BackpackVisuals")
+-
+-[node name="BackpackInteractionController" type="Node" parent="." unique_id=863928779]
+-script = ExtResource("5_bic01")
+-ItemsContainerPath = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/ItemsContainer")
+-LootSpawnAreaPath = NodePath("../LootSpawnArea")
+-
+-[node name="ItemStorageManager" type="Node" parent="." unique_id=987654321]
+-script = ExtResource("ItemStorage_SC")
+-LootSpawnAreaPath = NodePath("../LootSpawnArea")
+-ItemsContainerPath = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/ItemsContainer")
+-FallenpointPath = NodePath("../Fallenpoint")
+-
+-[node name="Fallenpoint" type="Control" parent="." unique_id=145081264]
+-anchors_preset = 0
+-offset_left = 565.0
+-offset_top = -243.0
+-offset_right = 605.0
+-offset_bottom = -203.0
+-
+ [node name="ScreenMargin" type="MarginContainer" parent="." unique_id=632711132]
+ layout_mode = 1
+ anchors_preset = 15
+ anchor_right = 1.0
+ anchor_bottom = 1.0
+@@ -103,85 +73,117 @@
+ anchor_bottom = 1.0
+ grow_horizontal = 2
+ grow_vertical = 2
+ mouse_filter = 2
+ 
+-[node name="ItemsContainer" type="Control" parent="ScreenMargin/MainVBox/BackpackVisuals" unique_id=822530628]
+-layout_mode = 1
+-anchors_preset = 15
+-anchor_right = 1.0
+-anchor_bottom = 1.0
+-grow_horizontal = 2
+-grow_vertical = 2
+-mouse_filter = 2
+-
+ [node name="Instructions" type="Label" parent="ScreenMargin/MainVBox" unique_id=2075687424]
+ layout_mode = 2
+ theme_override_font_sizes/font_size = 16
+ text = "Left Click: Drag | Right Click: Rotate | Drop in backpack to place"
+ horizontal_alignment = 1
+ 
+-[node name="LootSpawnArea" type="Control" parent="." unique_id=599388111]
++[node name="OutsideBackpackItems" type="Control" parent="." unique_id=599388111]
+ layout_mode = 1
+ anchors_preset = 15
+ anchor_right = 1.0
+ anchor_bottom = 1.0
+ grow_horizontal = 2
+ grow_vertical = 2
+ mouse_filter = 2
+ script = ExtResource("LootController_SC")
+ 
+-[node name="FloorStaticBody" type="StaticBody2D" parent="LootSpawnArea" unique_id=599388112]
++[node name="FloorStaticBody" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=599388112]
+ unique_name_in_owner = true
+ physics_interpolation_mode = 1
+ position = Vector2(565, 648)
+ collision_layer = 16
+ collision_mask = 16
+ 
+-[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/FloorStaticBody" unique_id=599388113]
++[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/FloorStaticBody" unique_id=599388113]
+ position = Vector2(0, 1383)
+ shape = SubResource("RectangleShape2D_floor")
+ 
+-[node name="LeftWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388114]
++[node name="LeftWall" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=899388114]
+ position = Vector2(-50, 300)
+ collision_layer = 16
+ collision_mask = 16
+ 
+-[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/LeftWall" unique_id=899388115]
++[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/LeftWall" unique_id=899388115]
+ position = Vector2(-1336, 0)
+ rotation = 1.5708
+ shape = SubResource("RectangleShape2D_floor")
+ 
+-[node name="RightWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388116]
++[node name="RightWall" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=899388116]
+ position = Vector2(1202, 300)
+ collision_layer = 16
+ collision_mask = 16
+ 
+-[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/RightWall" unique_id=899388117]
++[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/RightWall" unique_id=899388117]
+ position = Vector2(1344, 0)
+ rotation = 1.5708
+ shape = SubResource("RectangleShape2D_floor")
+ 
+-[node name="TopWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388118]
++[node name="TopWall" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=899388118]
+ position = Vector2(565, 0)
+ collision_layer = 16
+ collision_mask = 16
+ 
+-[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/TopWall" unique_id=899388119]
++[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/TopWall" unique_id=899388119]
+ position = Vector2(0, -2019)
+ shape = SubResource("RectangleShape2D_floor")
+ 
+-[node name="TsItem" parent="LootSpawnArea" unique_id=1959740042 instance=ExtResource("3_bkm53")]
++[node name="TsItem" parent="OutsideBackpackItems" unique_id=1959740042 instance=ExtResource("3_bkm53")]
+ layout_mode = 0
+ offset_left = 400.0
+ offset_top = 100.0
+ offset_right = 592.0
+ offset_bottom = 164.0
+ Data = SubResource("Resource_0xep6")
+ 
+-[node name="TsItem2" parent="LootSpawnArea" unique_id=279074725 instance=ExtResource("3_bkm53")]
++[node name="TsItem2" parent="OutsideBackpackItems" unique_id=279074725 instance=ExtResource("3_bkm53")]
+ layout_mode = 0
+ offset_left = 600.0
+ offset_top = 100.0
+ offset_right = 792.0
+ offset_bottom = 164.0
+ Data = SubResource("Resource_0xep6")
++
++[node name="InsideBackpackItems" type="Control" parent="." unique_id=822530628]
++layout_mode = 1
++anchors_preset = 15
++anchor_right = 1.0
++anchor_bottom = 1.0
++grow_horizontal = 2
++grow_vertical = 2
++mouse_filter = 2
++
++[node name="Fallenpoint" type="Control" parent="." unique_id=145081264]
++anchors_preset = 0
++offset_left = 565.0
++offset_top = -243.0
++offset_right = 605.0
++offset_bottom = -203.0
++
++[node name="BackpackGridComponent" type="Node" parent="." unique_id=155700214]
++unique_name_in_owner = true
++script = ExtResource("2_ovaqc")
++
++[node name="BackpackGridUIComponent" type="Node" parent="." unique_id=1436944256 node_paths=PackedStringArray("GridBackground", "InteractionArea")]
++unique_name_in_owner = true
++script = ExtResource("1_7o1w7")
++BackpackGridComponentPath = NodePath("../BackpackGridComponent")
++GridVisualSettings = ExtResource("3_5mic1")
++GridBackground = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/GridBackground")
++InteractionArea = NodePath("../ScreenMargin/MainVBox/BackpackVisuals")
++
++[node name="BackpackInteractionController" type="Node" parent="." unique_id=863928779]
++script = ExtResource("5_bic01")
++BackpackGridComponentPath = NodePath("../BackpackGridComponent")
++ViewGridPath = NodePath("../BackpackGridUIComponent")
++NodePath_InsideBackpackItems = NodePath("../InsideBackpackItems")
++NodePath_OutsideBackpackItems = NodePath("../OutsideBackpackItems")
++
++[node name="ItemStorageManager" type="Node" parent="." unique_id=987654321]
++script = ExtResource("ItemStorage_SC")
++NodePath_OutsideBackpackItems = NodePath("../OutsideBackpackItems")
++NodePath_InsideBackpackItems = NodePath("../InsideBackpackItems")
++FallenpointPath = NodePath("../Fallenpoint")
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\ItemStorageManager.cs
+```diff
+--- 
++++ 
+@@ -3,19 +3,19 @@
+ using System.Collections.Generic;
+ 
+ [GlobalClass]
+ public partial class ItemStorageManager : Node
+ {
+-	[Export] public NodePath LootSpawnAreaPath { get; set; }
+-	[Export] public NodePath ItemsContainerPath { get; set; }
++	[Export] public NodePath NodePath_OutsideBackpackItems { get; set; }
++	[Export] public NodePath NodePath_InsideBackpackItems { get; set; }
+ 	[Export] public NodePath FallenpointPath { get; set; }
+ 
+ 	[Export] public int MaxItemsPerRow = 3;
+ 	[Export] public float SpacingX = 100f;
+ 	[Export] public float SpacingY = 100f;
+ 
+-	// 世界中具有物理代理的所有 Loot 物品缓存，供 LootSpawnAreaController 定期检查越界使用
++	// 世界中具有物理代理的所有 Loot 物品缓存，供 Control_OutsideBackpackItemsController 定期检查越界使用
+ 	// 理由：避免 Controller 每帧遇历子节点 + HasNode 字符串查找的性能开销
+ 	public List<ItemPhysicsComponent> WorldPhysicsItems { get; private set; } = new();
+ 
+ 	public void RegisterWorldItem(ItemPhysicsComponent physicsComp)
+ 	{
+@@ -47,12 +47,12 @@
+ 		GD.Print("ItemStorageManager: 开局物品布局初始化完成。");
+ 	}
+ 
+ 	private void HandleBackpackItems()
+ 	{
+-		if (string.IsNullOrEmpty(ItemsContainerPath)) return;
+-		var container = GetNodeOrNull(ItemsContainerPath);
++		if (string.IsNullOrEmpty(NodePath_InsideBackpackItems)) return;
++		var container = GetNodeOrNull(NodePath_InsideBackpackItems);
+ 		if (container == null) return;
+ 
+ 		foreach (Node child in container.GetChildren())
+ 		{
+ 			if (child is Control itemControl && child.HasNode("%GridShapeComponent"))
+@@ -69,12 +69,12 @@
+ 		}
+ 	}
+ 
+ 	private void HandleLootItems()
+ 	{
+-		if (string.IsNullOrEmpty(LootSpawnAreaPath)) return;
+-		var lootArea = GetNodeOrNull(LootSpawnAreaPath);
++		if (string.IsNullOrEmpty(NodePath_OutsideBackpackItems)) return;
++		var lootArea = GetNodeOrNull(NodePath_OutsideBackpackItems);
+ 		if (lootArea == null) return;
+ 
+ 		Control fallenpoint = null;
+ 		if (!string.IsNullOrEmpty(FallenpointPath))
+ 		{
+@@ -123,11 +123,11 @@
+ 					physicsComp.AngularVelocity = 0;
+ 					
+ 					// 核心修复：调用专门的方法完全激活物理代理（不仅解冻，还启用向 UI 的数据反向同步）
+ 					physicsComp.EnablePhysics();
+ 
+-					// 加入缓存，供 LootSpawnAreaController 直接轮询
++					// 加入缓存，供 Control_OutsideBackpackItemsController 直接轮询
+ 					WorldPhysicsItems.Add(physicsComp);
+ 				}
+ 
+ 				currentIndex++;
+ 			}
+```
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -78,13 +78,19 @@
+ 4. Subscribe: In `OnEntityReady()`. Append `.AddTo(_disposables)`.
+ </workflow>
+ 
+ ## 5. Coding Standards
+ 
+-### Naming & Access
+-- **[Export]**: `TypeName_Purpose` (e.g., `OptionButton_Theme`).
+-- **Private**: `_camelCase`.
+-- **Nodes**: `%Name` -> `GetNodeOrNull<T>` + `GD.PushError`.
++### Naming
++- **Strict Node-to-Variable Matching (Anti-Alias Rule)**: 
++  Variables that reference Nodes MUST contain the exact Node name string.
++  1. **No Synonyms or Abbreviations**: If a node is named `InitPoint`, the variable MUST contain `InitPoint`. Changing it to `spawnPlace` or `init` is STRICTLY FORBIDDEN.
++  2. **Format (`TypeName_NodeName`)**: Variables must follow the type prefix format. Example: `[Export] NodePath NodePath_InitPoint;` or `Control control_InitPoint;`.
++  3. **Domain Explicit Names**: Node names must be unambiguous. Use `InsideBackpackItems` instead of a generic `ItemsContainer`.
++- **Private Variables**: `_camelCase` for internal state.
++
++### Component & Node Access
++- **Nodes Lookup**: Use `%Name` -> `GetNodeOrNull<T>("%Name")` + `GD.PushError`.
+ 
+ ### Documentation Rules
+ - **FORBIDDEN**: XML comments (`/// <summary>`) or inline comments for standard Godot lifecycle (`_Ready`, `_Process`).
+ - **MANDATORY**: Inline `//` comments (in Chinese) explaining WHY for custom Rx streams, math formulas, and complex logic.
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\DraggableItemComponent.cs
+```diff
+--- 
++++ 
+@@ -18,15 +18,17 @@
+ 	[Export] public string DragStartEventName { get; set; } = "drag_start";
+ 	
+ 	// 拖拽结束事件名称（发送给 StateChart），可在编辑器中配置
+ 	[Export] public string DragEndEventName { get; set; } = "drag_end";
+ 	
++	private bool _isDragging = false;
++	
+ 	#endregion
+ 	
+ 	#region R3 Reactive Streams
+ 	
+-	public Subject<Unit> OnDragStartedAsObservable { get; private set; }
++	public Subject<int> OnDragStartedAsObservable { get; private set; }
+ 	
+ 	/// 拖拽结束事件流
+ 	/// 
+ 	/// 触发时机：鼠标左键松开
+ 	/// 
+@@ -60,11 +62,11 @@
+ 	#region Godot Lifecycle
+ 	
+ 	public override void _EnterTree()
+ 	{
+ 		// 【架构修正】在 _EnterTree 中初始化所有 Subjects
+-		OnDragStartedAsObservable = new Subject<Unit>();
++		OnDragStartedAsObservable = new Subject<int>();
+ 		OnDragEndedAsObservable = new Subject<Unit>();
+ 		OnRotateRequestedAsObservable = new Subject<Unit>();
+ 	}
+ 	
+ 	public override void _Ready()
+@@ -86,11 +88,11 @@
+ 			return;
+ 		}
+ 		
+ 		// 订阅 GridShapeUIComponent 的聚合输入事件流
+ 		_gridShapeUIComponent.OnGroupInputAsObservable
+-			.Subscribe(x => HandleGuiInput(x.Event))
++			.Subscribe(x => HandleGuiInput(x.Event, x.CellIndex))
+ 			.AddTo(this);
+ 		
+ 		StateChart = GetNodeOrNull<Node>(StateChartPath);
+ 		if (StateChart == null)
+ 		{
+@@ -104,10 +106,23 @@
+ 		// R3 规则：释放所有 Subjects
+ 		OnDragStartedAsObservable?.Dispose();
+ 		OnDragEndedAsObservable?.Dispose();
+ 		OnRotateRequestedAsObservable?.Dispose();
+ 	}
++	public override void _Notification(int what)
++	{
++		base._Notification(what);
++		
++		if (what == 1005 || what == 2015) // 1005: NotificationWmWindowFocusOut, 2015: NotificationApplicationFocusOut
++		{
++			if (_isDragging)
++			{
++				GD.Print($"[{Name}] 游戏失去焦点，强制结束拖拽状态！");
++				HandleDragEnd();
++			}
++		}
++	}
+ 	
+ 	#endregion
+ 	
+ 	#region Input Handling
+ 	
+@@ -117,20 +132,20 @@
+ 	/// 
+ 	/// 算法：
+ 	/// 1. 判断事件类型（只处理 InputEventMouseButton）
+ 	/// 2. 根据按键类型和状态分发到不同的处理逻辑
+ 	/// 3. 触发对应的 R3 Subject 和 StateChart 事件
+-	private void HandleGuiInput(InputEvent @event)
++	private void HandleGuiInput(InputEvent @event, int cellIndex)
+ 	{
+ 		// 只处理鼠标按键事件
+ 		if (@event is not InputEventMouseButton mouseEvent)
+ 			return;
+ 		
+ 		// 左键按下 → 开始拖拽
+ 		if (mouseEvent.ButtonIndex == MouseButton.Left && mouseEvent.Pressed)
+ 		{
+-			HandleDragStart();
++			HandleDragStart(cellIndex);
+ 		}
+ 		// 左键松开 → 结束拖拽
+ 		else if (mouseEvent.ButtonIndex == MouseButton.Left && !mouseEvent.Pressed)
+ 		{
+ 			HandleDragEnd();
+@@ -141,14 +156,17 @@
+ 			HandleRotateRequest();
+ 		}
+ 	}
+ 	
+ 	/// 处理拖拽开始
+-	private void HandleDragStart()
+-	{
+-		// 【R3 响应式】通知订阅者
+-		OnDragStartedAsObservable.OnNext(Unit.Default);
++	private void HandleDragStart(int cellIndex)
++	{
++		if (_isDragging) return;
++		_isDragging = true;
++		
++		// 【R3 响应式】通知订阅者，传递抓取的格子索引
++		OnDragStartedAsObservable.OnNext(cellIndex);
+ 		
+ 		// 【StateChart】发送状态机事件
+ 		if (StateChart != null)
+ 		{
+ 			// 使用可配置的事件名称，避免硬编码
+@@ -157,10 +175,13 @@
+ 	}
+ 	
+ 	/// 处理拖拽结束
+ 	private void HandleDragEnd()
+ 	{
++		if (!_isDragging) return;
++		_isDragging = false;
++		
+ 		// 【R3 响应式】通知订阅者
+ 		OnDragEndedAsObservable.OnNext(Unit.Default);
+ 		
+ 		// 【StateChart】发送状态机事件
+ 		if (StateChart != null)
+@@ -181,13 +202,13 @@
+ 	#endregion
+ 	
+ 	#region Helper Methods
+ 	
+ 	/// 手动触发拖拽开始（用于程序化控制）
+-	public void TriggerDragStart()
+-	{
+-		HandleDragStart();
++	public void TriggerDragStart(int cellIndex = 0)
++	{
++		HandleDragStart(cellIndex);
+ 	}
+ 	
+ 	/// 手动触发拖拽结束（用于程序化控制）
+ 	public void TriggerDragEnd()
+ 	{
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
+```diff
+--- 
++++ 
+@@ -56,14 +56,14 @@
+ 
+ 	/// UI 网格视图组件引用（View 层）
+ 	[Export] public NodePath ViewGridPath { get; set; } = "%BackpackGridUIComponent";
+ 
+ 	/// 物品容器路径（在背包内的物品）
+-	[Export] public NodePath ItemsContainerPath { get; set; }
++	[Export] public NodePath NodePath_InsideBackpackItems { get; set; }
+ 
+ 	/// 生成区容器路径（在地上的物品）
+-	[Export] public NodePath LootSpawnAreaPath { get; set; } = "";
++	[Export] public NodePath NodePath_OutsideBackpackItems { get; set; } = "";
+ 
+ 	/// ItemStorageManager 路径
+ 	[Export] public NodePath ItemStorageManagerPath { get; set; } = "../../ItemStorageManager";
+ 
+ 	#endregion
+@@ -98,44 +98,44 @@
+ 		{
+ 			GD.PushError($"[{Name}] ViewGrid not found: {ViewGridPath}");
+ 			return;
+ 		}
+ 
+-		// 自动注册 ItemsContainer 内所有物品
+-		if (!string.IsNullOrEmpty(ItemsContainerPath))
+-		{
+-			var container = GetNodeOrNull(ItemsContainerPath);
+-			if (container != null)
+-			{
+-				foreach (Node child in container.GetChildren())
++		// 自动注册 InsideBackpackItems 内所有物品
++		if (!string.IsNullOrEmpty(NodePath_InsideBackpackItems))
++		{
++			var control_InsideBackpackItems = GetNodeOrNull(NodePath_InsideBackpackItems);
++			if (control_InsideBackpackItems != null)
++			{
++				foreach (Node child in control_InsideBackpackItems.GetChildren())
+ 				{
+ 					if (child is Control && child.HasNode("%GridShapeComponent")) // 简单过滤有效物品
+ 						RegisterItem(child);
+ 				}
+ 			}
+ 			else
+ 			{
+-				GD.PushWarning($"[{Name}] ItemsContainer not found: {ItemsContainerPath}");
+-			}
+-		}
+-
+-		// 自动注册 LootSpawnArea 内所有物品
+-		if (!string.IsNullOrEmpty(LootSpawnAreaPath))
+-		{
+-			var lootContainer = GetNodeOrNull(LootSpawnAreaPath);
+-			if (lootContainer != null)
+-			{
+-				foreach (Node child in lootContainer.GetChildren())
++				GD.PushWarning($"[{Name}] InsideBackpackItems not found: {NodePath_InsideBackpackItems}");
++			}
++		}
++
++		// 自动注册 OutsideBackpackItems 内所有物品
++		if (!string.IsNullOrEmpty(NodePath_OutsideBackpackItems))
++		{
++			var control_OutsideBackpackItems = GetNodeOrNull(NodePath_OutsideBackpackItems);
++			if (control_OutsideBackpackItems != null)
++			{
++				foreach (Node child in control_OutsideBackpackItems.GetChildren())
+ 				{
+-					// LootSpawnArea 里有墙和地板（StaticBody2D），必须过滤掉！只有具有 GridShapeComponent 的才是物品
++					// OutsideBackpackItems 里有墙和地板（StaticBody2D），必须过滤掉！只有具有 GridShapeComponent 的才是物品
+ 					if (child is Control && child.HasNode("%GridShapeComponent"))
+ 						RegisterItem(child);
+ 				}
+ 			}
+ 			else
+ 			{
+-				GD.PushWarning($"[{Name}] LootSpawnArea not found: {LootSpawnAreaPath}");
++				GD.PushWarning($"[{Name}] OutsideBackpackItems not found: {NodePath_OutsideBackpackItems}");
+ 			}
+ 		}
+ 
+ 		if (ItemStorageManagerPath != null && !ItemStorageManagerPath.IsEmpty)
+ 			_itemStorageManager = GetNodeOrNull<ItemStorageManager>(ItemStorageManagerPath);
+@@ -201,11 +201,11 @@
+ 
+ 		// 2. 订阅拖拽事件（使用 R3）
+ 		// 【关键】使用 .AddTo(itemEntity) 确保物品销毁时自动取消订阅
+ 
+ 		draggable.OnDragStartedAsObservable
+-			.Subscribe(_ => HandleItemPickedUp(itemEntity, itemControl, shapeComponent, draggable))
++			.Subscribe(grabbedCellIndex => HandleItemPickedUp(itemEntity, itemControl, shapeComponent, draggable, grabbedCellIndex))
+ 			.AddTo(itemEntity);
+ 
+ 		draggable.OnDragEndedAsObservable
+ 			.Subscribe(_ => HandleItemDropped(itemEntity, itemControl, shapeComponent))
+ 			.AddTo(itemEntity);
+@@ -231,11 +231,11 @@
+ 	#region Drag Event Handlers
+ 
+ 	/// 处理物品拾取（拖拽开始）
+ 	/// 目的：记录原始状态并从网格移除，防止"自我占用"；启动 R3 预览流
+ 	/// 算法：1. 记录位置 → 2. 从网格移除 → 3. 保存状态 → 4. 启动预览流（TakeUntil 自动停止）
+-	private void HandleItemPickedUp(Node itemEntity, Control itemControl, GridShapeComponent shapeComponent, DraggableItemComponent draggable)
++	private void HandleItemPickedUp(Node itemEntity, Control itemControl, GridShapeComponent shapeComponent, DraggableItemComponent draggable, int grabbedCellIndex)
+ 	{
+ 		bool wasInGrid = true;
+ 		var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
+ 		if (itemPhysics != null)
+ 		{
+@@ -262,26 +262,40 @@
+ 			ShapeComponent = shapeComponent,
+ 			ItemControl = itemControl,
+ 			OriginallyInGrid = wasInGrid
+ 		};
+ 
+-		// 【架构重构】在拾取瞬间预计算被抓取的单元格索引
++		// 记录我们实际点击的格子索引
++		_currentDrag.GrabbedCellIndex = grabbedCellIndex;
++
+ 		var followComp = GetFollowComp(itemEntity);
+-
+ 		if (followComp != null && shapeComponent.CurrentLocalCells != null)
+ 		{
+-			// 1. 确保跟随组件已初始化抓取偏移量
+-			followComp.CalculateGrabOffsetFromMouse();
+-
+-			// 2. 将物理抓取偏移转换为局部像素坐标
+-			Vector2 localGrabPos = -followComp.GrabOffset;
+-
+-			// 3. 在当前形状中查找匹配该坐标的单元格索引（逻辑委托给 GridShapeComponent）
+-			int grabbedIndex = shapeComponent.GetCellIndexAtLocalPosition(localGrabPos);
+-
+-			// 4. 持久化到拖拽状态中，供后续旋转逻辑使用
+-			_currentDrag.GrabbedCellIndex = grabbedIndex;
++			if (wasInGrid)
++			{
++				// 如果原本在网格中，没有物理旋转的影响，直接获取鼠标局部位置保持原样偏差
++				followComp.CalculateGrabOffsetFromMouse();
++			}
++			else
++			{
++				// 从世界中抓取：由于 DisablePhysics() 会进行离散旋转归零，并移动了 GlobalPosition，
++				// 此时 GetLocalMousePosition() 得到的是旋转前的位置！
++				// 解决方案：我们确切知道抓取的是哪个逻辑网格，强制将鼠标对齐到该格子的中心。
++				if (grabbedCellIndex >= 0 && grabbedCellIndex < shapeComponent.CurrentLocalCells.Length)
++				{
++					Vector2I grabbedCellLocal = shapeComponent.CurrentLocalCells[grabbedCellIndex];
++					Vector2 cellCenterLocal = new Vector2(
++						grabbedCellLocal.X * shapeComponent.CellSize.X + shapeComponent.CellSize.X / 2f,
++						grabbedCellLocal.Y * shapeComponent.CellSize.Y + shapeComponent.CellSize.Y / 2f
++					);
++					followComp.GrabOffset = -cellCenterLocal;
++				}
++				else
++				{
++					followComp.CalculateGrabOffsetFromMouse();
++				}
++			}
+ 		}
+ 
+ 		// 【视觉修正】锁定 Hover 状态，防止拖拽时闪烁白光
+ 		var itemGroupCtrl = GetItemGroupCtrl(itemEntity);
+ 		if (itemGroupCtrl != null)
+@@ -515,11 +529,11 @@
+ 
+ 	#region Helper Methods
+ 
+ 	public async void SpawnLootItem(ItemData itemData)
+ 	{
+-		var lootArea = GetNodeOrNull<Control>(LootSpawnAreaPath);
++		var lootArea = GetNodeOrNull<Control>(NodePath_OutsideBackpackItems);
+ 		if (lootArea == null) return;
+ 
+ 		var scene = GD.Load<PackedScene>("res://A1TesseractBackpack/TSItem.tscn");
+ 		if (scene == null) return;
+ 
+```
+---
+## 📅 20260503_031125
+- ➕ 新增: 0 | 📝 修改: 3 | ❌ 删除: 0
+
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\ItemStorageManager.cs
+```diff
+--- 
++++ 
+@@ -14,10 +14,26 @@
+ 	[Export] public float SpacingY = 100f;
+ 
+ 	// 世界中具有物理代理的所有 Loot 物品缓存，供 LootSpawnAreaController 定期检查越界使用
+ 	// 理由：避免 Controller 每帧遇历子节点 + HasNode 字符串查找的性能开销
+ 	public List<ItemPhysicsComponent> WorldPhysicsItems { get; private set; } = new();
++
++	public void RegisterWorldItem(ItemPhysicsComponent physicsComp)
++	{
++		if (physicsComp != null && !WorldPhysicsItems.Contains(physicsComp))
++		{
++			WorldPhysicsItems.Add(physicsComp);
++		}
++	}
++
++	public void UnregisterWorldItem(ItemPhysicsComponent physicsComp)
++	{
++		if (physicsComp != null)
++		{
++			WorldPhysicsItems.Remove(physicsComp);
++		}
++	}
+ 
+ 	public override async void _Ready()
+ 	{
+ 		// 必须延迟一帧执行，以确保所有子节点的 _Ready 已经完成，物理引擎代理已绑定
+ 		await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\FollowMouseUIComponent.cs
+```diff
+--- 
++++ 
+@@ -205,18 +205,10 @@
+ 	/// 设置抓取偏移量（通常在拖拽开始时调用）
+ 	public void SetGrabOffset(Vector2 offset)
+ 	{
+ 		GrabOffset = offset;
+ 	}
+-
+-	/// 将当前计算的甩飞速度应用到目标物理组件，并激活物理模拟
+-	public void ApplyThrowVelocityTo(ItemPhysicsComponent physicsComp)
+-	{
+-		if (physicsComp == null) return;
+-		Vector2 throwVelocity = ThrowVelocity * physicsComp.ThrowMultiplier;
+-		physicsComp.EnablePhysics(throwVelocity);
+-	}
+ 	
+ 	/// 根据当前鼠标位置自动计算抓取偏移
+ 	public void CalculateGrabOffsetFromMouse()
+ 	{
+ 		if (TargetUI == null)
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
+```diff
+--- 
++++ 
+@@ -61,16 +61,20 @@
+ 	[Export] public NodePath ItemsContainerPath { get; set; }
+ 
+ 	/// 生成区容器路径（在地上的物品）
+ 	[Export] public NodePath LootSpawnAreaPath { get; set; } = "";
+ 
++	/// ItemStorageManager 路径
++	[Export] public NodePath ItemStorageManagerPath { get; set; } = "../../ItemStorageManager";
++
+ 	#endregion
+ 
+ 	#region Private Fields
+ 
+ 	private BackpackGridComponent BackpackGridComp;
+ 	private BackpackGridUIComponent BackpackGridUIComp;
++	private ItemStorageManager _itemStorageManager;
+ 
+ 	// 当前拖拽状态（单一物品，玩家只有一个鼠标）
+ 	private ItemDragState _currentDrag;
+ 
+ 	/// CompositeDisposable - 管理所有订阅
+@@ -131,10 +135,16 @@
+ 			{
+ 				GD.PushWarning($"[{Name}] LootSpawnArea not found: {LootSpawnAreaPath}");
+ 			}
+ 		}
+ 
++		if (ItemStorageManagerPath != null && !ItemStorageManagerPath.IsEmpty)
++			_itemStorageManager = GetNodeOrNull<ItemStorageManager>(ItemStorageManagerPath);
++		
++		if (_itemStorageManager == null)
++			_itemStorageManager = GetNodeOrNull<ItemStorageManager>("../../ItemStorageManager");
++
+ 		GD.Print("BackpackInteractionController: 初始化完成");
+ 	}
+ 
+ 
+ 	public override void _ExitTree()
+@@ -230,10 +240,11 @@
+ 		if (itemPhysics != null)
+ 		{
+ 			// 如果物理是激活的（没有被 Freeze），说明它是从空中（世界）抓取的，而不是网格里。
+ 			wasInGrid = itemPhysics.Freeze;
+ 			itemPhysics.DisablePhysics();
++			_itemStorageManager?.UnregisterWorldItem(itemPhysics);
+ 		}
+ 
+ 		Vector2 originalGlobalPos = itemControl.GlobalPosition;
+ 		Vector2I originalGridPos = BackpackGridUIComp.GlobalToGridPosition(originalGlobalPos);
+ 
+@@ -378,14 +389,15 @@
+ 			// Dropped OUTSIDE: Do NOT bounce back.
+ 			// FollowMouseUIComponent 已经考虑了抓取偏移，保持原位直接启用物理即可。
+ 			var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
+ 			if (itemPhysics != null)
+ 			{
+-				// 读取 FollowMouseUIComponent 记录的鼠标速度，传入物理引擎
++				// 读取 FollowMouseUIComponent 记录的鼠标速度，乘以礩飞倍率传入物理引擎
+ 				var followComp = GetFollowComp(itemEntity);
+-				if (followComp != null) followComp.ApplyThrowVelocityTo(itemPhysics);
+-				else itemPhysics.EnablePhysics();
++				Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
++				itemPhysics.EnablePhysics(throwVelocity);
++				_itemStorageManager?.RegisterWorldItem(itemPhysics);
+ 			}
+ 			return;
+ 		}
+ 
+ 		Vector2I mouseGridPos = BackpackGridUIComp.GlobalToGridPosition(mousePos);
+@@ -413,12 +425,13 @@
+ 				// 世界内投抛失败（拖取物品均属世界和背包内放失败）：保持物理模式
+ 				var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
+ 				if (itemPhysics != null)
+ 				{
+ 					var followComp = GetFollowComp(itemEntity);
+-					if (followComp != null) followComp.ApplyThrowVelocityTo(itemPhysics);
+-					else itemPhysics.EnablePhysics();
++					Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
++					itemPhysics.EnablePhysics(throwVelocity);
++					_itemStorageManager?.RegisterWorldItem(itemPhysics);
+ 				}
+ 			}
+ 		}
+ 	}
+ 
+```
+---
+## 📅 20260503_025345
+- ➕ 新增: 1 | 📝 修改: 2 | ❌ 删除: 0
+
+#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
+```diff
+--- 
++++ 
+@@ -378,14 +378,14 @@
+ 			// Dropped OUTSIDE: Do NOT bounce back.
+ 			// FollowMouseUIComponent 已经考虑了抓取偏移，保持原位直接启用物理即可。
+ 			var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
+ 			if (itemPhysics != null)
+ 			{
+-				// 读取 FollowMouseUIComponent 记录的鼠标速度，乘以礩飞倍率传入物理引擎
++				// 读取 FollowMouseUIComponent 记录的鼠标速度，传入物理引擎
+ 				var followComp = GetFollowComp(itemEntity);
+-				Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
+-				itemPhysics.EnablePhysics(throwVelocity);
++				if (followComp != null) followComp.ApplyThrowVelocityTo(itemPhysics);
++				else itemPhysics.EnablePhysics();
+ 			}
+ 			return;
+ 		}
+ 
+ 		Vector2I mouseGridPos = BackpackGridUIComp.GlobalToGridPosition(mousePos);
+@@ -413,12 +413,12 @@
+ 				// 世界内投抛失败（拖取物品均属世界和背包内放失败）：保持物理模式
+ 				var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
+ 				if (itemPhysics != null)
+ 				{
+ 					var followComp = GetFollowComp(itemEntity);
+-					Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
+-					itemPhysics.EnablePhysics(throwVelocity);
++					if (followComp != null) followComp.ApplyThrowVelocityTo(itemPhysics);
++					else itemPhysics.EnablePhysics();
+ 				}
+ 			}
+ 		}
+ 	}
+ 
+```
+#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\FollowMouseUIComponent.cs
+```diff
+--- 
++++ 
+@@ -205,10 +205,18 @@
+ 	/// 设置抓取偏移量（通常在拖拽开始时调用）
+ 	public void SetGrabOffset(Vector2 offset)
+ 	{
+ 		GrabOffset = offset;
+ 	}
++
++	/// 将当前计算的甩飞速度应用到目标物理组件，并激活物理模拟
++	public void ApplyThrowVelocityTo(ItemPhysicsComponent physicsComp)
++	{
++		if (physicsComp == null) return;
++		Vector2 throwVelocity = ThrowVelocity * physicsComp.ThrowMultiplier;
++		physicsComp.EnablePhysics(throwVelocity);
++	}
+ 	
+ 	/// 根据当前鼠标位置自动计算抓取偏移
+ 	public void CalculateGrabOffsetFromMouse()
+ 	{
+ 		if (TargetUI == null)
+```
+---
 ## 📅 20260503_024934
 - ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 1
 
@@ -30862,7 +32221,6 @@ rendering_device/driver.windows="d3d12"
      </error>
      <error symptom="Items spawned in the same location fall completely through the floor">
 ```
-
 ---
 ## 📅 20260503_005333
 - ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
@@ -31537,350 +32895,6 @@ rendering_device/driver.windows="d3d12"
  [node name="LeftWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388114]
  position = Vector2(-50, 300)
  collision_layer = 16
-```
----
-## 📅 20260502_224212
-- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 1
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\ItemStorageManager.cs
-```diff
---- 
-+++ 
-@@ -71,15 +71,23 @@
- 			if (child is Control itemControl && child.HasNode("%GridShapeComponent"))
- 			{
- 				// TODO: 之后在存档系统中，如果物品有 HasSavedPosition = true，就直接使用其 SavedWorldPosition
- 				// 目前：默认所有未指定位置的物品，都通过 Fallenpoint 阵列生成算法排列
- 
--				// 增加极小的随机偏移，防止完全重叠导致物理引擎无法计算推出方向
--				float offsetX = (float)GD.RandRange(-5.0, 5.0);
--				float offsetY = (float)GD.RandRange(-5.0, 5.0);
--				
--				Vector2 targetPos = originPos + new Vector2(offsetX, offsetY);
-+				int row = currentIndex / MaxItemsPerRow;
-+				int col = currentIndex % MaxItemsPerRow;
-+
-+				// 计算居中偏移（保证第一行居中在 Fallenpoint 左右）
-+				// 实际渲染时由于物品锚点是左上角，我们可能需要加上半个物品宽度的修正，这里简化为左对齐偏中
-+				float totalWidth = (MaxItemsPerRow - 1) * SpacingX;
-+				float startX = originPos.X - (totalWidth / 2f);
-+
-+				// 向上方排列（Godot中Y轴向下，所以排在上面需要Y减小）
-+				float targetX = startX + (col * SpacingX);
-+				float targetY = originPos.Y - (row * SpacingY);
-+
-+				Vector2 targetPos = new Vector2(targetX, targetY);
- 
- 				// 首先移动控制节点
- 				itemControl.GlobalPosition = targetPos;
- 
- 				// 重置并移动物理节点
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\LootSpawnAreaController.cs
-```diff
---- 
-+++ 
-@@ -10,11 +10,14 @@
- 
- 	[Export]
- 	public Rect2 AllowedBounds = new Rect2(-500, -2000, 2500, 4000); // 允许的范围，飞出这个范围就算越界
- 
- 	[Export]
--	public Vector2 RespawnPosition = new Vector2(576, 100); // 越界后重生的位置（屏幕中上方）
-+	public Vector2 RespawnPosition = new Vector2(576, 100); // 越界后重生的位置（如果没有设置节点路径时的备用）
-+
-+	[Export]
-+	public NodePath RespawnPointPath { get; set; } // 指定重生点的节点路径（如 Fallenpoint）
- 
- 	private CompositeDisposable _disposables = new CompositeDisposable();
- 
- 	public override void _Ready()
- 	{
-@@ -29,10 +32,25 @@
- 	public override void _ExitTree()
- 	{
- 		_disposables.Dispose();
- 	}
- 
-+	private Vector2 GetActualRespawnPosition()
-+	{
-+		if (RespawnPointPath != null && !RespawnPointPath.IsEmpty)
-+		{
-+			var node = GetNodeOrNull<Control>(RespawnPointPath);
-+			if (node != null) return node.GlobalPosition;
-+		}
-+		
-+		// 备用查找（如果尚未在编辑器中设置路径，尝试直接寻找 ../Fallenpoint）
-+		var fallbackNode = GetNodeOrNull<Control>("../Fallenpoint");
-+		if (fallbackNode != null) return fallbackNode.GlobalPosition;
-+
-+		return RespawnPosition;
-+	}
-+
- 	private void CheckOutOfBoundsItems()
- 	{
- 		foreach (Node child in GetChildren())
- 		{
- 			// 只检测可拖拽的物品实体
-@@ -41,22 +59,23 @@
- 				Vector2 pos = itemControl.GlobalPosition;
- 				
- 				// 检查是否越界
- 				if (!AllowedBounds.HasPoint(pos))
- 				{
--					GD.Print($"Item {child.Name} flew out of bounds at {pos}! Respawning at {RespawnPosition}...");
-+					Vector2 actualRespawnPos = GetActualRespawnPosition();
-+					GD.Print($"Item {child.Name} flew out of bounds at {pos}! Respawning at {actualRespawnPos}...");
- 					
- 					// 如果有物理组件，重置其物理状态并瞬移
- 					var physicsComp = child.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
- 					if (physicsComp != null)
- 					{
- 						// 先禁用物理避免冲突
- 						physicsComp.Freeze = true;
- 						
- 						// 随机一点偏移，防止多个物品重生在同一个绝对像素上导致爆开
- 						float randomX = (float)GD.RandRange(-50.0, 50.0);
--						Vector2 finalPos = RespawnPosition + new Vector2(randomX, 0);
-+						Vector2 finalPos = actualRespawnPos + new Vector2(randomX, 0);
- 						
- 						// 【核心修复】必须设置 physicsComp 的位置，因为它是 TopLevel
- 						physicsComp.GlobalPosition = finalPos;
- 						
- 						// 消除速度并重新启用物理
-@@ -65,11 +84,11 @@
- 						physicsComp.Freeze = false;
- 					}
- 					else
- 					{
- 						// 没有物理，直接重置位置
--						itemControl.GlobalPosition = RespawnPosition;
-+						itemControl.GlobalPosition = actualRespawnPos;
- 					}
- 				}
- 			}
- 		}
- 	}
-```
----
-## 📅 20260502_224014
-- ➕ 新增: 0 | 📝 修改: 3 | ❌ 删除: 0
-
-#### AISpace/rules_global\Uncommon\RembgUsage.md
-```diff
---- 
-+++ 
-@@ -10,28 +10,27 @@
- ## GPU Acceleration (RTX 4070+)
- - **Switch to GPU:** `pip uninstall onnxruntime -y` then `pip install onnxruntime-gpu`
- - **Verify GPU:** `python -c "import onnxruntime; print(onnxruntime.get_available_providers())"` (Look for `CUDAExecutionProvider`)
- - **Performance:** 10-20x faster than CPU (birefnet-general takes <1s per image).
- 
--## Recommended High-Precision Commands
--- **High-Precision (Recommended):** `rembg i -m birefnet-dis -a <input.jpg> <output.png>` (Best for edges & hair)
--- **Batch Folder (High-Precision):** `rembg p -m birefnet-dis -a <input_folder/> <output_folder/>`
--- **Batch Watch Mode:** `rembg p --watch -m birefnet-dis -a <input_folder/> <output_folder/>`
-+## Recommended Workflow
-+- **Safe All-rounder (Best for Textures/Tiles):** `rembg i -m birefnet-general <input.png> <output.png>`
-+- **Ultra-Precision (Best for Items/People):** `rembg i -m birefnet-dis -a <input.png> <output.png>` (Warning: may erase 90%+ of image if no clear subject is found).
-+- **Batch Processing:** `rembg p -m birefnet-general <input_folder/> <output_folder/>`
- 
--## Core & Other Commands
--- **Basic Removal:** `rembg i <input.jpg> <output.png>`
--- **Alpha Matting (Hair/Fur):** `rembg i -a <input.jpg> <output.png>` (Reduces black edges)
--- **Custom BG Color:** `rembg i --bgcolor 255 255 255 255 <input.jpg> <output.png>` (RGBA)
--- **Output Mask Only:** `rembg i --only-mask <input.jpg> <output.png>`
--- **Start Local API:** `rembg s --host 0.0.0.0 --port 7000` (Access Web UI at port)
-+## Model Selection & Characteristics
-+- **birefnet-general (Recommended Default):** High precision but robust. Won't easily "eat" the foreground. Best for game textures and square tiles.
-+- **birefnet-dis (Aggressive):** Extreme precision for distinct objects. Use only when there is a clear central subject.
-+- **isnet-anime:** Specialized for Anime/Manga; preserves outlines and stylized hair spikes.
-+- **birefnet-portrait:** Optimized for human hair/portraits.
-+- **u2net:** Legacy, fast but lower quality.
- 
--## Model Selection
--- **birefnet-dis (Top Recommended):** High-precision segmentation; best for crisp edges and complex structures.
--- **birefnet-general:** Solid general-purpose model, very reliable.
--- **birefnet-portrait:** Best for humans; optimized for fine hair details.
--- **isnet-anime:** Specialized for Anime/Manga; preserves outlines and stylized hair spikes.
--- **u2net (Default):** Legacy model, fast but lower precision compared to BiRefNet.
-+## Troubleshooting & Optimization
-+- **Error 126 (CUDA Load Failed):** If `available_providers` shows CUDA but `rembg` fails to load it, you are likely missing **cuDNN 9.x**.
-+    - *Fix:* Download `cudnn-windows-x86_64-9.x.x_cuda12-archive.zip` from NVIDIA, extract, and copy `.dll` files to your CUDA `bin` folder or system PATH.
-+- **Over-Erosion:** If edges are too thin, remove the `-a` (Alpha Matting) flag.
-+- **Memory Issues:** High-precision models (BiRefNet) use ~1.5GB VRAM.
- 
- 
- 
- <rule>
-   <description>API Service Usage & Python Integration</description>
-```
-#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
-```diff
---- 
-+++ 
-@@ -61,13 +61,13 @@
- FallenpointPath = NodePath("../Fallenpoint")
- 
- [node name="Fallenpoint" type="Control" parent="." unique_id=145081264]
- anchors_preset = 0
- offset_left = 565.0
--offset_top = -379.0
-+offset_top = -960.0
- offset_right = 605.0
--offset_bottom = -339.0
-+offset_bottom = -920.0
- 
- [node name="ScreenMargin" type="MarginContainer" parent="." unique_id=632711132]
- layout_mode = 1
- anchors_preset = 15
- anchor_right = 1.0
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\ItemStorageManager.cs
-```diff
---- 
-+++ 
-@@ -71,23 +71,15 @@
- 			if (child is Control itemControl && child.HasNode("%GridShapeComponent"))
- 			{
- 				// TODO: 之后在存档系统中，如果物品有 HasSavedPosition = true，就直接使用其 SavedWorldPosition
- 				// 目前：默认所有未指定位置的物品，都通过 Fallenpoint 阵列生成算法排列
- 
--				int row = currentIndex / MaxItemsPerRow;
--				int col = currentIndex % MaxItemsPerRow;
--
--				// 计算居中偏移（保证第一行居中在 Fallenpoint 左右）
--				// 实际渲染时由于物品锚点是左上角，我们可能需要加上半个物品宽度的修正，这里简化为左对齐偏中
--				float totalWidth = (MaxItemsPerRow - 1) * SpacingX;
--				float startX = originPos.X - (totalWidth / 2f);
--
--				// 向上方排列（Godot中Y轴向下，所以排在上面需要Y减小）
--				float targetX = startX + (col * SpacingX);
--				float targetY = originPos.Y - (row * SpacingY);
--
--				Vector2 targetPos = new Vector2(targetX, targetY);
-+				// 增加极小的随机偏移，防止完全重叠导致物理引擎无法计算推出方向
-+				float offsetX = (float)GD.RandRange(-5.0, 5.0);
-+				float offsetY = (float)GD.RandRange(-5.0, 5.0);
-+				
-+				Vector2 targetPos = originPos + new Vector2(offsetX, offsetY);
- 
- 				// 首先移动控制节点
- 				itemControl.GlobalPosition = targetPos;
- 
- 				// 重置并移动物理节点
-```
----
-## 📅 20260502_121053
-- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\LootSpawnAreaController.cs
-```diff
---- 
-+++ 
-@@ -45,26 +45,26 @@
- 				{
- 					GD.Print($"Item {child.Name} flew out of bounds at {pos}! Respawning at {RespawnPosition}...");
- 					
- 					// 如果有物理组件，重置其物理状态并瞬移
- 					var physicsComp = child.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
--					if (physicsComp != null && physicsComp.GetParent() is RigidBody2D rb)
-+					if (physicsComp != null)
- 					{
- 						// 先禁用物理避免冲突
--						rb.Freeze = true;
-+						physicsComp.Freeze = true;
- 						
- 						// 随机一点偏移，防止多个物品重生在同一个绝对像素上导致爆开
- 						float randomX = (float)GD.RandRange(-50.0, 50.0);
- 						Vector2 finalPos = RespawnPosition + new Vector2(randomX, 0);
- 						
--						// 设置位置（注意我们要设置根节点位置）
--						itemControl.GlobalPosition = finalPos;
-+						// 【核心修复】必须设置 physicsComp 的位置，因为它是 TopLevel
-+						physicsComp.GlobalPosition = finalPos;
- 						
- 						// 消除速度并重新启用物理
--						rb.LinearVelocity = Vector2.Zero;
--						rb.AngularVelocity = 0;
--						rb.Freeze = false;
-+						physicsComp.LinearVelocity = Vector2.Zero;
-+						physicsComp.AngularVelocity = 0;
-+						physicsComp.Freeze = false;
- 					}
- 					else
- 					{
- 						// 没有物理，直接重置位置
- 						itemControl.GlobalPosition = RespawnPosition;
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\ItemPhysicsComponent.cs
-```diff
---- 
-+++ 
-@@ -55,10 +55,13 @@
- 		// 理由：RigidBody2D 作为 Control 子节点时，移动父 Control 会连带移动 RB，
- 		// 而 _PhysicsProcess 又把 RB 位置写回 Control，形成反馈循环。
- 		// TopLevel = true 使 RB 坐标独立于父节点。
- 		TopLevel = true;
- 
-+		// 开启连续碰撞检测，防止物品在极高速度（如因重叠产生的排斥力）下穿模（穿过地板）
-+		ContinuousCd = CcdMode.CastRay;
-+
- 		_hostControl = GetParent<Control>();
- 		if (_hostControl == null)
- 		{
- 			GD.PushError($"[{Name}] 父节点不是 Control，物理同步将失效！");
- 			return;
-```
----
-## 📅 20260502_120035
-- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
-
-#### AISpace/rules_global\Uncommon\RembgUsage.md
-```diff
---- 
-+++ 
-@@ -10,25 +10,29 @@
- ## GPU Acceleration (RTX 4070+)
- - **Switch to GPU:** `pip uninstall onnxruntime -y` then `pip install onnxruntime-gpu`
- - **Verify GPU:** `python -c "import onnxruntime; print(onnxruntime.get_available_providers())"` (Look for `CUDAExecutionProvider`)
- - **Performance:** 10-20x faster than CPU (birefnet-general takes <1s per image).
- 
--## Core & Advanced Commands
--- **Single Image:** `rembg i <input.jpg> <output.png>`
--- **Batch Folder:** `rembg p <input_folder/> <output_folder/>`
--- **Watch Mode (Auto-process):** `rembg p --watch <input_folder/> <output_folder/>`
--- **Alpha Matting (Hair/Fur):** `rembg i -a <input.jpg> <output.png>` (Options: `-af 240 -ab 10 -ae 10`)
-+## Recommended High-Precision Commands
-+- **High-Precision (Recommended):** `rembg i -m birefnet-dis -a <input.jpg> <output.png>` (Best for edges & hair)
-+- **Batch Folder (High-Precision):** `rembg p -m birefnet-dis -a <input_folder/> <output_folder/>`
-+- **Batch Watch Mode:** `rembg p --watch -m birefnet-dis -a <input_folder/> <output_folder/>`
-+
-+## Core & Other Commands
-+- **Basic Removal:** `rembg i <input.jpg> <output.png>`
-+- **Alpha Matting (Hair/Fur):** `rembg i -a <input.jpg> <output.png>` (Reduces black edges)
- - **Custom BG Color:** `rembg i --bgcolor 255 255 255 255 <input.jpg> <output.png>` (RGBA)
- - **Output Mask Only:** `rembg i --only-mask <input.jpg> <output.png>`
--- **Start Local API:** `rembg s --host 0.0.0.0 --port 7000`
-+- **Start Local API:** `rembg s --host 0.0.0.0 --port 7000` (Access Web UI at port)
- 
- ## Model Selection
--- **u2net (Default):** General purpose, balance of speed and accuracy.
--- **birefnet-general:** General purpose, much higher precision than u2net.
--- **birefnet-portrait:** Best for human portraits; specifically optimized for **fine hair details**.
--- **isnet-anime:** Specialized for **Anime/Manga** characters; preserves sharp black outlines and stylized hair spikes better than photo-based models.
--- **birefnet-hrsod:** Specialized for **Ultra High-Resolution** images (4K+) to maintain edge sharpness.
-+- **birefnet-dis (Top Recommended):** High-precision segmentation; best for crisp edges and complex structures.
-+- **birefnet-general:** Solid general-purpose model, very reliable.
-+- **birefnet-portrait:** Best for humans; optimized for fine hair details.
-+- **isnet-anime:** Specialized for Anime/Manga; preserves outlines and stylized hair spikes.
-+- **u2net (Default):** Legacy model, fast but lower precision compared to BiRefNet.
-+
- 
- 
- <rule>
-   <description>API Service Usage & Python Integration</description>
-   <rationale>Allows constant access via HTTP or code without restarting the model in memory.</rationale>
 ```
 </RECENT_CHANGES>
     ]]>
