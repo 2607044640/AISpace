@@ -59,6 +59,14 @@ trigger: always_on
   </rules>
 </complex_pattern>
 
+<object_pool>
+  <description>CRITICAL: High-Frequency Object Management</description>
+  <rationale>For fast-spawning/destroying entities (e.g., Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
+  <rules>
+  USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotObjectPool.md` when designing object pools.
+  </rules>
+</object_pool>
+
 ### Component & R3 Cheat Sheet
 - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
 - **Memory**: `CompositeDisposable _disposables` -> Dispose in `_ExitTree()`.
@@ -93,5 +101,8 @@ trigger: always_on
 - **Nodes Lookup**: Use `%Name` -> `GetNodeOrNull<T>("%Name")` + `GD.PushError`.
 
 ### Documentation Rules
-- **FORBIDDEN**: XML comments (`/// <summary>`) or inline comments for standard Godot lifecycle (`_Ready`, `_Process`).
-- **MANDATORY**: Inline `//` comments (in Chinese) explaining WHY for custom Rx streams, math formulas, and complex logic.
+- **FORBIDDEN (NO BOILERPLATE)**: 
+  1. **STRICTLY FORBIDDEN**: XML comments (`/// <summary>`), class/method headers, or any "Summary" blocks.
+  2. **STRICTLY FORBIDDEN**: Redundant comments for standard Godot lifecycle methods (`_Ready`, `_Process`, etc.).
+  3. **STRICTLY FORBIDDEN**: Any AI-style preamble or file-level "This script handles..." summaries.
+- **MANDATORY**: Inline `//` comments (in Chinese) explaining WHY for custom Rx streams, math formulas, and complex logic. NO "how" or "what" comments unless logic is extremely non-obvious.
