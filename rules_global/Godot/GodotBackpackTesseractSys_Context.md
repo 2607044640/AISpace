@@ -9,7 +9,9 @@ trigger: manual
 - **Polygon Merging (Ghost Collision Fix):** `ItemPhysicsComponent` uses `Geometry2D.MergePolygons` (with a 0.5px overlap) to seamlessly fuse multiple grid cells into a single `CollisionPolygon2D`. This eliminates "ghost collisions" where items snagged on internal seams between grid cells.
 - **Continuous Collision Detection (CCD):** Physics proxies use `ContinuousCd = CcdMode.CastRay` to prevent high-speed tunneling through the floor when spawned overlapping.
 - **Physics-State Authority:** Controller relies on `ItemPhysicsComponent.Freeze` to determine if an item is grabbed from the logic grid or caught mid-air. World-drops preserve their `GlobalPosition` and hand off seamlessly to the physics engine.
-- **Out-of-Bounds Respawn Logic:** `LootSpawnAreaController` directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity` instead of just moving the UI Control. Supports dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
+- **Out-of-Bounds Caching & Respawn:** `ItemStorageManager` caches all `WorldPhysicsItems` on initialization. `LootSpawnAreaController` loops this cache directly instead of `HasNode("%PhysicsProxy")` per-tick. Controller directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity`, supporting dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
+- **Throw Velocity (Physical Drop):** `FollowMouseUIComponent` tracks cursor velocity via exponential smoothing in `_Process`. When dropped in the world, `BackpackInteractionController` passes this `ThrowVelocity` to `ItemPhysicsComponent.EnablePhysics(Vector2)`, which applies it to `LinearVelocity` after unfreezing, creating a natural throw.
+- **TopWall Collision:** `TSBackpack.tscn` uses a massive shared `RectangleShape2D` (5000x2776). The TopWall is placed at y=0 with shape offset -1383, perfectly aligning its bottom face with the screen top (y=5) to bounce thrown items back.
 - **Normalization Shift Compensation:** `ItemPhysicsComponent` calculates the visual offset caused by `GridShapeComponent.NormalizeShape()` during a physical rotation and applies an inverse shift to the parent `Control`'s `GlobalPosition`, eliminating pixel jumping when picking up rotated items.
 - **TopLevel Physics Proxy:** The `RigidBody2D` physics proxy MUST set `TopLevel = true` to break the Godot spatial inheritance chain. This prevents the "death spiral" feedback loop (infinite acceleration) when `_PhysicsProcess` synchronizes coordinates with its parent `Control`.
 - **Backpack-Physics Decoupling:** Items inside the backpack set `CollisionLayer/Mask = 0` (NONE) and `Freeze = true`. This prevents them from acting as physical obstacles that could deflect dragged items or interfere with other loot. They only restore `CollisionLayer/Mask = 16` (ITEM_LAYER) and `Freeze = false` when taken out or spawned in the world.
@@ -198,6 +200,10 @@ trigger: manual
     <error symptom="Item continuously respawns out of bounds (infinite falling loop)">
       <cause>Respawn code teleported the UI Control but ignored the `TopLevel` RigidBody, keeping its extreme falling velocity and position intact.</cause>
       <fix>In `LootSpawnAreaController`, directly set the `ItemPhysicsComponent.GlobalPosition` and zero out its `LinearVelocity` and `AngularVelocity`.</fix>
+    </error>
+    <error symptom="Performance drops when checking for out of bounds items">
+      <cause>Using `HasNode("%PhysicsProxy")` inside a frequent tick loop traverses the tree using string lookups.</cause>
+      <fix>Cache valid physics proxies in a `List<ItemPhysicsComponent>` inside `ItemStorageManager` and iterate that list instead.</fix>
     </error>
     <error symptom="Items sliding against each other suddenly get stuck/snag on invisible edges">
       <cause>"Ghost collisions" caused by internal seams when a RigidBody is composed of multiple adjacent `CollisionShape2D` rectangles.</cause>

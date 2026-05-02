@@ -12,10 +12,15 @@ trigger: manual
 - **Verify GPU:** `python -c "import onnxruntime; print(onnxruntime.get_available_providers())"` (Look for `CUDAExecutionProvider`)
 - **Performance:** 10-20x faster than CPU (birefnet-general takes <1s per image).
 
+## Project Standard Paths
+- **Mandatory Output:** All processed images and generated assets MUST be stored in: `C:\Godot\AISpace\Rembg_Output\`
+- **Rationale:** Centralized asset management and multi-device sync integrity. NEVER use external drives or local temp folders.
+
+
 ## Core & Advanced Commands
 - **Single Image:** `rembg i <input.jpg> <output.png>`
-- **Batch Folder:** `rembg p <input_folder/> <output_folder/>`
-- **Watch Mode (Auto-process):** `rembg p --watch <input_folder/> <output_folder/>`
+- **Batch Folder:** `rembg p <input_folder/> C:\Godot\AISpace\Rembg_Output\`
+- **Watch Mode (Auto-process):** `rembg p --watch <input_folder/> C:\Godot\AISpace\Rembg_Output\`
 - **Alpha Matting (Hair/Fur):** `rembg i -a <input.jpg> <output.png>` (Options: `-af 240 -ab 10 -ae 10`)
 - **Custom BG Color:** `rembg i --bgcolor 255 255 255 255 <input.jpg> <output.png>` (RGBA)
 - **Output Mask Only:** `rembg i --only-mask <input.jpg> <output.png>`
