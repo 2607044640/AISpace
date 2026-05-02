@@ -1,7 +1,7 @@
 <system_context>
   <metadata>
     <description>Godot CsArchitect (构筑师) Project Context Master File (Dual-Sync)</description>
-    <generated_time>2026-05-03 05:17:01</generated_time>
+    <generated_time>2026-05-03 06:09:34</generated_time>
   </metadata>
 
   <section name='00_primacy_boost' description='Read This First'>
@@ -11,6 +11,40 @@
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260503_051700
+- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -36,17 +36,18 @@
+ </system_reminder>
+ 
+ ## 4. Architecture & R3 Strictness
+ 
+ <prime_directive>
+-  <description>CRITICAL: Clean Code, Generality & Cross-Project Reuse vs. KISS</description>
+-  <rationale>Core systems must be clean, universal, and ready for cross-project reuse. However, simple requirements MUST NOT be over-complicated. The most effective, simplest code is always the best.</rationale>
++  <description>CRITICAL: Clean Architecture, Cross-Project Generality & Pragmatic KISS</description>
++  <rationale>Core systems (like Object Pools) must be designed as pristine, decoupled, and generic frameworks ready for drop-in reuse in future projects. However, this generality must NOT infect simple, domain-specific logic. Do not over-engineer what should be a simple script.</rationale>
+   <rules>
+-    1. GENERALITY & REUSE: Design core architecture (e.g., Object Pools, Managers) to be clean, generic, and decoupled so they can be directly used in the next project.
+-    2. ELEGANT SIMPLICITY (KISS): Never over-engineer simple features. Simple problems demand the most direct, straightforward, and simple code possible.
+-    3. COMPONENT STRICTNESS: Composition > Inheritance. Components do ONE thing.
+-    4. NAMING ENFORCEMENT: Injected component variables MUST match their Type names.
++    1. CORE FRAMEWORK GENERALITY: Global systems, managers, and architectural foundations MUST use generic (`T`), type-safe, and highly decoupled code to ensure 100% cross-project reusability. Keep the core perfectly clean.
++    2. PRAGMATIC SIMPLICITY (KISS): For everyday game logic and simple requirements, the most effective and direct code is the best. Do not invent abstractions or premature generalizations (like unnecessary `[Export]` vars) unless specifically commanded.
++    3. COMPONENT STRICTNESS: Composition > Inheritance. Components do EXACTLY ONE thing. Entities are just mediators.
++    4. NAMING ENFORCEMENT: Injected component variables MUST match their Type names (e.g., `NodePath_InitPoint`).
++    5. EXACT BLUEPRINT OBEDIENCE: Execute bug fixes and hotfixes EXACTLY as diagnosed. Do not silently refactor or "generalize" unrelated code during a fix.
+   </rules>
+ </prime_directive>
+ 
+ <complex_pattern>
+   <description>CRITICAL: Godot Lifecycle (_EnterTree vs _Ready) & Initialization</description>
+```
+---
 ## 📅 20260503_051228
 - ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
 
@@ -929,79 +963,6 @@
  	public void CalculateGrabOffsetFromMouse()
  	{
  		if (TargetUI == null)
-```
----
-## 📅 20260503_024934
-- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 1
-
-#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
-```diff
---- 
-+++ 
-@@ -61,13 +61,13 @@
- FallenpointPath = NodePath("../Fallenpoint")
- 
- [node name="Fallenpoint" type="Control" parent="." unique_id=145081264]
- anchors_preset = 0
- offset_left = 565.0
--offset_top = -153.0
-+offset_top = -243.0
- offset_right = 605.0
--offset_bottom = -113.0
-+offset_bottom = -203.0
- 
- [node name="ScreenMargin" type="MarginContainer" parent="." unique_id=632711132]
- layout_mode = 1
- anchors_preset = 15
- anchor_right = 1.0
-@@ -165,11 +165,11 @@
- position = Vector2(565, 0)
- collision_layer = 16
- collision_mask = 16
- 
- [node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/TopWall" unique_id=899388119]
--position = Vector2(0, -1383)
-+position = Vector2(0, -2019)
- shape = SubResource("RectangleShape2D_floor")
- 
- [node name="TsItem" parent="LootSpawnArea" unique_id=1959740042 instance=ExtResource("3_bkm53")]
- layout_mode = 0
- offset_left = 400.0
-```
-#### AISpace/rules_global\Godot\GodotBackpackTesseractSys_Context.md
-```diff
---- 
-+++ 
-@@ -7,11 +7,13 @@
- 
- **Latest Architecture (2026-05-02):**
- - **Polygon Merging (Ghost Collision Fix):** `ItemPhysicsComponent` uses `Geometry2D.MergePolygons` (with a 0.5px overlap) to seamlessly fuse multiple grid cells into a single `CollisionPolygon2D`. This eliminates "ghost collisions" where items snagged on internal seams between grid cells.
- - **Continuous Collision Detection (CCD):** Physics proxies use `ContinuousCd = CcdMode.CastRay` to prevent high-speed tunneling through the floor when spawned overlapping.
- - **Physics-State Authority:** Controller relies on `ItemPhysicsComponent.Freeze` to determine if an item is grabbed from the logic grid or caught mid-air. World-drops preserve their `GlobalPosition` and hand off seamlessly to the physics engine.
--- **Out-of-Bounds Respawn Logic:** `LootSpawnAreaController` directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity` instead of just moving the UI Control. Supports dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
-+- **Out-of-Bounds Caching & Respawn:** `ItemStorageManager` caches all `WorldPhysicsItems` on initialization. `LootSpawnAreaController` loops this cache directly instead of `HasNode("%PhysicsProxy")` per-tick. Controller directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity`, supporting dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
-+- **Throw Velocity (Physical Drop):** `FollowMouseUIComponent` tracks cursor velocity via exponential smoothing in `_Process`. When dropped in the world, `BackpackInteractionController` passes this `ThrowVelocity` to `ItemPhysicsComponent.EnablePhysics(Vector2)`, which applies it to `LinearVelocity` after unfreezing, creating a natural throw.
-+- **TopWall Collision:** `TSBackpack.tscn` uses a massive shared `RectangleShape2D` (5000x2776). The TopWall is placed at y=0 with shape offset -1383, perfectly aligning its bottom face with the screen top (y=5) to bounce thrown items back.
- - **Normalization Shift Compensation:** `ItemPhysicsComponent` calculates the visual offset caused by `GridShapeComponent.NormalizeShape()` during a physical rotation and applies an inverse shift to the parent `Control`'s `GlobalPosition`, eliminating pixel jumping when picking up rotated items.
- - **TopLevel Physics Proxy:** The `RigidBody2D` physics proxy MUST set `TopLevel = true` to break the Godot spatial inheritance chain. This prevents the "death spiral" feedback loop (infinite acceleration) when `_PhysicsProcess` synchronizes coordinates with its parent `Control`.
- - **Backpack-Physics Decoupling:** Items inside the backpack set `CollisionLayer/Mask = 0` (NONE) and `Freeze = true`. This prevents them from acting as physical obstacles that could deflect dragged items or interfere with other loot. They only restore `CollisionLayer/Mask = 16` (ITEM_LAYER) and `Freeze = false` when taken out or spawned in the world.
- - **Commander Pattern:** Controller delegates spatial math to the View and visual tweens to the Juice component. Result: Declarative logic, zero visual noise in Controller.
- - **Spatial Delegation:** `BackpackGridUIComponent` handles all coordinate mapping (`IsPointInside`, `GridToGlobalPosition`). `GridShapeComponent` handles local shape lookups (`GetCellIndexAtLocalPosition`).
-@@ -197,10 +199,14 @@
-     </error>
-     <error symptom="Item continuously respawns out of bounds (infinite falling loop)">
-       <cause>Respawn code teleported the UI Control but ignored the `TopLevel` RigidBody, keeping its extreme falling velocity and position intact.</cause>
-       <fix>In `LootSpawnAreaController`, directly set the `ItemPhysicsComponent.GlobalPosition` and zero out its `LinearVelocity` and `AngularVelocity`.</fix>
-     </error>
-+    <error symptom="Performance drops when checking for out of bounds items">
-+      <cause>Using `HasNode("%PhysicsProxy")` inside a frequent tick loop traverses the tree using string lookups.</cause>
-+      <fix>Cache valid physics proxies in a `List<ItemPhysicsComponent>` inside `ItemStorageManager` and iterate that list instead.</fix>
-+    </error>
-     <error symptom="Items sliding against each other suddenly get stuck/snag on invisible edges">
-       <cause>"Ghost collisions" caused by internal seams when a RigidBody is composed of multiple adjacent `CollisionShape2D` rectangles.</cause>
-       <fix>Use `Geometry2D.MergePolygons` to combine the individual grid cells into a single, seamless `CollisionPolygon2D`.</fix>
-     </error>
-     <error symptom="Items spawned in the same location fall completely through the floor">
 ```
 </RECENT_CHANGES>
       ]]>
@@ -19079,6 +19040,692 @@ public partial class SettingsMenu : Control
 ]]>
     </file>
 
+    <file path="TetrisBackpack/addons\A1ObjectPool\Analyzers\A1ObjectPool.Analyzers.csproj" priority="NORMAL">
+<![CDATA[
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <RootNamespace>A1ObjectPool.Analyzers</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
+  </ItemGroup>
+</Project>
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1ObjectPool\Analyzers\PoolableQueueFreeAnalyzer.cs" priority="NORMAL">
+<![CDATA[
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
+
+namespace A1ObjectPool.Analyzers
+{
+    /// <summary>
+    /// Roslyn Analyzer：禁止对实现了 IPoolable 接口的类型调用 QueueFree() 或 Free()。
+    /// 当检测到违规调用时，IDE 会显示红线错误，引导开发者使用 .Despawn() 或 PoolManager.Instance.Return()。
+    /// </summary>
+    [DiagnosticAnalyzer(LanguageNames.CSharp)]
+    public sealed class PoolableQueueFreeAnalyzer : DiagnosticAnalyzer
+    {
+        // ── 诊断 ID ──────────────────────────────────────────────
+
+        /// <summary>
+        /// A1POOL001: 禁止对 IPoolable 对象调用 QueueFree()。
+        /// </summary>
+        public const string QueueFreeDiagnosticId = "A1POOL001";
+
+        /// <summary>
+        /// A1POOL002: 禁止对 IPoolable 对象调用 Free()。
+        /// </summary>
+        public const string FreeDiagnosticId = "A1POOL002";
+
+        private const string Category = "A1ObjectPool.Usage";
+
+        private static readonly DiagnosticDescriptor QueueFreeRule = new DiagnosticDescriptor(
+            QueueFreeDiagnosticId,
+            title: "禁止对池化对象调用 QueueFree()",
+            messageFormat: "类型 '{0}' 实现了 IPoolable，严禁直接调用 QueueFree()。请使用 this.Despawn() 或 PoolManager.Instance.Return(this)",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: "实现了 IPoolable 接口的对象由 PoolManager 统一管理其生命周期。" +
+                         "直接调用 QueueFree() 会导致对象被引擎销毁而非回收到池中，" +
+                         "破坏池的状态并可能引发空引用异常。");
+
+        private static readonly DiagnosticDescriptor FreeRule = new DiagnosticDescriptor(
+            FreeDiagnosticId,
+            title: "禁止对池化对象调用 Free()",
+            messageFormat: "类型 '{0}' 实现了 IPoolable，严禁直接调用 Free()。请使用 this.Despawn() 或 PoolManager.Instance.Return(this)",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            description: "实现了 IPoolable 接口的对象由 PoolManager 统一管理其生命周期。" +
+                         "直接调用 Free() 会立即销毁对象而非回收到池中，" +
+                         "破坏池的状态并可能引发空引用异常。");
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+            ImmutableArray.Create(QueueFreeRule, FreeRule);
+
+        public override void Initialize(AnalysisContext context)
+        {
+            // 性能优化：不分析生成代码
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+            context.EnableConcurrentExecution();
+
+            // 监听所有方法调用表达式
+            context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
+        }
+
+        private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
+        {
+            var invocation = (InvocationExpressionSyntax)context.Node;
+
+            // 只关心 member access 形式的调用：xxx.QueueFree() 或 this.QueueFree()
+            // 也包括裸调用 QueueFree()（隐式 this）
+            string methodName;
+            ExpressionSyntax receiver;
+
+            if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
+            {
+                methodName = memberAccess.Name.Identifier.Text;
+                receiver = memberAccess.Expression;
+            }
+            else if (invocation.Expression is IdentifierNameSyntax identifierName)
+            {
+                // 裸调用：QueueFree() 意味着 this.QueueFree()
+                methodName = identifierName.Identifier.Text;
+                receiver = null; // 隐式 this
+            }
+            else
+            {
+                return;
+            }
+
+            // 只检查 QueueFree 和 Free
+            DiagnosticDescriptor rule;
+            if (methodName == "QueueFree")
+                rule = QueueFreeRule;
+            else if (methodName == "Free")
+                rule = FreeRule;
+            else
+                return;
+
+            // 判断调用目标的类型是否实现了 IPoolable
+            ITypeSymbol receiverType;
+
+            if (receiver != null)
+            {
+                // 显式 receiver：xxx.QueueFree()
+                var typeInfo = context.SemanticModel.GetTypeInfo(receiver, context.CancellationToken);
+                receiverType = typeInfo.Type;
+            }
+            else
+            {
+                // 隐式 this：需要找到包含类的类型
+                receiverType = GetContainingType(context);
+            }
+
+            if (receiverType == null)
+                return;
+
+            // 检查类型是否实现了 IPoolable 接口
+            if (ImplementsIPoolable(receiverType))
+            {
+                var diagnostic = Diagnostic.Create(
+                    rule,
+                    invocation.GetLocation(),
+                    receiverType.Name);
+
+                context.ReportDiagnostic(diagnostic);
+            }
+        }
+
+        /// <summary>
+        /// 获取当前代码所在的包含类型（用于隐式 this 调用的场景）。
+        /// </summary>
+        private static ITypeSymbol GetContainingType(SyntaxNodeAnalysisContext context)
+        {
+            var containingSymbol = context.ContainingSymbol;
+            while (containingSymbol != null)
+            {
+                if (containingSymbol is INamedTypeSymbol namedType)
+                    return namedType;
+                containingSymbol = containingSymbol.ContainingSymbol;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 递归检查类型及其所有接口是否包含 IPoolable。
+        /// 通过接口名称匹配（因为 Analyzer 项目不直接引用运行时程序集）。
+        /// </summary>
+        private static bool ImplementsIPoolable(ITypeSymbol type)
+        {
+            // 检查类型自身的所有接口（包括继承链上的）
+            foreach (var iface in type.AllInterfaces)
+            {
+                if (iface.Name == "IPoolable")
+                    return true;
+            }
+
+            // 也检查类型自身是否就是 IPoolable（防止 IPoolable 变量直接调用的情况）
+            if (type.Name == "IPoolable")
+                return true;
+
+            return false;
+        }
+    }
+}
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1ObjectPool\IPoolable.cs" priority="NORMAL">
+<![CDATA[
+using Godot;
+
+// ReSharper disable All
+
+/// <summary>
+/// 对象池生命周期接口。
+/// 所有需要池化管理的节点必须实现此接口。
+/// PoolManager 在 Rent / Return 时自动调用 OnRent / OnReturn。
+/// </summary>
+public interface IPoolable
+{
+    /// <summary>
+    /// 此对象所属的 PackedScene（用于 PoolManager 内部寻址）。
+    /// 业务类通常用 static readonly 字段缓存场景引用，然后在此属性中返回。
+    /// <example>
+    /// <code>
+    /// private static readonly PackedScene _scene = GD.Load&lt;PackedScene&gt;("res://Scenes/Bullet.tscn");
+    /// public PackedScene PoolScene => _scene;
+    /// </code>
+    /// </example>
+    /// </summary>
+    PackedScene PoolScene { get; }
+
+    /// <summary>
+    /// 从池中借出时调用。在此方法中重置所有运行时状态。
+    /// 例如：重置位置、速度、HP、启用碰撞、重置动画等。
+    /// PoolManager 会在设置 Visible=true 和 ProcessMode=Inherit 之后调用此方法。
+    /// </summary>
+    void OnRent();
+
+    /// <summary>
+    /// 归还到池中时调用。在此方法中清理运行时引用。
+    /// 例如：停止计时器、断开临时信号连接、清除目标引用等。
+    /// PoolManager 会在调用此方法之后设置 Visible=false 和 ProcessMode=Disabled。
+    /// </summary>
+    void OnReturn();
+}
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1ObjectPool\NodePoolExtensions.cs" priority="NORMAL">
+<![CDATA[
+using Godot;
+
+// ReSharper disable All
+
+/// <summary>
+/// Node 扩展方法：提供统一的销毁入口 .Despawn()。
+/// <para>
+/// 如果节点实现了 IPoolable，则自动归还到 PoolManager 的池中复用。
+/// 如果节点没有实现 IPoolable，则退化为普通的 QueueFree()。
+/// </para>
+/// <para>
+/// 团队约定：在所有需要销毁节点的地方，统一使用 .Despawn() 替代 .QueueFree()。
+/// 这样无论节点是否被池化管理，都能正确处理。
+/// </para>
+/// </summary>
+public static class NodePoolExtensions
+{
+    /// <summary>
+    /// 统一销毁/回收入口。
+    /// 池化对象 → 归还到池中复用。
+    /// 普通节点 → 正常 QueueFree() 销毁。
+    /// </summary>
+    /// <param name="node">要销毁或回收的节点。</param>
+    public static void Despawn(this Node node)
+    {
+        if (node is IPoolable poolable && PoolManager.Instance != null)
+        {
+            PoolManager.Instance.Return(poolable);
+        }
+        else
+        {
+            node.QueueFree();
+        }
+    }
+}
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1ObjectPool\PoolBucket.cs" priority="NORMAL">
+<![CDATA[
+using System.Collections.Generic;
+using Godot;
+
+// ReSharper disable All
+
+/// <summary>
+/// 内部池桶，每个 PackedScene 对应一个 PoolBucket 实例。
+/// 负责实际的节点实例化、栈管理、激活/休眠切换。
+/// 此类不对外公开，仅由 PoolManager 内部使用。
+/// </summary>
+internal sealed class PoolBucket
+{
+    private readonly PackedScene _scene;
+    private readonly Stack<Node> _available; // 空闲节点栈
+    private readonly Node _container;        // 隐藏容器节点，所有休眠对象挂在这里
+
+    private int _totalCreated; // 统计：总共创建的实例数（含预热）
+
+    public PoolBucket(PackedScene scene, Node poolRoot)
+    {
+        _scene = scene;
+        _available = new Stack<Node>();
+
+        // 为这个池创建一个专用容器节点，挂在 PoolManager 的 PoolRoot 下
+        // 节点名称使用场景文件名，方便在 Remote 树中调试
+        _container = new Node();
+        _container.Name = scene.ResourcePath.GetFile().GetBaseName() + "_Pool";
+        poolRoot.AddChild(_container);
+    }
+
+    /// <summary>
+    /// 预热：提前实例化指定数量的节点并放入空闲栈。
+    /// 推荐在关卡 _Ready 中调用，避免战斗时首次实例化的卡顿。
+    /// </summary>
+    public void Prewarm(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            Node node = _scene.Instantiate();
+            _container.AddChild(node);
+
+            // 初始状态：隐藏 + 禁用处理
+            node.ProcessMode = Node.ProcessModeEnum.Disabled;
+            if (node is CanvasItem canvasItem)
+                canvasItem.Visible = false;
+            else if (node is Node3D node3D)
+                node3D.Visible = false;
+
+            _available.Push(node);
+            _totalCreated++;
+        }
+    }
+
+    /// <summary>
+    /// 借出一个节点。如果栈中有空闲的则弹出复用，否则新实例化一个。
+    /// 激活节点：设置 Visible=true，ProcessMode=Inherit。
+    /// 如果节点实现了 IPoolable，会自动调用 OnRent()。
+    /// </summary>
+    public Node Rent()
+    {
+        Node node;
+
+        if (_available.Count > 0)
+        {
+            node = _available.Pop();
+        }
+        else
+        {
+            // 池已空，动态扩容（附带警告，帮助开发者调整预热数量）
+            node = _scene.Instantiate();
+            _container.AddChild(node);
+            _totalCreated++;
+
+            if (_totalCreated % 10 == 0)
+            {
+                GD.PushWarning(
+                    $"[A1ObjectPool] 池 '{_scene.ResourcePath}' 已动态扩容到 {_totalCreated} 个实例。" +
+                    "考虑增加预热数量以避免运行时分配。");
+            }
+        }
+
+        // 激活节点
+        node.ProcessMode = Node.ProcessModeEnum.Inherit;
+        SetVisible(node, true);
+
+        // 调用生命周期钩子
+        if (node is IPoolable poolable)
+            poolable.OnRent();
+
+        return node;
+    }
+
+    /// <summary>
+    /// 归还一个节点到池中。
+    /// 调用 IPoolable.OnReturn() 后，隐藏节点并禁用处理。
+    /// 如果节点当前不在容器下（比如被 AddChild 到了其他父节点），会自动 Reparent 回来。
+    /// </summary>
+    public void Return(Node node)
+    {
+        // 调用生命周期钩子
+        if (node is IPoolable poolable)
+            poolable.OnReturn();
+
+        // 休眠节点
+        node.ProcessMode = Node.ProcessModeEnum.Disabled;
+        SetVisible(node, false);
+
+        // 确保归还到容器下（跨场景安全）
+        if (node.GetParent() != _container)
+            node.Reparent(_container);
+
+        _available.Push(node);
+    }
+
+    /// <summary>
+    /// 清空此池：释放所有节点（包括空闲的和正在使用的都无法追踪，只清空闲的）。
+    /// </summary>
+    public void Clear()
+    {
+        while (_available.Count > 0)
+        {
+            Node node = _available.Pop();
+            node.QueueFree();
+        }
+
+        _totalCreated = 0;
+    }
+
+    /// <summary>
+    /// 当前空闲节点数量（调试用）。
+    /// </summary>
+    public int AvailableCount => _available.Count;
+
+    /// <summary>
+    /// 总共创建的实例数量（调试用）。
+    /// </summary>
+    public int TotalCreated => _totalCreated;
+
+    // 统一处理 2D / 3D 节点的可见性
+    private static void SetVisible(Node node, bool visible)
+    {
+        switch (node)
+        {
+            case CanvasItem canvasItem:
+                canvasItem.Visible = visible;
+                break;
+            case Node3D node3D:
+                node3D.Visible = visible;
+                break;
+        }
+    }
+}
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1ObjectPool\PoolManager.cs" priority="NORMAL">
+<![CDATA[
+using System.Collections.Generic;
+using Godot;
+
+// ReSharper disable All
+
+/// <summary>
+/// 全局对象池管理器（Autoload 单例）。
+/// 提供泛型 Rent&lt;T&gt; / Return API，内部使用 PackedScene 作为唯一 Key 寻址。
+/// <para>
+/// 注册方式：Project Settings → Autoload → 添加此脚本，名称设为 "PoolManager"。
+/// </para>
+/// <para>
+/// 使用示例：
+/// <code>
+/// // 预注册（关卡 _Ready 中）
+/// PoolManager.Instance.Register(bulletScene, prewarmCount: 64);
+///
+/// // 借出
+/// Bullet b = PoolManager.Instance.Rent&lt;Bullet&gt;(bulletScene);
+///
+/// // 归还（推荐使用扩展方法 .Despawn()）
+/// b.Despawn();
+/// </code>
+/// </para>
+/// </summary>
+public partial class PoolManager : Node
+{
+    /// <summary>
+    /// 全局单例实例。在 _Ready 中自动赋值（Autoload 保证唯一）。
+    /// </summary>
+    public static PoolManager Instance { get; private set; }
+
+    // 内部桶字典：PackedScene → PoolBucket
+    private readonly Dictionary<PackedScene, PoolBucket> _buckets = new();
+
+    // 所有池对象的隐藏根容器
+    private Node _poolRoot;
+
+    public override void _EnterTree()
+    {
+        Instance = this;
+    }
+
+    public override void _Ready()
+    {
+        _poolRoot = new Node();
+        _poolRoot.Name = "PoolRoot";
+        AddChild(_poolRoot);
+    }
+
+    #region 公共 API
+
+    /// <summary>
+    /// 预注册一个池。可指定预热数量，在战斗开始前一次性实例化。
+    /// 如果该 PackedScene 已经注册过，则仅补充预热。
+    /// </summary>
+    /// <param name="scene">要池化的 PackedScene 资源。</param>
+    /// <param name="prewarmCount">预热数量（默认 0，即懒加载模式）。</param>
+    public void Register(PackedScene scene, int prewarmCount = 0)
+    {
+        if (!_buckets.TryGetValue(scene, out PoolBucket bucket))
+        {
+            bucket = new PoolBucket(scene, _poolRoot);
+            _buckets[scene] = bucket;
+        }
+
+        if (prewarmCount > 0)
+            bucket.Prewarm(prewarmCount);
+    }
+
+    /// <summary>
+    /// 从池中借出一个强类型对象。
+    /// 如果该 PackedScene 尚未注册，会自动注册（懒加载）。
+    /// 返回的对象已经 Visible=true、ProcessMode=Inherit，且 OnRent() 已被调用。
+    /// <para>
+    /// 注意：借出的节点仍挂在池容器下。调用方需要自行 Reparent 或 AddChild 到目标父节点。
+    /// </para>
+    /// </summary>
+    /// <typeparam name="T">目标节点类型，必须是 Node 且实现 IPoolable。</typeparam>
+    /// <param name="scene">对应的 PackedScene。</param>
+    /// <returns>已激活的强类型节点实例。</returns>
+    public T Rent<T>(PackedScene scene) where T : Node, IPoolable
+    {
+        if (!_buckets.TryGetValue(scene, out PoolBucket bucket))
+        {
+            bucket = new PoolBucket(scene, _poolRoot);
+            _buckets[scene] = bucket;
+        }
+
+        return (T)bucket.Rent();
+    }
+
+    /// <summary>
+    /// 将对象归还到池中。
+    /// 通过 IPoolable.PoolScene 自动寻址到对应的桶，调用方无需记住 PackedScene。
+    /// OnReturn() 会被自动调用，节点随后被隐藏并禁用处理。
+    /// </summary>
+    /// <param name="poolable">要归还的池化对象。</param>
+    public void Return(IPoolable poolable)
+    {
+        if (poolable is not Node node)
+        {
+            GD.PushError("[A1ObjectPool] Return 失败：IPoolable 实例不是 Node 类型。");
+            return;
+        }
+
+        PackedScene scene = poolable.PoolScene;
+        if (scene == null)
+        {
+            GD.PushError($"[A1ObjectPool] Return 失败：{node.Name} 的 PoolScene 属性返回 null。");
+            return;
+        }
+
+        if (!_buckets.TryGetValue(scene, out PoolBucket bucket))
+        {
+            GD.PushError($"[A1ObjectPool] Return 失败：场景 '{scene.ResourcePath}' 未注册。" +
+                         "请确保在 Rent 之前调用过 Register() 或至少通过 Rent<T>() 借出过一次。");
+            return;
+        }
+
+        bucket.Return(node);
+    }
+
+    /// <summary>
+    /// 清空指定 PackedScene 对应的池（释放所有空闲节点）。
+    /// 适用于关卡卸载时回收特定类型的资源。
+    /// </summary>
+    public void Clear(PackedScene scene)
+    {
+        if (_buckets.TryGetValue(scene, out PoolBucket bucket))
+        {
+            bucket.Clear();
+            _buckets.Remove(scene);
+        }
+    }
+
+    /// <summary>
+    /// 清空所有池。适用于场景切换时的全局清理。
+    /// </summary>
+    public void ClearAll()
+    {
+        foreach (var bucket in _buckets.Values)
+            bucket.Clear();
+
+        _buckets.Clear();
+    }
+
+    #endregion
+
+    #region 调试 API
+
+    /// <summary>
+    /// 获取指定池的状态信息（调试用）。
+    /// </summary>
+    public (int available, int totalCreated) GetPoolStats(PackedScene scene)
+    {
+        if (_buckets.TryGetValue(scene, out PoolBucket bucket))
+            return (bucket.AvailableCount, bucket.TotalCreated);
+
+        return (0, 0);
+    }
+
+    /// <summary>
+    /// 打印所有池的状态到 Godot 控制台（调试用）。
+    /// </summary>
+    public void PrintAllStats()
+    {
+        GD.Print("=== [A1ObjectPool] 池状态 ===");
+        foreach (var (scene, bucket) in _buckets)
+        {
+            GD.Print($"  {scene.ResourcePath}: " +
+                     $"空闲={bucket.AvailableCount}, 总创建={bucket.TotalCreated}");
+        }
+
+        GD.Print("============================");
+    }
+
+    #endregion
+}
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1ObjectPool\README.md" priority="NORMAL">
+<![CDATA[
+# A1ObjectPool — Godot 4 C# 泛型对象池插件
+
+高性能、强类型、跨项目复用的对象池系统。
+
+## 核心文件
+
+| 文件 | 职责 |
+|---|---|
+| `IPoolable.cs` | 池化生命周期接口（OnRent / OnReturn） |
+| `PoolBucket.cs` | 内部桶（Stack + PackedScene 实例化） |
+| `PoolManager.cs` | Autoload 单例（泛型 Rent / Return API） |
+| `NodePoolExtensions.cs` | 扩展方法（.Despawn() 统一销毁入口） |
+| `Analyzers/` | Roslyn Analyzer（编译期禁止对池化对象调用 QueueFree） |
+
+## 快速开始
+
+### 1. 注册 Autoload
+`Project Settings → Autoload → 添加 PoolManager.cs`
+
+### 2. 实现 IPoolable
+```csharp
+public partial class Bullet : Area2D, IPoolable
+{
+    private static readonly PackedScene _scene =
+        GD.Load<PackedScene>("res://Scenes/Bullet.tscn");
+
+    public PackedScene PoolScene => _scene;
+
+    public void OnRent()
+    {
+        // 重置速度、HP、碰撞等
+        Velocity = Vector2.Zero;
+    }
+
+    public void OnReturn()
+    {
+        // 停止计时器、清除引用
+    }
+}
+```
+
+### 3. 使用
+```csharp
+// 预热（关卡 _Ready 中）
+PoolManager.Instance.Register(bulletScene, prewarmCount: 64);
+
+// 借出
+Bullet b = PoolManager.Instance.Rent<Bullet>(bulletScene);
+b.GlobalPosition = spawnPos;
+AddChild(b);  // Reparent 到场景中
+b.Fire(direction);
+
+// 归还（推荐）
+b.Despawn();  // 自动路由到 PoolManager.Return()
+```
+
+## 关于 .Despawn()
+**团队规范：统一使用 `.Despawn()` 替代 `.QueueFree()`**
+
+`Despawn()` 会自动判断节点是否为池化对象：
+- 是 IPoolable → 归还到池中复用
+- 不是 → 正常 QueueFree()
+
+## Roslyn Analyzer
+如果你在实现了 IPoolable 的类中调用 `.QueueFree()` 或 `.Free()`，IDE 将显示编译错误：
+- `A1POOL001`: 禁止对池化对象调用 QueueFree()
+- `A1POOL002`: 禁止对池化对象调用 Free()
+
+## 迁移到新项目
+复制 `addons/A1ObjectPool/` 目录 → 注册 Autoload → 完成。
+]]>
+    </file>
+
     <file path="TetrisBackpack/addons\A1TetrisBackpack\BasicScenes\BasicItem.tscn" priority="NORMAL">
 <![CDATA[
 [gd_scene format=3 uid="uid://cac8ccsbkf8hf"]
@@ -21933,10 +22580,10 @@ public partial class GridShapeUIComponent : Node
 
 	/// 是否正在拖拽
 	/// 【架构升级】设置时自动同步 ZIndex (视觉置顶)，并作为悬停逻辑屏蔽的状态锁
-	public bool IsDragging 
+	public bool IsDragging
 	{
 		get => _isDragging;
-		set 
+		set
 		{
 			if (_isDragging == value) return;
 			_isDragging = value;
@@ -22034,7 +22681,7 @@ public partial class GridShapeUIComponent : Node
 			for (int i = 0; i < _cells.Count; i++)
 			{
 				_cells[i].Position = new Vector2(
-					_gridShapeComp.CurrentLocalCells[i].X * CellSize, 
+					_gridShapeComp.CurrentLocalCells[i].X * CellSize,
 					_gridShapeComp.CurrentLocalCells[i].Y * CellSize
 				);
 				_cells[i].CellIndex = i; // 确保索引同步
@@ -22058,10 +22705,10 @@ public partial class GridShapeUIComponent : Node
 		foreach (Vector2I cellPos in _gridShapeComp.CurrentLocalCells)
 		{
 			var gridCellUI = CreateCell();
-			
+
 			// 分配视觉设置
 			gridCellUI.VisualSettings = ItemVisualSettings;
-			
+
 			gridCellUI.Size = new Vector2(CellSize, CellSize);
 			gridCellUI.Position = new Vector2(cellPos.X * CellSize, cellPos.Y * CellSize);
 			gridCellUI.Name = $"GridCell_{cellIndex}";
@@ -22110,13 +22757,13 @@ public partial class GridShapeUIComponent : Node
 	public void UpdateCellsVisualState(GridCellUI.CellState[] states)
 	{
 		if (_cells == null || _cells.Count == 0) return;
-		
+
 		for (int i = 0; i < _cells.Count && i < states.Length; i++)
 		{
 			// 视觉优化：如果格子是有效的 (Valid)，物品自身保持 Normal (白光)
 			// 只有在无效 (Invalid) 时才变红，避免背景绿+物品绿导致的视觉杂乱
 			var finalState = states[i] == GridCellUI.CellState.Valid ? GridCellUI.CellState.Normal : states[i];
-			_cells[i].SetState(finalState); 
+			_cells[i].SetState(finalState);
 		}
 	}
 
@@ -24899,6 +25546,10 @@ size = Vector3(1.0075684, 1.1631446, 1.0039575)
     <!-- <Nullable>disable</Nullable> -->
   </PropertyGroup>
   <ItemGroup>
+    <!-- 排除 Analyzer 子项目的源码（它有自己的 csproj，由 Roslyn 独立编译） -->
+    <Compile Remove="addons\A1ObjectPool\Analyzers\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Chickensoft.AutoInject" Version="2.12.7" />
     <PackageReference Include="Chickensoft.GodotNodeInterfaces" Version="2.4.26" />
     <PackageReference Include="Chickensoft.Introspection" Version="3.0.2" />
@@ -24918,6 +25569,12 @@ size = Vector3(1.0075684, 1.1631446, 1.0039575)
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- A1ObjectPool Roslyn Analyzer: 编译期禁止对 IPoolable 对象调用 QueueFree/Free -->
+    <ProjectReference Include="addons\A1ObjectPool\Analyzers\A1ObjectPool.Analyzers.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
   </ItemGroup>
 </Project>
 ]]>
@@ -31056,6 +31713,7 @@ config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 PhantomCameraManager="*uid://duq6jhf6unyis"
 FrameProviderDispatcher="*uid://crtk7e8scthbv"
 ObservableTrackerRuntimeHook="*uid://c3ycqt6dt1pfq"
+PoolManager="*res://addons/A1ObjectPool/PoolManager.cs"
 
 [debug]
 
@@ -31228,6 +31886,41 @@ rendering_device/driver.windows="d3d12"
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260503_051700
+- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -36,17 +36,18 @@
+ </system_reminder>
+ 
+ ## 4. Architecture & R3 Strictness
+ 
+ <prime_directive>
+-  <description>CRITICAL: Clean Code, Generality & Cross-Project Reuse vs. KISS</description>
+-  <rationale>Core systems must be clean, universal, and ready for cross-project reuse. However, simple requirements MUST NOT be over-complicated. The most effective, simplest code is always the best.</rationale>
++  <description>CRITICAL: Clean Architecture, Cross-Project Generality & Pragmatic KISS</description>
++  <rationale>Core systems (like Object Pools) must be designed as pristine, decoupled, and generic frameworks ready for drop-in reuse in future projects. However, this generality must NOT infect simple, domain-specific logic. Do not over-engineer what should be a simple script.</rationale>
+   <rules>
+-    1. GENERALITY & REUSE: Design core architecture (e.g., Object Pools, Managers) to be clean, generic, and decoupled so they can be directly used in the next project.
+-    2. ELEGANT SIMPLICITY (KISS): Never over-engineer simple features. Simple problems demand the most direct, straightforward, and simple code possible.
+-    3. COMPONENT STRICTNESS: Composition > Inheritance. Components do ONE thing.
+-    4. NAMING ENFORCEMENT: Injected component variables MUST match their Type names.
++    1. CORE FRAMEWORK GENERALITY: Global systems, managers, and architectural foundations MUST use generic (`T`), type-safe, and highly decoupled code to ensure 100% cross-project reusability. Keep the core perfectly clean.
++    2. PRAGMATIC SIMPLICITY (KISS): For everyday game logic and simple requirements, the most effective and direct code is the best. Do not invent abstractions or premature generalizations (like unnecessary `[Export]` vars) unless specifically commanded.
++    3. COMPONENT STRICTNESS: Composition > Inheritance. Components do EXACTLY ONE thing. Entities are just mediators.
++    4. NAMING ENFORCEMENT: Injected component variables MUST match their Type names (e.g., `NodePath_InitPoint`).
++    5. EXACT BLUEPRINT OBEDIENCE: Execute bug fixes and hotfixes EXACTLY as diagnosed. Do not silently refactor or "generalize" unrelated code during a fix.
+   </rules>
+ </prime_directive>
+ 
+ <complex_pattern>
+   <description>CRITICAL: Godot Lifecycle (_EnterTree vs _Ready) & Initialization</description>
+```
+
+---
 ## 📅 20260503_051228
 - ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
 
@@ -31256,7 +31949,6 @@ rendering_device/driver.windows="d3d12"
  </prime_directive>
  
 ```
-
 ---
 ## 📅 20260503_041739
 - ➕ 新增: 0 | 📝 修改: 6 | ❌ 删除: 0
@@ -32767,134 +33459,6 @@ rendering_device/driver.windows="d3d12"
  
  [node name="TsItem" parent="LootSpawnArea" unique_id=1959740042 instance=ExtResource("3_bkm53")]
  layout_mode = 0
-```
----
-## 📅 20260502_225049
-- ➕ 新增: 1 | 📝 修改: 2 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\ItemPhysicsComponent.cs
-```diff
---- 
-+++ 
-@@ -189,33 +189,67 @@
- 	/// 根据 GridShapeComponent 数据动态重建碰撞体
- 	private void RebuildCollisionShapes()
- 	{
- 		foreach (var child in GetChildren())
- 		{
--			if (child is CollisionShape2D) child.QueueFree();
-+			if (child is CollisionShape2D || child is CollisionPolygon2D) child.QueueFree();
- 		}
- 
- 		var cells = _gridShapeComp.CurrentLocalCells;
--		if (cells == null) return;
-+		if (cells == null || cells.Length == 0) return;
- 
- 		var cellSize = _gridShapeComp.CellSize;
--		var halfSize = cellSize / 2f;
--
--		for (int i = 0; i < cells.Length; i++)
--		{
--			var shape = new RectangleShape2D();
--			shape.Size = cellSize;
--
--			var collider = new CollisionShape2D();
--			collider.Shape = shape;
--
--			// 公式：格子坐标 * 格子尺寸 + 半格偏移（使中心对齐）
--			collider.Position = new Vector2(
--				cells[i].X * cellSize.X + halfSize.X,
--				cells[i].Y * cellSize.Y + halfSize.Y
--			);
--
-+
-+		// 收集所有合并后的多边形
-+		var mergedPolygons = new System.Collections.Generic.List<Vector2[]>();
-+
-+		foreach (var cell in cells)
-+		{
-+			// 为了确保完美合并（解决浮点精度或相邻边不被认为是相交的问题），将格子放大 0.5 像素产生微小重叠
-+			Vector2 topLeft = new Vector2(cell.X * cellSize.X - 0.5f, cell.Y * cellSize.Y - 0.5f);
-+			Vector2 size = cellSize + new Vector2(1.0f, 1.0f);
-+			
-+			// 顺时针定义一个矩形多边形
-+			Vector2[] cellPoly = new Vector2[]
-+			{
-+				topLeft,
-+				topLeft + new Vector2(size.X, 0),
-+				topLeft + new Vector2(size.X, size.Y),
-+				topLeft + new Vector2(0, size.Y)
-+			};
-+
-+			var nextMerged = new System.Collections.Generic.List<Vector2[]>();
-+			Vector2[] polyToMerge = cellPoly;
-+
-+			for (int i = 0; i < mergedPolygons.Count; i++)
-+			{
-+				var existingPoly = mergedPolygons[i];
-+				var mergeResult = Geometry2D.MergePolygons(existingPoly, polyToMerge);
-+				
-+				// 如果合并后结果是 1 个多边形，说明它们相交，更新 polyToMerge 以吸收合并结果
-+				if (mergeResult.Count == 1)
-+				{
-+					polyToMerge = mergeResult[0];
-+				}
-+				else
-+				{
-+					// 没合并成功，保留原本的 existingPoly
-+					nextMerged.Add(existingPoly);
-+				}
-+			}
-+			
-+			// 将当前融合了所有能相交部分的多边形加入
-+			nextMerged.Add(polyToMerge);
-+			mergedPolygons = nextMerged;
-+		}
-+
-+		// 创建合并后的碰撞多边形
-+		foreach (var poly in mergedPolygons)
-+		{
-+			var collider = new CollisionPolygon2D();
-+			collider.Polygon = poly;
-+			// 顶点已经是相对坐标，无需再设置 Position
- 			AddChild(collider);
- 		}
- 	}
- 
- 	/// 将当前物理旋转角度折算为 90° 的整数倍
-```
-#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
-```diff
---- 
-+++ 
-@@ -61,13 +61,13 @@
- FallenpointPath = NodePath("../Fallenpoint")
- 
- [node name="Fallenpoint" type="Control" parent="." unique_id=145081264]
- anchors_preset = 0
- offset_left = 565.0
--offset_top = -960.0
-+offset_top = -153.0
- offset_right = 605.0
--offset_bottom = -920.0
-+offset_bottom = -113.0
- 
- [node name="ScreenMargin" type="MarginContainer" parent="." unique_id=632711132]
- layout_mode = 1
- anchors_preset = 15
- anchor_right = 1.0
-@@ -136,10 +136,11 @@
- position = Vector2(565, 648)
- collision_layer = 16
- collision_mask = 16
- 
- [node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/FloorStaticBody" unique_id=599388113]
-+position = Vector2(0, 53)
- shape = SubResource("RectangleShape2D_floor")
- 
- [node name="LeftWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388114]
- position = Vector2(-50, 300)
- collision_layer = 16
 ```
 </RECENT_CHANGES>
     ]]>
