@@ -61,6 +61,7 @@ trigger: always_on
 
 ### Component & R3 Cheat Sheet
 - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
+- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use R3 `Subject<T>` and expose as `Observable<T>`.
 - **Memory**: `CompositeDisposable _disposables` -> Dispose in `_ExitTree()`.
 - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
 - **Streams**:

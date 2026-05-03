@@ -63,7 +63,7 @@ trigger: always_on
   <description>CRITICAL: High-Frequency Object Management</description>
   <rationale>For fast-spawning/destroying entities (e.g., Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
   <rules>
-  USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotObjectPool.md` when designing object pools.
+  USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotA1ObjectPoolUsage.md` when designing object pools.
   </rules>
 </object_pool>
 

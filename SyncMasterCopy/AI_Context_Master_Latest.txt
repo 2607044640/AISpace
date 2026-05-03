@@ -1,7 +1,7 @@
 <system_context>
   <metadata>
     <description>Godot CsArchitect (构筑师) Project Context Master File (Dual-Sync)</description>
-    <generated_time>2026-05-03 07:34:40</generated_time>
+    <generated_time>2026-05-04 05:16:45</generated_time>
   </metadata>
 
   <section name='00_primacy_boost' description='Read This First'>
@@ -11,6 +11,72 @@
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260503_074050
+- ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -61,11 +61,11 @@
+ 
+ <object_pool>
+   <description>CRITICAL: High-Frequency Object Management</description>
+   <rationale>For fast-spawning/destroying entities (e.g., Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
+   <rules>
+-  USE THE POOL: Always refer to `AISpace\rules_global\Godot\A1ObjectPoolUsage.md` when designing object pools.
++  USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotA1ObjectPoolUsage.md` when designing object pools.
+   </rules>
+ </object_pool>
+ 
+ ### Component & R3 Cheat Sheet
+ - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
+```
+---
+## 📅 20260503_074009
+- ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -61,11 +61,11 @@
+ 
+ <object_pool>
+   <description>CRITICAL: High-Frequency Object Management</description>
+   <rationale>For fast-spawning/destroying entities (e.g., Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
+   <rules>
+-    1. USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotObjectPool.md` when designing object pools.
++  USE THE POOL: Always refer to `AISpace\rules_global\Godot\A1ObjectPoolUsage.md` when designing object pools.
+   </rules>
+ </object_pool>
+ 
+ ### Component & R3 Cheat Sheet
+ - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
+```
+---
+## 📅 20260503_073440
+- ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -61,11 +61,11 @@
+ 
+ <object_pool>
+   <description>CRITICAL: High-Frequency Object Management</description>
+   <rationale>For fast-spawning/destroying entities (e.g., Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
+   <rules>
+-    1. USE THE POOL: Always refer to `AISpace\rules_global\Uncommon\GodotObjectPool.md` when designing object pools.
++    1. USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotObjectPool.md` when designing object pools.
+   </rules>
+ </object_pool>
+ 
+ ### Component & R3 Cheat Sheet
+ - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
+```
+---
 ## 📅 20260503_073240
 - ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
 
@@ -110,690 +176,6 @@
  - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
  - **Streams**:
 ```
----
-## 📅 20260503_071329
-- ➕ 新增: 0 | 📝 修改: 4 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1ObjectPool\IPoolable.cs
-```diff
---- 
-+++ 
-@@ -1,16 +1,29 @@
- using Godot;
- 
- // ReSharper disable All
- 
--// 对象池生命周期接口。所有需要池化管理的节点必须实现此接口。
-+/// 对象池生命周期接口。
-+/// 所有需要池化管理的节点必须实现此接口。
-+/// PoolManager 在 Rent / Return 时自动调用 OnRent / OnReturn。
- public interface IPoolable
- {
--    // 此对象所属的 PackedScene，用于 PoolManager 内部寻址。
-+    /// 此对象所属的 PackedScene（用于 PoolManager 内部寻址）。
-+    /// 业务类通常用 static readonly 字段缓存场景引用，然后在此属性中返回。
-+    /// <example>
-+    /// <code>
-+    /// private static readonly PackedScene _scene = GD.Load&lt;PackedScene&gt;("res://Scenes/Bullet.tscn");
-+    /// public PackedScene PoolScene => _scene;
-+    /// </code>
-+    /// </example>
-     PackedScene PoolScene { get; }
- 
--    // 从池中借出时调用，用于重置运行时状态（位置、速度、HP、碰撞等）。
-+    /// 从池中借出时调用。在此方法中重置所有运行时状态。
-+    /// 例如：重置位置、速度、HP、启用碰撞、重置动画等。
-+    /// PoolManager 会在设置 Visible=true 和 ProcessMode=Inherit 之后调用此方法。
-     void OnRent();
- 
--    // 归还到池中时调用，用于清理运行时引用（停止计时器、断开信号等）。
-+    /// 归还到池中时调用。在此方法中清理运行时引用。
-+    /// 例如：停止计时器、断开临时信号连接、清除目标引用等。
-+    /// PoolManager 会在调用此方法之后设置 Visible=false 和 ProcessMode=Disabled。
-     void OnReturn();
- }
-```
-#### TetrisBackpack/addons\A1ObjectPool\PoolManager.cs
-```diff
---- 
-+++ 
-@@ -1,15 +1,27 @@
- using System.Collections.Generic;
- using Godot;
- 
- // ReSharper disable All
- 
--// 全局对象池管理器（Autoload 单例）。
--// 提供泛型 Rent<T> / Return API，内部使用 PackedScene 作为唯一 Key 寻址。
-+/// 全局对象池管理器（Autoload 单例）。
-+/// 提供泛型 Rent&lt;T&gt; / Return API，内部使用 PackedScene 作为唯一 Key 寻址。
-+/// 注册方式：Project Settings → Autoload → 添加此脚本，名称设为 "PoolManager"。
-+/// 使用示例：
-+/// <code>
-+/// // 预注册（关卡 _Ready 中）
-+/// PoolManager.Instance.Register(bulletScene, prewarmCount: 64);
-+///
-+/// // 借出
-+/// Bullet b = PoolManager.Instance.Rent&lt;Bullet&gt;(bulletScene);
-+///
-+/// // 归还（推荐使用扩展方法 .Despawn()）
-+/// b.Despawn();
-+/// </code>
- public partial class PoolManager : Node
- {
--    // 全局单例实例。
-+    /// 全局单例实例。在 _Ready 中自动赋值（Autoload 保证唯一）。
-     public static PoolManager Instance { get; private set; }
- 
-     // 内部桶字典：PackedScene → PoolBucket
-     private readonly Dictionary<PackedScene, PoolBucket> _buckets = new();
- 
-@@ -28,11 +40,14 @@
-         AddChild(_poolRoot);
-     }
- 
-     #region 公共 API
- 
--    // 预注册一个池。可指定预热数量（默认懒加载）。
-+    /// 预注册一个池。可指定预热数量，在战斗开始前一次性实例化。
-+    /// 如果该 PackedScene 已经注册过，则仅补充预热。
-+    /// <param name="scene">要池化的 PackedScene 资源。</param>
-+    /// <param name="prewarmCount">预热数量（默认 0，即懒加载模式）。</param>
-     public void Register(PackedScene scene, int prewarmCount = 0)
-     {
-         if (!_buckets.TryGetValue(scene, out PoolBucket bucket))
-         {
-             bucket = new PoolBucket(scene, _poolRoot);
-@@ -41,11 +56,17 @@
- 
-         if (prewarmCount > 0)
-             bucket.Prewarm(prewarmCount);
-     }
- 
--    // 从池中借出一个强类型对象（支持懒加载）。
-+    /// 从池中借出一个强类型对象。
-+    /// 如果该 PackedScene 尚未注册，会自动注册（懒加载）。
-+    /// 返回的对象已经 Visible=true、ProcessMode=Inherit，且 OnRent() 已被调用。
-+    /// 注意：借出的节点仍挂在池容器下。调用方需要自行 Reparent 或 AddChild 到目标父节点。
-+    /// <typeparam name="T">目标节点类型，必须是 Node 且实现 IPoolable。</typeparam>
-+    /// <param name="scene">对应的 PackedScene。</param>
-+    /// <returns>已激活的强类型节点实例。</returns>
-     public T Rent<T>(PackedScene scene) where T : Node, IPoolable
-     {
-         if (!_buckets.TryGetValue(scene, out PoolBucket bucket))
-         {
-             bucket = new PoolBucket(scene, _poolRoot);
-@@ -53,11 +74,14 @@
-         }
- 
-         return (T)bucket.Rent();
-     }
- 
--    // 将对象归还到池中，自动通过 IPoolable.PoolScene 寻址。
-+    /// 将对象归还到池中。
-+    /// 通过 IPoolable.PoolScene 自动寻址到对应的桶，调用方无需记住 PackedScene。
-+    /// OnReturn() 会被自动调用，节点随后被隐藏并禁用处理。
-+    /// <param name="poolable">要归还的池化对象。</param>
-     public void Return(IPoolable poolable)
-     {
-         if (poolable is not Node node)
-         {
-             GD.PushError("[A1ObjectPool] Return 失败：IPoolable 实例不是 Node 类型。");
-@@ -79,21 +103,22 @@
-         }
- 
-         bucket.Return(node);
-     }
- 
--    // 清空指定 PackedScene 对应的池。
-+    /// 清空指定 PackedScene 对应的池（释放所有空闲节点）。
-+    /// 适用于关卡卸载时回收特定类型的资源。
-     public void Clear(PackedScene scene)
-     {
-         if (_buckets.TryGetValue(scene, out PoolBucket bucket))
-         {
-             bucket.Clear();
-             _buckets.Remove(scene);
-         }
-     }
- 
--    // 清空所有池。
-+    /// 清空所有池。适用于场景切换时的全局清理。
-     public void ClearAll()
-     {
-         foreach (var bucket in _buckets.Values)
-             bucket.Clear();
- 
-@@ -102,20 +127,20 @@
- 
-     #endregion
- 
-     #region 调试 API
- 
--    // 获取指定池的状态信息。
-+    /// 获取指定池的状态信息（调试用）。
-     public (int available, int totalCreated) GetPoolStats(PackedScene scene)
-     {
-         if (_buckets.TryGetValue(scene, out PoolBucket bucket))
-             return (bucket.AvailableCount, bucket.TotalCreated);
- 
-         return (0, 0);
-     }
- 
--    // 打印所有池的状态到控制台。
-+    /// 打印所有池的状态到 Godot 控制台（调试用）。
-     public void PrintAllStats()
-     {
-         GD.Print("=== [A1ObjectPool] 池状态 ===");
-         foreach (var (scene, bucket) in _buckets)
-         {
-```
-#### TetrisBackpack/addons\A1ObjectPool\NodePoolExtensions.cs
-```diff
---- 
-+++ 
-@@ -1,14 +1,24 @@
- using Godot;
- 
- // ReSharper disable All
- 
--// Node 扩展方法：提供统一的销毁入口 .Despawn()。
--// 如果节点实现 IPoolable 则归还池中，否则直接 QueueFree()。
-+/// Node 扩展方法：提供统一的销毁入口 .Despawn()。
-+/// <para>
-+/// 如果节点实现了 IPoolable，则自动归还到 PoolManager 的池中复用。
-+/// 如果节点没有实现 IPoolable，则退化为普通的 QueueFree()。
-+/// </para>
-+/// <para>
-+/// 团队约定：在所有需要销毁节点的地方，统一使用 .Despawn() 替代 .QueueFree()。
-+/// 这样无论节点是否被池化管理，都能正确处理。
-+/// </para>
- public static class NodePoolExtensions
- {
--    // 统一销毁/回收入口。
-+    /// 统一销毁/回收入口。
-+    /// 池化对象 → 归还到池中复用。
-+    /// 普通节点 → 正常 QueueFree() 销毁。
-+    /// <param name="node">要销毁或回收的节点。</param>
-     public static void Despawn(this Node node)
-     {
-         if (node is IPoolable poolable && PoolManager.Instance != null)
-         {
-             PoolManager.Instance.Return(poolable);
-```
-#### TetrisBackpack/addons\A1ObjectPool\PoolBucket.cs
-```diff
---- 
-+++ 
-@@ -1,12 +1,13 @@
- using System.Collections.Generic;
- using Godot;
- 
- // ReSharper disable All
- 
--// 内部池桶，每个 PackedScene 对应一个 PoolBucket 实例。
--// 负责实际的节点实例化、栈管理、激活/休眠切换。
-+/// 内部池桶，每个 PackedScene 对应一个 PoolBucket 实例。
-+/// 负责实际的节点实例化、栈管理、激活/休眠切换。
-+/// 此类不对外公开，仅由 PoolManager 内部使用。
- internal sealed class PoolBucket
- {
-     private readonly PackedScene _scene;
-     private readonly Stack<Node> _available; // 空闲节点栈
-     private readonly Node _container;        // 隐藏容器节点，所有休眠对象挂在这里
-@@ -23,11 +24,12 @@
-         _container = new Node();
-         _container.Name = scene.ResourcePath.GetFile().GetBaseName() + "_Pool";
-         poolRoot.AddChild(_container);
-     }
- 
--    // 预热：提前实例化指定数量的节点并放入空闲栈，避免战斗时卡顿。
-+    /// 预热：提前实例化指定数量的节点并放入空闲栈。
-+    /// 推荐在关卡 _Ready 中调用，避免战斗时首次实例化的卡顿。
-     public void Prewarm(int count)
-     {
-         for (int i = 0; i < count; i++)
-         {
-             Node node = _scene.Instantiate();
-@@ -43,11 +45,13 @@
-             _available.Push(node);
-             _totalCreated++;
-         }
-     }
- 
--    // 借出节点：复用空闲栈或新实例化，并激活节点生命周期。
-+    /// 借出一个节点。如果栈中有空闲的则弹出复用，否则新实例化一个。
-+    /// 激活节点：设置 Visible=true，ProcessMode=Inherit。
-+    /// 如果节点实现了 IPoolable，会自动调用 OnRent()。
-     public Node Rent()
-     {
-         Node node;
- 
-         if (_available.Count > 0)
-@@ -78,11 +82,13 @@
-             poolable.OnRent();
- 
-         return node;
-     }
- 
--    // 归还节点到池中并休眠。
-+    /// 归还一个节点到池中。
-+    /// 调用 IPoolable.OnReturn() 后，隐藏节点并禁用处理。
-+    /// 如果节点当前不在容器下（比如被 AddChild 到了其他父节点），会自动 Reparent 回来。
-     public void Return(Node node)
-     {
-         // 调用生命周期钩子
-         if (node is IPoolable poolable)
-             poolable.OnReturn();
-@@ -96,11 +102,11 @@
-             node.Reparent(_container);
- 
-         _available.Push(node);
-     }
- 
--    // 清空此池中所有的空闲节点。
-+    /// 清空此池：释放所有节点（包括空闲的和正在使用的都无法追踪，只清空闲的）。
-     public void Clear()
-     {
-         while (_available.Count > 0)
-         {
-             Node node = _available.Pop();
-@@ -108,14 +114,14 @@
-         }
- 
-         _totalCreated = 0;
-     }
- 
--    // 当前空闲节点数量。
-+    /// 当前空闲节点数量（调试用）。
-     public int AvailableCount => _available.Count;
- 
--    // 总共创建的实例数量。
-+    /// 总共创建的实例数量（调试用）。
-     public int TotalCreated => _totalCreated;
- 
-     // 统一处理 2D / 3D 节点的可见性
-     private static void SetVisible(Node node, bool visible)
-     {
-```
----
-## 📅 20260503_070940
-- ➕ 新增: 0 | 📝 修改: 4 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1ObjectPool\IPoolable.cs
-```diff
---- 
-+++ 
-@@ -1,37 +1,16 @@
- using Godot;
- 
- // ReSharper disable All
- 
--/// <summary>
--/// 对象池生命周期接口。
--/// 所有需要池化管理的节点必须实现此接口。
--/// PoolManager 在 Rent / Return 时自动调用 OnRent / OnReturn。
--/// </summary>
-+// 对象池生命周期接口。所有需要池化管理的节点必须实现此接口。
- public interface IPoolable
- {
--    /// <summary>
--    /// 此对象所属的 PackedScene（用于 PoolManager 内部寻址）。
--    /// 业务类通常用 static readonly 字段缓存场景引用，然后在此属性中返回。
--    /// <example>
--    /// <code>
--    /// private static readonly PackedScene _scene = GD.Load&lt;PackedScene&gt;("res://Scenes/Bullet.tscn");
--    /// public PackedScene PoolScene => _scene;
--    /// </code>
--    /// </example>
--    /// </summary>
-+    // 此对象所属的 PackedScene，用于 PoolManager 内部寻址。
-     PackedScene PoolScene { get; }
- 
--    /// <summary>
--    /// 从池中借出时调用。在此方法中重置所有运行时状态。
--    /// 例如：重置位置、速度、HP、启用碰撞、重置动画等。
--    /// PoolManager 会在设置 Visible=true 和 ProcessMode=Inherit 之后调用此方法。
--    /// </summary>
-+    // 从池中借出时调用，用于重置运行时状态（位置、速度、HP、碰撞等）。
-     void OnRent();
- 
--    /// <summary>
--    /// 归还到池中时调用。在此方法中清理运行时引用。
--    /// 例如：停止计时器、断开临时信号连接、清除目标引用等。
--    /// PoolManager 会在调用此方法之后设置 Visible=false 和 ProcessMode=Disabled。
--    /// </summary>
-+    // 归还到池中时调用，用于清理运行时引用（停止计时器、断开信号等）。
-     void OnReturn();
- }
-```
-#### TetrisBackpack/addons\A1ObjectPool\PoolManager.cs
-```diff
---- 
-+++ 
-@@ -1,35 +1,15 @@
- using System.Collections.Generic;
- using Godot;
- 
- // ReSharper disable All
- 
--/// <summary>
--/// 全局对象池管理器（Autoload 单例）。
--/// 提供泛型 Rent&lt;T&gt; / Return API，内部使用 PackedScene 作为唯一 Key 寻址。
--/// <para>
--/// 注册方式：Project Settings → Autoload → 添加此脚本，名称设为 "PoolManager"。
--/// </para>
--/// <para>
--/// 使用示例：
--/// <code>
--/// // 预注册（关卡 _Ready 中）
--/// PoolManager.Instance.Register(bulletScene, prewarmCount: 64);
--///
--/// // 借出
--/// Bullet b = PoolManager.Instance.Rent&lt;Bullet&gt;(bulletScene);
--///
--/// // 归还（推荐使用扩展方法 .Despawn()）
--/// b.Despawn();
--/// </code>
--/// </para>
--/// </summary>
-+// 全局对象池管理器（Autoload 单例）。
-+// 提供泛型 Rent<T> / Return API，内部使用 PackedScene 作为唯一 Key 寻址。
- public partial class PoolManager : Node
- {
--    /// <summary>
--    /// 全局单例实例。在 _Ready 中自动赋值（Autoload 保证唯一）。
--    /// </summary>
-+    // 全局单例实例。
-     public static PoolManager Instance { get; private set; }
- 
-     // 内部桶字典：PackedScene → PoolBucket
-     private readonly Dictionary<PackedScene, PoolBucket> _buckets = new();
- 
-@@ -48,16 +28,11 @@
-         AddChild(_poolRoot);
-     }
- 
-     #region 公共 API
- 
--    /// <summary>
--    /// 预注册一个池。可指定预热数量，在战斗开始前一次性实例化。
--    /// 如果该 PackedScene 已经注册过，则仅补充预热。
--    /// </summary>
--    /// <param name="scene">要池化的 PackedScene 资源。</param>
--    /// <param name="prewarmCount">预热数量（默认 0，即懒加载模式）。</param>
-+    // 预注册一个池。可指定预热数量（默认懒加载）。
-     public void Register(PackedScene scene, int prewarmCount = 0)
-     {
-         if (!_buckets.TryGetValue(scene, out PoolBucket bucket))
-         {
-             bucket = new PoolBucket(scene, _poolRoot);
-@@ -66,21 +41,11 @@
- 
-         if (prewarmCount > 0)
-             bucket.Prewarm(prewarmCount);
-     }
- 
--    /// <summary>
--    /// 从池中借出一个强类型对象。
--    /// 如果该 PackedScene 尚未注册，会自动注册（懒加载）。
--    /// 返回的对象已经 Visible=true、ProcessMode=Inherit，且 OnRent() 已被调用。
--    /// <para>
--    /// 注意：借出的节点仍挂在池容器下。调用方需要自行 Reparent 或 AddChild 到目标父节点。
--    /// </para>
--    /// </summary>
--    /// <typeparam name="T">目标节点类型，必须是 Node 且实现 IPoolable。</typeparam>
--    /// <param name="scene">对应的 PackedScene。</param>
--    /// <returns>已激活的强类型节点实例。</returns>
-+    // 从池中借出一个强类型对象（支持懒加载）。
-     public T Rent<T>(PackedScene scene) where T : Node, IPoolable
-     {
-         if (!_buckets.TryGetValue(scene, out PoolBucket bucket))
-         {
-             bucket = new PoolBucket(scene, _poolRoot);
-@@ -88,16 +53,11 @@
-         }
- 
-         return (T)bucket.Rent();
-     }
- 
--    /// <summary>
--    /// 将对象归还到池中。
--    /// 通过 IPoolable.PoolScene 自动寻址到对应的桶，调用方无需记住 PackedScene。
--    /// OnReturn() 会被自动调用，节点随后被隐藏并禁用处理。
--    /// </summary>
--    /// <param name="poolable">要归还的池化对象。</param>
-+    // 将对象归还到池中，自动通过 IPoolable.PoolScene 寻址。
-     public void Return(IPoolable poolable)
-     {
-         if (poolable is not Node node)
-         {
-             GD.PushError("[A1ObjectPool] Return 失败：IPoolable 实例不是 Node 类型。");
-@@ -119,26 +79,21 @@
-         }
- 
-         bucket.Return(node);
-     }
- 
--    /// <summary>
--    /// 清空指定 PackedScene 对应的池（释放所有空闲节点）。
--    /// 适用于关卡卸载时回收特定类型的资源。
--    /// </summary>
-+    // 清空指定 PackedScene 对应的池。
-     public void Clear(PackedScene scene)
-     {
-         if (_buckets.TryGetValue(scene, out PoolBucket bucket))
-         {
-             bucket.Clear();
-             _buckets.Remove(scene);
-         }
-     }
- 
--    /// <summary>
--    /// 清空所有池。适用于场景切换时的全局清理。
--    /// </summary>
-+    // 清空所有池。
-     public void ClearAll()
-     {
-         foreach (var bucket in _buckets.Values)
-             bucket.Clear();
- 
-@@ -147,24 +102,20 @@
- 
-     #endregion
- 
-     #region 调试 API
- 
--    /// <summary>
--    /// 获取指定池的状态信息（调试用）。
--    /// </summary>
-+    // 获取指定池的状态信息。
-     public (int available, int totalCreated) GetPoolStats(PackedScene scene)
-     {
-         if (_buckets.TryGetValue(scene, out PoolBucket bucket))
-             return (bucket.AvailableCount, bucket.TotalCreated);
- 
-         return (0, 0);
-     }
- 
--    /// <summary>
--    /// 打印所有池的状态到 Godot 控制台（调试用）。
--    /// </summary>
-+    // 打印所有池的状态到控制台。
-     public void PrintAllStats()
-     {
-         GD.Print("=== [A1ObjectPool] 池状态 ===");
-         foreach (var (scene, bucket) in _buckets)
-         {
-```
-#### TetrisBackpack/addons\A1ObjectPool\NodePoolExtensions.cs
-```diff
---- 
-+++ 
-@@ -1,28 +1,14 @@
- using Godot;
- 
- // ReSharper disable All
- 
--/// <summary>
--/// Node 扩展方法：提供统一的销毁入口 .Despawn()。
--/// <para>
--/// 如果节点实现了 IPoolable，则自动归还到 PoolManager 的池中复用。
--/// 如果节点没有实现 IPoolable，则退化为普通的 QueueFree()。
--/// </para>
--/// <para>
--/// 团队约定：在所有需要销毁节点的地方，统一使用 .Despawn() 替代 .QueueFree()。
--/// 这样无论节点是否被池化管理，都能正确处理。
--/// </para>
--/// </summary>
-+// Node 扩展方法：提供统一的销毁入口 .Despawn()。
-+// 如果节点实现 IPoolable 则归还池中，否则直接 QueueFree()。
- public static class NodePoolExtensions
- {
--    /// <summary>
--    /// 统一销毁/回收入口。
--    /// 池化对象 → 归还到池中复用。
--    /// 普通节点 → 正常 QueueFree() 销毁。
--    /// </summary>
--    /// <param name="node">要销毁或回收的节点。</param>
-+    // 统一销毁/回收入口。
-     public static void Despawn(this Node node)
-     {
-         if (node is IPoolable poolable && PoolManager.Instance != null)
-         {
-             PoolManager.Instance.Return(poolable);
-```
-#### TetrisBackpack/addons\A1ObjectPool\PoolBucket.cs
-```diff
---- 
-+++ 
-@@ -1,15 +1,12 @@
- using System.Collections.Generic;
- using Godot;
- 
- // ReSharper disable All
- 
--/// <summary>
--/// 内部池桶，每个 PackedScene 对应一个 PoolBucket 实例。
--/// 负责实际的节点实例化、栈管理、激活/休眠切换。
--/// 此类不对外公开，仅由 PoolManager 内部使用。
--/// </summary>
-+// 内部池桶，每个 PackedScene 对应一个 PoolBucket 实例。
-+// 负责实际的节点实例化、栈管理、激活/休眠切换。
- internal sealed class PoolBucket
- {
-     private readonly PackedScene _scene;
-     private readonly Stack<Node> _available; // 空闲节点栈
-     private readonly Node _container;        // 隐藏容器节点，所有休眠对象挂在这里
-@@ -26,14 +23,11 @@
-         _container = new Node();
-         _container.Name = scene.ResourcePath.GetFile().GetBaseName() + "_Pool";
-         poolRoot.AddChild(_container);
-     }
- 
--    /// <summary>
--    /// 预热：提前实例化指定数量的节点并放入空闲栈。
--    /// 推荐在关卡 _Ready 中调用，避免战斗时首次实例化的卡顿。
--    /// </summary>
-+    // 预热：提前实例化指定数量的节点并放入空闲栈，避免战斗时卡顿。
-     public void Prewarm(int count)
-     {
-         for (int i = 0; i < count; i++)
-         {
-             Node node = _scene.Instantiate();
-@@ -49,15 +43,11 @@
-             _available.Push(node);
-             _totalCreated++;
-         }
-     }
- 
--    /// <summary>
--    /// 借出一个节点。如果栈中有空闲的则弹出复用，否则新实例化一个。
--    /// 激活节点：设置 Visible=true，ProcessMode=Inherit。
--    /// 如果节点实现了 IPoolable，会自动调用 OnRent()。
--    /// </summary>
-+    // 借出节点：复用空闲栈或新实例化，并激活节点生命周期。
-     public Node Rent()
-     {
-         Node node;
- 
-         if (_available.Count > 0)
-@@ -88,15 +78,11 @@
-             poolable.OnRent();
- 
-         return node;
-     }
- 
--    /// <summary>
--    /// 归还一个节点到池中。
--    /// 调用 IPoolable.OnReturn() 后，隐藏节点并禁用处理。
--    /// 如果节点当前不在容器下（比如被 AddChild 到了其他父节点），会自动 Reparent 回来。
--    /// </summary>
-+    // 归还节点到池中并休眠。
-     public void Return(Node node)
-     {
-         // 调用生命周期钩子
-         if (node is IPoolable poolable)
-             poolable.OnReturn();
-@@ -110,13 +96,11 @@
-             node.Reparent(_container);
- 
-         _available.Push(node);
-     }
- 
--    /// <summary>
--    /// 清空此池：释放所有节点（包括空闲的和正在使用的都无法追踪，只清空闲的）。
--    /// </summary>
-+    // 清空此池中所有的空闲节点。
-     public void Clear()
-     {
-         while (_available.Count > 0)
-         {
-             Node node = _available.Pop();
-@@ -124,18 +108,14 @@
-         }
- 
-         _totalCreated = 0;
-     }
- 
--    /// <summary>
--    /// 当前空闲节点数量（调试用）。
--    /// </summary>
-+    // 当前空闲节点数量。
-     public int AvailableCount => _available.Count;
- 
--    /// <summary>
--    /// 总共创建的实例数量（调试用）。
--    /// </summary>
-+    // 总共创建的实例数量。
-     public int TotalCreated => _totalCreated;
- 
-     // 统一处理 2D / 3D 节点的可见性
-     private static void SetVisible(Node node, bool visible)
-     {
-```
----
-## 📅 20260503_070705
-- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
-
-#### AISpace/AGENTS.md
-```diff
---- 
-+++ 
-@@ -91,7 +91,10 @@
- 
- ### Component & Node Access
- - **Nodes Lookup**: Use `%Name` -> `GetNodeOrNull<T>("%Name")` + `GD.PushError`.
- 
- ### Documentation Rules
--- **FORBIDDEN**: XML comments (`/// <summary>`) or inline comments for standard Godot lifecycle (`_Ready`, `_Process`).
--- **MANDATORY**: Inline `//` comments (in Chinese) explaining WHY for custom Rx streams, math formulas, and complex logic.
-+- **FORBIDDEN (NO BOILERPLATE)**: 
-+  1. **STRICTLY FORBIDDEN**: XML comments (`/// <summary>`), class/method headers, or any "Summary" blocks.
-+  2. **STRICTLY FORBIDDEN**: Redundant comments for standard Godot lifecycle methods (`_Ready`, `_Process`, etc.).
-+  3. **STRICTLY FORBIDDEN**: Any AI-style preamble or file-level "This script handles..." summaries.
-+- **MANDATORY**: Inline `//` comments (in Chinese) explaining WHY for custom Rx streams, math formulas, and complex logic. NO "how" or "what" comments unless logic is extremely non-obvious.
-```
 </RECENT_CHANGES>
       ]]>
     </urgent_recent_changes>
@@ -867,7 +249,7 @@ trigger: always_on
   <description>CRITICAL: High-Frequency Object Management</description>
   <rationale>For fast-spawning/destroying entities (e.g., Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
   <rules>
-    1. USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotObjectPool.md` when designing object pools.
+  USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotA1ObjectPoolUsage.md` when designing object pools.
   </rules>
 </object_pool>
 
@@ -978,6 +360,7 @@ trigger: always_on
 
 ### Component & R3 Cheat Sheet
 - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
+- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use R3 `Subject<T>` and expose as `Observable<T>`.
 - **Memory**: `CompositeDisposable _disposables` -> Dispose in `_ExitTree()`.
 - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
 - **Streams**:
@@ -1074,6 +457,7 @@ trigger: always_on
 
 ### Component & R3 Cheat Sheet
 - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
+- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use R3 `Subject<T>` and expose as `Observable<T>`.
 - **Memory**: `CompositeDisposable _disposables` -> Dispose in `_ExitTree()`.
 - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
 - **Streams**:
@@ -1905,35 +1289,6 @@ trigger: manual
     </rule>
   </best_practices>
 </layer_3_advanced>
-]]>
-    </file>
-
-    <file path="AISpace/rules_global\Godot\GodotObjectPool.md" priority="NORMAL">
-<![CDATA[
-# A1ObjectPool Architecture Rules (Godot Object Pool)
-
-For nodes that are spawned and destroyed at a high frequency (e.g., bullets, floating damage text, death effects), the use of dynamic `Instantiate()` and `QueueFree()` is strictly forbidden to prevent runtime GC spikes and frame drops.
-You MUST uniformly use the project's built-in `A1ObjectPool` addon architecture.
-
-## Two Mandatory Requirements
-
-### 1. Implementation & Reset Contract
-All node components that need to enter the object pool (like a `Bullet` class) MUST implement the `IPoolable` interface:
-- Provide a `PoolScene` property returning its associated `PackedScene`.
-- Reset all physical states (like zeroing out velocity) in `OnRent()`.
-- Terminate pending logic (like stopping timers or Tweens) in `OnReturn()`.
-
-When spawning objects, retrieve them via the singleton: `PoolManager.Instance.Rent<T>(scene)`.
-
-### 2. Destruction & Recycling — MUST Use Despawn()
-For any object implementing `IPoolable`, it is **ABSOLUTELY FORBIDDEN** to call `QueueFree()` or `Free()`.
-(The project includes a custom Roslyn Analyzer; any attempt to call `QueueFree()` on a pooled object will trigger an immediate compiler error).
-
-**You MUST uniformly call the extension method:**
-```csharp
-this.Despawn(); 
-```
-`.Despawn()` will automatically determine if the object supports pooling and safely recycle it back into the hidden queue, or safely fallback to a standard `QueueFree()` for non-pooled objects.
 ]]>
     </file>
 
@@ -4328,6 +3683,154 @@ Do NOT link this file to `.kiro/steering/`. Kiro defaults to `inclusion: always`
   </section>
 
   <section name='03_a1_components' description='A1 Components'>
+    <file path="AISpace/rules_global\Godot\GodotA1ObjectPoolUsage.md" priority="NORMAL">
+<![CDATA[
+# A1ObjectPool Usage Guide
+
+Use this pool for high-frequency objects (Bullets, Damage UI, Effects) to prevent GC spikes and frame drops. 
+**Do not use dynamic `Instantiate()` or `QueueFree()` for these objects.**
+
+## 1. Setup Your Object (The Contract)
+Make your node script implement `IPoolable`.
+
+```csharp
+public partial class Bullet : Node2D, IPoolable
+{
+    // 1. Specify the scene this object comes from
+    public PackedScene PoolScene => GD.Load<PackedScene>("res://Scenes/Bullet.tscn");
+
+    // 2. Reset state when pulled from the pool (e.g., zero out velocity)
+    public void OnRent() { 
+        Velocity = Vector2.Zero; 
+    }
+
+    // 3. Stop logic when returned to the pool (e.g., stop timers)
+    public void OnReturn() { 
+        // Logic to halt active processes
+    }
+}
+```
+
+## 2. Prewarm the Pool (Initialization)
+Before combat or heavy usage starts, pre-allocate the objects so they are ready in memory.
+
+```csharp
+// Prewarm 100 bullets into the hidden pool
+PoolManager.Instance.Register(BulletScene, 100);
+```
+
+## 3. Spawn (Rent)
+When you need the object (e.g., player fires a weapon), rent it from the pool instead of instantiating it.
+
+```csharp
+// The manager activates a bullet from the hidden shelf and hands it to you
+var b = PoolManager.Instance.Rent<Bullet>(BulletScene);
+AddChild(b);
+b.GlobalPosition = spawnPosition;
+```
+
+## 4. Destroy (Despawn)
+When the object finishes its job (e.g., hits a target or goes off-screen), **NEVER call `QueueFree()`**.
+
+```csharp
+b.Despawn(); 
+```
+*Note: The project enforces this. Calling `QueueFree()` on an `IPoolable` object will trigger a strict compiler error (A1POOL001).*
+]]>
+    </file>
+
+    <file path="AISpace/rules_global\Godot\GodotA1Sprite3DUsage.md" priority="NORMAL">
+<![CDATA[
+---
+inclusion: manual
+---
+
+# Godot A1Sprite3D Usage — 二渲三动画系统
+
+2D 纸片人在 3D 世界中渲染的完整解决方案。支持 8 方向（或 4 方向）精灵动画、Montage 打断机制、帧事件回调。
+
+## 核心设计
+
+**完全不使用 AnimationPlayer。** 通过纯代码驱动 `Sprite3D.FrameCoords`：
+- **X 轴（列）** = 动画帧，由内部计时器按 FPS 驱动
+- **Y 轴（行）** = 方向，由摄像机角度实时计算
+
+用户只需要"填表"（在 Inspector 中填写帧范围和 FPS），无需手动 K 关键帧。
+
+## 文件结构
+
+| 文件 | 类型 | 职责 |
+|---|---|---|
+| `BillboardDirection.cs` | 静态工具类 | 纯数学：摄像机角度 → 0~7 方向索引 |
+| `BillboardAnimEntry.cs` | Resource 子资源 | 单条动画定义（名称、帧范围、FPS、Montage 标记） |
+| `BillboardAnimConfig.cs` | Resource 资源 | 角色配置集合（图集、行列数、所有动画条目） |
+| `BillboardAnimator.cs` | Node 组件 | 核心控制器（挂在 Entity 上，驱动 Sprite3D） |
+
+## 快速开始
+
+### 1. 准备 SpriteSheet
+
+美术出图格式：横向 = 动画帧，纵向 = 方向。
+
+```
+         列0    列1    列2    列3
+行0(S)  [walk0] [walk1] [walk2] [walk3]
+行1(SW) [walk0] [walk1] [walk2] [walk3]
+行2(W)  [walk0] [walk1] [walk2] [walk3]
+...
+行7(SE) [walk0] [walk1] [walk2] [walk3]
+```
+
+### 2. 创建 BillboardAnimConfig 资源
+
+在 FileSystem 中右键 → New Resource → `BillboardAnimConfig`：
+- 拖入你的 SpriteSheet 图片
+- 设置 Columns（列数）和 Rows（行数）
+- 在 Animations 数组中添加条目
+
+### 3. 搭建场景
+
+```
+Enemy (CharacterBody3D) [Entity]
+├── BillboardAnimator        ← 拖入 AnimConfig 资源
+├── Sprite3D                 ← Billboard = Y-Billboard
+└── AIInputComponent         ← 或 PlayerInputComponent
+```
+
+### 4. 代码使用
+
+```csharp
+using R3;
+
+// 播放持续性动画（会被 AutoSelect 覆盖）
+billboardAnimator.PlayAnimation("Walk");
+
+// 播放打断型动画（不会被 AutoSelect 覆盖）
+billboardAnimator.PlayMontage("Attack");
+
+// 监听帧事件（如攻击第2帧生成伤害框）
+billboardAnimator.AnimationFrameEvent
+    .Where(e => e.animName == "Attack" && e.frameOffset == 2)
+    .Subscribe(_ => SpawnHitbox())
+    .AddTo(_disposables);
+
+// 监听 Montage 结束
+billboardAnimator.MontageFinished
+    .Subscribe(animName => GD.Print($"{animName} 播放完毕"))
+    .AddTo(_disposables);
+```
+
+## 与现有 3D 动画系统的关系
+
+| 系统 | 适用场景 |
+|---|---|
+| `AnimationControllerComponent` + `CharacterAnimationConfig` | 3D 骨骼模型（如玩家角色） |
+| `BillboardAnimator` + `BillboardAnimConfig` | 2.5D 纸片人（如怪物、NPC） |
+
+**一个角色只挂其中一套，永远不会同时挂两套。**
+]]>
+    </file>
+
     <file path="TetrisBackpack/A1TesseractBackpack\GVSR_BackgroundGridVisuals.tres" priority="NORMAL">
 <![CDATA[
 [gd_resource type="Resource" script_class="GridVisualSettingsResource" format=3 uid="uid://cboscusg2x03w"]
@@ -4631,6 +4134,8 @@ unique_name_in_owner = true
 script = ExtResource("tween_script")
 InteractionArea = NodePath("../PhysicsProxy/InteractionArea")
 VisualTarget = NodePath("../PhysicsProxy/InteractionArea")
+HoverScale = Vector2(5, 5)
+PressScale = Vector2(0.5, 0.95)
 
 [node name="InteractionArea#ItemIcon" type="TextureRect" parent="." unique_id=1600377566]
 layout_mode = 1
@@ -12085,6 +11590,141 @@ public partial class MovementComponent : Node
 ]]>
     </file>
 
+    <file path="TetrisBackpack/addons\A1MyAddon\CoreComponents\Animation\AnimationControllerComponent.cs" priority="NORMAL">
+<![CDATA[
+using Godot;
+using Godot.Composition;
+
+/// 动画控制器组件 - 极简数值驱动架构
+/// 
+/// 架构原则：
+/// - 宏观状态由外部信号控制（StateChart 在编辑器中连接信号到公开方法）
+/// - 微观状态由 Velocity 数值驱动（无 Input 依赖）
+/// - 所有动画选择逻辑封装在 AnimationSet 中
+/// - 控制器只负责"问配置要什么动画，然后播放"
+/// 
+/// 使用方法：
+/// 1. 在 Godot 编辑器中，将 StateChart 的 state_entered 信号连接到：
+///    - GroundMode.state_entered → AnimationControllerComponent.EnterGroundMode()
+///    - FlyMode.state_entered → AnimationControllerComponent.EnterFlyMode()
+/// 2. 组件会根据 parent.Velocity 自动选择合适的动画
+[GlobalClass]
+[Component(typeof(CharacterBody3D))]
+public partial class AnimationControllerComponent : Node
+{
+    #region Export Properties
+    
+    [ExportGroup("基础配置")]
+    [Export] public NodePath CharacterModelPath { get; set; } = "KunoSkin";
+    
+    [Export] public NodePath AnimationPlayerPath { get; set; } = "AnimationPlayer";
+    
+    [Export(PropertyHint.Range, "0.0,1.0,0.05")]
+    public float AnimationBlendTime { get; set; } = 0.2f;
+    
+    [Export] public CharacterAnimationConfig AnimConfig { get; set; }
+    
+    #endregion
+
+    #region Private Fields
+    
+    private AnimationPlayer _animPlayer;
+    private string _currentAnimation = "";
+    private string _currentMode = "Ground";
+    
+    #endregion
+
+    #region Godot Lifecycle
+    
+    public override void _Ready()
+    {
+        InitializeComponent();
+        InitializeAnimation();
+    }
+    
+    public override void _Process(double delta)
+    {
+        UpdateAnimation();
+    }
+    
+    #endregion
+
+    #region Public Methods (For StateChart Signal Connections)
+    
+    // StateChart信号连接方法
+    public void EnterGroundMode()
+    {
+        _currentMode = "Ground";
+        GD.Print("[AnimationController] 进入地面模式");
+    }
+    
+    public void EnterFlyMode()
+    {
+        _currentMode = "Fly";
+        GD.Print("[AnimationController] 进入飞行模式");
+    }
+    
+    #endregion
+
+    #region Initialization
+    
+    private void InitializeAnimation()
+    {
+        var characterModel = parent.GetNodeOrNull<Node3D>(CharacterModelPath);
+        if (characterModel == null)
+        {
+            GD.PushError($"[{Name}] Character model not found: {CharacterModelPath}");
+            return;
+        }
+
+        var animPlayerFullPath = CharacterModelPath + "/" + AnimationPlayerPath;
+        _animPlayer = parent.GetNodeOrNull<AnimationPlayer>(animPlayerFullPath);
+        
+        if (_animPlayer == null)
+        {
+            GD.PushError($"[{Name}] AnimationPlayer not found: {animPlayerFullPath}");
+            return;
+        }
+
+        if (AnimConfig != null)
+        {
+            // 使用新的一键初始化方法
+            AnimConfig.ApplyAndInitialize(_animPlayer);
+        }
+    }
+    
+    #endregion
+
+    #region Animation Logic
+    
+    private void UpdateAnimation()
+    {
+        if (_animPlayer == null || AnimConfig == null) return;
+        
+        // 从配置类获取应该播放的动画（所有逻辑都在 CharacterAnimationConfig 中）
+        var (animName, speed) = AnimConfig.GetAnimationForState(
+            _currentMode,
+            parent.Velocity,
+            parent.IsOnFloor()
+        );
+        
+        PlayAnimation(animName, speed);
+    }
+    
+    private void PlayAnimation(string targetAnim, float targetSpeed)
+    {
+        if (string.IsNullOrEmpty(targetAnim) || _currentAnimation == targetAnim)
+            return;
+        
+        _animPlayer.Play(targetAnim, customBlend: AnimationBlendTime, customSpeed: targetSpeed);
+        _currentAnimation = targetAnim;
+    }
+    
+    #endregion
+}
+]]>
+    </file>
+
     <file path="TetrisBackpack/addons\A1MyAddon\CoreComponents\Animation\CharacterAnimationConfig.cs" priority="NORMAL">
 <![CDATA[
 using Godot;
@@ -12537,141 +12177,6 @@ AnimationPlayer (Godot Node)
 - **组件：** `../AnimationControllerComponent.cs`
 - **资源：** `../AnimationAssets/`
 - **示例：** `../Examples/Player3D_Example.cs.txt`
-]]>
-    </file>
-
-    <file path="TetrisBackpack/addons\A1MyAddon\CoreComponents\AnimationControllerComponent.cs" priority="NORMAL">
-<![CDATA[
-using Godot;
-using Godot.Composition;
-
-/// 动画控制器组件 - 极简数值驱动架构
-/// 
-/// 架构原则：
-/// - 宏观状态由外部信号控制（StateChart 在编辑器中连接信号到公开方法）
-/// - 微观状态由 Velocity 数值驱动（无 Input 依赖）
-/// - 所有动画选择逻辑封装在 AnimationSet 中
-/// - 控制器只负责"问配置要什么动画，然后播放"
-/// 
-/// 使用方法：
-/// 1. 在 Godot 编辑器中，将 StateChart 的 state_entered 信号连接到：
-///    - GroundMode.state_entered → AnimationControllerComponent.EnterGroundMode()
-///    - FlyMode.state_entered → AnimationControllerComponent.EnterFlyMode()
-/// 2. 组件会根据 parent.Velocity 自动选择合适的动画
-[GlobalClass]
-[Component(typeof(CharacterBody3D))]
-public partial class AnimationControllerComponent : Node
-{
-    #region Export Properties
-    
-    [ExportGroup("基础配置")]
-    [Export] public NodePath CharacterModelPath { get; set; } = "KunoSkin";
-    
-    [Export] public NodePath AnimationPlayerPath { get; set; } = "AnimationPlayer";
-    
-    [Export(PropertyHint.Range, "0.0,1.0,0.05")]
-    public float AnimationBlendTime { get; set; } = 0.2f;
-    
-    [Export] public CharacterAnimationConfig AnimConfig { get; set; }
-    
-    #endregion
-
-    #region Private Fields
-    
-    private AnimationPlayer _animPlayer;
-    private string _currentAnimation = "";
-    private string _currentMode = "Ground";
-    
-    #endregion
-
-    #region Godot Lifecycle
-    
-    public override void _Ready()
-    {
-        InitializeComponent();
-        InitializeAnimation();
-    }
-    
-    public override void _Process(double delta)
-    {
-        UpdateAnimation();
-    }
-    
-    #endregion
-
-    #region Public Methods (For StateChart Signal Connections)
-    
-    // StateChart信号连接方法
-    public void EnterGroundMode()
-    {
-        _currentMode = "Ground";
-        GD.Print("[AnimationController] 进入地面模式");
-    }
-    
-    public void EnterFlyMode()
-    {
-        _currentMode = "Fly";
-        GD.Print("[AnimationController] 进入飞行模式");
-    }
-    
-    #endregion
-
-    #region Initialization
-    
-    private void InitializeAnimation()
-    {
-        var characterModel = parent.GetNodeOrNull<Node3D>(CharacterModelPath);
-        if (characterModel == null)
-        {
-            GD.PushError($"[{Name}] Character model not found: {CharacterModelPath}");
-            return;
-        }
-
-        var animPlayerFullPath = CharacterModelPath + "/" + AnimationPlayerPath;
-        _animPlayer = parent.GetNodeOrNull<AnimationPlayer>(animPlayerFullPath);
-        
-        if (_animPlayer == null)
-        {
-            GD.PushError($"[{Name}] AnimationPlayer not found: {animPlayerFullPath}");
-            return;
-        }
-
-        if (AnimConfig != null)
-        {
-            // 使用新的一键初始化方法
-            AnimConfig.ApplyAndInitialize(_animPlayer);
-        }
-    }
-    
-    #endregion
-
-    #region Animation Logic
-    
-    private void UpdateAnimation()
-    {
-        if (_animPlayer == null || AnimConfig == null) return;
-        
-        // 从配置类获取应该播放的动画（所有逻辑都在 CharacterAnimationConfig 中）
-        var (animName, speed) = AnimConfig.GetAnimationForState(
-            _currentMode,
-            parent.Velocity,
-            parent.IsOnFloor()
-        );
-        
-        PlayAnimation(animName, speed);
-    }
-    
-    private void PlayAnimation(string targetAnim, float targetSpeed)
-    {
-        if (string.IsNullOrEmpty(targetAnim) || _currentAnimation == targetAnim)
-            return;
-        
-        _animPlayer.Play(targetAnim, customBlend: AnimationBlendTime, customSpeed: targetSpeed);
-        _currentAnimation = targetAnim;
-    }
-    
-    #endregion
-}
 ]]>
     </file>
 
@@ -19552,6 +19057,824 @@ b.Despawn();  // 自动路由到 PoolManager.Return()
 ]]>
     </file>
 
+    <file path="TetrisBackpack/addons\A1Sprite3D\BillboardAnimConfig.cs" priority="NORMAL">
+<![CDATA[
+using Godot;
+using System.Collections.Generic;
+
+/// 角色 Billboard 动画配置集合（保存为 .tres 资源）
+/// 
+/// 一个角色/怪物的全部动画定义。包含：
+///   - 全局 SpriteSheet 图集及行列数
+///   - 方向参数（方向数、偏移角）
+///   - 所有动画条目（BillboardAnimEntry[]）
+///   - 默认回退动画名
+///   - 速度阈值（用于自动选择 Idle/Walk/Run）
+/// 
+/// 使用方法：
+///   1. 在 FileSystem 中右键 → New Resource → BillboardAnimConfig
+///   2. 在 Inspector 中拖入大图，填写行列数
+///   3. 展开 Animations 数组，添加条目（每条填 名字+帧范围+FPS）
+///   4. 将此 .tres 拖到 BillboardAnimator 组件的 AnimConfig 槽位
+[GlobalClass]
+public partial class BillboardAnimConfig : Resource
+{
+    [Export] public string CharacterName { get; set; } = "默认角色";
+
+    #region SpriteSheet 配置
+
+    [ExportGroup("SpriteSheet 配置")]
+
+    /// 全局图集贴图
+    /// 格式要求：横向 = 动画帧（列），纵向 = 方向（行）
+    [Export] public Texture2D SpriteSheet { get; set; }
+
+    /// 图集列数（每行有多少帧）
+    [Export(PropertyHint.Range, "1,64,1")]
+    public int Columns { get; set; } = 4;
+
+    /// 图集行数（有多少个方向行）
+    [Export(PropertyHint.Range, "1,16,1")]
+    public int Rows { get; set; } = 8;
+
+    #endregion
+
+    #region 方向配置
+
+    [ExportGroup("方向配置")]
+
+    /// 方向数量（通常为 8 或 4）
+    [Export(PropertyHint.Range, "1,16,1")]
+    public int DirectionCount { get; set; } = 8;
+
+    /// 方向角度偏移（度）
+    /// 用于修正美术图的朝向定义
+    /// 例如：如果美术的第 0 行是朝北（背面），而你想让第 0 行是朝南（正面），设 180
+    [Export(PropertyHint.Range, "-180,180,1")]
+    public float DirectionOffset { get; set; } = 0f;
+
+    #endregion
+
+    #region 动画定义
+
+    [ExportGroup("动画定义")]
+
+    /// 所有动画条目
+    [Export] public BillboardAnimEntry[] Animations { get; set; }
+
+    /// 默认回退动画名（当没有匹配时使用）
+    [Export] public string DefaultAnimation { get; set; } = "Idle";
+
+    #endregion
+
+    #region 速度阈值（用于自动状态选择）
+
+    [ExportGroup("速度阈值")]
+
+    /// 低于此速度视为静止（播放 Idle）
+    [Export(PropertyHint.Range, "0.0,2.0,0.1")]
+    public float MoveThreshold { get; set; } = 0.1f;
+
+    /// 高于此速度视为冲刺（播放 Sprint，如果有）
+    [Export(PropertyHint.Range, "0.0,30.0,0.5")]
+    public float SprintThreshold { get; set; } = 6.0f;
+
+    /// 高于此速度视为快速飞行（播放 FlyFast，如果有）
+    [Export(PropertyHint.Range, "0.0,30.0,0.5")]
+    public float FlyFastThreshold { get; set; } = 10.0f;
+
+    #endregion
+
+    #region 运行时缓存（非序列化）
+
+    private Dictionary<string, BillboardAnimEntry> _entryCache;
+
+    #endregion
+
+    #region 公共 API
+
+    /// 初始化运行时缓存（由 BillboardAnimator 在 _Ready 时调用）
+    public void Initialize()
+    {
+        _entryCache = new Dictionary<string, BillboardAnimEntry>();
+
+        if (Animations == null || Animations.Length == 0)
+        {
+            GD.PushWarning($"[BillboardAnimConfig] {CharacterName}: 没有配置任何动画条目");
+            return;
+        }
+
+        foreach (var entry in Animations)
+        {
+            if (entry == null || string.IsNullOrEmpty(entry.AnimationName))
+                continue;
+
+            if (_entryCache.ContainsKey(entry.AnimationName))
+            {
+                GD.PushWarning($"[BillboardAnimConfig] {CharacterName}: 动画名重复 '{entry.AnimationName}'，后者覆盖前者");
+            }
+
+            _entryCache[entry.AnimationName] = entry;
+        }
+
+        GD.Print($"[BillboardAnimConfig] {CharacterName}: 初始化完成，加载了 {_entryCache.Count} 个动画");
+    }
+
+    /// 按名称获取动画条目
+    public BillboardAnimEntry GetEntry(string animName)
+    {
+        if (_entryCache == null)
+        {
+            GD.PushError("[BillboardAnimConfig] 未初始化，请先调用 Initialize()");
+            return null;
+        }
+
+        return _entryCache.TryGetValue(animName, out var entry) ? entry : null;
+    }
+
+    /// 检查动画是否存在
+    public bool HasAnimation(string animName)
+    {
+        return _entryCache != null && _entryCache.ContainsKey(animName);
+    }
+
+    /// 根据模式和速度自动选择应播放的动画名
+    /// 
+    /// 仅处理持续性动画（Idle/Walk/Run/Fly 等）。
+    /// Montage 动画（Attack/Hit/Death）由外部手动调用 PlayMontage()。
+    /// 
+    /// 参数：
+    ///   mode     - 当前模式（"Ground" 或 "Fly"）
+    ///   velocity - 角色当前速度向量
+    ///   isOnFloor - 是否在地面上
+    /// 
+    /// 返回：应播放的动画名（如果没有匹配则返回 DefaultAnimation）
+    public string GetAnimationForState(string mode, Vector3 velocity, bool isOnFloor)
+    {
+        if (_entryCache == null) return DefaultAnimation;
+
+        return mode switch
+        {
+            "Ground" => SelectGroundAnimation(velocity, isOnFloor),
+            "Fly" => SelectFlyAnimation(velocity),
+            _ => DefaultAnimation
+        };
+    }
+
+    #endregion
+
+    #region 私有方法
+
+    private string SelectGroundAnimation(Vector3 velocity, bool isOnFloor)
+    {
+        float horizontalSpeed = new Vector2(velocity.X, velocity.Z).Length();
+
+        // 优先级：空中 > 冲刺 > 跑 > 走 > 静止
+        if (!isOnFloor)
+        {
+            if (velocity.Y > 0.1f && HasAnimation("JumpStart"))
+                return "JumpStart";
+            if (velocity.Y < -0.1f && HasAnimation("Fall"))
+                return "Fall";
+            if (HasAnimation("JumpLoop"))
+                return "JumpLoop";
+        }
+
+        if (horizontalSpeed > SprintThreshold && HasAnimation("Sprint"))
+            return "Sprint";
+
+        if (horizontalSpeed > MoveThreshold)
+        {
+            if (HasAnimation("Run"))
+                return "Run";
+            if (HasAnimation("Walk"))
+                return "Walk";
+        }
+
+        return HasAnimation("Idle") ? "Idle" : DefaultAnimation;
+    }
+
+    private string SelectFlyAnimation(Vector3 velocity)
+    {
+        float speed = velocity.Length();
+
+        if (speed > FlyFastThreshold && HasAnimation("FlyFast"))
+            return "FlyFast";
+
+        if (speed > MoveThreshold && HasAnimation("FlyMove"))
+            return "FlyMove";
+
+        if (HasAnimation("FlyIdle"))
+            return "FlyIdle";
+
+        // Fallback 到地面动画
+        return HasAnimation("Idle") ? "Idle" : DefaultAnimation;
+    }
+
+    #endregion
+}
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1Sprite3D\BillboardAnimEntry.cs" priority="NORMAL">
+<![CDATA[
+using Godot;
+
+/// 单条 Billboard 动画定义（子资源）
+/// 
+/// 描述 SpriteSheet 中一个动作的帧范围和播放参数。
+/// 作为子资源嵌入 BillboardAnimConfig 中使用。
+/// 
+/// 用法示例（在 Inspector 中填写）：
+///   AnimationName = "Walk"
+///   StartFrame    = 0       ← SpriteSheet 中该动作的起始列号
+///   EndFrame      = 3       ← 结束列号（包含）
+///   FPS           = 8       ← 每秒播放帧数
+///   Loop          = true    ← 是否循环播放
+///   IsMontage     = false   ← 普通动画（非打断型）
+[GlobalClass]
+public partial class BillboardAnimEntry : Resource
+{
+    #region 基础配置
+
+    [ExportGroup("基础配置")]
+
+    /// 动画名称，用于代码中引用（如 "Idle", "Walk", "Attack"）
+    [Export] public string AnimationName { get; set; } = "";
+
+    /// 在 SpriteSheet 中的起始列号（X 轴，0-indexed）
+    [Export] public int StartFrame { get; set; } = 0;
+
+    /// 在 SpriteSheet 中的结束列号（X 轴，包含此帧）
+    [Export] public int EndFrame { get; set; } = 0;
+
+    /// 播放速度（帧/秒）
+    [Export(PropertyHint.Range, "0.1,60.0,0.1")]
+    public float FPS { get; set; } = 8.0f;
+
+    /// 是否循环播放
+    [Export] public bool Loop { get; set; } = true;
+
+    #endregion
+
+    #region Montage 配置
+
+    [ExportGroup("Montage 配置")]
+
+    /// 标记为 Montage（打断型动画）
+    /// true = Attack/Hit/Death 等一次性动画，播完自动退出
+    /// false = Idle/Walk 等持续性动画
+    [Export] public bool IsMontage { get; set; } = false;
+
+    #endregion
+
+    #region 帧事件
+
+    [ExportGroup("帧事件")]
+
+    /// 可选：在这些帧触发信号（0-indexed，相对于 StartFrame 的偏移）
+    /// 例如 [2] 表示播到第 2 帧时触发 AnimationFrameEvent 信号
+    /// 常用于：攻击判定、音效播放、特效生成
+    [Export] public int[] EventFrames { get; set; }
+
+    #endregion
+
+    #region 可选覆盖
+
+    [ExportGroup("可选覆盖")]
+
+    /// 可选：此动画使用独立的 SpriteSheet（覆盖 Config 中的全局图集）
+    /// 留空则使用 BillboardAnimConfig.SpriteSheet
+    /// 常用于：攻击动画帧数特别多，需要单独一张图
+    [Export] public Texture2D OverrideTexture { get; set; }
+
+    /// 可选：覆盖图集的列数（仅在 OverrideTexture 不为空时生效）
+    [Export] public int OverrideColumns { get; set; } = 0;
+
+    /// 可选：覆盖图集的行数（仅在 OverrideTexture 不为空时生效）
+    [Export] public int OverrideRows { get; set; } = 0;
+
+    #endregion
+
+    #region 计算属性（只读）
+
+    /// 此动画的总帧数
+    public int FrameCount => EndFrame - StartFrame + 1;
+
+    /// 此动画的总时长（秒）
+    public float Duration => FrameCount / FPS;
+
+    /// 是否有独立图集覆盖
+    public bool HasOverrideTexture => OverrideTexture != null;
+
+    #endregion
+}
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1Sprite3D\BillboardAnimator.cs" priority="NORMAL">
+<![CDATA[
+using Godot;
+using Godot.Composition;
+using R3;
+
+/// Billboard 动画控制器 — 二渲三系统核心组件
+/// 
+/// 架构原则：
+/// - 纯代码驱动 Sprite3D.FrameCoords，不使用 AnimationPlayer
+/// - X 轴（列）= 动画帧，由内部计时器按 FPS 驱动
+/// - Y 轴（行）= 方向，由摄像机角度实时计算
+/// - 支持 Montage 打断机制（Attack/Hit/Death 等一次性动画）
+/// - 支持帧事件信号（在特定帧触发回调，用于伤害判定/音效/特效）
+/// 
+/// 使用方法：
+///   1. 在角色场景中添加此 Node 组件
+///   2. 设置 Sprite3DPath 指向你的 Sprite3D 节点
+///   3. 创建并拖入 BillboardAnimConfig (.tres) 资源
+///   4. 状态驱动：外部调用 PlayAnimation("Walk") 或让 Config 自动选择
+///   5. Montage：外部调用 PlayMontage("Attack") 播放一次性打断动画
+/// 
+/// 场景结构示例：
+///   Enemy (CharacterBody3D) [Entity]
+///   ├── BillboardAnimator      ← 此组件
+///   ├── Sprite3D               ← Billboard = Y-Billboard
+///   └── AIInputComponent
+[GlobalClass]
+[Component(typeof(Node3D))]
+public partial class BillboardAnimator : Node
+{
+    #region Export Properties
+
+    [ExportGroup("节点引用")]
+
+    /// Sprite3D 节点路径（相对于 parent Entity）
+    [Export] public NodePath Sprite3DPath { get; set; } = "Sprite3D";
+
+    [ExportGroup("动画配置")]
+
+    /// 动画配置资源（.tres 文件）
+    [Export] public BillboardAnimConfig AnimConfig { get; set; }
+
+    [ExportGroup("Billboard 设置")]
+
+    /// 是否在 _Process 中自动更新方向
+    /// 设为 false 可手动调用 UpdateDirection() 进行优化（比如每隔几帧更新一次）
+    [Export] public bool AutoUpdateDirection { get; set; } = true;
+
+    /// 是否根据 parent.Velocity 自动选择动画状态
+    /// 设为 false 则完全由外部手动调用 PlayAnimation()
+    [Export] public bool AutoSelectAnimation { get; set; } = true;
+
+    /// 当前运动模式（"Ground" 或 "Fly"）
+    /// 由外部（如 StateChart 信号）设置
+    [Export] public string CurrentMode { get; set; } = "Ground";
+
+    #endregion
+
+    #region Observables (R3)
+
+    /// 帧事件流 — 当动画播放到 EventFrames 中定义的帧时触发
+    public Observable<(string animName, int frameOffset)> AnimationFrameEvent => _animationFrameEvent;
+    private Subject<(string animName, int frameOffset)> _animationFrameEvent;
+
+    /// Montage 完成流 — 当打断型动画播放结束时触发
+    public Observable<string> MontageFinished => _montageFinished;
+    private Subject<string> _montageFinished;
+
+    /// 动画切换流 — 当切换到新动画时触发
+    public Observable<(string newAnim, string oldAnim)> AnimationChanged => _animationChanged;
+    private Subject<(string newAnim, string oldAnim)> _animationChanged;
+
+    #endregion
+
+    #region Private Fields
+
+    private Sprite3D _sprite;
+    private Camera3D _camera;
+
+    // 动画播放状态
+    private BillboardAnimEntry _currentEntry;
+    private string _currentAnimName = "";
+    private float _frameTimer;
+    private int _currentFrameOffset;       // 相对于 StartFrame 的偏移
+    private int _lastEventFrame = -1;      // 上一次触发事件的帧（防重复触发）
+
+    // Montage 状态
+    private bool _isPlayingMontage;
+    private string _montageAnimName = "";
+
+    // 方向状态
+    private int _currentDirection;
+
+    #endregion
+
+    #region Public Properties (只读查询)
+
+    /// 当前正在播放的动画名
+    public string CurrentAnimation => _currentAnimName;
+
+    /// 是否正在播放 Montage（打断型动画）
+    public bool IsPlayingMontage => _isPlayingMontage;
+
+    /// 当前方向索引（0 ~ DirectionCount-1）
+    public int CurrentDirection => _currentDirection;
+
+    /// 当前帧偏移（相对于动画的 StartFrame）
+    public int CurrentFrameOffset => _currentFrameOffset;
+
+    #endregion
+
+    #region Godot Lifecycle
+
+    public override void _EnterTree()
+    {
+        // 遵循 AGENTS.md 规范：在 _EnterTree 初始化核心数据流
+        _animationFrameEvent = new Subject<(string animName, int frameOffset)>();
+        _montageFinished = new Subject<string>();
+        _animationChanged = new Subject<(string newAnim, string oldAnim)>();
+    }
+
+    public override void _Ready()
+    {
+        InitializeComponent();
+        InitializeBillboard();
+    }
+
+    public override void _Process(double delta)
+    {
+        if (_sprite == null || AnimConfig == null) return;
+
+        // 1. 更新摄像机引用（延迟获取，因为摄像机可能在之后才加入场景树）
+        if (_camera == null || !IsInstanceValid(_camera))
+        {
+            _camera = GetViewport()?.GetCamera3D();
+            if (_camera == null) return;
+        }
+
+        // 2. 自动选择动画（基于速度）
+        if (AutoSelectAnimation && !_isPlayingMontage)
+        {
+            AutoSelectAnimationFromVelocity();
+        }
+
+        // 3. 更新方向 (Y 轴)
+        if (AutoUpdateDirection)
+        {
+            UpdateDirection();
+        }
+
+        // 4. 更新帧 (X 轴)
+        UpdateFrame((float)delta);
+
+        // 5. 应用到 Sprite3D
+        ApplyFrameCoords();
+    }
+
+    public override void _ExitTree()
+    {
+        _animationFrameEvent?.Dispose();
+        _montageFinished?.Dispose();
+        _animationChanged?.Dispose();
+    }
+
+    #endregion
+
+    #region Public API — 状态驱动
+
+    /// 切换到指定名称的持续性动画
+    /// 如果正在播放 Montage，此调用会被忽略（Montage 优先）
+    public void PlayAnimation(string animName)
+    {
+        if (_isPlayingMontage) return;
+        if (animName == _currentAnimName) return;
+
+        SetCurrentAnimation(animName);
+    }
+
+    /// 播放一次性打断动画（Montage）
+    /// 会立即中断当前播放的任何动画，播完后自动恢复到 DefaultAnimation
+    /// 常用于：Attack, Hit, Death, Dodge 等
+    public void PlayMontage(string animName)
+    {
+        if (AnimConfig == null) return;
+
+        var entry = AnimConfig.GetEntry(animName);
+        if (entry == null)
+        {
+            GD.PushWarning($"[BillboardAnimator] Montage 动画不存在: {animName}");
+            return;
+        }
+
+        _isPlayingMontage = true;
+        _montageAnimName = animName;
+        SetCurrentAnimation(animName);
+    }
+
+    /// 强制停止当前 Montage，立即恢复到默认动画
+    public void CancelMontage()
+    {
+        if (!_isPlayingMontage) return;
+
+        string cancelled = _montageAnimName;
+        _isPlayingMontage = false;
+        _montageAnimName = "";
+
+        // 恢复默认动画
+        SetCurrentAnimation(AnimConfig?.DefaultAnimation ?? "Idle");
+    }
+
+    /// 手动设置运动模式（通常由 StateChart 信号调用）
+    public void EnterGroundMode() => CurrentMode = "Ground";
+    public void EnterFlyMode() => CurrentMode = "Fly";
+
+    /// 手动触发方向更新（当 AutoUpdateDirection = false 时使用）
+    public void UpdateDirection()
+    {
+        if (_camera == null || AnimConfig == null) return;
+
+        _currentDirection = BillboardDirection.GetDirectionIndex(
+            _camera.GlobalPosition,
+            parent.GlobalPosition,
+            -parent.GlobalTransform.Basis.Z,
+            AnimConfig.DirectionCount,
+            AnimConfig.DirectionOffset
+        );
+    }
+
+    #endregion
+
+    #region Initialization
+
+    private void InitializeBillboard()
+    {
+        // 获取 Sprite3D
+        _sprite = parent.GetNodeOrNull<Sprite3D>(Sprite3DPath);
+        if (_sprite == null)
+        {
+            GD.PushError($"[BillboardAnimator] Sprite3D 未找到: {Sprite3DPath}");
+            return;
+        }
+
+        // 初始化配置
+        if (AnimConfig == null)
+        {
+            GD.PushError($"[BillboardAnimator] AnimConfig 未设置");
+            return;
+        }
+
+        AnimConfig.Initialize();
+
+        // 应用全局 SpriteSheet 到 Sprite3D
+        if (AnimConfig.SpriteSheet != null)
+        {
+            _sprite.Texture = AnimConfig.SpriteSheet;
+            _sprite.Hframes = AnimConfig.Columns;
+            _sprite.Vframes = AnimConfig.Rows;
+        }
+
+        // 播放默认动画
+        SetCurrentAnimation(AnimConfig.DefaultAnimation);
+
+        GD.Print($"[BillboardAnimator] 初始化完成 - 角色: {AnimConfig.CharacterName}");
+    }
+
+    #endregion
+
+    #region Animation Logic
+
+    /// 根据 parent.Velocity 自动选择动画
+    private void AutoSelectAnimationFromVelocity()
+    {
+        if (AnimConfig == null) return;
+
+        // 尝试将 parent 当作 CharacterBody3D 来读取物理状态
+        bool isOnFloor = false;
+        Vector3 velocity = Vector3.Zero;
+
+        if (parent is CharacterBody3D charBody)
+        {
+            isOnFloor = charBody.IsOnFloor();
+            velocity = charBody.Velocity;
+        }
+        else if (parent is RigidBody3D rigidBody)
+        {
+            velocity = rigidBody.LinearVelocity;
+        }
+
+        string targetAnim = AnimConfig.GetAnimationForState(CurrentMode, velocity, isOnFloor);
+        PlayAnimation(targetAnim);
+    }
+
+    /// 更新帧计时器和当前帧偏移
+    private void UpdateFrame(float delta)
+    {
+        if (_currentEntry == null) return;
+
+        _frameTimer += delta;
+
+        float frameDuration = 1.0f / _currentEntry.FPS;
+        int frameCount = _currentEntry.FrameCount;
+
+        if (frameCount <= 0) return;
+
+        if (_currentEntry.Loop || _isPlayingMontage == false)
+        {
+            // 循环模式（普通动画）
+            _currentFrameOffset = (int)(_frameTimer / frameDuration) % frameCount;
+        }
+        else
+        {
+            // 非循环模式（Montage）
+            _currentFrameOffset = (int)(_frameTimer / frameDuration);
+
+            if (_currentFrameOffset >= frameCount)
+            {
+                // Montage 播放完毕
+                _currentFrameOffset = frameCount - 1; // 停在最后一帧
+
+                if (_isPlayingMontage)
+                {
+                    string finishedAnim = _montageAnimName;
+                    _isPlayingMontage = false;
+                    _montageAnimName = "";
+
+                    _montageFinished.OnNext(finishedAnim);
+
+                    // 恢复默认动画
+                    SetCurrentAnimation(AnimConfig?.DefaultAnimation ?? "Idle");
+                    return;
+                }
+            }
+        }
+
+        // 检查帧事件
+        CheckFrameEvents();
+    }
+
+    /// 检查并触发帧事件
+    private void CheckFrameEvents()
+    {
+        if (_currentEntry?.EventFrames == null) return;
+        if (_currentFrameOffset == _lastEventFrame) return;
+
+        foreach (int eventFrame in _currentEntry.EventFrames)
+        {
+            if (_currentFrameOffset == eventFrame && _lastEventFrame != eventFrame)
+            {
+                _animationFrameEvent.OnNext((_currentAnimName, eventFrame));
+            }
+        }
+
+        _lastEventFrame = _currentFrameOffset;
+    }
+
+    /// 将计算结果应用到 Sprite3D
+    private void ApplyFrameCoords()
+    {
+        if (_sprite == null || _currentEntry == null) return;
+
+        int x = _currentEntry.StartFrame + _currentFrameOffset;
+        int y = _currentDirection;
+
+        // 处理 OverrideTexture
+        if (_currentEntry.HasOverrideTexture)
+        {
+            if (_sprite.Texture != _currentEntry.OverrideTexture)
+            {
+                _sprite.Texture = _currentEntry.OverrideTexture;
+                _sprite.Hframes = _currentEntry.OverrideColumns > 0
+                    ? _currentEntry.OverrideColumns
+                    : AnimConfig.Columns;
+                _sprite.Vframes = _currentEntry.OverrideRows > 0
+                    ? _currentEntry.OverrideRows
+                    : AnimConfig.Rows;
+            }
+        }
+        else
+        {
+            // 确保使用全局图集
+            if (AnimConfig.SpriteSheet != null && _sprite.Texture != AnimConfig.SpriteSheet)
+            {
+                _sprite.Texture = AnimConfig.SpriteSheet;
+                _sprite.Hframes = AnimConfig.Columns;
+                _sprite.Vframes = AnimConfig.Rows;
+            }
+        }
+
+        _sprite.FrameCoords = new Vector2I(x, y);
+    }
+
+    /// 设置当前动画（内部方法，重置计时器）
+    private void SetCurrentAnimation(string animName)
+    {
+        if (AnimConfig == null || string.IsNullOrEmpty(animName)) return;
+
+        var entry = AnimConfig.GetEntry(animName);
+        if (entry == null)
+        {
+            // 如果指定动画不存在，尝试回退到默认
+            if (animName != AnimConfig.DefaultAnimation)
+            {
+                entry = AnimConfig.GetEntry(AnimConfig.DefaultAnimation);
+            }
+
+            if (entry == null) return;
+            animName = AnimConfig.DefaultAnimation;
+        }
+
+        string oldAnim = _currentAnimName;
+        _currentEntry = entry;
+        _currentAnimName = animName;
+        _frameTimer = 0f;
+        _currentFrameOffset = 0;
+        _lastEventFrame = -1;
+
+        if (oldAnim != animName)
+        {
+            _animationChanged.OnNext((animName, oldAnim));
+        }
+    }
+
+    #endregion
+}
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1Sprite3D\BillboardDirection.cs" priority="NORMAL">
+<![CDATA[
+using Godot;
+
+/// 方向计算工具 - 纯数学，无状态
+/// 
+/// 根据摄像机位置和角色朝向，计算出 0~(directionCount-1) 的方向索引。
+/// 方向索引对应 SpriteSheet 中的行号（Y 轴）。
+/// 
+/// 默认方向排布（8方向，从行0开始）：
+///   0=S(正面), 1=SW, 2=W, 3=NW, 4=N(背面), 5=NE, 6=E, 7=SE
+/// 
+/// 使用 DirectionOffset 可旋转整个映射（例如美术的"正面"是朝北而非朝南）。
+public static class BillboardDirection
+{
+    /// 计算当前应显示的方向索引
+    /// 
+    /// 参数：
+    ///   cameraGlobalPos  - 摄像机的全局位置
+    ///   charGlobalPos    - 角色的全局位置
+    ///   charForwardZ     - 角色的正前方向量（通常是 -GlobalTransform.Basis.Z）
+    ///   directionCount   - 方向总数（4 或 8）
+    ///   offsetDegrees    - 角度偏移（度），用于修正美术图的朝向
+    /// 
+    /// 返回：0 ~ (directionCount - 1) 的整数索引
+    public static int GetDirectionIndex(
+        Vector3 cameraGlobalPos,
+        Vector3 charGlobalPos,
+        Vector3 charForwardZ,
+        int directionCount = 8,
+        float offsetDegrees = 0f)
+    {
+        // 1. 计算摄像机到角色的水平方向向量（忽略Y轴高度差）
+        Vector3 camToChar = charGlobalPos - cameraGlobalPos;
+        camToChar.Y = 0;
+
+        if (camToChar.LengthSquared() < 0.001f)
+            return 0;
+
+        camToChar = camToChar.Normalized();
+
+        // 2. 将角色前方向量也投影到水平面
+        Vector3 forward = charForwardZ;
+        forward.Y = 0;
+
+        if (forward.LengthSquared() < 0.001f)
+            return 0;
+
+        forward = forward.Normalized();
+
+        // 3. 计算带符号夹角（弧度）
+        //    使用 Atan2 + 叉乘(Y分量) 获取 -PI ~ PI 的带符号角
+        float dot = forward.Dot(camToChar);
+        float cross = forward.Cross(camToChar).Y;
+        float angleRad = Mathf.Atan2(cross, dot);
+
+        // 4. 加上用户自定义偏移
+        angleRad += Mathf.DegToRad(offsetDegrees);
+
+        // 5. 归一化到 0 ~ 2PI
+        float angleDeg = Mathf.RadToDeg(angleRad);
+        angleDeg = ((angleDeg % 360f) + 360f) % 360f;
+
+        // 6. 将 0~360 映射到 0 ~ (directionCount - 1)
+        //    每个方向占 (360 / directionCount) 度
+        //    偏移半个扇区让边界落在两个方向的正中间
+        float sectorSize = 360f / directionCount;
+        int index = (int)((angleDeg + sectorSize * 0.5f) / sectorSize) % directionCount;
+
+        return index;
+    }
+}
+]]>
+    </file>
+
     <file path="TetrisBackpack/addons\A1TetrisBackpack\BasicScenes\BasicItem.tscn" priority="NORMAL">
 <![CDATA[
 [gd_scene format=3 uid="uid://cac8ccsbkf8hf"]
@@ -22745,6 +23068,112 @@ public partial class ItemDataResource : Resource
 	}
 	
 	#endregion
+}
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1TetrisBackpack\Items\ItemVisualSyncComponent.cs" priority="NORMAL">
+<![CDATA[
+using Godot;
+using R3;
+
+/// <summary>
+/// 物品视觉同步组件
+/// 目的：将 ItemDataResource 中的 Icon 自动同步到 TextureRect，并处理拖拽时的平滑旋转效果。
+/// </summary>
+[GlobalClass]
+public partial class ItemVisualSyncComponent : Node
+{
+	[Export] public NodePath GridShapeComponentPath { get; set; } = "%GridShapeComponent";
+	[Export] public NodePath ItemIconPath { get; set; } = "VisualContainer/InteractionArea#ItemIcon"; // 根据实际节点调整
+	[Export] public NodePath DraggableComponentPath { get; set; } = "%DraggableItemComponent";
+
+	private GridShapeComponent _gridShape;
+	private TextureRect _icon;
+	private DraggableItemComponent _draggable;
+
+	private float _currentRotationDegrees = 0f;
+	private Tween _rotationTween;
+
+	public override void _Ready()
+	{
+		_gridShape = GetNodeOrNull<GridShapeComponent>(GridShapeComponentPath);
+		_icon = GetNodeOrNull<TextureRect>(ItemIconPath);
+		_draggable = GetNodeOrNull<DraggableItemComponent>(DraggableComponentPath);
+
+		// 如果找不到，尝试按照唯一名称查找
+		if (_icon == null)
+		{
+			// 因为 "#" 字符可能导致 NodePath 解析问题，我们遍历一下
+			var interactionArea = GetNodeOrNull<Control>("%InteractionArea");
+			if (interactionArea != null)
+			{
+				foreach (Node child in interactionArea.GetChildren())
+				{
+					if (child is TextureRect tr && child.Name.ToString().Contains("ItemIcon"))
+					{
+						_icon = tr;
+						break;
+					}
+				}
+			}
+		}
+
+		if (_gridShape != null)
+		{
+			// 订阅父节点的数据初始化事件，设置图标
+			var parent = GetParent();
+			if (parent is IItemDataProvider provider)
+			{
+				provider.DataInitialized += OnDataInitialized;
+			}
+			else
+			{
+				// 或者直接从 GridShape 读取（如果已经初始化）
+				if (_gridShape.Data != null)
+				{
+					OnDataInitialized(_gridShape.Data);
+				}
+			}
+		}
+
+		if (_draggable != null && _icon != null)
+		{
+			_icon.PivotOffset = _icon.Size / 2f;
+			
+			_draggable.OnRotateRequestedAsObservable
+				.Subscribe(_ => RotateVisual())
+				.AddTo(this);
+		}
+	}
+
+	private void OnDataInitialized(ItemDataResource data)
+	{
+		if (data != null && _icon != null)
+		{
+			_icon.Texture = data.Icon;
+		}
+	}
+
+	private void RotateVisual()
+	{
+		if (_icon == null || _gridShape == null) return;
+
+		_currentRotationDegrees += 90f;
+
+		// 确保以当前大小的中心为轴旋转
+		_icon.PivotOffset = _icon.Size / 2f;
+
+		if (_rotationTween != null && _rotationTween.IsValid())
+		{
+			_rotationTween.Kill();
+		}
+
+		_rotationTween = GetTree().CreateTween();
+		_rotationTween.TweenProperty(_icon, "rotation_degrees", _currentRotationDegrees, 0.15f)
+			.SetTrans(Tween.TransitionType.Quad)
+			.SetEase(Tween.EaseType.Out);
+	}
 }
 ]]>
     </file>
@@ -31712,6 +32141,73 @@ rendering_device/driver.windows="d3d12"
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260503_074050
+- ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -61,11 +61,11 @@
+ 
+ <object_pool>
+   <description>CRITICAL: High-Frequency Object Management</description>
+   <rationale>For fast-spawning/destroying entities (e.g., Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
+   <rules>
+-  USE THE POOL: Always refer to `AISpace\rules_global\Godot\A1ObjectPoolUsage.md` when designing object pools.
++  USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotA1ObjectPoolUsage.md` when designing object pools.
+   </rules>
+ </object_pool>
+ 
+ ### Component & R3 Cheat Sheet
+ - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
+```
+
+---
+## 📅 20260503_074009
+- ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -61,11 +61,11 @@
+ 
+ <object_pool>
+   <description>CRITICAL: High-Frequency Object Management</description>
+   <rationale>For fast-spawning/destroying entities (e.g., Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
+   <rules>
+-    1. USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotObjectPool.md` when designing object pools.
++  USE THE POOL: Always refer to `AISpace\rules_global\Godot\A1ObjectPoolUsage.md` when designing object pools.
+   </rules>
+ </object_pool>
+ 
+ ### Component & R3 Cheat Sheet
+ - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
+```
+---
+## 📅 20260503_073440
+- ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -61,11 +61,11 @@
+ 
+ <object_pool>
+   <description>CRITICAL: High-Frequency Object Management</description>
+   <rationale>For fast-spawning/destroying entities (e.g., Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
+   <rules>
+-    1. USE THE POOL: Always refer to `AISpace\rules_global\Uncommon\GodotObjectPool.md` when designing object pools.
++    1. USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotObjectPool.md` when designing object pools.
+   </rules>
+ </object_pool>
+ 
+ ### Component & R3 Cheat Sheet
+ - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
+```
+---
 ## 📅 20260503_073240
 - ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
 
@@ -31736,7 +32232,6 @@ rendering_device/driver.windows="d3d12"
  ### Component & R3 Cheat Sheet
  - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
 ```
-
 ---
 ## 📅 20260503_072903
 - ➕ 新增: 1 | 📝 修改: 2 | ❌ 删除: 0
@@ -32654,860 +33149,6 @@ rendering_device/driver.windows="d3d12"
  
  <complex_pattern>
    <description>CRITICAL: Godot Lifecycle (_EnterTree vs _Ready) & Initialization</description>
-```
----
-## 📅 20260503_051228
-- ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
-
-#### AISpace/AGENTS.md
-```diff
---- 
-+++ 
-@@ -36,15 +36,15 @@
- </system_reminder>
- 
- ## 4. Architecture & R3 Strictness
- 
- <prime_directive>
--  <description>CRITICAL: Execution Strictness, KISS & Anti-Over-Engineering</description>
--  <rationale>While component-based design is required, over-engineering breaks pixel-perfect layouts and ruins the Architect's intent.</rationale>
-+  <description>CRITICAL: Clean Code, Generality & Cross-Project Reuse vs. KISS</description>
-+  <rationale>Core systems must be clean, universal, and ready for cross-project reuse. However, simple requirements MUST NOT be over-complicated. The most effective, simplest code is always the best.</rationale>
-   <rules>
--    1. EXACT BLUEPRINT OBEDIENCE: Execute hotfixes EXACTLY. Do NOT generalize into `[Export]` unless commanded.
--    2. KISS & YAGNI: Keep It Simple. Never invent abstractions that complicate straightforward tasks.
-+    1. GENERALITY & REUSE: Design core architecture (e.g., Object Pools, Managers) to be clean, generic, and decoupled so they can be directly used in the next project.
-+    2. ELEGANT SIMPLICITY (KISS): Never over-engineer simple features. Simple problems demand the most direct, straightforward, and simple code possible.
-     3. COMPONENT STRICTNESS: Composition > Inheritance. Components do ONE thing.
-     4. NAMING ENFORCEMENT: Injected component variables MUST match their Type names.
-   </rules>
- </prime_directive>
- 
-```
----
-## 📅 20260503_041739
-- ➕ 新增: 0 | 📝 修改: 6 | ❌ 删除: 0
-
-#### AISpace/rules_global\Godot\GodotBackpackTesseractSys_Context.md
-```diff
---- 
-+++ 
-@@ -7,11 +7,11 @@
- 
- **Latest Architecture (2026-05-02):**
- - **Polygon Merging (Ghost Collision Fix):** `ItemPhysicsComponent` uses `Geometry2D.MergePolygons` (with a 0.5px overlap) to seamlessly fuse multiple grid cells into a single `CollisionPolygon2D`. This eliminates "ghost collisions" where items snagged on internal seams between grid cells.
- - **Continuous Collision Detection (CCD):** Physics proxies use `ContinuousCd = CcdMode.CastRay` to prevent high-speed tunneling through the floor when spawned overlapping.
- - **Physics-State Authority:** Controller relies on `ItemPhysicsComponent.Freeze` to determine if an item is grabbed from the logic grid or caught mid-air. World-drops preserve their `GlobalPosition` and hand off seamlessly to the physics engine.
--- **Out-of-Bounds Caching & Respawn:** `ItemStorageManager` caches all `WorldPhysicsItems` on initialization. `LootSpawnAreaController` loops this cache directly instead of `HasNode("%PhysicsProxy")` per-tick. Controller directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity`, supporting dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
-+- **Out-of-Bounds Caching & Respawn:** `ItemStorageManager` caches all `WorldPhysicsItems` on initialization. `OutsideBackpackItemsComp` loops this cache directly instead of `HasNode("%PhysicsProxy")` per-tick. Controller directly updates the `TopLevel` RigidBody's position and zeros out `LinearVelocity`, supporting dynamic `RespawnPointPath` (e.g., `../Fallenpoint`).
- - **Throw Velocity (Physical Drop):** `FollowMouseUIComponent` tracks cursor velocity via exponential smoothing in `_Process`. When dropped in the world, `BackpackInteractionController` passes this `ThrowVelocity` to `ItemPhysicsComponent.EnablePhysics(Vector2)`, which applies it to `LinearVelocity` after unfreezing, creating a natural throw.
- - **TopWall Collision:** `TSBackpack.tscn` uses a massive shared `RectangleShape2D` (5000x2776). The TopWall is placed at y=0 with shape offset -1383, perfectly aligning its bottom face with the screen top (y=5) to bounce thrown items back.
- - **Normalization Shift Compensation:** `ItemPhysicsComponent` calculates the visual offset caused by `GridShapeComponent.NormalizeShape()` during a physical rotation and applies an inverse shift to the parent `Control`'s `GlobalPosition`, eliminating pixel jumping when picking up rotated items.
- - **TopLevel Physics Proxy:** The `RigidBody2D` physics proxy MUST set `TopLevel = true` to break the Godot spatial inheritance chain. This prevents the "death spiral" feedback loop (infinite acceleration) when `_PhysicsProcess` synchronizes coordinates with its parent `Control`.
- - **Backpack-Physics Decoupling:** Items inside the backpack set `CollisionLayer/Mask = 0` (NONE) and `Freeze = true`. This prevents them from acting as physical obstacles that could deflect dragged items or interfere with other loot. They only restore `CollisionLayer/Mask = 16` (ITEM_LAYER) and `Freeze = false` when taken out or spawned in the world.
-@@ -97,11 +97,11 @@
-   <technical_specifications>
-     *Scene Tree Hierarchy (Updated 2026-04-23):*
-     * BackpackPanel (BackpackGridUIComponent)
-       * BackpackInteractionController
-       * BackpackGridComponent (LogicGrid)
--      * Items Container
-+      * InsideBackpackItems
-         * TetrisDraggableItem (Control) [ROOT: MouseFilter = Ignore (2)]
-           * StateChart
-             * Root (CompoundState, initial="Idle")
-               * Idle (AtomicState) -> Transition: event="drag_start" -> Dragging
-               * Dragging (AtomicState) -> Transition: event="drag_end" -> Idle
-@@ -197,11 +197,11 @@
-       <cause>Positive feedback loop between `_PhysicsProcess` setting parent position and child RigidBody inheriting that transform.</cause>
-       <fix>Set `TopLevel = true` on the `RigidBody2D` to break the inheritance chain.</fix>
-     </error>
-     <error symptom="Item continuously respawns out of bounds (infinite falling loop)">
-       <cause>Respawn code teleported the UI Control but ignored the `TopLevel` RigidBody, keeping its extreme falling velocity and position intact.</cause>
--      <fix>In `LootSpawnAreaController`, directly set the `ItemPhysicsComponent.GlobalPosition` and zero out its `LinearVelocity` and `AngularVelocity`.</fix>
-+      <fix>In `OutsideBackpackItemsComp`, directly set the `ItemPhysicsComponent.GlobalPosition` and zero out its `LinearVelocity` and `AngularVelocity`.</fix>
-     </error>
-     <error symptom="Performance drops when checking for out of bounds items">
-       <cause>Using `HasNode("%PhysicsProxy")` inside a frequent tick loop traverses the tree using string lookups.</cause>
-       <fix>Cache valid physics proxies in a `List<ItemPhysicsComponent>` inside `ItemStorageManager` and iterate that list instead.</fix>
-     </error>
-@@ -221,11 +221,11 @@
-     - **Juice Delegation Pattern:** All Tween logic (Scaling, Counter-Transform Rotation) is moved to `UITweenInteractComponent`. Controller remains clean of implementation details like `TweenDuration` or `EaseType`.
-     - **Spatial Delegation Pattern:** All coordinate-aware math (Pixel-to-Grid, Grid-to-Center, Boundary Checks) is moved to `BackpackGridUIComponent`. Controller treats the grid as a pure logical service.
-     - **Anchor Stability Pattern:** Pre-calculate `GrabbedCellIndex` at pick-up. This persistent logical index ensures the item rotates around the exact cell the player grabbed, regardless of orientation changes.
-     - **Node Reuse Pattern (Focus Preservation):** When updating item visuals during interaction (e.g., rotation), reuse existing `GridCellUI` nodes if the count is identical. Only update their `Position`. This prevents losing Godot mouse capture/focus, which would otherwise suppress the 'mouse release' event.
-     - **Interface-Based Data Injection:** `IItemDataProvider` interface with `DataInitialized` event allows parent (TSItemWrapper) to inject data to child (GridShapeComponent) after both are ready.
--    - **MVC Controller Concept:** `BackpackInteractionController` bridges `DraggableItemComponent` input with `BackpackGridComponent` backend. Auto-registers items from `ItemsContainerPath` in `_Ready()`.
-+    - **MVC Controller Concept:** `BackpackInteractionController` bridges `DraggableItemComponent` input with `BackpackGridComponent` backend. Auto-registers items from `NodePath_InsideBackpackItems` in `_Ready()`.
-     - **Power Switch Pattern:** Used by `FollowMouseUIComponent`. Placement strictly under the `Dragging` AtomicState allows `AutoBindToParentState()` to natively handle activation/deactivation hooks.
-     - **Micro-Interaction Tweens:** Inside `UITweenInteractComponent`, execute `_currentTween?.Kill()` before starting a new `AnimateToScale()`.
-   </implementation_anchors>
- 
-   <critical_constraints>
-```
-#### TetrisBackpack/A1TesseractBackpack\TSBackpack.tscn
-```diff
---- 
-+++ 
-@@ -35,40 +35,10 @@
- anchor_bottom = 1.0
- grow_horizontal = 2
- grow_vertical = 2
- color = Color(0.1, 0.1, 0.12, 1)
- 
--[node name="BackpackGridComponent" type="Node" parent="." unique_id=155700214]
--unique_name_in_owner = true
--script = ExtResource("2_ovaqc")
--
--[node name="BackpackGridUIComponent" type="Node" parent="." unique_id=1436944256 node_paths=PackedStringArray("GridBackground", "InteractionArea")]
--unique_name_in_owner = true
--script = ExtResource("1_7o1w7")
--BackpackGridComponentPath = NodePath("../BackpackGridComponent")
--GridVisualSettings = ExtResource("3_5mic1")
--GridBackground = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/GridBackground")
--InteractionArea = NodePath("../ScreenMargin/MainVBox/BackpackVisuals")
--
--[node name="BackpackInteractionController" type="Node" parent="." unique_id=863928779]
--script = ExtResource("5_bic01")
--ItemsContainerPath = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/ItemsContainer")
--LootSpawnAreaPath = NodePath("../LootSpawnArea")
--
--[node name="ItemStorageManager" type="Node" parent="." unique_id=987654321]
--script = ExtResource("ItemStorage_SC")
--LootSpawnAreaPath = NodePath("../LootSpawnArea")
--ItemsContainerPath = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/ItemsContainer")
--FallenpointPath = NodePath("../Fallenpoint")
--
--[node name="Fallenpoint" type="Control" parent="." unique_id=145081264]
--anchors_preset = 0
--offset_left = 565.0
--offset_top = -243.0
--offset_right = 605.0
--offset_bottom = -203.0
--
- [node name="ScreenMargin" type="MarginContainer" parent="." unique_id=632711132]
- layout_mode = 1
- anchors_preset = 15
- anchor_right = 1.0
- anchor_bottom = 1.0
-@@ -103,85 +73,117 @@
- anchor_bottom = 1.0
- grow_horizontal = 2
- grow_vertical = 2
- mouse_filter = 2
- 
--[node name="ItemsContainer" type="Control" parent="ScreenMargin/MainVBox/BackpackVisuals" unique_id=822530628]
--layout_mode = 1
--anchors_preset = 15
--anchor_right = 1.0
--anchor_bottom = 1.0
--grow_horizontal = 2
--grow_vertical = 2
--mouse_filter = 2
--
- [node name="Instructions" type="Label" parent="ScreenMargin/MainVBox" unique_id=2075687424]
- layout_mode = 2
- theme_override_font_sizes/font_size = 16
- text = "Left Click: Drag | Right Click: Rotate | Drop in backpack to place"
- horizontal_alignment = 1
- 
--[node name="LootSpawnArea" type="Control" parent="." unique_id=599388111]
-+[node name="OutsideBackpackItems" type="Control" parent="." unique_id=599388111]
- layout_mode = 1
- anchors_preset = 15
- anchor_right = 1.0
- anchor_bottom = 1.0
- grow_horizontal = 2
- grow_vertical = 2
- mouse_filter = 2
- script = ExtResource("LootController_SC")
- 
--[node name="FloorStaticBody" type="StaticBody2D" parent="LootSpawnArea" unique_id=599388112]
-+[node name="FloorStaticBody" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=599388112]
- unique_name_in_owner = true
- physics_interpolation_mode = 1
- position = Vector2(565, 648)
- collision_layer = 16
- collision_mask = 16
- 
--[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/FloorStaticBody" unique_id=599388113]
-+[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/FloorStaticBody" unique_id=599388113]
- position = Vector2(0, 1383)
- shape = SubResource("RectangleShape2D_floor")
- 
--[node name="LeftWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388114]
-+[node name="LeftWall" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=899388114]
- position = Vector2(-50, 300)
- collision_layer = 16
- collision_mask = 16
- 
--[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/LeftWall" unique_id=899388115]
-+[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/LeftWall" unique_id=899388115]
- position = Vector2(-1336, 0)
- rotation = 1.5708
- shape = SubResource("RectangleShape2D_floor")
- 
--[node name="RightWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388116]
-+[node name="RightWall" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=899388116]
- position = Vector2(1202, 300)
- collision_layer = 16
- collision_mask = 16
- 
--[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/RightWall" unique_id=899388117]
-+[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/RightWall" unique_id=899388117]
- position = Vector2(1344, 0)
- rotation = 1.5708
- shape = SubResource("RectangleShape2D_floor")
- 
--[node name="TopWall" type="StaticBody2D" parent="LootSpawnArea" unique_id=899388118]
-+[node name="TopWall" type="StaticBody2D" parent="OutsideBackpackItems" unique_id=899388118]
- position = Vector2(565, 0)
- collision_layer = 16
- collision_mask = 16
- 
--[node name="CollisionShape2D" type="CollisionShape2D" parent="LootSpawnArea/TopWall" unique_id=899388119]
-+[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideBackpackItems/TopWall" unique_id=899388119]
- position = Vector2(0, -2019)
- shape = SubResource("RectangleShape2D_floor")
- 
--[node name="TsItem" parent="LootSpawnArea" unique_id=1959740042 instance=ExtResource("3_bkm53")]
-+[node name="TsItem" parent="OutsideBackpackItems" unique_id=1959740042 instance=ExtResource("3_bkm53")]
- layout_mode = 0
- offset_left = 400.0
- offset_top = 100.0
- offset_right = 592.0
- offset_bottom = 164.0
- Data = SubResource("Resource_0xep6")
- 
--[node name="TsItem2" parent="LootSpawnArea" unique_id=279074725 instance=ExtResource("3_bkm53")]
-+[node name="TsItem2" parent="OutsideBackpackItems" unique_id=279074725 instance=ExtResource("3_bkm53")]
- layout_mode = 0
- offset_left = 600.0
- offset_top = 100.0
- offset_right = 792.0
- offset_bottom = 164.0
- Data = SubResource("Resource_0xep6")
-+
-+[node name="InsideBackpackItems" type="Control" parent="." unique_id=822530628]
-+layout_mode = 1
-+anchors_preset = 15
-+anchor_right = 1.0
-+anchor_bottom = 1.0
-+grow_horizontal = 2
-+grow_vertical = 2
-+mouse_filter = 2
-+
-+[node name="Fallenpoint" type="Control" parent="." unique_id=145081264]
-+anchors_preset = 0
-+offset_left = 565.0
-+offset_top = -243.0
-+offset_right = 605.0
-+offset_bottom = -203.0
-+
-+[node name="BackpackGridComponent" type="Node" parent="." unique_id=155700214]
-+unique_name_in_owner = true
-+script = ExtResource("2_ovaqc")
-+
-+[node name="BackpackGridUIComponent" type="Node" parent="." unique_id=1436944256 node_paths=PackedStringArray("GridBackground", "InteractionArea")]
-+unique_name_in_owner = true
-+script = ExtResource("1_7o1w7")
-+BackpackGridComponentPath = NodePath("../BackpackGridComponent")
-+GridVisualSettings = ExtResource("3_5mic1")
-+GridBackground = NodePath("../ScreenMargin/MainVBox/BackpackVisuals/GridBackground")
-+InteractionArea = NodePath("../ScreenMargin/MainVBox/BackpackVisuals")
-+
-+[node name="BackpackInteractionController" type="Node" parent="." unique_id=863928779]
-+script = ExtResource("5_bic01")
-+BackpackGridComponentPath = NodePath("../BackpackGridComponent")
-+ViewGridPath = NodePath("../BackpackGridUIComponent")
-+NodePath_InsideBackpackItems = NodePath("../InsideBackpackItems")
-+NodePath_OutsideBackpackItems = NodePath("../OutsideBackpackItems")
-+
-+[node name="ItemStorageManager" type="Node" parent="." unique_id=987654321]
-+script = ExtResource("ItemStorage_SC")
-+NodePath_OutsideBackpackItems = NodePath("../OutsideBackpackItems")
-+NodePath_InsideBackpackItems = NodePath("../InsideBackpackItems")
-+FallenpointPath = NodePath("../Fallenpoint")
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\ItemStorageManager.cs
-```diff
---- 
-+++ 
-@@ -3,19 +3,19 @@
- using System.Collections.Generic;
- 
- [GlobalClass]
- public partial class ItemStorageManager : Node
- {
--	[Export] public NodePath LootSpawnAreaPath { get; set; }
--	[Export] public NodePath ItemsContainerPath { get; set; }
-+	[Export] public NodePath NodePath_OutsideBackpackItems { get; set; }
-+	[Export] public NodePath NodePath_InsideBackpackItems { get; set; }
- 	[Export] public NodePath FallenpointPath { get; set; }
- 
- 	[Export] public int MaxItemsPerRow = 3;
- 	[Export] public float SpacingX = 100f;
- 	[Export] public float SpacingY = 100f;
- 
--	// 世界中具有物理代理的所有 Loot 物品缓存，供 LootSpawnAreaController 定期检查越界使用
-+	// 世界中具有物理代理的所有 Loot 物品缓存，供 Control_OutsideBackpackItemsController 定期检查越界使用
- 	// 理由：避免 Controller 每帧遇历子节点 + HasNode 字符串查找的性能开销
- 	public List<ItemPhysicsComponent> WorldPhysicsItems { get; private set; } = new();
- 
- 	public void RegisterWorldItem(ItemPhysicsComponent physicsComp)
- 	{
-@@ -47,12 +47,12 @@
- 		GD.Print("ItemStorageManager: 开局物品布局初始化完成。");
- 	}
- 
- 	private void HandleBackpackItems()
- 	{
--		if (string.IsNullOrEmpty(ItemsContainerPath)) return;
--		var container = GetNodeOrNull(ItemsContainerPath);
-+		if (string.IsNullOrEmpty(NodePath_InsideBackpackItems)) return;
-+		var container = GetNodeOrNull(NodePath_InsideBackpackItems);
- 		if (container == null) return;
- 
- 		foreach (Node child in container.GetChildren())
- 		{
- 			if (child is Control itemControl && child.HasNode("%GridShapeComponent"))
-@@ -69,12 +69,12 @@
- 		}
- 	}
- 
- 	private void HandleLootItems()
- 	{
--		if (string.IsNullOrEmpty(LootSpawnAreaPath)) return;
--		var lootArea = GetNodeOrNull(LootSpawnAreaPath);
-+		if (string.IsNullOrEmpty(NodePath_OutsideBackpackItems)) return;
-+		var lootArea = GetNodeOrNull(NodePath_OutsideBackpackItems);
- 		if (lootArea == null) return;
- 
- 		Control fallenpoint = null;
- 		if (!string.IsNullOrEmpty(FallenpointPath))
- 		{
-@@ -123,11 +123,11 @@
- 					physicsComp.AngularVelocity = 0;
- 					
- 					// 核心修复：调用专门的方法完全激活物理代理（不仅解冻，还启用向 UI 的数据反向同步）
- 					physicsComp.EnablePhysics();
- 
--					// 加入缓存，供 LootSpawnAreaController 直接轮询
-+					// 加入缓存，供 Control_OutsideBackpackItemsController 直接轮询
- 					WorldPhysicsItems.Add(physicsComp);
- 				}
- 
- 				currentIndex++;
- 			}
-```
-#### AISpace/AGENTS.md
-```diff
---- 
-+++ 
-@@ -78,13 +78,19 @@
- 4. Subscribe: In `OnEntityReady()`. Append `.AddTo(_disposables)`.
- </workflow>
- 
- ## 5. Coding Standards
- 
--### Naming & Access
--- **[Export]**: `TypeName_Purpose` (e.g., `OptionButton_Theme`).
--- **Private**: `_camelCase`.
--- **Nodes**: `%Name` -> `GetNodeOrNull<T>` + `GD.PushError`.
-+### Naming
-+- **Strict Node-to-Variable Matching (Anti-Alias Rule)**: 
-+  Variables that reference Nodes MUST contain the exact Node name string.
-+  1. **No Synonyms or Abbreviations**: If a node is named `InitPoint`, the variable MUST contain `InitPoint`. Changing it to `spawnPlace` or `init` is STRICTLY FORBIDDEN.
-+  2. **Format (`TypeName_NodeName`)**: Variables must follow the type prefix format. Example: `[Export] NodePath NodePath_InitPoint;` or `Control control_InitPoint;`.
-+  3. **Domain Explicit Names**: Node names must be unambiguous. Use `InsideBackpackItems` instead of a generic `ItemsContainer`.
-+- **Private Variables**: `_camelCase` for internal state.
-+
-+### Component & Node Access
-+- **Nodes Lookup**: Use `%Name` -> `GetNodeOrNull<T>("%Name")` + `GD.PushError`.
- 
- ### Documentation Rules
- - **FORBIDDEN**: XML comments (`/// <summary>`) or inline comments for standard Godot lifecycle (`_Ready`, `_Process`).
- - **MANDATORY**: Inline `//` comments (in Chinese) explaining WHY for custom Rx streams, math formulas, and complex logic.
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\DraggableItemComponent.cs
-```diff
---- 
-+++ 
-@@ -18,15 +18,17 @@
- 	[Export] public string DragStartEventName { get; set; } = "drag_start";
- 	
- 	// 拖拽结束事件名称（发送给 StateChart），可在编辑器中配置
- 	[Export] public string DragEndEventName { get; set; } = "drag_end";
- 	
-+	private bool _isDragging = false;
-+	
- 	#endregion
- 	
- 	#region R3 Reactive Streams
- 	
--	public Subject<Unit> OnDragStartedAsObservable { get; private set; }
-+	public Subject<int> OnDragStartedAsObservable { get; private set; }
- 	
- 	/// 拖拽结束事件流
- 	/// 
- 	/// 触发时机：鼠标左键松开
- 	/// 
-@@ -60,11 +62,11 @@
- 	#region Godot Lifecycle
- 	
- 	public override void _EnterTree()
- 	{
- 		// 【架构修正】在 _EnterTree 中初始化所有 Subjects
--		OnDragStartedAsObservable = new Subject<Unit>();
-+		OnDragStartedAsObservable = new Subject<int>();
- 		OnDragEndedAsObservable = new Subject<Unit>();
- 		OnRotateRequestedAsObservable = new Subject<Unit>();
- 	}
- 	
- 	public override void _Ready()
-@@ -86,11 +88,11 @@
- 			return;
- 		}
- 		
- 		// 订阅 GridShapeUIComponent 的聚合输入事件流
- 		_gridShapeUIComponent.OnGroupInputAsObservable
--			.Subscribe(x => HandleGuiInput(x.Event))
-+			.Subscribe(x => HandleGuiInput(x.Event, x.CellIndex))
- 			.AddTo(this);
- 		
- 		StateChart = GetNodeOrNull<Node>(StateChartPath);
- 		if (StateChart == null)
- 		{
-@@ -104,10 +106,23 @@
- 		// R3 规则：释放所有 Subjects
- 		OnDragStartedAsObservable?.Dispose();
- 		OnDragEndedAsObservable?.Dispose();
- 		OnRotateRequestedAsObservable?.Dispose();
- 	}
-+	public override void _Notification(int what)
-+	{
-+		base._Notification(what);
-+		
-+		if (what == 1005 || what == 2015) // 1005: NotificationWmWindowFocusOut, 2015: NotificationApplicationFocusOut
-+		{
-+			if (_isDragging)
-+			{
-+				GD.Print($"[{Name}] 游戏失去焦点，强制结束拖拽状态！");
-+				HandleDragEnd();
-+			}
-+		}
-+	}
- 	
- 	#endregion
- 	
- 	#region Input Handling
- 	
-@@ -117,20 +132,20 @@
- 	/// 
- 	/// 算法：
- 	/// 1. 判断事件类型（只处理 InputEventMouseButton）
- 	/// 2. 根据按键类型和状态分发到不同的处理逻辑
- 	/// 3. 触发对应的 R3 Subject 和 StateChart 事件
--	private void HandleGuiInput(InputEvent @event)
-+	private void HandleGuiInput(InputEvent @event, int cellIndex)
- 	{
- 		// 只处理鼠标按键事件
- 		if (@event is not InputEventMouseButton mouseEvent)
- 			return;
- 		
- 		// 左键按下 → 开始拖拽
- 		if (mouseEvent.ButtonIndex == MouseButton.Left && mouseEvent.Pressed)
- 		{
--			HandleDragStart();
-+			HandleDragStart(cellIndex);
- 		}
- 		// 左键松开 → 结束拖拽
- 		else if (mouseEvent.ButtonIndex == MouseButton.Left && !mouseEvent.Pressed)
- 		{
- 			HandleDragEnd();
-@@ -141,14 +156,17 @@
- 			HandleRotateRequest();
- 		}
- 	}
- 	
- 	/// 处理拖拽开始
--	private void HandleDragStart()
--	{
--		// 【R3 响应式】通知订阅者
--		OnDragStartedAsObservable.OnNext(Unit.Default);
-+	private void HandleDragStart(int cellIndex)
-+	{
-+		if (_isDragging) return;
-+		_isDragging = true;
-+		
-+		// 【R3 响应式】通知订阅者，传递抓取的格子索引
-+		OnDragStartedAsObservable.OnNext(cellIndex);
- 		
- 		// 【StateChart】发送状态机事件
- 		if (StateChart != null)
- 		{
- 			// 使用可配置的事件名称，避免硬编码
-@@ -157,10 +175,13 @@
- 	}
- 	
- 	/// 处理拖拽结束
- 	private void HandleDragEnd()
- 	{
-+		if (!_isDragging) return;
-+		_isDragging = false;
-+		
- 		// 【R3 响应式】通知订阅者
- 		OnDragEndedAsObservable.OnNext(Unit.Default);
- 		
- 		// 【StateChart】发送状态机事件
- 		if (StateChart != null)
-@@ -181,13 +202,13 @@
- 	#endregion
- 	
- 	#region Helper Methods
- 	
- 	/// 手动触发拖拽开始（用于程序化控制）
--	public void TriggerDragStart()
--	{
--		HandleDragStart();
-+	public void TriggerDragStart(int cellIndex = 0)
-+	{
-+		HandleDragStart(cellIndex);
- 	}
- 	
- 	/// 手动触发拖拽结束（用于程序化控制）
- 	public void TriggerDragEnd()
- 	{
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
-```diff
---- 
-+++ 
-@@ -56,14 +56,14 @@
- 
- 	/// UI 网格视图组件引用（View 层）
- 	[Export] public NodePath ViewGridPath { get; set; } = "%BackpackGridUIComponent";
- 
- 	/// 物品容器路径（在背包内的物品）
--	[Export] public NodePath ItemsContainerPath { get; set; }
-+	[Export] public NodePath NodePath_InsideBackpackItems { get; set; }
- 
- 	/// 生成区容器路径（在地上的物品）
--	[Export] public NodePath LootSpawnAreaPath { get; set; } = "";
-+	[Export] public NodePath NodePath_OutsideBackpackItems { get; set; } = "";
- 
- 	/// ItemStorageManager 路径
- 	[Export] public NodePath ItemStorageManagerPath { get; set; } = "../../ItemStorageManager";
- 
- 	#endregion
-@@ -98,44 +98,44 @@
- 		{
- 			GD.PushError($"[{Name}] ViewGrid not found: {ViewGridPath}");
- 			return;
- 		}
- 
--		// 自动注册 ItemsContainer 内所有物品
--		if (!string.IsNullOrEmpty(ItemsContainerPath))
--		{
--			var container = GetNodeOrNull(ItemsContainerPath);
--			if (container != null)
--			{
--				foreach (Node child in container.GetChildren())
-+		// 自动注册 InsideBackpackItems 内所有物品
-+		if (!string.IsNullOrEmpty(NodePath_InsideBackpackItems))
-+		{
-+			var control_InsideBackpackItems = GetNodeOrNull(NodePath_InsideBackpackItems);
-+			if (control_InsideBackpackItems != null)
-+			{
-+				foreach (Node child in control_InsideBackpackItems.GetChildren())
- 				{
- 					if (child is Control && child.HasNode("%GridShapeComponent")) // 简单过滤有效物品
- 						RegisterItem(child);
- 				}
- 			}
- 			else
- 			{
--				GD.PushWarning($"[{Name}] ItemsContainer not found: {ItemsContainerPath}");
--			}
--		}
--
--		// 自动注册 LootSpawnArea 内所有物品
--		if (!string.IsNullOrEmpty(LootSpawnAreaPath))
--		{
--			var lootContainer = GetNodeOrNull(LootSpawnAreaPath);
--			if (lootContainer != null)
--			{
--				foreach (Node child in lootContainer.GetChildren())
-+				GD.PushWarning($"[{Name}] InsideBackpackItems not found: {NodePath_InsideBackpackItems}");
-+			}
-+		}
-+
-+		// 自动注册 OutsideBackpackItems 内所有物品
-+		if (!string.IsNullOrEmpty(NodePath_OutsideBackpackItems))
-+		{
-+			var control_OutsideBackpackItems = GetNodeOrNull(NodePath_OutsideBackpackItems);
-+			if (control_OutsideBackpackItems != null)
-+			{
-+				foreach (Node child in control_OutsideBackpackItems.GetChildren())
- 				{
--					// LootSpawnArea 里有墙和地板（StaticBody2D），必须过滤掉！只有具有 GridShapeComponent 的才是物品
-+					// OutsideBackpackItems 里有墙和地板（StaticBody2D），必须过滤掉！只有具有 GridShapeComponent 的才是物品
- 					if (child is Control && child.HasNode("%GridShapeComponent"))
- 						RegisterItem(child);
- 				}
- 			}
- 			else
- 			{
--				GD.PushWarning($"[{Name}] LootSpawnArea not found: {LootSpawnAreaPath}");
-+				GD.PushWarning($"[{Name}] OutsideBackpackItems not found: {NodePath_OutsideBackpackItems}");
- 			}
- 		}
- 
- 		if (ItemStorageManagerPath != null && !ItemStorageManagerPath.IsEmpty)
- 			_itemStorageManager = GetNodeOrNull<ItemStorageManager>(ItemStorageManagerPath);
-@@ -201,11 +201,11 @@
- 
- 		// 2. 订阅拖拽事件（使用 R3）
- 		// 【关键】使用 .AddTo(itemEntity) 确保物品销毁时自动取消订阅
- 
- 		draggable.OnDragStartedAsObservable
--			.Subscribe(_ => HandleItemPickedUp(itemEntity, itemControl, shapeComponent, draggable))
-+			.Subscribe(grabbedCellIndex => HandleItemPickedUp(itemEntity, itemControl, shapeComponent, draggable, grabbedCellIndex))
- 			.AddTo(itemEntity);
- 
- 		draggable.OnDragEndedAsObservable
- 			.Subscribe(_ => HandleItemDropped(itemEntity, itemControl, shapeComponent))
- 			.AddTo(itemEntity);
-@@ -231,11 +231,11 @@
- 	#region Drag Event Handlers
- 
- 	/// 处理物品拾取（拖拽开始）
- 	/// 目的：记录原始状态并从网格移除，防止"自我占用"；启动 R3 预览流
- 	/// 算法：1. 记录位置 → 2. 从网格移除 → 3. 保存状态 → 4. 启动预览流（TakeUntil 自动停止）
--	private void HandleItemPickedUp(Node itemEntity, Control itemControl, GridShapeComponent shapeComponent, DraggableItemComponent draggable)
-+	private void HandleItemPickedUp(Node itemEntity, Control itemControl, GridShapeComponent shapeComponent, DraggableItemComponent draggable, int grabbedCellIndex)
- 	{
- 		bool wasInGrid = true;
- 		var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
- 		if (itemPhysics != null)
- 		{
-@@ -262,26 +262,40 @@
- 			ShapeComponent = shapeComponent,
- 			ItemControl = itemControl,
- 			OriginallyInGrid = wasInGrid
- 		};
- 
--		// 【架构重构】在拾取瞬间预计算被抓取的单元格索引
-+		// 记录我们实际点击的格子索引
-+		_currentDrag.GrabbedCellIndex = grabbedCellIndex;
-+
- 		var followComp = GetFollowComp(itemEntity);
--
- 		if (followComp != null && shapeComponent.CurrentLocalCells != null)
- 		{
--			// 1. 确保跟随组件已初始化抓取偏移量
--			followComp.CalculateGrabOffsetFromMouse();
--
--			// 2. 将物理抓取偏移转换为局部像素坐标
--			Vector2 localGrabPos = -followComp.GrabOffset;
--
--			// 3. 在当前形状中查找匹配该坐标的单元格索引（逻辑委托给 GridShapeComponent）
--			int grabbedIndex = shapeComponent.GetCellIndexAtLocalPosition(localGrabPos);
--
--			// 4. 持久化到拖拽状态中，供后续旋转逻辑使用
--			_currentDrag.GrabbedCellIndex = grabbedIndex;
-+			if (wasInGrid)
-+			{
-+				// 如果原本在网格中，没有物理旋转的影响，直接获取鼠标局部位置保持原样偏差
-+				followComp.CalculateGrabOffsetFromMouse();
-+			}
-+			else
-+			{
-+				// 从世界中抓取：由于 DisablePhysics() 会进行离散旋转归零，并移动了 GlobalPosition，
-+				// 此时 GetLocalMousePosition() 得到的是旋转前的位置！
-+				// 解决方案：我们确切知道抓取的是哪个逻辑网格，强制将鼠标对齐到该格子的中心。
-+				if (grabbedCellIndex >= 0 && grabbedCellIndex < shapeComponent.CurrentLocalCells.Length)
-+				{
-+					Vector2I grabbedCellLocal = shapeComponent.CurrentLocalCells[grabbedCellIndex];
-+					Vector2 cellCenterLocal = new Vector2(
-+						grabbedCellLocal.X * shapeComponent.CellSize.X + shapeComponent.CellSize.X / 2f,
-+						grabbedCellLocal.Y * shapeComponent.CellSize.Y + shapeComponent.CellSize.Y / 2f
-+					);
-+					followComp.GrabOffset = -cellCenterLocal;
-+				}
-+				else
-+				{
-+					followComp.CalculateGrabOffsetFromMouse();
-+				}
-+			}
- 		}
- 
- 		// 【视觉修正】锁定 Hover 状态，防止拖拽时闪烁白光
- 		var itemGroupCtrl = GetItemGroupCtrl(itemEntity);
- 		if (itemGroupCtrl != null)
-@@ -515,11 +529,11 @@
- 
- 	#region Helper Methods
- 
- 	public async void SpawnLootItem(ItemData itemData)
- 	{
--		var lootArea = GetNodeOrNull<Control>(LootSpawnAreaPath);
-+		var lootArea = GetNodeOrNull<Control>(NodePath_OutsideBackpackItems);
- 		if (lootArea == null) return;
- 
- 		var scene = GD.Load<PackedScene>("res://A1TesseractBackpack/TSItem.tscn");
- 		if (scene == null) return;
- 
-```
----
-## 📅 20260503_031125
-- ➕ 新增: 0 | 📝 修改: 3 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\ItemStorageManager.cs
-```diff
---- 
-+++ 
-@@ -14,10 +14,26 @@
- 	[Export] public float SpacingY = 100f;
- 
- 	// 世界中具有物理代理的所有 Loot 物品缓存，供 LootSpawnAreaController 定期检查越界使用
- 	// 理由：避免 Controller 每帧遇历子节点 + HasNode 字符串查找的性能开销
- 	public List<ItemPhysicsComponent> WorldPhysicsItems { get; private set; } = new();
-+
-+	public void RegisterWorldItem(ItemPhysicsComponent physicsComp)
-+	{
-+		if (physicsComp != null && !WorldPhysicsItems.Contains(physicsComp))
-+		{
-+			WorldPhysicsItems.Add(physicsComp);
-+		}
-+	}
-+
-+	public void UnregisterWorldItem(ItemPhysicsComponent physicsComp)
-+	{
-+		if (physicsComp != null)
-+		{
-+			WorldPhysicsItems.Remove(physicsComp);
-+		}
-+	}
- 
- 	public override async void _Ready()
- 	{
- 		// 必须延迟一帧执行，以确保所有子节点的 _Ready 已经完成，物理引擎代理已绑定
- 		await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\FollowMouseUIComponent.cs
-```diff
---- 
-+++ 
-@@ -205,18 +205,10 @@
- 	/// 设置抓取偏移量（通常在拖拽开始时调用）
- 	public void SetGrabOffset(Vector2 offset)
- 	{
- 		GrabOffset = offset;
- 	}
--
--	/// 将当前计算的甩飞速度应用到目标物理组件，并激活物理模拟
--	public void ApplyThrowVelocityTo(ItemPhysicsComponent physicsComp)
--	{
--		if (physicsComp == null) return;
--		Vector2 throwVelocity = ThrowVelocity * physicsComp.ThrowMultiplier;
--		physicsComp.EnablePhysics(throwVelocity);
--	}
- 	
- 	/// 根据当前鼠标位置自动计算抓取偏移
- 	public void CalculateGrabOffsetFromMouse()
- 	{
- 		if (TargetUI == null)
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
-```diff
---- 
-+++ 
-@@ -61,16 +61,20 @@
- 	[Export] public NodePath ItemsContainerPath { get; set; }
- 
- 	/// 生成区容器路径（在地上的物品）
- 	[Export] public NodePath LootSpawnAreaPath { get; set; } = "";
- 
-+	/// ItemStorageManager 路径
-+	[Export] public NodePath ItemStorageManagerPath { get; set; } = "../../ItemStorageManager";
-+
- 	#endregion
- 
- 	#region Private Fields
- 
- 	private BackpackGridComponent BackpackGridComp;
- 	private BackpackGridUIComponent BackpackGridUIComp;
-+	private ItemStorageManager _itemStorageManager;
- 
- 	// 当前拖拽状态（单一物品，玩家只有一个鼠标）
- 	private ItemDragState _currentDrag;
- 
- 	/// CompositeDisposable - 管理所有订阅
-@@ -131,10 +135,16 @@
- 			{
- 				GD.PushWarning($"[{Name}] LootSpawnArea not found: {LootSpawnAreaPath}");
- 			}
- 		}
- 
-+		if (ItemStorageManagerPath != null && !ItemStorageManagerPath.IsEmpty)
-+			_itemStorageManager = GetNodeOrNull<ItemStorageManager>(ItemStorageManagerPath);
-+		
-+		if (_itemStorageManager == null)
-+			_itemStorageManager = GetNodeOrNull<ItemStorageManager>("../../ItemStorageManager");
-+
- 		GD.Print("BackpackInteractionController: 初始化完成");
- 	}
- 
- 
- 	public override void _ExitTree()
-@@ -230,10 +240,11 @@
- 		if (itemPhysics != null)
- 		{
- 			// 如果物理是激活的（没有被 Freeze），说明它是从空中（世界）抓取的，而不是网格里。
- 			wasInGrid = itemPhysics.Freeze;
- 			itemPhysics.DisablePhysics();
-+			_itemStorageManager?.UnregisterWorldItem(itemPhysics);
- 		}
- 
- 		Vector2 originalGlobalPos = itemControl.GlobalPosition;
- 		Vector2I originalGridPos = BackpackGridUIComp.GlobalToGridPosition(originalGlobalPos);
- 
-@@ -378,14 +389,15 @@
- 			// Dropped OUTSIDE: Do NOT bounce back.
- 			// FollowMouseUIComponent 已经考虑了抓取偏移，保持原位直接启用物理即可。
- 			var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
- 			if (itemPhysics != null)
- 			{
--				// 读取 FollowMouseUIComponent 记录的鼠标速度，传入物理引擎
-+				// 读取 FollowMouseUIComponent 记录的鼠标速度，乘以礩飞倍率传入物理引擎
- 				var followComp = GetFollowComp(itemEntity);
--				if (followComp != null) followComp.ApplyThrowVelocityTo(itemPhysics);
--				else itemPhysics.EnablePhysics();
-+				Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
-+				itemPhysics.EnablePhysics(throwVelocity);
-+				_itemStorageManager?.RegisterWorldItem(itemPhysics);
- 			}
- 			return;
- 		}
- 
- 		Vector2I mouseGridPos = BackpackGridUIComp.GlobalToGridPosition(mousePos);
-@@ -413,12 +425,13 @@
- 				// 世界内投抛失败（拖取物品均属世界和背包内放失败）：保持物理模式
- 				var itemPhysics = itemEntity.GetNodeOrNull<ItemPhysicsComponent>("%PhysicsProxy");
- 				if (itemPhysics != null)
- 				{
- 					var followComp = GetFollowComp(itemEntity);
--					if (followComp != null) followComp.ApplyThrowVelocityTo(itemPhysics);
--					else itemPhysics.EnablePhysics();
-+					Vector2 throwVelocity = (followComp?.ThrowVelocity ?? Vector2.Zero) * itemPhysics.ThrowMultiplier;
-+					itemPhysics.EnablePhysics(throwVelocity);
-+					_itemStorageManager?.RegisterWorldItem(itemPhysics);
- 				}
- 			}
- 		}
- 	}
- 
 ```
 </RECENT_CHANGES>
     ]]>
