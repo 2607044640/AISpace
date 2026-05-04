@@ -49,11 +49,12 @@ trigger: always_on
 </prime_directive>
 
 <complex_pattern>
-  <description>CRITICAL: Godot Lifecycle (_EnterTree vs _Ready) & Initialization</description>
-  <rationale>Godot executes _EnterTree Top-Down but _Ready Bottom-Up. Using _Ready for parent data init causes NullReference in children.</rationale>
+  <description>CRITICAL: Godot Lifecycle & R3 Initialization</description>
+  <rationale>Godot executes _EnterTree Top-Down but _Ready Bottom-Up. Previously this caused strict initialization orders, but metaprogramming solves this via Lazy Initialization.</rationale>
   <rules>
     1. R3 EVENTS: Use `[R3Event]` instead of manual `Subject<T>`. It lazy-initializes on first access, making it safe and ensuring correct initialization order for children to subscribe during their `_Ready()`.
-    2. TIMING: Use `await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);` instead of `CallDeferred`.
+    2. CORE DATA: Instantiate `ReactiveProperty<T>` or simple collections inline (e.g., `= new()`) rather than inside lifecycle methods.
+    3. TIMING: Use `await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);` instead of `CallDeferred`.
   </rules>
 </complex_pattern>
 
@@ -61,12 +62,13 @@ trigger: always_on
   <description>CRITICAL: High-Frequency Object Management</description>
   <rationale>For fast-spawning/destroying entities (e.g., Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
   <rules>
-  USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotA1ObjectPoolUsage.md` when designing object pools.
+    1. USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotA1ObjectPoolUsage.md` when designing object pools.
   </rules>
 </object_pool>
 
 ### Component & R3 Cheat Sheet
 - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
+- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use `[R3Event] private partial void OnEventName(...)` to auto-generate Observables.
 - **Memory**: `CompositeDisposable _disposables` -> Dispose in `_ExitTree()`.
 - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
 - **Streams**:
@@ -77,24 +79,24 @@ trigger: always_on
   - State Flags: Use `ReactiveProperty<T>`
   - Discard Payload: Chain `.AsUnitObservable()`
 
-### Metaprogramming (`A1GodotMetaProgramming`)
+## 5. Metaprogramming (Source Generators)
+
+### A1GodotMetaProgramming
 - **[R3Event]**: Replaces boilerplate `Subject<T>`. 
-  - **Syntax**: `[A1GodotMetaProgramming.R3Event] private partial void OnMyEvent(string msg);`
+  - **Syntax**: `[R3Event] private partial void OnMyEvent(string msg);` (requires `using A1GodotMetaProgramming;`)
   - **Auto-Generates**:
     1. A trigger method: `OnMyEvent(msg)`
     2. A public observable: `public Observable<string> OnMyEventObservable { get; }`
     3. Lazy-initialization and `_ExitTree` disposal hooks via `Node.TreeExiting`.
 - **CompositeDisposable**: Use `[A1GodotMetaProgramming.GenerateCompositeDisposable]` on partial classes to automatically generate an internal `CompositeDisposable _disposables` that cleans up during `_ExitTree()`.
 
-<workflow>
-**Implementation Steps:**
-1. `[Entity]` -> call `InitializeEntity()` in `_Ready()`.
-2. `[Component(typeof(Parent))]` -> call `InitializeComponent()` in `_Ready()`.
-3. Dependencies: Request via `[ComponentDependency(typeof(T))]`. Access via auto-generated `parent` and `camelCase` properties.
-4. Subscribe: In `OnEntityReady()`. Append `.AddTo(_disposables)`.
-</workflow>
+### Godot.Composition (Architecture)
+- **Entities**: Add `[Entity]` to root. Call `InitializeEntity()` in `_Ready()`.
+- **Components**: Add `[Component(typeof(Parent))]` to children. Call `InitializeComponent()` in `_Ready()`.
+- **Dependencies**: Request via `[ComponentDependency(typeof(T))]`. Access via auto-generated `parent` and `camelCase` properties.
+- **Lifecycle**: Override `OnEntityReady()` for R3 subscriptions. Append `.AddTo(_disposables)`.
 
-## 5. Coding Standards
+## 6. Coding Standards
 
 ### Naming
 - **Strict Node-to-Variable Matching (Anti-Alias Rule)**: 
