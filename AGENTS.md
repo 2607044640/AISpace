@@ -82,13 +82,16 @@ trigger: always_on
 ## 5. Metaprogramming (Source Generators)
 
 ### A1GodotMetaProgramming
-- **[R3Event]**: Replaces boilerplate `Subject<T>`. 
-  - **Syntax**: `[R3Event] private partial void OnMyEvent(string msg);` (requires `using A1GodotMetaProgramming;`)
+- **[R3Event]**: Usage: `[R3Event] private partial void OnMyEvent(string msg);`
   - **Auto-Generates**:
-    1. A trigger method: `OnMyEvent(msg)`
-    2. A public observable: `public Observable<string> OnMyEventObservable { get; }`
-    3. Lazy-initialization and `_ExitTree` disposal hooks via `Node.TreeExiting`.
-- **CompositeDisposable**: Use `[A1GodotMetaProgramming.GenerateCompositeDisposable]` on partial classes to automatically generate an internal `CompositeDisposable _disposables` that cleans up during `_ExitTree()`.
+    1. A trigger method (`OnMyEvent(msg)`) that internally calls `OnNext`.
+    2. A public `Observable<T> OnMyEventObservable { get; }`.
+    3. Internal `Subject<T>` with lazy-initialization and automatic `_ExitTree` disposal.
+  - **Type Variations**:
+    - **0 Args**: Generates `Observable<Unit>` (use `Unit.Default` to trigger if manual).
+    - **1 Arg**: Generates `Observable<T>`.
+    - **2+ Args**: Generates Tuple `Observable<(T1 name1, T2 name2)>`.
+- **CompositeDisposable**: `[GenerateCompositeDisposable]` auto-generates `_disposables` and handles `_ExitTree()` cleanup.
 
 ### Godot.Composition (Architecture)
 - **Entities**: Add `[Entity]` to root. Call `InitializeEntity()` in `_Ready()`.

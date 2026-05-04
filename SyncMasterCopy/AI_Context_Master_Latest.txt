@@ -1,7 +1,7 @@
 <system_context>
   <metadata>
     <description>Godot CsArchitect (构筑师) Project Context Master File (Dual-Sync)</description>
-    <generated_time>2026-05-04 10:27:24</generated_time>
+    <generated_time>2026-05-04 10:59:09</generated_time>
   </metadata>
 
   <section name='00_primacy_boost' description='Read This First'>
@@ -11,6 +11,128 @@
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260504_105616
+- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -80,17 +80,16 @@
+   - Discard Payload: Chain `.AsUnitObservable()`
+ 
+ ## 5. Metaprogramming (Source Generators)
+ 
+ ### A1GodotMetaProgramming
+-- **[R3Event]**: Replaces boilerplate `Subject<T>`. 
+-  - **Syntax**: `[R3Event] private partial void OnMyEvent(string msg);` (requires `using A1GodotMetaProgramming;`)
++- **[R3Event]**: Usage: `[R3Event] private partial void OnMyEvent(string msg);`
+   - **Auto-Generates**:
+-    1. A trigger method: `OnMyEvent(msg)`
+-    2. A public observable: `public Observable<string> OnMyEventObservable { get; }`
+-    3. Lazy-initialization and `_ExitTree` disposal hooks via `Node.TreeExiting`.
+-- **CompositeDisposable**: Use `[A1GodotMetaProgramming.GenerateCompositeDisposable]` on partial classes to automatically generate an internal `CompositeDisposable _disposables` that cleans up during `_ExitTree()`.
++    1. A trigger method (`OnMyEvent(msg)`) that internally calls `OnNext`.
++    2. A public `Observable<string> OnMyEventObservable { get; }`.
++    3. Internal `Subject<T>` with lazy-initialization and automatic `_ExitTree` disposal.
++- **CompositeDisposable**: `[GenerateCompositeDisposable]` auto-generates `_disposables` and handles `_ExitTree()` cleanup.
+ 
+ ### Godot.Composition (Architecture)
+ - **Entities**: Add `[Entity]` to root. Call `InitializeEntity()` in `_Ready()`.
+ - **Components**: Add `[Component(typeof(Parent))]` to children. Call `InitializeComponent()` in `_Ready()`.
+ - **Dependencies**: Request via `[ComponentDependency(typeof(T))]`. Access via auto-generated `parent` and `camelCase` properties.
+```
+#### AISpace/rules_global\Stable\BugInvestigation.md
+```diff
+--- 
++++ 
+@@ -1,58 +1,23 @@
+ ---
+ trigger: manual
+ ---
+ 
+ ## Quick Reference
+-- **Tool**: `mcp_sequential_thinking_sequentialthinking`
+ - **Core Rule**: 3-Strike Rule (Max 3 failed fix attempts before escalation)
+-- **Engine Context**: Godot 4.6.1 stable mono, C#, Windows
+ 
+ ## Decision Tree
+ - IF Confidence < 7 OR blind spots: ALWAYS trigger web/doc search. (Why: NEVER guess missing facts)
+ - IF Confidence >= 7 AND search complete: Proceed with execution.
+ - IF 3 consecutive fails for same issue: Check `AISpace/hardbugs/` directory for historical solutions. If no solution is found, HALT and escalate. (Why: Prevents infinite loops while leveraging past fixes)
+ - IF deadlocks, timing issues, Godot/OS bugs: Check `hardbugs/`, then HALT and escalate.
+ 
+ ## Implementation Workflow
+-1. Execute `mcp_sequential_thinking_sequentialthinking` to catalog Knowledge Inventory.
+-2. Pinpoint blind spots and assign Confidence Score (1-10).
+-3. Trigger search if Confidence < 7.
+-4. Read error logs completely; add targeted debug logging.
+-5. Apply EXACTLY ONE change per iteration and verify compilation.
++1. Pinpoint blind spots and assign Confidence Score (1-10).
++2. Trigger search if Confidence < 7.
++3. Read error logs completely; add targeted debug logging.
++4. Apply EXACTLY ONE change per iteration and verify compilation.
+ 
+ ## Best Practices
+-- Delete documentation ruthlessly if it's generic programming advice.
+ - Implement and verify functionality incrementally.
+-- Save permanent docs, steering files, and specs strictly outside the Scratchpad directory.
+ 
+-<system_reminder>
+-ALWAYS halt execution and output the Escalation Template upon meeting any escalation trigger. System-level issues or unsolvable state loops require human intervention.
+-</system_reminder>
+-
+-<template name="escalation_query_template">
+-<code><![CDATA[
+-# Bug Report for Gemini
+-
+-## Environment
+-- Engine: Godot 4.6.1 stable mono | C# | Windows
+-
+-## Problem
+-[Provide a precise, one-sentence description of the issue]
+-
+-## What I Tried
+-1. [First attempt methodology and exact result]
+-2. [Second attempt methodology and exact result]
+-3. [Third attempt methodology and exact result]
+-
+-## Current Code
+-```csharp
+-[Insert specific, relevant C# code block]
+-```
+-
+-## Error Logs
+-[Paste complete error output from Godot console or dotnet build]
+-
+-## Question
+-[Specific aspect needing clarification or alternative approach?]
+-]]></code>
+ </template>
+```
+---
+## 📅 20260504_102724
+- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -81,11 +81,11 @@
+ 
+ ## 5. Metaprogramming (Source Generators)
+ 
+ ### A1GodotMetaProgramming
+ - **[R3Event]**: Replaces boilerplate `Subject<T>`. 
+-  - **Syntax**: `[A1GodotMetaProgramming.R3Event] private partial void OnMyEvent(string msg);`
++  - **Syntax**: `[R3Event] private partial void OnMyEvent(string msg);` (requires `using A1GodotMetaProgramming;`)
+   - **Auto-Generates**:
+     1. A trigger method: `OnMyEvent(msg)`
+     2. A public observable: `public Observable<string> OnMyEventObservable { get; }`
+     3. Lazy-initialization and `_ExitTree` disposal hooks via `Node.TreeExiting`.
+ - **CompositeDisposable**: Use `[A1GodotMetaProgramming.GenerateCompositeDisposable]` on partial classes to automatically generate an internal `CompositeDisposable _disposables` that cleans up during `_ExitTree()`.
+```
+---
 ## 📅 20260504_102625
 - ➕ 新增: 0 | 📝 修改: 3 | ❌ 删除: 0
 
@@ -898,64 +1020,6 @@
  			itemEntity,
  			dragState.ShapeComponent.CurrentLocalCells,
 ```
----
-## 📅 20260504_090543
-- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
-
-#### AISpace/AGENTS.md
-```diff
---- 
-+++ 
-@@ -14,11 +14,10 @@
- 
- <workflow>
- 1. Verify assumptions from `ConversationReset.md`, `docLastConversationState.md`, `AGENTS.md`.
- 2. Execute incrementally.
- 3. IMPORTANT: `dotnet build` from `TetrisBackpack/` immediately after ANY `.cs` edit.
--4. IMPORTANT: If ANY file was modified during the turn, YOU MUST execute `powershell -WindowStyle Hidden -Command "& 'C:\Godot\TetrisBackpack\SYNC_TO_GEMINI_SILENT.bat'"` at the end of the conversation as your final action.
- </workflow>
- 
- ## 2. API & Workspace
- - **Docs MCP**: `context7` (Lookup `R3`, `NuGet`)
- - **MCPs**: `mcp_godot_launch_editor`, `run_project`, `get_debug_output`, `create_scene`, `add_node`, `save_scene`, `load_sprite`, `export_mesh_library`, `get_uid`, `update_project_uids`
-```
----
-## 📅 20260504_071437
-- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1Sprite3D\Example\TestEnemyConfig.tres
-```diff
---- 
-+++ 
-@@ -1,10 +1,10 @@
- [gd_resource type="Resource" load_steps=5 format=3]
- 
- [ext_resource type="Script" path="res://addons/A1Sprite3D/BillboardAnimEntry.cs" id="1_entry"]
- [ext_resource type="Script" path="res://addons/A1Sprite3D/BillboardAnimConfig.cs" id="2_config"]
--[ext_resource type="Texture2D" uid="uid://c6328" path="res://icon.svg" id="3_tex"]
-+[ext_resource type="Texture2D" path="res://A1UIResources/Sample.png" id="3_tex"]
- 
- [sub_resource type="Resource" id="Resource_walk"]
- script = ExtResource("1_entry")
- AnimationName = "Walk"
- StartFrame = 0
-```
-#### TetrisBackpack/addons\A1Sprite3D\Example\ExampleScene.tscn
-```diff
---- 
-+++ 
-@@ -1,9 +1,9 @@
- [gd_scene load_steps=7 format=3 uid="uid://test_a1sprite_scene"]
- 
- [ext_resource type="Script" path="res://addons/A1Sprite3D/Example/TestEnemyEntity.cs" id="1_entity"]
--[ext_resource type="Texture2D" uid="uid://c6328" path="res://icon.svg" id="2_tex"]
-+[ext_resource type="Texture2D" path="res://A1UIResources/Sample.png" id="2_tex"]
- [ext_resource type="Script" path="res://addons/A1Sprite3D/BillboardAnimator.cs" id="3_animator"]
- [ext_resource type="Resource" path="res://addons/A1Sprite3D/Example/TestEnemyConfig.tres" id="4_config"]
- [ext_resource type="Script" path="res://addons/A1Sprite3D/Example/ExampleCombatComponent.cs" id="5_combat"]
- 
- [node name="ExampleScene" type="Node3D"]
-```
 </RECENT_CHANGES>
       ]]>
     </urgent_recent_changes>
@@ -1048,13 +1112,16 @@ trigger: always_on
 ## 5. Metaprogramming (Source Generators)
 
 ### A1GodotMetaProgramming
-- **[R3Event]**: Replaces boilerplate `Subject<T>`. 
-  - **Syntax**: `[R3Event] private partial void OnMyEvent(string msg);` (requires `using A1GodotMetaProgramming;`)
+- **[R3Event]**: Usage: `[R3Event] private partial void OnMyEvent(string msg);`
   - **Auto-Generates**:
-    1. A trigger method: `OnMyEvent(msg)`
-    2. A public observable: `public Observable<string> OnMyEventObservable { get; }`
-    3. Lazy-initialization and `_ExitTree` disposal hooks via `Node.TreeExiting`.
-- **CompositeDisposable**: Use `[A1GodotMetaProgramming.GenerateCompositeDisposable]` on partial classes to automatically generate an internal `CompositeDisposable _disposables` that cleans up during `_ExitTree()`.
+    1. A trigger method (`OnMyEvent(msg)`) that internally calls `OnNext`.
+    2. A public `Observable<T> OnMyEventObservable { get; }`.
+    3. Internal `Subject<T>` with lazy-initialization and automatic `_ExitTree` disposal.
+  - **Type Variations**:
+    - **0 Args**: Generates `Observable<Unit>` (use `Unit.Default` to trigger if manual).
+    - **1 Arg**: Generates `Observable<T>`.
+    - **2+ Args**: Generates Tuple `Observable<(T1 name1, T2 name2)>`.
+- **CompositeDisposable**: `[GenerateCompositeDisposable]` auto-generates `_disposables` and handles `_ExitTree()` cleanup.
 
 ### Godot.Composition (Architecture)
 - **Entities**: Add `[Entity]` to root. Call `InitializeEntity()` in `_Ready()`.
@@ -3987,9 +4054,7 @@ trigger: manual
 ---
 
 ## Quick Reference
-- **Tool**: `mcp_sequential_thinking_sequentialthinking`
 - **Core Rule**: 3-Strike Rule (Max 3 failed fix attempts before escalation)
-- **Engine Context**: Godot 4.6.1 stable mono, C#, Windows
 
 ## Decision Tree
 - IF Confidence < 7 OR blind spots: ALWAYS trigger web/doc search. (Why: NEVER guess missing facts)
@@ -3998,47 +4063,14 @@ trigger: manual
 - IF deadlocks, timing issues, Godot/OS bugs: Check `hardbugs/`, then HALT and escalate.
 
 ## Implementation Workflow
-1. Execute `mcp_sequential_thinking_sequentialthinking` to catalog Knowledge Inventory.
-2. Pinpoint blind spots and assign Confidence Score (1-10).
-3. Trigger search if Confidence < 7.
-4. Read error logs completely; add targeted debug logging.
-5. Apply EXACTLY ONE change per iteration and verify compilation.
+1. Pinpoint blind spots and assign Confidence Score (1-10).
+2. Trigger search if Confidence < 7.
+3. Read error logs completely; add targeted debug logging.
+4. Apply EXACTLY ONE change per iteration and verify compilation.
 
 ## Best Practices
-- Delete documentation ruthlessly if it's generic programming advice.
 - Implement and verify functionality incrementally.
-- Save permanent docs, steering files, and specs strictly outside the Scratchpad directory.
 
-<system_reminder>
-ALWAYS halt execution and output the Escalation Template upon meeting any escalation trigger. System-level issues or unsolvable state loops require human intervention.
-</system_reminder>
-
-<template name="escalation_query_template">
-<code><![CDATA[
-# Bug Report for Gemini
-
-## Environment
-- Engine: Godot 4.6.1 stable mono | C# | Windows
-
-## Problem
-[Provide a precise, one-sentence description of the issue]
-
-## What I Tried
-1. [First attempt methodology and exact result]
-2. [Second attempt methodology and exact result]
-3. [Third attempt methodology and exact result]
-
-## Current Code
-```csharp
-[Insert specific, relevant C# code block]
-```
-
-## Error Logs
-[Paste complete error output from Godot console or dotnet build]
-
-## Question
-[Specific aspect needing clarification or alternative approach?]
-]]></code>
 </template>
 ]]>
     </file>
@@ -20499,21 +20531,21 @@ using Godot.Composition;
 using R3;
 
 /// Billboard 动画控制器 — 二渲三系统核心组件
-/// 
+///
 /// 架构原则：
 /// - 纯代码驱动 Sprite3D.FrameCoords，不使用 AnimationPlayer
 /// - X 轴（列）= 动画帧，由内部计时器按 FPS 驱动
 /// - Y 轴（行）= 方向，由摄像机角度实时计算
 /// - 支持 Montage 打断机制（Attack/Hit/Death 等一次性动画）
 /// - 支持帧事件信号（在特定帧触发回调，用于伤害判定/音效/特效）
-/// 
+///
 /// 使用方法：
 ///   1. 在角色场景中添加此 Node 组件
 ///   2. 设置 Sprite3DPath 指向你的 Sprite3D 节点
 ///   3. 创建并拖入 BillboardAnimConfig (.tres) 资源
 ///   4. 状态驱动：外部调用 PlayAnimation("Walk") 或让 Config 自动选择
 ///   5. Montage：外部调用 PlayMontage("Attack") 播放一次性打断动画
-/// 
+///
 /// 场景结构示例：
 ///   Enemy (CharacterBody3D) [Entity]
 ///   ├── BillboardAnimator      ← 此组件
@@ -20554,13 +20586,13 @@ public partial class BillboardAnimator : Node
     #region Observables (R3)
 
     /// 帧事件流 — 当动画播放到 EventFrames 中定义的帧时触发
-    [A1GodotMetaProgramming.R3Event] private partial void OnAnimationFrameEvent(string animName, int frameOffset);
+    [R3Event] private partial void OnAnimationFrameEvent(string animName, int frameOffset);
 
     /// Montage 完成流 — 当打断型动画播放结束时触发
-    [A1GodotMetaProgramming.R3Event] private partial void OnMontageFinished(string animName);
+    [R3Event] private partial void OnMontageFinished(string animName);
 
     /// 动画切换流 — 当切换到新动画时触发
-    [A1GodotMetaProgramming.R3Event] private partial void OnAnimationChanged(string newAnim, string oldAnim);
+    [R3Event] private partial void OnAnimationChanged(string newAnim, string oldAnim);
 
     #endregion
 
@@ -33438,6 +33470,129 @@ rendering_device/driver.windows="d3d12"
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260504_105616
+- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -80,17 +80,16 @@
+   - Discard Payload: Chain `.AsUnitObservable()`
+ 
+ ## 5. Metaprogramming (Source Generators)
+ 
+ ### A1GodotMetaProgramming
+-- **[R3Event]**: Replaces boilerplate `Subject<T>`. 
+-  - **Syntax**: `[R3Event] private partial void OnMyEvent(string msg);` (requires `using A1GodotMetaProgramming;`)
++- **[R3Event]**: Usage: `[R3Event] private partial void OnMyEvent(string msg);`
+   - **Auto-Generates**:
+-    1. A trigger method: `OnMyEvent(msg)`
+-    2. A public observable: `public Observable<string> OnMyEventObservable { get; }`
+-    3. Lazy-initialization and `_ExitTree` disposal hooks via `Node.TreeExiting`.
+-- **CompositeDisposable**: Use `[A1GodotMetaProgramming.GenerateCompositeDisposable]` on partial classes to automatically generate an internal `CompositeDisposable _disposables` that cleans up during `_ExitTree()`.
++    1. A trigger method (`OnMyEvent(msg)`) that internally calls `OnNext`.
++    2. A public `Observable<string> OnMyEventObservable { get; }`.
++    3. Internal `Subject<T>` with lazy-initialization and automatic `_ExitTree` disposal.
++- **CompositeDisposable**: `[GenerateCompositeDisposable]` auto-generates `_disposables` and handles `_ExitTree()` cleanup.
+ 
+ ### Godot.Composition (Architecture)
+ - **Entities**: Add `[Entity]` to root. Call `InitializeEntity()` in `_Ready()`.
+ - **Components**: Add `[Component(typeof(Parent))]` to children. Call `InitializeComponent()` in `_Ready()`.
+ - **Dependencies**: Request via `[ComponentDependency(typeof(T))]`. Access via auto-generated `parent` and `camelCase` properties.
+```
+#### AISpace/rules_global\Stable\BugInvestigation.md
+```diff
+--- 
++++ 
+@@ -1,58 +1,23 @@
+ ---
+ trigger: manual
+ ---
+ 
+ ## Quick Reference
+-- **Tool**: `mcp_sequential_thinking_sequentialthinking`
+ - **Core Rule**: 3-Strike Rule (Max 3 failed fix attempts before escalation)
+-- **Engine Context**: Godot 4.6.1 stable mono, C#, Windows
+ 
+ ## Decision Tree
+ - IF Confidence < 7 OR blind spots: ALWAYS trigger web/doc search. (Why: NEVER guess missing facts)
+ - IF Confidence >= 7 AND search complete: Proceed with execution.
+ - IF 3 consecutive fails for same issue: Check `AISpace/hardbugs/` directory for historical solutions. If no solution is found, HALT and escalate. (Why: Prevents infinite loops while leveraging past fixes)
+ - IF deadlocks, timing issues, Godot/OS bugs: Check `hardbugs/`, then HALT and escalate.
+ 
+ ## Implementation Workflow
+-1. Execute `mcp_sequential_thinking_sequentialthinking` to catalog Knowledge Inventory.
+-2. Pinpoint blind spots and assign Confidence Score (1-10).
+-3. Trigger search if Confidence < 7.
+-4. Read error logs completely; add targeted debug logging.
+-5. Apply EXACTLY ONE change per iteration and verify compilation.
++1. Pinpoint blind spots and assign Confidence Score (1-10).
++2. Trigger search if Confidence < 7.
++3. Read error logs completely; add targeted debug logging.
++4. Apply EXACTLY ONE change per iteration and verify compilation.
+ 
+ ## Best Practices
+-- Delete documentation ruthlessly if it's generic programming advice.
+ - Implement and verify functionality incrementally.
+-- Save permanent docs, steering files, and specs strictly outside the Scratchpad directory.
+ 
+-<system_reminder>
+-ALWAYS halt execution and output the Escalation Template upon meeting any escalation trigger. System-level issues or unsolvable state loops require human intervention.
+-</system_reminder>
+-
+-<template name="escalation_query_template">
+-<code><![CDATA[
+-# Bug Report for Gemini
+-
+-## Environment
+-- Engine: Godot 4.6.1 stable mono | C# | Windows
+-
+-## Problem
+-[Provide a precise, one-sentence description of the issue]
+-
+-## What I Tried
+-1. [First attempt methodology and exact result]
+-2. [Second attempt methodology and exact result]
+-3. [Third attempt methodology and exact result]
+-
+-## Current Code
+-```csharp
+-[Insert specific, relevant C# code block]
+-```
+-
+-## Error Logs
+-[Paste complete error output from Godot console or dotnet build]
+-
+-## Question
+-[Specific aspect needing clarification or alternative approach?]
+-]]></code>
+ </template>
+```
+
+---
+## 📅 20260504_102724
+- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -81,11 +81,11 @@
+ 
+ ## 5. Metaprogramming (Source Generators)
+ 
+ ### A1GodotMetaProgramming
+ - **[R3Event]**: Replaces boilerplate `Subject<T>`. 
+-  - **Syntax**: `[A1GodotMetaProgramming.R3Event] private partial void OnMyEvent(string msg);`
++  - **Syntax**: `[R3Event] private partial void OnMyEvent(string msg);` (requires `using A1GodotMetaProgramming;`)
+   - **Auto-Generates**:
+     1. A trigger method: `OnMyEvent(msg)`
+     2. A public observable: `public Observable<string> OnMyEventObservable { get; }`
+     3. Lazy-initialization and `_ExitTree` disposal hooks via `Node.TreeExiting`.
+ - **CompositeDisposable**: Use `[A1GodotMetaProgramming.GenerateCompositeDisposable]` on partial classes to automatically generate an internal `CompositeDisposable _disposables` that cleans up during `_ExitTree()`.
+```
+---
 ## 📅 20260504_102625
 - ➕ 新增: 0 | 📝 修改: 3 | ❌ 删除: 0
 
@@ -33569,7 +33724,6 @@ rendering_device/driver.windows="d3d12"
    Variables that reference Nodes MUST contain the exact Node name string.
    1. **No Synonyms or Abbreviations**: If a node is named `InitPoint`, the variable MUST contain `InitPoint`. Changing it to `spawnPlace` or `init` is STRICTLY FORBIDDEN.
 ```
-
 ---
 ## 📅 20260504_101419
 - ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
@@ -34511,50 +34665,6 @@ rendering_device/driver.windows="d3d12"
  - **Streams**:
    - Physics (Velocity): `Observable.EveryPhysicsUpdate()`
    - UI Updates: Append `.ObserveOn(GodotProvider.MainThread)`
-```
----
-## 📅 20260503_074050
-- ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
-
-#### AISpace/AGENTS.md
-```diff
---- 
-+++ 
-@@ -61,11 +61,11 @@
- 
- <object_pool>
-   <description>CRITICAL: High-Frequency Object Management</description>
-   <rationale>For fast-spawning/destroying entities (e.g., Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
-   <rules>
--  USE THE POOL: Always refer to `AISpace\rules_global\Godot\A1ObjectPoolUsage.md` when designing object pools.
-+  USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotA1ObjectPoolUsage.md` when designing object pools.
-   </rules>
- </object_pool>
- 
- ### Component & R3 Cheat Sheet
- - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
-```
----
-## 📅 20260503_074009
-- ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
-
-#### AISpace/AGENTS.md
-```diff
---- 
-+++ 
-@@ -61,11 +61,11 @@
- 
- <object_pool>
-   <description>CRITICAL: High-Frequency Object Management</description>
-   <rationale>For fast-spawning/destroying entities (e.g., Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
-   <rules>
--    1. USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotObjectPool.md` when designing object pools.
-+  USE THE POOL: Always refer to `AISpace\rules_global\Godot\A1ObjectPoolUsage.md` when designing object pools.
-   </rules>
- </object_pool>
- 
- ### Component & R3 Cheat Sheet
- - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
 ```
 </RECENT_CHANGES>
     ]]>
