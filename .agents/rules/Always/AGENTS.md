@@ -84,27 +84,16 @@ trigger: always_on
 ### A1GodotMetaProgramming (`using A1GodotMetaProgramming;`)
 > Folder layout: `R3Events/` · `Lifecycle/` · `NodeBinding/`
 
-- **[R3Event]**: Usage: `[R3Event] private partial void OnMyEvent(string msg);`
-  - **Auto-Generates**:
-    1. A trigger method (`OnMyEvent(msg)`) that internally calls `OnNext`.
-    2. A public `Observable<T> OnMyEventObservable { get; }`.
-    3. Internal `Subject<T>` with lazy-initialization and automatic `_ExitTree` disposal.
-  - **Type Variations**:
-    - **0 Args**: Generates `Observable<Unit>`.
-    - **1 Arg**: Generates `Observable<T>`.
-    - **2+ Args**: Generates Tuple `Observable<(T1 name1, T2 name2)>`.
+- **`[R3Event]`**: `[R3Event] private partial void OnMyEvent(string msg);`
+  - **Yields**: `OnMyEvent(msg)` (trigger), `OnMyEventObservable` (stream), `Subject` lazy-newed on first `get` + auto-disposed.
+  - **Args**: 0 `->` `Unit`, 1 `->` `T`, 2+ `->` Tuple `(T1 a, T2 b)`.
 
-- **[GenerateCompositeDisposable]**: Add to class. Auto-generates `_disposables` field + `TreeExiting` auto-dispose hook.
-  - Usage: `[GenerateCompositeDisposable] public partial class MyComp : Node { ... }`
-  - Replaces: manual `private readonly CompositeDisposable _disposables = new();` + `_ExitTree()` dispose.
+- **`[GenerateCompositeDisposable]`**: `[GenerateCompositeDisposable] public partial class MyComp : Node`
+  - **Yields**: `_disposables` field + `TreeExiting` auto-dispose (replaces manual setup).
 
-- **[GodotNode]**: Add to a `private` field. Auto-generates `[Export] NodePath` + `GetNodeOrNull` binding method.
-  - Usage: `[GodotNode] private GridShapeComponent _gridShapeComp;`
-  - Auto-Generates:
-    1. `[Export] public NodePath _gridShapeComp_Path { get; set; } = "%GridShapeComponent";`
-    2. `private void _InitNodeGridShapeComponent()` — calls `GetNodeOrNull` + `GD.PushError` on null.
-  - Override default path: `[GodotNode("../OtherPath")] private GridShapeComponent _gridShapeComp;`
-  - Call generated init in `_Ready()`: `_InitNodeGridShapeComponent();`
+- **`[GodotNode]`**: `[GodotNode("../Path")] private GridShapeComponent _shape;` (Path optional, default `"%TypeName"`)
+  - **Yields**: `[Export] NodePath _shape_Path`, `_InitNodeGridShapeComponent()` (`GetNodeOrNull` + null check), and a class-level `_InitAllNodes()` that calls every `_InitNode*()` at once.
+  - **Action**: Call `_InitAllNodes();` once in `_Ready()`.
 
 ### Godot.Composition (Architecture)
 - **Entities**: Add `[Entity]` to root. Call `InitializeEntity()` in `_Ready()`.
