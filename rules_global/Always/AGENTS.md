@@ -50,10 +50,8 @@ trigger: always_on
 </prime_directive>
 
 <complex_pattern>
-  <description>CRITICAL: Godot Lifecycle & R3 Initialization</description>
-  <rationale>Godot executes _EnterTree Top-Down but _Ready Bottom-Up. Previously this caused strict initialization orders, but metaprogramming solves this via Lazy Initialization.</rationale>
   <rules>
-    1. R3 EVENTS: Use `[R3Event]` instead of manual `Subject<T>`. It lazy-initializes on first access, making it 100% safe for children to subscribe during their `_Ready()`.
+    1. R3 EVENTS: Use `[R3Event]` instead of manual `Subject<T>`. It lazy-initializes on first access, making it safe for children to subscribe during their `_Ready()`.
     2. CORE DATA: Instantiate `ReactiveProperty<T>` or simple collections inline (e.g., `= new()`) rather than inside lifecycle methods.
     3. TIMING: Use `await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);` instead of `CallDeferred`.
   </rules>

@@ -52,9 +52,8 @@ trigger: always_on
   <description>CRITICAL: Godot Lifecycle (_EnterTree vs _Ready) & Initialization</description>
   <rationale>Godot executes _EnterTree Top-Down but _Ready Bottom-Up. Using _Ready for parent data init causes NullReference in children.</rationale>
   <rules>
-    1. INIT IN ENTER_TREE: All `Subject<T>` instantiations and core data (`new Subject<T>()`) MUST be done in the Parent's `public override void _EnterTree()`.
-    2. SAFE CHILD READY: Children can safely subscribe to Parent Subjects in their own `_Ready()` because the Parent's `_EnterTree()` has already executed.
-    3. TIMING: Use `await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);` instead of `CallDeferred`.
+    1. R3 EVENTS: Use `[R3Event]` instead of manual `Subject<T>`. It lazy-initializes on first access, making it safe and ensuring correct initialization order for children to subscribe during their `_Ready()`.
+    2. TIMING: Use `await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);` instead of `CallDeferred`.
   </rules>
 </complex_pattern>
 
@@ -77,6 +76,15 @@ trigger: always_on
   - Continuous I/O (Sliders): `.Debounce(TimeSpan)`
   - State Flags: Use `ReactiveProperty<T>`
   - Discard Payload: Chain `.AsUnitObservable()`
+
+### Metaprogramming (`A1GodotMetaProgramming`)
+- **[R3Event]**: Replaces boilerplate `Subject<T>`. 
+  - **Syntax**: `[A1GodotMetaProgramming.R3Event] private partial void OnMyEvent(string msg);`
+  - **Auto-Generates**:
+    1. A trigger method: `OnMyEvent(msg)`
+    2. A public observable: `public Observable<string> OnMyEventObservable { get; }`
+    3. Lazy-initialization and `_ExitTree` disposal hooks via `Node.TreeExiting`.
+- **CompositeDisposable**: Use `[A1GodotMetaProgramming.GenerateCompositeDisposable]` on partial classes to automatically generate an internal `CompositeDisposable _disposables` that cleans up during `_ExitTree()`.
 
 <workflow>
 **Implementation Steps:**
