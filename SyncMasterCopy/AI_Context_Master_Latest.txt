@@ -1,7 +1,7 @@
 <system_context>
   <metadata>
     <description>Godot CsArchitect (构筑师) Project Context Master File (Dual-Sync)</description>
-    <generated_time>2026-05-04 10:59:09</generated_time>
+    <generated_time>2026-05-04 11:50:05</generated_time>
   </metadata>
 
   <section name='00_primacy_boost' description='Read This First'>
@@ -11,6 +11,88 @@
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260504_105909
+- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -83,12 +83,16 @@
+ 
+ ### A1GodotMetaProgramming
+ - **[R3Event]**: Usage: `[R3Event] private partial void OnMyEvent(string msg);`
+   - **Auto-Generates**:
+     1. A trigger method (`OnMyEvent(msg)`) that internally calls `OnNext`.
+-    2. A public `Observable<string> OnMyEventObservable { get; }`.
++    2. A public `Observable<T> OnMyEventObservable { get; }`.
+     3. Internal `Subject<T>` with lazy-initialization and automatic `_ExitTree` disposal.
++  - **Type Variations**:
++    - **0 Args**: Generates `Observable<Unit>` (use `Unit.Default` to trigger if manual).
++    - **1 Arg**: Generates `Observable<T>`.
++    - **2+ Args**: Generates Tuple `Observable<(T1 name1, T2 name2)>`.
+ - **CompositeDisposable**: `[GenerateCompositeDisposable]` auto-generates `_disposables` and handles `_ExitTree()` cleanup.
+ 
+ ### Godot.Composition (Architecture)
+ - **Entities**: Add `[Entity]` to root. Call `InitializeEntity()` in `_Ready()`.
+ - **Components**: Add `[Component(typeof(Parent))]` to children. Call `InitializeComponent()` in `_Ready()`.
+```
+#### TetrisBackpack/addons\A1Sprite3D\BillboardAnimator.cs
+```diff
+--- 
++++ 
+@@ -1,25 +1,25 @@
+ using Godot;
+ using Godot.Composition;
+ using R3;
+ 
+ /// Billboard 动画控制器 — 二渲三系统核心组件
+-/// 
++///
+ /// 架构原则：
+ /// - 纯代码驱动 Sprite3D.FrameCoords，不使用 AnimationPlayer
+ /// - X 轴（列）= 动画帧，由内部计时器按 FPS 驱动
+ /// - Y 轴（行）= 方向，由摄像机角度实时计算
+ /// - 支持 Montage 打断机制（Attack/Hit/Death 等一次性动画）
+ /// - 支持帧事件信号（在特定帧触发回调，用于伤害判定/音效/特效）
+-/// 
++///
+ /// 使用方法：
+ ///   1. 在角色场景中添加此 Node 组件
+ ///   2. 设置 Sprite3DPath 指向你的 Sprite3D 节点
+ ///   3. 创建并拖入 BillboardAnimConfig (.tres) 资源
+ ///   4. 状态驱动：外部调用 PlayAnimation("Walk") 或让 Config 自动选择
+ ///   5. Montage：外部调用 PlayMontage("Attack") 播放一次性打断动画
+-/// 
++///
+ /// 场景结构示例：
+ ///   Enemy (CharacterBody3D) [Entity]
+ ///   ├── BillboardAnimator      ← 此组件
+ ///   ├── Sprite3D               ← Billboard = Y-Billboard
+ ///   └── AIInputComponent
+@@ -56,17 +56,17 @@
+     #endregion
+ 
+     #region Observables (R3)
+ 
+     /// 帧事件流 — 当动画播放到 EventFrames 中定义的帧时触发
+-    [A1GodotMetaProgramming.R3Event] private partial void OnAnimationFrameEvent(string animName, int frameOffset);
++    [R3Event] private partial void OnAnimationFrameEvent(string animName, int frameOffset);
+ 
+     /// Montage 完成流 — 当打断型动画播放结束时触发
+-    [A1GodotMetaProgramming.R3Event] private partial void OnMontageFinished(string animName);
++    [R3Event] private partial void OnMontageFinished(string animName);
+ 
+     /// 动画切换流 — 当切换到新动画时触发
+-    [A1GodotMetaProgramming.R3Event] private partial void OnAnimationChanged(string newAnim, string oldAnim);
++    [R3Event] private partial void OnAnimationChanged(string newAnim, string oldAnim);
+ 
+     #endregion
+ 
+     #region Private Fields
+ 
+```
+---
 ## 📅 20260504_105616
 - ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
 
@@ -387,639 +469,6 @@
 +  3. **STRICTLY FORBIDDEN**: Any AI-style preamble or file-level "This script handles..." summaries.
 +- **MANDATORY**: Inline `//` comments (in Chinese) explaining WHY for custom Rx streams, math formulas, and complex logic. NO "how" or "what" comments unless logic is extremely non-obvious.
 ```
----
-## 📅 20260504_100520
-- ➕ 新增: 3 | 📝 修改: 15 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\DraggableItemComponent.cs
-```diff
---- 
-+++ 
-@@ -24,11 +24,11 @@
- 	
- 	#endregion
- 	
- 	#region R3 Reactive Streams
- 	
--	public Subject<int> OnDragStartedAsObservable { get; private set; }
-+	[A1GodotMetaProgramming.R3Event] private partial void OnDragStarted(int cellIndex);
- 	
- 	/// 拖拽结束事件流
- 	/// 
- 	/// 触发时机：鼠标左键松开
- 	/// 
-@@ -36,11 +36,11 @@
- 	/// - 尝试将物品放置到目标位置
- 	/// - 隐藏拖拽预览
- 	/// - 取消高亮可放置区域
- 	/// - 播放放置音效
- 	/// - 验证放置是否合法（通过 BackpackGridComponent）
--	public Subject<Unit> OnDragEndedAsObservable { get; private set; }
-+	[A1GodotMetaProgramming.R3Event] private partial void OnDragEnded();
- 	
- 	/// 旋转请求事件流
- 	/// 
- 	/// 触发时机：鼠标右键按下（通常在拖拽状态下）
- 	/// 
-@@ -51,24 +51,19 @@
- 	/// - 重新检测放置合法性
- 	/// 
- 	/// 注意：
- 	/// - 此事件不会通知 StateChart（旋转是纯动作，不改变状态）
- 	/// - 订阅者需要自行判断是否在拖拽状态下响应旋转
--	public Subject<Unit> OnRotateRequestedAsObservable { get; private set; }
--	
--
-+	[A1GodotMetaProgramming.R3Event] private partial void OnRotateRequested();
- 	
- 	#endregion
- 	
- 	#region Godot Lifecycle
- 	
- 	public override void _EnterTree()
- 	{
--		// 【架构修正】在 _EnterTree 中初始化所有 Subjects
--		OnDragStartedAsObservable = new Subject<int>();
--		OnDragEndedAsObservable = new Subject<Unit>();
--		OnRotateRequestedAsObservable = new Subject<Unit>();
-+		// 逻辑已移除，R3Event 自动惰性初始化
- 	}
- 	
- 	public override void _Ready()
- 	{
- 		// NodePath 在 _Ready 时已解析完成，直接初始化
-@@ -87,12 +82,12 @@
- 			GD.PushError($"[{Name}] GridShapeUIComponent not found at path: {GridShapeUIComponent_Path}");
- 			return;
- 		}
- 		
- 		// 订阅 GridShapeUIComponent 的聚合输入事件流
--		_gridShapeUIComponent.OnGroupInputAsObservable
--			.Subscribe(x => HandleGuiInput(x.Event, x.CellIndex))
-+		_gridShapeUIComponent.OnGroupInputObservable
-+			.Subscribe(x => HandleGuiInput(x.@event, x.cellIndex))
- 			.AddTo(this);
- 		
- 		StateChart = GetNodeOrNull<Node>(StateChartPath);
- 		if (StateChart == null)
- 		{
-@@ -101,14 +96,11 @@
- 		}
- 	}
- 	
- 	public override void _ExitTree()
- 	{
--		// R3 规则：释放所有 Subjects
--		OnDragStartedAsObservable?.Dispose();
--		OnDragEndedAsObservable?.Dispose();
--		OnRotateRequestedAsObservable?.Dispose();
-+		// 清理逻辑已由 R3Event 生成器自动管理
- 	}
- 	public override void _Notification(int what)
- 	{
- 		base._Notification(what);
- 		
-@@ -162,11 +154,11 @@
- 	{
- 		if (_isDragging) return;
- 		_isDragging = true;
- 		
- 		// 【R3 响应式】通知订阅者，传递抓取的格子索引
--		OnDragStartedAsObservable.OnNext(cellIndex);
-+		OnDragStarted(cellIndex);
- 		
- 		// 【StateChart】发送状态机事件
- 		if (StateChart != null)
- 		{
- 			// 使用可配置的事件名称，避免硬编码
-@@ -179,11 +171,11 @@
- 	{
- 		if (!_isDragging) return;
- 		_isDragging = false;
- 		
- 		// 【R3 响应式】通知订阅者
--		OnDragEndedAsObservable.OnNext(Unit.Default);
-+		OnDragEnded();
- 		
- 		// 【StateChart】发送状态机事件
- 		if (StateChart != null)
- 		{
- 			// 使用可配置的事件名称，避免硬编码
-@@ -194,11 +186,11 @@
- 	/// 处理旋转请求
- 	private void HandleRotateRequest()
- 	{
- 		// 【R3 响应式】通知订阅者
- 		// 注意：旋转是纯动作，不需要通知 StateChart
--		OnRotateRequestedAsObservable.OnNext(Unit.Default);
-+		OnRotateRequested();
- 	}
- 	
- 	#endregion
- 	
- 	#region Helper Methods
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackGridComponent.cs
-```diff
---- 
-+++ 
-@@ -21,34 +21,31 @@
- 	
- 	#endregion
- 	
- 	#region R3 Reactive Streams
- 	
--	public Subject<(Node itemEntity, Vector2I position)> OnItemPlacedAsObservable { get; private set; }
--	public Subject<(Node itemEntity, Vector2I position)> OnItemRemovedAsObservable { get; private set; }
-+	[A1GodotMetaProgramming.R3Event] private partial void OnItemPlaced(Node itemEntity, Vector2I position);
-+	[A1GodotMetaProgramming.R3Event] private partial void OnItemRemoved(Node itemEntity, Vector2I position);
- 	
- 	#endregion
- 	
- 	#region Godot Lifecycle
- 	
- 	public override void _EnterTree()
- 	{
--		// 【架构修正】在 _EnterTree 中初始化核心数据和 Subjects
-+		// 【架构修正】在 _EnterTree 中初始化核心数据
- 		_gridData = new Node[Width * Height];
--		OnItemPlacedAsObservable = new Subject<(Node, Vector2I)>();
--		OnItemRemovedAsObservable = new Subject<(Node, Vector2I)>();
- 	}
- 	
- 	public override void _Ready()
- 	{
- 		GD.Print($"BackpackGridComponent 初始化完成：{Width}x{Height} = {_gridData.Length} 格子");
- 	}
- 	
- 	public override void _ExitTree()
- 	{
--		OnItemPlacedAsObservable?.Dispose();
--		OnItemRemovedAsObservable?.Dispose();
-+		// 清理逻辑已由 R3Event 生成器自动管理
- 	}
- 	
- 	#endregion
- 	
- 	#region Core Grid Logic
-@@ -97,11 +94,11 @@
- 			Vector2I worldPos = targetPos + localOffset;
- 			int index = GetIndex(worldPos);
- 			_gridData[index] = itemEntity;
- 		}
- 		
--		OnItemPlacedAsObservable.OnNext((itemEntity, targetPos));
-+		OnItemPlaced(itemEntity, targetPos);
- 		GD.Print($"物品 {itemEntity.Name} 已放置在 {targetPos}");
- 		return true;
- 	}
- 	
- 	/// <summary>
-@@ -121,11 +118,11 @@
- 			}
- 		}
- 		
- 		if (removedAny)
- 		{
--			OnItemRemovedAsObservable.OnNext((itemEntity, Vector2I.Zero));
-+			OnItemRemoved(itemEntity, Vector2I.Zero);
- 			GD.Print($"物品 {itemEntity.Name} 已从网格彻底移除");
- 		}
- 	}
- 	
- 	public Node GetItemAt(Vector2I position)
-```
-#### TetrisBackpack/TetrisBackpack.csproj
-```diff
---- 
-+++ 
-@@ -18,10 +18,11 @@
-     <!-- <Nullable>disable</Nullable> -->
-   </PropertyGroup>
-   <ItemGroup>
-     <!-- 排除 Analyzer 子项目的源码（它有自己的 csproj，由 Roslyn 独立编译） -->
-     <Compile Remove="addons\A1ObjectPool\Analyzers\**" />
-+    <Compile Remove="addons\A1GodotMetaProgramming\**" />
-   </ItemGroup>
-   <ItemGroup>
-     <PackageReference Include="Chickensoft.AutoInject" Version="2.12.7" />
-     <PackageReference Include="Chickensoft.GodotNodeInterfaces" Version="2.4.26" />
-     <PackageReference Include="Chickensoft.Introspection" Version="3.0.2" />
-@@ -45,7 +46,12 @@
-   <ItemGroup>
-     <!-- A1ObjectPool Roslyn Analyzer: 编译期禁止对 IPoolable 对象调用 QueueFree/Free -->
-     <ProjectReference Include="addons\A1ObjectPool\Analyzers\A1ObjectPool.Analyzers.csproj"
-                       OutputItemType="Analyzer"
-                       ReferenceOutputAssembly="false" />
-+                      
-+    <!-- A1GodotMetaProgramming: R3 Events Source Generator -->
-+    <ProjectReference Include="addons\A1GodotMetaProgramming\A1GodotMetaProgramming.csproj"
-+                      OutputItemType="Analyzer"
-+                      ReferenceOutputAssembly="false" />
-   </ItemGroup>
- </Project>```
-#### TetrisBackpack/addons\A1TetrisBackpack\Items\GridShapeComponent.cs
-```diff
---- 
-+++ 
-@@ -38,20 +38,19 @@
- 	
- 	#endregion
- 	
- 	#region R3 Reactive Streams
- 	
--	public Subject<Unit> OnShapeChangedAsObservable { get; private set; }
-+	[A1GodotMetaProgramming.R3Event] private partial void OnShapeChanged();
- 	
- 	#endregion
- 	
- 	#region Godot Lifecycle
- 	
- 	public override void _EnterTree()
- 	{
--		// 【架构修正】在 _EnterTree 中初始化 Subject（Top-Down 执行，确保子节点 _Ready 时已存在）
--		OnShapeChangedAsObservable = new Subject<Unit>();
-+		// 逻辑已移除，R3Event 自动惰性初始化
- 	}
- 	
- 	public override void _Ready()
- 	{
- 		// 订阅父节点的 DataInitialized 事件（通过接口解耦）
-@@ -85,12 +84,11 @@
- 		var parent = GetParent();
- 		if (parent is IItemDataProvider provider)
- 		{
- 			provider.DataInitialized -= OnDataReceived;
- 		}
--		
--		OnShapeChangedAsObservable?.Dispose();
-+		// 清理逻辑已由 R3Event 生成器自动管理
- 	}
- 	
- 	#endregion
- 	
- 	#region Event Handlers
-@@ -113,11 +111,11 @@
- 		{
- 			UpdateParentSizeAsync();
- 		}
- 		
- 		// 【关键】触发形状变化事件，通知 GridShapeVisualComponent 构建视觉方块
--		OnShapeChangedAsObservable?.OnNext(Unit.Default);
-+		OnShapeChanged();
- 	}
- 	
- 	#endregion
- 	
- 	#region Shape Management
-@@ -166,11 +164,17 @@
- 		if (AutoResizeParent)
- 		{
- 			UpdateParentSize();
- 		}
- 		
--		OnShapeChangedAsObservable.OnNext(Unit.Default);
-+		OnShapeChanged();
-+	}
-+	
-+	/// 强制触发形状改变事件（供控制器回弹时使用）
-+	public void ForceShapeChanged()
-+	{
-+		OnShapeChanged();
- 	}
- 	
- 	/// 归一化形状坐标
- 	/// 目的：确保形状左上角始终为 (0,0)，避免负坐标
- 	/// 示例：旋转后坐标 [(-1,0), (-1,1), (0,1)] -> 归一化后 [(0,0), (0,1), (1,1)]
-@@ -206,11 +210,11 @@
- 		if (AutoResizeParent)
- 		{
- 			UpdateParentSize();
- 		}
- 		
--		OnShapeChangedAsObservable.OnNext(Unit.Default);
-+		OnShapeChanged();
- 	}
- 	
- 	#endregion
- 	
- 	#region UI Size Management
-```
-#### AISpace/rules_global\Always\AGENTS.md
-```diff
---- 
-+++ 
-@@ -48,41 +48,50 @@
-     4. NAMING ENFORCEMENT: Injected component variables MUST match their Type names.
-   </rules>
- </prime_directive>
- 
- <complex_pattern>
--  <description>CRITICAL: Godot Lifecycle (_EnterTree vs _Ready) & Initialization</description>
--  <rationale>Godot executes _EnterTree Top-Down but _Ready Bottom-Up. Using _Ready for parent data init causes NullReference in children.</rationale>
-   <rules>
--    1. INIT IN ENTER_TREE: All `Subject<T>` instantiations and core data (`new Subject<T>()`) MUST be done in the Parent's `public override void _EnterTree()`.
--    2. SAFE CHILD READY: Children can safely subscribe to Parent Subjects in their own `_Ready()` because the Parent's `_EnterTree()` has already executed.
-+    1. R3 EVENTS: Use `[R3Event]` instead of manual `Subject<T>`. It lazy-initializes on first access, making it safe for children to subscribe during their `_Ready()`.
-+    2. CORE DATA: Instantiate `ReactiveProperty<T>` or simple collections inline (e.g., `= new()`) rather than inside lifecycle methods.
-     3. TIMING: Use `await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);` instead of `CallDeferred`.
-   </rules>
- </complex_pattern>
- 
- ### Component & R3 Cheat Sheet
- - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
--- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use R3 `Subject<T>` and expose as `Observable<T>`.
-+- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use `[R3Event] private partial void OnEventName(...)` to auto-generate Observables.
- - **Memory**: `CompositeDisposable _disposables` -> Dispose in `_ExitTree()`.
- - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
- - **Streams**:
-   - Physics (Velocity): `Observable.EveryPhysicsUpdate()`
-   - UI Updates: Append `.ObserveOn(GodotProvider.MainThread)`
-   - Button Clicks: `.ThrottleFirst(TimeSpan)` (NEVER `.Throttle()`)
-   - Continuous I/O (Sliders): `.Debounce(TimeSpan)`
-   - State Flags: Use `ReactiveProperty<T>`
-   - Discard Payload: Chain `.AsUnitObservable()`
- 
--<workflow>
--**Implementation Steps:**
--1. `[Entity]` -> call `InitializeEntity()` in `_Ready()`.
--2. `[Component(typeof(Parent))]` -> call `InitializeComponent()` in `_Ready()`.
--3. Dependencies: Request via `[ComponentDependency(typeof(T))]`. Access via auto-generated `parent` and `camelCase` properties.
--4. Subscribe: In `OnEntityReady()`. Append `.AddTo(_disposables)`.
--</workflow>
-+## 5. Metaprogramming (Source Generators)
- 
--## 5. Coding Standards
-+### Godot.Composition (Architecture)
-+- **Entities**: Add `[Entity]` to root. Call `InitializeEntity()` in `_Ready()`.
-+- **Components**: Add `[Component(typeof(Parent))]` to children. Call `InitializeComponent()` in `_Ready()`.
-+- **Dependencies**: Request via `[ComponentDependency(typeof(T))]`. Access via auto-generated `parent` and `camelCase` properties.
-+- **Lifecycle**: Override `OnEntityReady()` for R3 subscriptions. Append `.AddTo(_disposables)`.
-+
-+### A1GodotMetaProgramming (R3 Events)
-+- **Purpose**: Eliminates `Subject<T>` boilerplate. Auto-manages lazy initialization and `TreeExiting` disposal.
-+- **Usage**: Add `[R3Event]` to a `private partial void` method.
-+  ```csharp
-+  [R3Event] private partial void OnItemPlaced(Node item, Vector2I pos);
-+  ```
-+- **Result**:
-+  1. Generates `public Observable<(Node item, Vector2I pos)> OnItemPlacedObservable { get; }` (Auto-tupled!).
-+  2. To trigger, simply call `OnItemPlaced(item, pos);`.
-+  3. **DO NOT** write `new Subject<T>()`. The custom Analyzer `A1_R3_001` will throw a compiler error to prevent manual memory management.
-+
-+## 6. Coding Standards
- 
- ### Naming & Access
- - **[Export]**: `TypeName_Purpose` (e.g., `OptionButton_Theme`).
- - **Private**: `_camelCase`.
- - **Nodes**: `%Name` -> `GetNodeOrNull<T>` + `GD.PushError`.
-```
-#### AISpace/rules_ide\Codex\AGENTS.md
-```diff
---- 
-+++ 
-@@ -48,41 +48,50 @@
-     4. NAMING ENFORCEMENT: Injected component variables MUST match their Type names.
-   </rules>
- </prime_directive>
- 
- <complex_pattern>
--  <description>CRITICAL: Godot Lifecycle (_EnterTree vs _Ready) & Initialization</description>
--  <rationale>Godot executes _EnterTree Top-Down but _Ready Bottom-Up. Using _Ready for parent data init causes NullReference in children.</rationale>
-   <rules>
--    1. INIT IN ENTER_TREE: All `Subject<T>` instantiations and core data (`new Subject<T>()`) MUST be done in the Parent's `public override void _EnterTree()`.
--    2. SAFE CHILD READY: Children can safely subscribe to Parent Subjects in their own `_Ready()` because the Parent's `_EnterTree()` has already executed.
-+    1. R3 EVENTS: Use `[R3Event]` instead of manual `Subject<T>`. It lazy-initializes on first access, making it safe for children to subscribe during their `_Ready()`.
-+    2. CORE DATA: Instantiate `ReactiveProperty<T>` or simple collections inline (e.g., `= new()`) rather than inside lifecycle methods.
-     3. TIMING: Use `await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);` instead of `CallDeferred`.
-   </rules>
- </complex_pattern>
- 
- ### Component & R3 Cheat Sheet
- - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
--- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use R3 `Subject<T>` and expose as `Observable<T>`.
-+- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use `[R3Event] private partial void OnEventName(...)` to auto-generate Observables.
- - **Memory**: `CompositeDisposable _disposables` -> Dispose in `_ExitTree()`.
- - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
- - **Streams**:
-   - Physics (Velocity): `Observable.EveryPhysicsUpdate()`
-   - UI Updates: Append `.ObserveOn(GodotProvider.MainThread)`
-   - Button Clicks: `.ThrottleFirst(TimeSpan)` (NEVER `.Throttle()`)
-   - Continuous I/O (Sliders): `.Debounce(TimeSpan)`
-   - State Flags: Use `ReactiveProperty<T>`
-   - Discard Payload: Chain `.AsUnitObservable()`
- 
--<workflow>
--**Implementation Steps:**
--1. `[Entity]` -> call `InitializeEntity()` in `_Ready()`.
--2. `[Component(typeof(Parent))]` -> call `InitializeComponent()` in `_Ready()`.
--3. Dependencies: Request via `[ComponentDependency(typeof(T))]`. Access via auto-generated `parent` and `camelCase` properties.
--4. Subscribe: In `OnEntityReady()`. Append `.AddTo(_disposables)`.
--</workflow>
-+## 5. Metaprogramming (Source Generators)
- 
--## 5. Coding Standards
-+### Godot.Composition (Architecture)
-+- **Entities**: Add `[Entity]` to root. Call `InitializeEntity()` in `_Ready()`.
-+- **Components**: Add `[Component(typeof(Parent))]` to children. Call `InitializeComponent()` in `_Ready()`.
-+- **Dependencies**: Request via `[ComponentDependency(typeof(T))]`. Access via auto-generated `parent` and `camelCase` properties.
-+- **Lifecycle**: Override `OnEntityReady()` for R3 subscriptions. Append `.AddTo(_disposables)`.
-+
-+### A1GodotMetaProgramming (R3 Events)
-+- **Purpose**: Eliminates `Subject<T>` boilerplate. Auto-manages lazy initialization and `TreeExiting` disposal.
-+- **Usage**: Add `[R3Event]` to a `private partial void` method.
-+  ```csharp
-+  [R3Event] private partial void OnItemPlaced(Node item, Vector2I pos);
-+  ```
-+- **Result**:
-+  1. Generates `public Observable<(Node item, Vector2I pos)> OnItemPlacedObservable { get; }` (Auto-tupled!).
-+  2. To trigger, simply call `OnItemPlaced(item, pos);`.
-+  3. **DO NOT** write `new Subject<T>()`. The custom Analyzer `A1_R3_001` will throw a compiler error to prevent manual memory management.
-+
-+## 6. Coding Standards
- 
- ### Naming & Access
- - **[Export]**: `TypeName_Purpose` (e.g., `OptionButton_Theme`).
- - **Private**: `_camelCase`.
- - **Nodes**: `%Name` -> `GetNodeOrNull<T>` + `GD.PushError`.
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Interaction\ItemPhysicsComponent.cs
-```diff
---- 
-+++ 
-@@ -85,11 +85,11 @@
- 
- 		RebuildCollisionShapes();
- 
- 		// 订阅形状变化流（如旋转）
- 		// 理由：网格旋转时碰撞体必须同步更新
--		_gridShapeComp.OnShapeChangedAsObservable
-+		_gridShapeComp.OnShapeChangedObservable
- 			.Subscribe(_ => RebuildCollisionShapes())
- 			.AddTo(this);
- 	}
- 
- 	public override void _Process(double delta)
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\UI\GridCellUI.cs
-```diff
---- 
-+++ 
-@@ -31,25 +31,19 @@
- 	#region Private Fields
- 
- 	/// 当前状态
- 	private CellState _currentState = CellState.Normal;
- 
--	/// R3 Subject - 单元格输入事件流
--	private readonly Subject<InputEvent> _onCellInputSubject = new();
--
--	/// R3 Subject - 单元格悬停事件流
--	private readonly Subject<Unit> _onCellHoverSubject = new();
--
- 	#endregion
- 
- 	#region Public Interface
- 
- 	/// 暴露单元格输入事件流（供控制器聚合）
--	public Observable<InputEvent> OnCellInputAsObservable => _onCellInputSubject;
-+	[A1GodotMetaProgramming.R3Event] private partial void OnCellInput(InputEvent @event);
- 
- 	/// 暴露单元格悬停事件流（供控制器聚合）
--	public Observable<Unit> OnCellHoverAsObservable => _onCellHoverSubject;
-+	[A1GodotMetaProgramming.R3Event] private partial void OnCellHover();
- 
- 	#endregion
- 
- 	#region Godot Lifecycle
- 
-@@ -63,19 +57,19 @@
- 	}
- 
- 	public override void _GuiInput(InputEvent @event)
- 	{
- 		// 将所有GUI输入事件推送到R3流
--		_onCellInputSubject.OnNext(@event);
-+		OnCellInput(@event);
- 	}
- 
- 	public override void _Notification(int what)
- 	{
- 		// 监听鼠标进入/离开事件
- 		if (what == NotificationMouseEnter)
- 		{
--			_onCellHoverSubject.OnNext(Unit.Default);
-+			OnCellHover();
- 		}
- 		else if (what == NotificationMouseExit)
- 		{
- 			// 鼠标离开时恢复之前的状态（如果当前是Hover状态）
- 			if (_currentState == CellState.Hover)
-@@ -85,13 +79,11 @@
- 		}
- 	}
- 
- 	public override void _ExitTree()
- 	{
--		// 清理R3 Subjects
--		_onCellInputSubject?.Dispose();
--		_onCellHoverSubject?.Dispose();
-+		// 清理逻辑已由 R3Event 生成器自动管理
- 	}
- 
- 	#endregion
- 
- 	#region State Management
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Items\ItemVisualSyncComponent.cs
-```diff
---- 
-+++ 
-@@ -63,11 +63,11 @@
- 
- 		if (_draggable != null && _icon != null)
- 		{
- 			_icon.PivotOffset = _icon.Size / 2f;
- 			
--			_draggable.OnRotateRequestedAsObservable
-+			_gridShape.OnShapeChangedObservable
- 				.Subscribe(_ => RotateVisual())
- 				.AddTo(this);
- 		}
- 	}
- 
-```
-#### TetrisBackpack/addons\A1TetrisBackpack\Core\BackpackInteractionController.cs
-```diff
---- 
-+++ 
-@@ -200,19 +200,19 @@
- 		}
- 
- 		// 2. 订阅拖拽事件（使用 R3）
- 		// 【关键】使用 .AddTo(itemEntity) 确保物品销毁时自动取消订阅
- 
--		draggable.OnDragStartedAsObservable
-+		draggable.OnDragStartedObservable
- 			.Subscribe(grabbedCellIndex => HandleItemPickedUp(itemEntity, itemControl, shapeComponent, draggable, grabbedCellIndex))
- 			.AddTo(itemEntity);
- 
--		draggable.OnDragEndedAsObservable
-+		draggable.OnDragEndedObservable
- 			.Subscribe(_ => HandleItemDropped(itemEntity, itemControl, shapeComponent))
- 			.AddTo(itemEntity);
- 
--		draggable.OnRotateRequestedAsObservable
-+		draggable.OnRotateRequestedObservable
- 			.Subscribe(_ => HandleItemRotated(itemEntity, shapeComponent))
- 			.AddTo(itemEntity);
- 
- 		GD.Print($"BackpackInteractionController: 已注册物品 {itemEntity.Name}");
- 	}
-@@ -320,11 +320,11 @@
- 			})
- 			.DistinctUntilChanged(); // 只比较坐标元组，不碰形状数组，避免引用比较陷阱
- 
- 		// shapeStream：物品旋转时强制刷新，绕过 DistinctUntilChanged
- 		// 需要伪装成与 posStream 相同的元组类型，才能让 Merge 合并
--		var shapeStream = shapeComponent.OnShapeChangedAsObservable
-+		var shapeStream = shapeComponent.OnShapeChangedObservable
- 			.Select(_ =>
- 			{
- 				var mp = BackpackGridUIComp.GetGlobalMousePosition();
- 				Vector2I mouseGridPos = BackpackGridUIComp.GlobalToGridPosition(mp);
- 				Vector2I targetTopLeftGridPos = mouseGridPos - GetGrabbedCellLogicalOffset(_currentDrag, shapeComponent);
-@@ -334,14 +334,13 @@
- 					gridPos:  targetTopLeftGridPos
- 				);
- 			});
- 
- 		// 合并：任一流发射 → 执行同一段预览逻辑
--
--
- 		Observable.Merge(posStream, shapeStream)
--			.TakeUntil(draggable.OnDragEndedAsObservable)
-+			// 【关键】在物品被放下（OnDragEnded）时自动停止跟手逻辑，防止内存泄漏或幽灵跟随
-+			.TakeUntil(draggable.OnDragEndedObservable)
- 			.Subscribe(state =>
- 			{
- 				if (_currentDrag == null) return; // 防止在放置回调中恢复形状时触发幽灵预览
- 
- 				if (!state.inBounds)
-@@ -508,11 +507,11 @@
- 		// 因为拖拽过程中可能旋转了 N 次，CurrentLocalCells 已经是新形状了。
- 		// 必须先把形状还原，再尝试放回原始网格位置，否则旋转后的形状可能放不进去！
- 		if (dragState.OriginalLocalCells != null)
- 		{
- 			dragState.ShapeComponent.CurrentLocalCells = dragState.OriginalLocalCells;
--			dragState.ShapeComponent.OnShapeChangedAsObservable?.OnNext(Unit.Default); // 通知视图层重建
-+			dragState.ShapeComponent.ForceShapeChanged(); // 通知视图层重建
- 		}
- 
- 		BackpackGridComp.TryPlaceItem(
- 			itemEntity,
- 			dragState.ShapeComponent.CurrentLocalCells,
-```
 </RECENT_CHANGES>
       ]]>
     </urgent_recent_changes>
@@ -1111,17 +560,30 @@ trigger: always_on
 
 ## 5. Metaprogramming (Source Generators)
 
-### A1GodotMetaProgramming
+### A1GodotMetaProgramming (`using A1GodotMetaProgramming;`)
+> Folder layout: `R3Events/` · `Lifecycle/` · `NodeBinding/`
+
 - **[R3Event]**: Usage: `[R3Event] private partial void OnMyEvent(string msg);`
   - **Auto-Generates**:
     1. A trigger method (`OnMyEvent(msg)`) that internally calls `OnNext`.
     2. A public `Observable<T> OnMyEventObservable { get; }`.
     3. Internal `Subject<T>` with lazy-initialization and automatic `_ExitTree` disposal.
   - **Type Variations**:
-    - **0 Args**: Generates `Observable<Unit>` (use `Unit.Default` to trigger if manual).
+    - **0 Args**: Generates `Observable<Unit>`.
     - **1 Arg**: Generates `Observable<T>`.
     - **2+ Args**: Generates Tuple `Observable<(T1 name1, T2 name2)>`.
-- **CompositeDisposable**: `[GenerateCompositeDisposable]` auto-generates `_disposables` and handles `_ExitTree()` cleanup.
+
+- **[GenerateCompositeDisposable]**: Add to class. Auto-generates `_disposables` field + `TreeExiting` auto-dispose hook.
+  - Usage: `[GenerateCompositeDisposable] public partial class MyComp : Node { ... }`
+  - Replaces: manual `private readonly CompositeDisposable _disposables = new();` + `_ExitTree()` dispose.
+
+- **[GodotNode]**: Add to a `private` field. Auto-generates `[Export] NodePath` + `GetNodeOrNull` binding method.
+  - Usage: `[GodotNode] private GridShapeComponent _gridShapeComp;`
+  - Auto-Generates:
+    1. `[Export] public NodePath _gridShapeComp_Path { get; set; } = "%GridShapeComponent";`
+    2. `private void _InitNodeGridShapeComponent()` — calls `GetNodeOrNull` + `GD.PushError` on null.
+  - Override default path: `[GodotNode("../OtherPath")] private GridShapeComponent _gridShapeComp;`
+  - Call generated init in `_Ready()`: `_InitNodeGridShapeComponent();`
 
 ### Godot.Composition (Architecture)
 - **Entities**: Add `[Entity]` to root. Call `InitializeEntity()` in `_Ready()`.
@@ -11921,7 +11383,343 @@ public static class StateChartAutoBindExtensions
 ]]>
     </file>
 
-    <file path="TetrisBackpack/addons\A1GodotMetaProgramming\R3EventGenerator.cs" priority="NORMAL">
+    <file path="TetrisBackpack/addons\A1GodotMetaProgramming\Lifecycle\CompositeDisposableGenerator.cs" priority="NORMAL">
+<![CDATA[
+using System.Collections.Immutable;
+using System.Text;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
+
+namespace A1GodotMetaProgramming
+{
+    [Generator]
+    public class CompositeDisposableGenerator : IIncrementalGenerator
+    {
+        private const string AttributeText = @"// <auto-generated />
+using System;
+
+namespace A1GodotMetaProgramming
+{
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    public sealed class GenerateCompositeDisposableAttribute : Attribute
+    {
+    }
+}
+";
+
+        public void Initialize(IncrementalGeneratorInitializationContext context)
+        {
+            context.RegisterPostInitializationOutput(ctx =>
+                ctx.AddSource("GenerateCompositeDisposableAttribute.g.cs", SourceText.From(AttributeText, Encoding.UTF8)));
+
+            IncrementalValuesProvider<ClassDeclarationSyntax> classDeclarations = context.SyntaxProvider
+                .CreateSyntaxProvider(
+                    predicate: static (s, _) => IsSyntaxTarget(s),
+                    transform: static (ctx, _) => GetSemanticTarget(ctx))
+                .Where(static c => c is not null)!;
+
+            IncrementalValueProvider<(Compilation, ImmutableArray<ClassDeclarationSyntax>)> compilationAndClasses
+                = context.CompilationProvider.Combine(classDeclarations.Collect());
+
+            context.RegisterSourceOutput(compilationAndClasses,
+                static (spc, source) => Execute(source.Item1, source.Item2, spc));
+        }
+
+        private static bool IsSyntaxTarget(SyntaxNode node)
+        {
+            return node is ClassDeclarationSyntax c && c.AttributeLists.Count > 0;
+        }
+
+        private static ClassDeclarationSyntax? GetSemanticTarget(GeneratorSyntaxContext context)
+        {
+            var classDecl = (ClassDeclarationSyntax)context.Node;
+            foreach (var attrList in classDecl.AttributeLists)
+            {
+                foreach (var attr in attrList.Attributes)
+                {
+                    if (context.SemanticModel.GetSymbolInfo(attr).Symbol is IMethodSymbol attrSymbol)
+                    {
+                        if (attrSymbol.ContainingType.ToDisplayString() ==
+                            "A1GodotMetaProgramming.GenerateCompositeDisposableAttribute")
+                        {
+                            return classDecl;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        private static void Execute(
+            Compilation compilation,
+            ImmutableArray<ClassDeclarationSyntax> classes,
+            SourceProductionContext context)
+        {
+            if (classes.IsDefaultOrEmpty)
+            {
+                return;
+            }
+
+            foreach (ClassDeclarationSyntax classDecl in classes)
+            {
+                var semanticModel = compilation.GetSemanticModel(classDecl.SyntaxTree);
+                if (semanticModel.GetDeclaredSymbol(classDecl) is not INamedTypeSymbol classSymbol)
+                {
+                    continue;
+                }
+
+                string namespaceName = classSymbol.ContainingNamespace.IsGlobalNamespace
+                    ? ""
+                    : classSymbol.ContainingNamespace.ToDisplayString();
+                string className = classSymbol.Name;
+
+                var sb = new StringBuilder();
+                sb.AppendLine("// <auto-generated />");
+                sb.AppendLine("using R3;");
+                sb.AppendLine();
+
+                if (!string.IsNullOrEmpty(namespaceName))
+                {
+                    sb.AppendLine($"namespace {namespaceName}");
+                    sb.AppendLine("{");
+                }
+
+                string indent = string.IsNullOrEmpty(namespaceName) ? "" : "    ";
+                sb.AppendLine($"{indent}public partial class {className}");
+                sb.AppendLine($"{indent}{{");
+                // 生成 _disposables 字段
+                sb.AppendLine($"{indent}    private readonly CompositeDisposable _disposables = new CompositeDisposable();");
+                sb.AppendLine();
+                // 通过 TreeExiting 自动 Dispose（Godot Node 生命周期）
+                sb.AppendLine($"{indent}    // 由 [GenerateCompositeDisposable] 生成：TreeExiting 时自动清理所有 R3 订阅");
+                sb.AppendLine($"{indent}    private void _InitCompositeDisposable()");
+                sb.AppendLine($"{indent}    {{");
+                sb.AppendLine($"{indent}        TreeExiting += () => _disposables.Dispose();");
+                sb.AppendLine($"{indent}    }}");
+                sb.AppendLine($"{indent}}}");
+
+                if (!string.IsNullOrEmpty(namespaceName))
+                {
+                    sb.AppendLine("}");
+                }
+
+                context.AddSource($"{className}_CompositeDisposable.g.cs",
+                    SourceText.From(sb.ToString(), Encoding.UTF8));
+            }
+        }
+    }
+}
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1GodotMetaProgramming\NodeBinding\GodotNodeGenerator.cs" priority="NORMAL">
+<![CDATA[
+using System.Collections.Immutable;
+using System.Linq;
+using System.Text;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
+
+namespace A1GodotMetaProgramming
+{
+    // 自动为字段生成 NodePath [Export] 属性 + GetNodeOrNull 绑定方法。
+    // 字段必须为 private，类必须为 partial。
+    //
+    // 使用示例：
+    //   [GodotNode] private GridShapeComponent _gridShapeComp;
+    //
+    // 生成结果：
+    //   [Export] public NodePath _gridShapeComp_Path = "%GridShapeComponent";
+    //   private void _InitNodeGridShapeComponent() { ... GetNodeOrNull ... }
+    [Generator]
+    public class GodotNodeGenerator : IIncrementalGenerator
+    {
+        private const string AttributeText = @"// <auto-generated />
+using System;
+
+namespace A1GodotMetaProgramming
+{
+    /// <summary>
+    /// 自动为字段生成 NodePath [Export] 属性 + GetNodeOrNull 绑定方法。
+    /// 字段必须为 private，类必须为 partial。
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+    public sealed class GodotNodeAttribute : Attribute
+    {
+        /// <summary>
+        /// 覆盖默认 NodePath 默认值。留空则使用 ""%TypeName""。
+        /// </summary>
+        public string DefaultPath { get; set; } = """";
+
+        public GodotNodeAttribute() { }
+        public GodotNodeAttribute(string defaultPath) { DefaultPath = defaultPath; }
+    }
+}
+";
+
+        public void Initialize(IncrementalGeneratorInitializationContext context)
+        {
+            context.RegisterPostInitializationOutput(ctx =>
+                ctx.AddSource("GodotNodeAttribute.g.cs", SourceText.From(AttributeText, Encoding.UTF8)));
+
+            // 收集带有 [GodotNode] 的字段声明
+            IncrementalValuesProvider<FieldDeclarationSyntax> fieldDeclarations = context.SyntaxProvider
+                .CreateSyntaxProvider(
+                    predicate: static (s, _) => IsSyntaxTarget(s),
+                    transform: static (ctx, _) => GetSemanticTarget(ctx))
+                .Where(static f => f is not null)!;
+
+            IncrementalValueProvider<(Compilation, ImmutableArray<FieldDeclarationSyntax>)> compilationAndFields
+                = context.CompilationProvider.Combine(fieldDeclarations.Collect());
+
+            context.RegisterSourceOutput(compilationAndFields,
+                static (spc, source) => Execute(source.Item1, source.Item2, spc));
+        }
+
+        private static bool IsSyntaxTarget(SyntaxNode node)
+        {
+            return node is FieldDeclarationSyntax f && f.AttributeLists.Count > 0;
+        }
+
+        private static FieldDeclarationSyntax? GetSemanticTarget(GeneratorSyntaxContext context)
+        {
+            var fieldDecl = (FieldDeclarationSyntax)context.Node;
+            foreach (var attrList in fieldDecl.AttributeLists)
+            {
+                foreach (var attr in attrList.Attributes)
+                {
+                    if (context.SemanticModel.GetSymbolInfo(attr).Symbol is IMethodSymbol attrSymbol)
+                    {
+                        if (attrSymbol.ContainingType.ToDisplayString() ==
+                            "A1GodotMetaProgramming.GodotNodeAttribute")
+                        {
+                            return fieldDecl;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        private static void Execute(
+            Compilation compilation,
+            ImmutableArray<FieldDeclarationSyntax> fields,
+            SourceProductionContext context)
+        {
+            if (fields.IsDefaultOrEmpty)
+            {
+                return;
+            }
+
+            // 按类分组，每个类只生成一个文件
+            var fieldsByClass = fields
+                .GroupBy(f => f.Parent as ClassDeclarationSyntax)
+                .Where(g => g.Key != null);
+
+            foreach (var group in fieldsByClass)
+            {
+                ClassDeclarationSyntax classDecl = group.Key!;
+                var semanticModel = compilation.GetSemanticModel(classDecl.SyntaxTree);
+                if (semanticModel.GetDeclaredSymbol(classDecl) is not INamedTypeSymbol classSymbol)
+                {
+                    continue;
+                }
+
+                string namespaceName = classSymbol.ContainingNamespace.IsGlobalNamespace
+                    ? ""
+                    : classSymbol.ContainingNamespace.ToDisplayString();
+                string className = classSymbol.Name;
+                string indent = string.IsNullOrEmpty(namespaceName) ? "" : "    ";
+
+                var sb = new StringBuilder();
+                sb.AppendLine("// <auto-generated />");
+                sb.AppendLine("using Godot;");
+                sb.AppendLine();
+
+                if (!string.IsNullOrEmpty(namespaceName))
+                {
+                    sb.AppendLine($"namespace {namespaceName}");
+                    sb.AppendLine("{");
+                }
+
+                sb.AppendLine($"{indent}public partial class {className}");
+                sb.AppendLine($"{indent}{{");
+
+                foreach (FieldDeclarationSyntax fieldDecl in group)
+                {
+                    var fieldSymbol = semanticModel.GetDeclaredSymbol(fieldDecl.Declaration.Variables.First()) as IFieldSymbol;
+                    if (fieldSymbol == null)
+                    {
+                        continue;
+                    }
+
+                    string fieldName = fieldSymbol.Name;                         // e.g. _gridShapeComp
+                    string fieldType = fieldSymbol.Type.ToDisplayString();        // e.g. GridShapeComponent
+
+                    // 从类型名推断短名（去掉命名空间前缀）
+                    string typeName = fieldSymbol.Type.Name;                     // e.g. GridShapeComponent
+
+                    // 读取 DefaultPath 参数（如果有）
+                    string defaultNodePath = $"\"%{typeName}\"";
+                    var attrData = fieldSymbol.GetAttributes()
+                        .FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == "A1GodotMetaProgramming.GodotNodeAttribute");
+                    if (attrData != null)
+                    {
+                        // 构造函数参数
+                        if (attrData.ConstructorArguments.Length > 0)
+                        {
+                            string? argVal = attrData.ConstructorArguments[0].Value?.ToString();
+                            if (!string.IsNullOrEmpty(argVal))
+                            {
+                                defaultNodePath = $"\"{argVal}\"";
+                            }
+                        }
+                        // 命名参数 DefaultPath = "..."
+                        KeyValuePair<string, TypedConstant> namedArg = attrData.NamedArguments.FirstOrDefault(n => n.Key == "DefaultPath");
+                        if (!namedArg.Equals(default) && namedArg.Value.Value?.ToString() is string namedVal && !string.IsNullOrEmpty(namedVal))
+                        {
+                            defaultNodePath = $"\"{namedVal}\"";
+                        }
+                    }
+
+                    string pathPropName = $"{fieldName}_Path";   // e.g. _gridShapeComp_Path
+                    string initMethodName = $"_InitNode{typeName}"; // e.g. _InitNodeGridShapeComponent
+
+                    // 1. Export NodePath 属性
+                    sb.AppendLine($"{indent}    [Export] public NodePath {pathPropName} {{ get; set; }} = {defaultNodePath};");
+                    sb.AppendLine();
+
+                    // 2. Init 方法（GetNodeOrNull + null check）
+                    sb.AppendLine($"{indent}    // 由 [GodotNode] 生成 — 在 _Ready() 中调用");
+                    sb.AppendLine($"{indent}    private void {initMethodName}()");
+                    sb.AppendLine($"{indent}    {{");
+                    sb.AppendLine($"{indent}        {fieldName} = GetNodeOrNull<{fieldType}>({pathPropName});");
+                    sb.AppendLine($"{indent}        if ({fieldName} == null)");
+                    sb.AppendLine($"{indent}        {{");
+                    sb.AppendLine($"{indent}            GD.PushError($\"[{{Name}}] {typeName} not found at path: {{{pathPropName}}}\");");
+                    sb.AppendLine($"{indent}        }}");
+                    sb.AppendLine($"{indent}    }}");
+                    sb.AppendLine();
+                }
+
+                sb.AppendLine($"{indent}}}");
+                if (!string.IsNullOrEmpty(namespaceName))
+                {
+                    sb.AppendLine("}");
+                }
+
+                context.AddSource($"{className}_GodotNodes.g.cs",
+                    SourceText.From(sb.ToString(), Encoding.UTF8));
+            }
+        }
+    }
+}
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1GodotMetaProgramming\R3Events\R3EventGenerator.cs" priority="NORMAL">
 <![CDATA[
 using System;
 using System.Collections.Immutable;
@@ -12109,7 +11907,7 @@ namespace A1GodotMetaProgramming
 ]]>
     </file>
 
-    <file path="TetrisBackpack/addons\A1GodotMetaProgramming\SubjectUsageAnalyzer.cs" priority="NORMAL">
+    <file path="TetrisBackpack/addons\A1GodotMetaProgramming\R3Events\SubjectUsageAnalyzer.cs" priority="NORMAL">
 <![CDATA[
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
@@ -20529,6 +20327,7 @@ public partial class BillboardAnimEntry : Resource
 using Godot;
 using Godot.Composition;
 using R3;
+using A1GodotMetaProgramming;
 
 /// Billboard 动画控制器 — 二渲三系统核心组件
 ///
@@ -21579,6 +21378,7 @@ A: 修改根节点的 `custom_minimum_size` 属性。
 <![CDATA[
 using Godot;
 using R3;
+using A1GodotMetaProgramming;
 using System;
 
 // 背包网格核心组件 - 纯数据逻辑层
@@ -21602,8 +21402,8 @@ public partial class BackpackGridComponent : Node
 	
 	#region R3 Reactive Streams
 	
-	[A1GodotMetaProgramming.R3Event] private partial void OnItemPlaced(Node itemEntity, Vector2I position);
-	[A1GodotMetaProgramming.R3Event] private partial void OnItemRemoved(Node itemEntity, Vector2I position);
+	[R3Event] private partial void OnItemPlaced(Node itemEntity, Vector2I position);
+	[R3Event] private partial void OnItemRemoved(Node itemEntity, Vector2I position);
 	
 	#endregion
 	
@@ -22949,6 +22749,7 @@ public partial class LootSpawnAreaController : Control
 <![CDATA[
 using Godot;
 using R3;
+using A1GodotMetaProgramming;
 
 [GlobalClass]
 public partial class DraggableItemComponent : Node
@@ -22975,8 +22776,8 @@ public partial class DraggableItemComponent : Node
 	
 	#region R3 Reactive Streams
 	
-	[A1GodotMetaProgramming.R3Event] private partial void OnDragStarted(int cellIndex);
-	
+	[R3Event] private partial void OnDragStarted(int cellIndex);
+
 	/// 拖拽结束事件流
 	/// 
 	/// 触发时机：鼠标左键松开
@@ -22987,7 +22788,7 @@ public partial class DraggableItemComponent : Node
 	/// - 取消高亮可放置区域
 	/// - 播放放置音效
 	/// - 验证放置是否合法（通过 BackpackGridComponent）
-	[A1GodotMetaProgramming.R3Event] private partial void OnDragEnded();
+	[R3Event] private partial void OnDragEnded();
 	
 	/// 旋转请求事件流
 	/// 
@@ -23002,7 +22803,7 @@ public partial class DraggableItemComponent : Node
 	/// 注意：
 	/// - 此事件不会通知 StateChart（旋转是纯动作，不改变状态）
 	/// - 订阅者需要自行判断是否在拖拽状态下响应旋转
-	[A1GodotMetaProgramming.R3Event] private partial void OnRotateRequested();
+	[R3Event] private partial void OnRotateRequested();
 	
 	#endregion
 	
@@ -23684,6 +23485,7 @@ public partial class ItemPhysicsComponent : RigidBody2D
 <![CDATA[
 using Godot;
 using R3;
+using A1GodotMetaProgramming;
 using System.Linq;
 
 /// 网格形状组件 - 管理物品运行时形状
@@ -23724,7 +23526,7 @@ public partial class GridShapeComponent : Node
 	
 	#region R3 Reactive Streams
 	
-	[A1GodotMetaProgramming.R3Event] private partial void OnShapeChanged();
+	[R3Event] private partial void OnShapeChanged();
 	
 	#endregion
 	
@@ -24023,6 +23825,7 @@ public partial class GridShapeComponent : Node
 <![CDATA[
 using Godot;
 using R3;
+using A1GodotMetaProgramming;
 using System.Collections.Generic;
 
 /// GridShapeUIComponent - GridShapeComponent 的视图层
@@ -24085,7 +23888,7 @@ public partial class GridShapeUIComponent : Node
 	#region Public Interface
 
 	/// 暴露聚合后的输入事件流（供DraggableItemComponent订阅）
-	[A1GodotMetaProgramming.R3Event] private partial void OnGroupInput(InputEvent @event, int cellIndex);
+	[R3Event] private partial void OnGroupInput(InputEvent @event, int cellIndex);
 
 	#endregion
 
@@ -24817,6 +24620,7 @@ public partial class UITweenInteractComponent : Node
 <![CDATA[
 using Godot;
 using R3;
+using A1GodotMetaProgramming;
 using System.Collections.Generic;
 
 /// 羁绊组件 - 运行时羁绊检测与激活
@@ -24897,7 +24701,7 @@ public partial class SynergyComponent : Node
 	/// - 通知 UI 层更新星星显示（灰色 → 亮色）
 	/// - 通知战斗系统应用羁绊效果
 	/// - 通知音效系统播放激活音效
-	[A1GodotMetaProgramming.R3Event] private partial void OnSynergyChanged(HashSet<Vector2I> activeStars);
+	[R3Event] private partial void OnSynergyChanged(HashSet<Vector2I> activeStars);
 	
 	#endregion
 	
@@ -25287,6 +25091,7 @@ public partial class SynergyDataResource : Resource
 <![CDATA[
 using Godot;
 using R3;
+using A1GodotMetaProgramming;
 
 /// 网格单元格UI组件 - 统一的格子视觉表现
 /// 目的：提供"透明体+发光边框"的专业视觉效果，支持状态切换和输入事件聚合
@@ -25325,10 +25130,10 @@ public partial class GridCellUI : Control
 	#region Public Interface
 
 	/// 暴露单元格输入事件流（供控制器聚合）
-	[A1GodotMetaProgramming.R3Event] private partial void OnCellInput(InputEvent @event);
+	[R3Event] private partial void OnCellInput(InputEvent @event);
 
 	/// 暴露单元格悬停事件流（供控制器聚合）
-	[A1GodotMetaProgramming.R3Event] private partial void OnCellHover();
+	[R3Event] private partial void OnCellHover();
 
 	#endregion
 
@@ -33470,6 +33275,89 @@ rendering_device/driver.windows="d3d12"
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260504_105909
+- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
+
+#### AISpace/AGENTS.md
+```diff
+--- 
++++ 
+@@ -83,12 +83,16 @@
+ 
+ ### A1GodotMetaProgramming
+ - **[R3Event]**: Usage: `[R3Event] private partial void OnMyEvent(string msg);`
+   - **Auto-Generates**:
+     1. A trigger method (`OnMyEvent(msg)`) that internally calls `OnNext`.
+-    2. A public `Observable<string> OnMyEventObservable { get; }`.
++    2. A public `Observable<T> OnMyEventObservable { get; }`.
+     3. Internal `Subject<T>` with lazy-initialization and automatic `_ExitTree` disposal.
++  - **Type Variations**:
++    - **0 Args**: Generates `Observable<Unit>` (use `Unit.Default` to trigger if manual).
++    - **1 Arg**: Generates `Observable<T>`.
++    - **2+ Args**: Generates Tuple `Observable<(T1 name1, T2 name2)>`.
+ - **CompositeDisposable**: `[GenerateCompositeDisposable]` auto-generates `_disposables` and handles `_ExitTree()` cleanup.
+ 
+ ### Godot.Composition (Architecture)
+ - **Entities**: Add `[Entity]` to root. Call `InitializeEntity()` in `_Ready()`.
+ - **Components**: Add `[Component(typeof(Parent))]` to children. Call `InitializeComponent()` in `_Ready()`.
+```
+#### TetrisBackpack/addons\A1Sprite3D\BillboardAnimator.cs
+```diff
+--- 
++++ 
+@@ -1,25 +1,25 @@
+ using Godot;
+ using Godot.Composition;
+ using R3;
+ 
+ /// Billboard 动画控制器 — 二渲三系统核心组件
+-/// 
++///
+ /// 架构原则：
+ /// - 纯代码驱动 Sprite3D.FrameCoords，不使用 AnimationPlayer
+ /// - X 轴（列）= 动画帧，由内部计时器按 FPS 驱动
+ /// - Y 轴（行）= 方向，由摄像机角度实时计算
+ /// - 支持 Montage 打断机制（Attack/Hit/Death 等一次性动画）
+ /// - 支持帧事件信号（在特定帧触发回调，用于伤害判定/音效/特效）
+-/// 
++///
+ /// 使用方法：
+ ///   1. 在角色场景中添加此 Node 组件
+ ///   2. 设置 Sprite3DPath 指向你的 Sprite3D 节点
+ ///   3. 创建并拖入 BillboardAnimConfig (.tres) 资源
+ ///   4. 状态驱动：外部调用 PlayAnimation("Walk") 或让 Config 自动选择
+ ///   5. Montage：外部调用 PlayMontage("Attack") 播放一次性打断动画
+-/// 
++///
+ /// 场景结构示例：
+ ///   Enemy (CharacterBody3D) [Entity]
+ ///   ├── BillboardAnimator      ← 此组件
+ ///   ├── Sprite3D               ← Billboard = Y-Billboard
+ ///   └── AIInputComponent
+@@ -56,17 +56,17 @@
+     #endregion
+ 
+     #region Observables (R3)
+ 
+     /// 帧事件流 — 当动画播放到 EventFrames 中定义的帧时触发
+-    [A1GodotMetaProgramming.R3Event] private partial void OnAnimationFrameEvent(string animName, int frameOffset);
++    [R3Event] private partial void OnAnimationFrameEvent(string animName, int frameOffset);
+ 
+     /// Montage 完成流 — 当打断型动画播放结束时触发
+-    [A1GodotMetaProgramming.R3Event] private partial void OnMontageFinished(string animName);
++    [R3Event] private partial void OnMontageFinished(string animName);
+ 
+     /// 动画切换流 — 当切换到新动画时触发
+-    [A1GodotMetaProgramming.R3Event] private partial void OnAnimationChanged(string newAnim, string oldAnim);
++    [R3Event] private partial void OnAnimationChanged(string newAnim, string oldAnim);
+ 
+     #endregion
+ 
+     #region Private Fields
+ 
+```
+
+---
 ## 📅 20260504_105616
 - ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
 
@@ -33569,7 +33457,6 @@ rendering_device/driver.windows="d3d12"
 -]]></code>
  </template>
 ```
-
 ---
 ## 📅 20260504_102724
 - ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
@@ -34609,62 +34496,6 @@ rendering_device/driver.windows="d3d12"
  unique_name_in_owner = true
  script = ExtResource("11_gk2qc")
  
-```
----
-## 📅 20260504_051644
-- ➕ 新增: 7 | 📝 修改: 3 | ❌ 删除: 1
-
-#### AISpace/rules_ide\Codex\AGENTS.md
-```diff
---- 
-+++ 
-@@ -59,10 +59,11 @@
-   </rules>
- </complex_pattern>
- 
- ### Component & R3 Cheat Sheet
- - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
-+- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use R3 `Subject<T>` and expose as `Observable<T>`.
- - **Memory**: `CompositeDisposable _disposables` -> Dispose in `_ExitTree()`.
- - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
- - **Streams**:
-   - Physics (Velocity): `Observable.EveryPhysicsUpdate()`
-   - UI Updates: Append `.ObserveOn(GodotProvider.MainThread)`
-```
-#### TetrisBackpack/A1TesseractBackpack\TSItem.tscn
-```diff
---- 
-+++ 
-@@ -90,10 +90,12 @@
- [node name="UITweenInteractComponent" type="Node" parent="." unique_id=987654321 node_paths=PackedStringArray("InteractionArea", "VisualTarget")]
- unique_name_in_owner = true
- script = ExtResource("tween_script")
- InteractionArea = NodePath("../PhysicsProxy/InteractionArea")
- VisualTarget = NodePath("../PhysicsProxy/InteractionArea")
-+HoverScale = Vector2(5, 5)
-+PressScale = Vector2(0.5, 0.95)
- 
- [node name="InteractionArea#ItemIcon" type="TextureRect" parent="." unique_id=1600377566]
- layout_mode = 1
- anchors_preset = 15
- anchor_right = 1.0
-```
-#### AISpace/rules_global\Always\AGENTS.md
-```diff
---- 
-+++ 
-@@ -59,10 +59,11 @@
-   </rules>
- </complex_pattern>
- 
- ### Component & R3 Cheat Sheet
- - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
-+- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use R3 `Subject<T>` and expose as `Observable<T>`.
- - **Memory**: `CompositeDisposable _disposables` -> Dispose in `_ExitTree()`.
- - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
- - **Streams**:
-   - Physics (Velocity): `Observable.EveryPhysicsUpdate()`
-   - UI Updates: Append `.ObserveOn(GodotProvider.MainThread)`
 ```
 </RECENT_CHANGES>
     ]]>
