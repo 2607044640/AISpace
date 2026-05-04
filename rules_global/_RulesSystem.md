@@ -5,6 +5,17 @@ trigger: manual
 ## Objective
 Rules Infrastructure Guide. Explains the Windows hardlink architecture powering multi-IDE rule synchronization.
 
+> [!CAUTION]
+> **CRITICAL RULE — ONE SOURCE OF TRUTH, ALL OTHERS ARE HARDLINKS**
+>
+> `rules_global\Always\AGENTS.md` is the **ONLY** file you are ever allowed to edit.
+> Every other `AGENTS.md` location (TetrisBackpack, .windsurf, .agents, Codex) is a **Windows hardlink** to this file — they share the same inode and update instantly.
+>
+> **If you edit any other path (e.g. `AISpace\AGENTS.md`, `TetrisBackpack\AGENTS.md`), you are editing a copy that NO IDE will pick up, or you risk breaking the hardlink chain.**
+>
+> To verify a file is hardlinked (not an orphan copy): `fsutil hardlink list "path\to\AGENTS.md"` — output must include `rules_global\Always\AGENTS.md`.
+> If it does NOT appear, the file is a rogue orphan and must be **deleted immediately**.
+
 ## Hardlink Architecture (Core Principle)
 - **Single Source of Truth**: `C:\Godot\AISpace\rules_global\`
 - **Shared Destinations**: `.windsurf\rules\`, `AISpace\.agents\rules\`, `TetrisBackpack\AGENTS.md`
