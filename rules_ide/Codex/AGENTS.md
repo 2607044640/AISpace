@@ -50,18 +50,18 @@ trigger: always_on
 </prime_directive>
 
 <complex_pattern>
-  <description>CRITICAL: Godot Lifecycle (_EnterTree vs _Ready) & Initialization</description>
-  <rationale>Godot executes _EnterTree Top-Down but _Ready Bottom-Up. Using _Ready for parent data init causes NullReference in children.</rationale>
+  <description>CRITICAL: Godot Lifecycle & R3 Initialization</description>
+  <rationale>Godot executes _EnterTree Top-Down but _Ready Bottom-Up. Previously this caused strict initialization orders, but metaprogramming solves this via Lazy Initialization.</rationale>
   <rules>
-    1. INIT IN ENTER_TREE: All `Subject<T>` instantiations and core data (`new Subject<T>()`) MUST be done in the Parent's `public override void _EnterTree()`.
-    2. SAFE CHILD READY: Children can safely subscribe to Parent Subjects in their own `_Ready()` because the Parent's `_EnterTree()` has already executed.
+    1. R3 EVENTS: Use `[R3Event]` instead of manual `Subject<T>`. It lazy-initializes on first access, making it 100% safe for children to subscribe during their `_Ready()`.
+    2. CORE DATA: Instantiate `ReactiveProperty<T>` or simple collections inline (e.g., `= new()`) rather than inside lifecycle methods.
     3. TIMING: Use `await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);` instead of `CallDeferred`.
   </rules>
 </complex_pattern>
 
 ### Component & R3 Cheat Sheet
 - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
-- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use R3 `Subject<T>` and expose as `Observable<T>`.
+- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use `[R3Event] private partial void OnEventName(...)` to auto-generate Observables.
 - **Memory**: `CompositeDisposable _disposables` -> Dispose in `_ExitTree()`.
 - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
 - **Streams**:
@@ -72,15 +72,26 @@ trigger: always_on
   - State Flags: Use `ReactiveProperty<T>`
   - Discard Payload: Chain `.AsUnitObservable()`
 
-<workflow>
-**Implementation Steps:**
-1. `[Entity]` -> call `InitializeEntity()` in `_Ready()`.
-2. `[Component(typeof(Parent))]` -> call `InitializeComponent()` in `_Ready()`.
-3. Dependencies: Request via `[ComponentDependency(typeof(T))]`. Access via auto-generated `parent` and `camelCase` properties.
-4. Subscribe: In `OnEntityReady()`. Append `.AddTo(_disposables)`.
-</workflow>
+## 5. Metaprogramming (Source Generators)
 
-## 5. Coding Standards
+### Godot.Composition (Architecture)
+- **Entities**: Add `[Entity]` to root. Call `InitializeEntity()` in `_Ready()`.
+- **Components**: Add `[Component(typeof(Parent))]` to children. Call `InitializeComponent()` in `_Ready()`.
+- **Dependencies**: Request via `[ComponentDependency(typeof(T))]`. Access via auto-generated `parent` and `camelCase` properties.
+- **Lifecycle**: Override `OnEntityReady()` for R3 subscriptions. Append `.AddTo(_disposables)`.
+
+### A1GodotMetaProgramming (R3 Events)
+- **Purpose**: Eliminates `Subject<T>` boilerplate. Auto-manages lazy initialization and `TreeExiting` disposal.
+- **Usage**: Add `[R3Event]` to a `private partial void` method.
+  ```csharp
+  [R3Event] private partial void OnItemPlaced(Node item, Vector2I pos);
+  ```
+- **Result**:
+  1. Generates `public Observable<(Node item, Vector2I pos)> OnItemPlacedObservable { get; }` (Auto-tupled!).
+  2. To trigger, simply call `OnItemPlaced(item, pos);`.
+  3. **DO NOT** write `new Subject<T>()`. The custom Analyzer `A1_R3_001` will throw a compiler error to prevent manual memory management.
+
+## 6. Coding Standards
 
 ### Naming & Access
 - **[Export]**: `TypeName_Purpose` (e.g., `OptionButton_Theme`).

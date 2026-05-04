@@ -1,7 +1,7 @@
 <system_context>
   <metadata>
     <description>Godot CsArchitect (构筑师) Project Context Master File (Dual-Sync)</description>
-    <generated_time>2026-05-04 05:16:45</generated_time>
+    <generated_time>2026-05-04 09:05:44</generated_time>
   </metadata>
 
   <section name='00_primacy_boost' description='Read This First'>
@@ -11,6 +11,171 @@
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260504_071437
+- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
+
+#### TetrisBackpack/addons\A1Sprite3D\Example\TestEnemyConfig.tres
+```diff
+--- 
++++ 
+@@ -1,10 +1,10 @@
+ [gd_resource type="Resource" load_steps=5 format=3]
+ 
+ [ext_resource type="Script" path="res://addons/A1Sprite3D/BillboardAnimEntry.cs" id="1_entry"]
+ [ext_resource type="Script" path="res://addons/A1Sprite3D/BillboardAnimConfig.cs" id="2_config"]
+-[ext_resource type="Texture2D" uid="uid://c6328" path="res://icon.svg" id="3_tex"]
++[ext_resource type="Texture2D" path="res://A1UIResources/Sample.png" id="3_tex"]
+ 
+ [sub_resource type="Resource" id="Resource_walk"]
+ script = ExtResource("1_entry")
+ AnimationName = "Walk"
+ StartFrame = 0
+```
+#### TetrisBackpack/addons\A1Sprite3D\Example\ExampleScene.tscn
+```diff
+--- 
++++ 
+@@ -1,9 +1,9 @@
+ [gd_scene load_steps=7 format=3 uid="uid://test_a1sprite_scene"]
+ 
+ [ext_resource type="Script" path="res://addons/A1Sprite3D/Example/TestEnemyEntity.cs" id="1_entity"]
+-[ext_resource type="Texture2D" uid="uid://c6328" path="res://icon.svg" id="2_tex"]
++[ext_resource type="Texture2D" path="res://A1UIResources/Sample.png" id="2_tex"]
+ [ext_resource type="Script" path="res://addons/A1Sprite3D/BillboardAnimator.cs" id="3_animator"]
+ [ext_resource type="Resource" path="res://addons/A1Sprite3D/Example/TestEnemyConfig.tres" id="4_config"]
+ [ext_resource type="Script" path="res://addons/A1Sprite3D/Example/ExampleCombatComponent.cs" id="5_combat"]
+ 
+ [node name="ExampleScene" type="Node3D"]
+```
+---
+## 📅 20260504_070658
+- ➕ 新增: 3 | 📝 修改: 0 | ❌ 删除: 0
+---
+## 📅 20260504_064652
+- ➕ 新增: 4 | 📝 修改: 2 | ❌ 删除: 2
+
+#### TetrisBackpack/A1TesseractBackpack\GVSR_BackgroundGridVisuals.tres
+```diff
+--- 
++++ 
+@@ -1,8 +1,6 @@
+ [gd_resource type="Resource" script_class="GridVisualSettingsResource" format=3 uid="uid://cboscusg2x03w"]
+ 
+-[ext_resource type="Texture2D" uid="uid://cjlv0bg7byjx0" path="res://addons/phantom_camera/icons/warning.svg" id="1_ffikg"]
+ [ext_resource type="Script" uid="uid://d0vrm5aorkhxs" path="res://addons/A1TetrisBackpack/UI/GridVisualSettingsResource.cs" id="2_siqs0"]
+ 
+ [resource]
+ script = ExtResource("2_siqs0")
+-CellTexture = ExtResource("1_ffikg")
+```
+#### TetrisBackpack/Scenes\Player3D.tscn
+```diff
+--- 
++++ 
+@@ -1,14 +1,13 @@
+ [gd_scene format=3 uid="uid://bykk4hu8cfy4"]
+ 
+ [ext_resource type="Script" uid="uid://yhmx8fery0rh" path="res://B1Scripts/Player3D.cs" id="1_player"]
+ [ext_resource type="Script" uid="uid://jvlxnylo7us3" path="res://addons/A1MyAddon/CoreComponents/FlyMovementComponent.cs" id="2_fly_movement"]
+ [ext_resource type="Script" uid="uid://qmkylfkevs6i" path="res://addons/A1MyAddon/CoreComponents/GroundMovementComponent.cs" id="2_ground_movement"]
++[ext_resource type="Script" uid="uid://dehxl23t0rr5j" path="res://addons/A1MyAddon/CoreComponents/Animation/AnimationControllerComponent.cs" id="3_a8kom"]
+ [ext_resource type="Script" uid="uid://rsqf1fe43hno" path="res://addons/A1MyAddon/CoreComponents/PlayerInputComponent.cs" id="3_input"]
+-[ext_resource type="Script" uid="uid://7xt4lw7fgw6r" path="res://addons/A1MyAddon/CoreComponents/AnimationControllerComponent.cs" id="4_animation"]
+-[ext_resource type="PackedScene" uid="uid://djlw4y8gso2b3" path="res://Scenes/Kuno1.02/kuno_1_02.tscn" id="5_kuno"]
+-[ext_resource type="Resource" uid="uid://cwx7kss3kbl0g" path="res://Animations/Player_CharacterAnimationConfig.tres" id="5_ykoex"]
++[ext_resource type="PackedScene" uid="uid://djlw4y8gso2b3" path="res://Kuno1.02/kuno_1_02.tscn" id="5_kuno"]
+ [ext_resource type="Script" uid="uid://cu08gpa84apih" path="res://addons/A1MyAddon/CoreComponents/CharacterRotationComponent.cs" id="6_rotation"]
+ [ext_resource type="Script" uid="uid://u8l0r7f2nkdv" path="res://addons/A1MyAddon/CoreComponents/CameraControlComponent.cs" id="7_camera"]
+ [ext_resource type="Script" uid="uid://csjccrhj5wnx7" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_3d.gd" id="8_pcam"]
+ [ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="10_r8rhd"]
+ [ext_resource type="Script" uid="uid://couw105c3bde4" path="res://addons/godot_state_charts/state_chart.gd" id="11_gk2qc"]
+@@ -30,13 +29,11 @@
+ 
+ [node name="PlayerInputComponent" type="Node" parent="." unique_id=851278383]
+ script = ExtResource("3_input")
+ 
+ [node name="AnimationControllerComponent" type="Node" parent="." unique_id=1140034643]
+-script = ExtResource("4_animation")
+-AnimationBlendTime = 0.3
+-AnimConfig = ExtResource("5_ykoex")
++script = ExtResource("3_a8kom")
+ 
+ [node name="CharacterRotationComponent" type="Node" parent="." unique_id=1956804117]
+ script = ExtResource("6_rotation")
+ 
+ [node name="CameraControlComponent" type="Node" parent="." unique_id=910192160]
+@@ -58,13 +55,10 @@
+ follow_offset = Vector3(0, 0.6, 0)
+ follow_distance = 4.0
+ spring_length = 4.0
+ shape = SubResource("SphereShape3D_pcam")
+ margin = 0.5
+-align_transform_with_view = Callable()
+-align_position_with_view = Callable()
+-align_rotation_with_view = Callable()
+ 
+ [node name="StateChart" type="Node" parent="." unique_id=491642213]
+ unique_name_in_owner = true
+ script = ExtResource("11_gk2qc")
+ 
+```
+---
+## 📅 20260504_051644
+- ➕ 新增: 7 | 📝 修改: 3 | ❌ 删除: 1
+
+#### AISpace/rules_ide\Codex\AGENTS.md
+```diff
+--- 
++++ 
+@@ -59,10 +59,11 @@
+   </rules>
+ </complex_pattern>
+ 
+ ### Component & R3 Cheat Sheet
+ - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
++- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use R3 `Subject<T>` and expose as `Observable<T>`.
+ - **Memory**: `CompositeDisposable _disposables` -> Dispose in `_ExitTree()`.
+ - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
+ - **Streams**:
+   - Physics (Velocity): `Observable.EveryPhysicsUpdate()`
+   - UI Updates: Append `.ObserveOn(GodotProvider.MainThread)`
+```
+#### TetrisBackpack/A1TesseractBackpack\TSItem.tscn
+```diff
+--- 
++++ 
+@@ -90,10 +90,12 @@
+ [node name="UITweenInteractComponent" type="Node" parent="." unique_id=987654321 node_paths=PackedStringArray("InteractionArea", "VisualTarget")]
+ unique_name_in_owner = true
+ script = ExtResource("tween_script")
+ InteractionArea = NodePath("../PhysicsProxy/InteractionArea")
+ VisualTarget = NodePath("../PhysicsProxy/InteractionArea")
++HoverScale = Vector2(5, 5)
++PressScale = Vector2(0.5, 0.95)
+ 
+ [node name="InteractionArea#ItemIcon" type="TextureRect" parent="." unique_id=1600377566]
+ layout_mode = 1
+ anchors_preset = 15
+ anchor_right = 1.0
+```
+#### AISpace/rules_global\Always\AGENTS.md
+```diff
+--- 
++++ 
+@@ -59,10 +59,11 @@
+   </rules>
+ </complex_pattern>
+ 
+ ### Component & R3 Cheat Sheet
+ - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
++- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use R3 `Subject<T>` and expose as `Observable<T>`.
+ - **Memory**: `CompositeDisposable _disposables` -> Dispose in `_ExitTree()`.
+ - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
+ - **Streams**:
+   - Physics (Velocity): `Observable.EveryPhysicsUpdate()`
+   - UI Updates: Append `.ObserveOn(GodotProvider.MainThread)`
+```
+---
 ## 📅 20260503_074050
 - ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
 
@@ -31,150 +196,6 @@
  
  ### Component & R3 Cheat Sheet
  - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
-```
----
-## 📅 20260503_074009
-- ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
-
-#### AISpace/AGENTS.md
-```diff
---- 
-+++ 
-@@ -61,11 +61,11 @@
- 
- <object_pool>
-   <description>CRITICAL: High-Frequency Object Management</description>
-   <rationale>For fast-spawning/destroying entities (e.g., Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
-   <rules>
--    1. USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotObjectPool.md` when designing object pools.
-+  USE THE POOL: Always refer to `AISpace\rules_global\Godot\A1ObjectPoolUsage.md` when designing object pools.
-   </rules>
- </object_pool>
- 
- ### Component & R3 Cheat Sheet
- - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
-```
----
-## 📅 20260503_073440
-- ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
-
-#### AISpace/AGENTS.md
-```diff
---- 
-+++ 
-@@ -61,11 +61,11 @@
- 
- <object_pool>
-   <description>CRITICAL: High-Frequency Object Management</description>
-   <rationale>For fast-spawning/destroying entities (e.g., Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
-   <rules>
--    1. USE THE POOL: Always refer to `AISpace\rules_global\Uncommon\GodotObjectPool.md` when designing object pools.
-+    1. USE THE POOL: Always refer to `AISpace\rules_global\Godot\GodotObjectPool.md` when designing object pools.
-   </rules>
- </object_pool>
- 
- ### Component & R3 Cheat Sheet
- - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
-```
----
-## 📅 20260503_073240
-- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
-
-#### AISpace/AGENTS.md
-```diff
---- 
-+++ 
-@@ -59,14 +59,13 @@
-   </rules>
- </complex_pattern>
- 
- <object_pool>
-   <description>CRITICAL: High-Frequency Object Management</description>
--  <rationale>For fast-spawning/destroying entities (Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
-+  <rationale>For fast-spawning/destroying entities (e.g., Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
-   <rules>
-     1. USE THE POOL: Always refer to `AISpace\rules_global\Uncommon\GodotObjectPool.md` when designing object pools.
--    2. DESPAWN ONLY: Never call `QueueFree()` on pooled objects. Always call `this.Despawn()`.
-   </rules>
- </object_pool>
- 
- ### Component & R3 Cheat Sheet
- - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
-```
----
-## 📅 20260503_072903
-- ➕ 新增: 1 | 📝 修改: 2 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1ObjectPool\PoolManager.cs
-```diff
---- 
-+++ 
-@@ -3,11 +3,14 @@
- 
- // ReSharper disable All
- 
- /// 全局对象池管理器（Autoload 单例）。
- /// 提供泛型 Rent&lt;T&gt; / Return API，内部使用 PackedScene 作为唯一 Key 寻址。
-+/// <para>
- /// 注册方式：Project Settings → Autoload → 添加此脚本，名称设为 "PoolManager"。
-+/// </para>
-+/// <para>
- /// 使用示例：
- /// <code>
- /// // 预注册（关卡 _Ready 中）
- /// PoolManager.Instance.Register(bulletScene, prewarmCount: 64);
- ///
-@@ -15,10 +18,11 @@
- /// Bullet b = PoolManager.Instance.Rent&lt;Bullet&gt;(bulletScene);
- ///
- /// // 归还（推荐使用扩展方法 .Despawn()）
- /// b.Despawn();
- /// </code>
-+/// </para>
- public partial class PoolManager : Node
- {
-     /// 全局单例实例。在 _Ready 中自动赋值（Autoload 保证唯一）。
-     public static PoolManager Instance { get; private set; }
- 
-@@ -59,11 +63,13 @@
-     }
- 
-     /// 从池中借出一个强类型对象。
-     /// 如果该 PackedScene 尚未注册，会自动注册（懒加载）。
-     /// 返回的对象已经 Visible=true、ProcessMode=Inherit，且 OnRent() 已被调用。
-+    /// <para>
-     /// 注意：借出的节点仍挂在池容器下。调用方需要自行 Reparent 或 AddChild 到目标父节点。
-+    /// </para>
-     /// <typeparam name="T">目标节点类型，必须是 Node 且实现 IPoolable。</typeparam>
-     /// <param name="scene">对应的 PackedScene。</param>
-     /// <returns>已激活的强类型节点实例。</returns>
-     public T Rent<T>(PackedScene scene) where T : Node, IPoolable
-     {
-```
-#### AISpace/AGENTS.md
-```diff
---- 
-+++ 
-@@ -57,10 +57,19 @@
-     2. SAFE CHILD READY: Children can safely subscribe to Parent Subjects in their own `_Ready()` because the Parent's `_EnterTree()` has already executed.
-     3. TIMING: Use `await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);` instead of `CallDeferred`.
-   </rules>
- </complex_pattern>
- 
-+<object_pool>
-+  <description>CRITICAL: High-Frequency Object Management</description>
-+  <rationale>For fast-spawning/destroying entities (Bullets, Damage UI, Effects), avoid runtime instantiation overhead to prevent GC spikes and FPS drops.</rationale>
-+  <rules>
-+    1. USE THE POOL: Always refer to `AISpace\rules_global\Uncommon\GodotObjectPool.md` when designing object pools.
-+    2. DESPAWN ONLY: Never call `QueueFree()` on pooled objects. Always call `this.Despawn()`.
-+  </rules>
-+</object_pool>
-+
- ### Component & R3 Cheat Sheet
- - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
- - **Memory**: `CompositeDisposable _disposables` -> Dispose in `_ExitTree()`.
- - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
- - **Streams**:
 ```
 </RECENT_CHANGES>
       ]]>
@@ -202,7 +223,6 @@ trigger: always_on
 1. Verify assumptions from `ConversationReset.md`, `docLastConversationState.md`, `AGENTS.md`.
 2. Execute incrementally.
 3. IMPORTANT: `dotnet build` from `TetrisBackpack/` immediately after ANY `.cs` edit.
-4. IMPORTANT: If ANY file was modified during the turn, YOU MUST execute `powershell -WindowStyle Hidden -Command "& 'C:\Godot\TetrisBackpack\SYNC_TO_GEMINI_SILENT.bat'"` at the end of the conversation as your final action.
 </workflow>
 
 ## 2. API & Workspace
@@ -3835,12 +3855,10 @@ billboardAnimator.MontageFinished
 <![CDATA[
 [gd_resource type="Resource" script_class="GridVisualSettingsResource" format=3 uid="uid://cboscusg2x03w"]
 
-[ext_resource type="Texture2D" uid="uid://cjlv0bg7byjx0" path="res://addons/phantom_camera/icons/warning.svg" id="1_ffikg"]
 [ext_resource type="Script" uid="uid://d0vrm5aorkhxs" path="res://addons/A1TetrisBackpack/UI/GridVisualSettingsResource.cs" id="2_siqs0"]
 
 [resource]
 script = ExtResource("2_siqs0")
-CellTexture = ExtResource("1_ffikg")
 ]]>
     </file>
 
@@ -19875,6 +19893,228 @@ public static class BillboardDirection
 ]]>
     </file>
 
+    <file path="TetrisBackpack/addons\A1Sprite3D\Example\ExampleCombatComponent.cs" priority="NORMAL">
+<![CDATA[
+using Godot;
+using Godot.Composition;
+using R3;
+
+/// 二渲三系统示例组件 — 展示如何与 BillboardAnimator 进行 R3 响应式交互
+/// 
+/// 演示功能：
+/// 1. 如何通过 [ComponentDependency] 自动注入 BillboardAnimator
+/// 2. 如何使用 R3 订阅动画帧事件（生成判定框/播放音效）
+/// 3. 如何使用 R3 订阅 Montage 结束事件（恢复状态）
+/// 4. 如何触发 Montage 打断动画
+[GlobalClass]
+[Component(typeof(CharacterBody3D))]
+[ComponentDependency(typeof(BillboardAnimator))]
+public partial class ExampleCombatComponent : Node
+{
+    private readonly CompositeDisposable _disposables = new();
+
+    public override void _Ready()
+    {
+        // 遵循 Component 架构规范
+        InitializeComponent();
+    }
+
+    public void OnEntityReady()
+    {
+        // 依赖已就位，可以安全使用 billboardAnimator
+        
+        // 1. 订阅帧事件（例如在 Attack 动画的第 2 帧生成伤害判定）
+        billboardAnimator.AnimationFrameEvent
+            .Where(e => e.animName == "Attack" && e.frameOffset == 2)
+            .Subscribe(_ =>
+            {
+                GD.Print("[ExampleCombat] ⚔️ 第2帧挥刀！(此处应生成 Hitbox 或播放音效)");
+            })
+            .AddTo(_disposables);
+
+        // 2. 订阅 Montage 完成事件（例如攻击结束后恢复 AI 状态）
+        billboardAnimator.MontageFinished
+            .Where(animName => animName == "Attack")
+            .Subscribe(_ =>
+            {
+                GD.Print("[ExampleCombat] 🛡️ 攻击动作结束，恢复防御姿态。");
+            })
+            .AddTo(_disposables);
+            
+        GD.Print("[ExampleCombat] 示例组件初始化完成。按 'Space' 键测试攻击 Montage。");
+    }
+
+    public override void _Process(double delta)
+    {
+        // 3. 触发 Montage（这里为了示例简便直接检测按键。实际项目中通常由 AI 或 Input 流触发）
+        if (Input.IsKeyPressed(Key.Space))
+        {
+            // 如果不在播放 Montage，才允许触发
+            if (!billboardAnimator.IsPlayingMontage)
+            {
+                GD.Print("[ExampleCombat] 🗡️ 触发攻击 Montage！");
+                billboardAnimator.PlayMontage("Attack");
+            }
+        }
+    }
+
+    public override void _ExitTree()
+    {
+        // 遵循 R3 规范清理订阅
+        _disposables.Dispose();
+    }
+}
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1Sprite3D\Example\ExampleScene.tscn" priority="NORMAL">
+<![CDATA[
+[gd_scene load_steps=7 format=3 uid="uid://test_a1sprite_scene"]
+
+[ext_resource type="Script" path="res://addons/A1Sprite3D/Example/TestEnemyEntity.cs" id="1_entity"]
+[ext_resource type="Texture2D" path="res://A1UIResources/Sample.png" id="2_tex"]
+[ext_resource type="Script" path="res://addons/A1Sprite3D/BillboardAnimator.cs" id="3_animator"]
+[ext_resource type="Resource" path="res://addons/A1Sprite3D/Example/TestEnemyConfig.tres" id="4_config"]
+[ext_resource type="Script" path="res://addons/A1Sprite3D/Example/ExampleCombatComponent.cs" id="5_combat"]
+
+[node name="ExampleScene" type="Node3D"]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 2, 5)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 5, 0)
+
+[node name="TestEnemy" type="CharacterBody3D" parent="."]
+script = ExtResource("1_entity")
+
+[node name="Sprite3D" type="Sprite3D" parent="TestEnemy"]
+billboard = 2
+texture_filter = 0
+texture = ExtResource("2_tex")
+hframes = 4
+vframes = 8
+
+[node name="BillboardAnimator" type="Node" parent="TestEnemy"]
+script = ExtResource("3_animator")
+Sprite3DPath = NodePath("../Sprite3D")
+AnimConfig = ExtResource("4_config")
+
+[node name="ExampleCombatComponent" type="Node" parent="TestEnemy"]
+script = ExtResource("5_combat")
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1Sprite3D\Example\README_Example.md" priority="NORMAL">
+<![CDATA[
+# A1Sprite3D 二渲三系统 — 示例与测试指南
+
+这个文件夹 (`Example/`) 包含了二渲三系统的标准使用示例，主要用于展示如何遵循 Component 架构与 `BillboardAnimator` 进行 R3 响应式交互。
+
+## 包含的文件
+
+- `ExampleCombatComponent.cs`：一个模拟战斗判定和动作打断的组件。完美展示了：
+  1. 如何用 `[ComponentDependency]` 拿到 Animator 引用。
+  2. 如何用 R3 的 `.Subscribe()` 监听特定帧事件（如：攻击第2帧落刀）。
+  3. 如何用 R3 监听 Montage（打断动画）的结束。
+  4. 如何调用 `.PlayMontage("Attack")`。
+
+## 如何运行测试？
+
+1. **准备资源**
+   - 找一张 8方向 的精灵图（或者先用随便一张网格图代替）。
+   - 在 FileSystem 中右键新建 `Resource` -> 选择 `BillboardAnimConfig` -> 命名为 `TestEnemyAnim.tres`。
+   - 在里面配置行列数，并在 Animations 里添加一个叫 `"Attack"` 的动作（比如设 StartFrame=0, EndFrame=3, EventFrames=[2], IsMontage=true）。
+
+2. **搭建场景**
+   新建一个场景，根节点为 `CharacterBody3D` (命名为 TestEnemy)，添加以下结构：
+   ```
+   TestEnemy (CharacterBody3D) + [Entity] 特性脚本
+   ├── CollisionShape3D
+   ├── Sprite3D                  <-- 你的精灵节点 (确保 Billboard 为 Y-Billboard)
+   ├── BillboardAnimator         <-- 核心动画器
+   │   └── (将 AnimConfig 属性设为你刚建的 TestEnemyAnim.tres)
+   └── ExampleCombatComponent    <-- 本例脚本
+   ```
+   *别忘了在场景里放个 Camera3D 和一个光源，以便你能看到它。*
+
+3. **运行结果**
+   - 运行该场景。
+   - 按下**空格键 (Space)**。
+   - 观察控制台输出（应依次打印触发攻击、第2帧挥刀、攻击结束），同时 Sprite3D 的贴图会按你配置的帧数播放。
+   - 如果你在编辑器里转动摄像机，Sprite3D 会自动切换行数以显示不同方向的贴图。
+
+> 测试完毕后，此示例文件夹可安全删除。
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1Sprite3D\Example\TestEnemyConfig.tres" priority="NORMAL">
+<![CDATA[
+[gd_resource type="Resource" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://addons/A1Sprite3D/BillboardAnimEntry.cs" id="1_entry"]
+[ext_resource type="Script" path="res://addons/A1Sprite3D/BillboardAnimConfig.cs" id="2_config"]
+[ext_resource type="Texture2D" path="res://A1UIResources/Sample.png" id="3_tex"]
+
+[sub_resource type="Resource" id="Resource_walk"]
+script = ExtResource("1_entry")
+AnimationName = "Walk"
+StartFrame = 0
+EndFrame = 3
+FPS = 4.0
+Loop = true
+IsMontage = false
+EventFrames = PackedInt32Array()
+OverrideColumns = 0
+OverrideRows = 0
+
+[sub_resource type="Resource" id="Resource_attack"]
+script = ExtResource("1_entry")
+AnimationName = "Attack"
+StartFrame = 0
+EndFrame = 3
+FPS = 2.0
+Loop = false
+IsMontage = true
+EventFrames = PackedInt32Array(2)
+OverrideColumns = 0
+OverrideRows = 0
+
+[resource]
+script = ExtResource("2_config")
+CharacterName = "TestEnemy"
+SpriteSheet = ExtResource("3_tex")
+Columns = 4
+Rows = 8
+DirectionCount = 8
+DirectionOffset = 0.0
+Animations = Array[ExtResource("1_entry")]([SubResource("Resource_walk"), SubResource("Resource_attack")])
+DefaultAnimation = "Walk"
+MoveThreshold = 0.1
+SprintThreshold = 6.0
+FlyFastThreshold = 10.0
+]]>
+    </file>
+
+    <file path="TetrisBackpack/addons\A1Sprite3D\Example\TestEnemyEntity.cs" priority="NORMAL">
+<![CDATA[
+using Godot;
+using Godot.Composition;
+
+/// 示例场景使用的实体外壳
+[GlobalClass]
+[Entity]
+public partial class TestEnemyEntity : CharacterBody3D
+{
+    public override void _Ready()
+    {
+        // 调用架构规范要求的初始化
+        InitializeEntity();
+    }
+}
+]]>
+    </file>
+
     <file path="TetrisBackpack/addons\A1TetrisBackpack\BasicScenes\BasicItem.tscn" priority="NORMAL">
 <![CDATA[
 [gd_scene format=3 uid="uid://cac8ccsbkf8hf"]
@@ -25266,6 +25506,119 @@ mono_crash.*.json
 ]]>
     </file>
 
+    <file path="TetrisBackpack/Kuno1.02\kuno_1_02.tscn" priority="NORMAL">
+<![CDATA[
+[gd_scene format=3 uid="uid://djlw4y8gso2b3"]
+
+[ext_resource type="PackedScene" uid="uid://xxhfxr6ofo6u" path="res://Kuno1.02/Kuno1.02.fbx" id="1_ahwvb"]
+[ext_resource type="Animation" uid="uid://chr3gceqbfbup" path="res://Animations/AnimationRes/fast_run.res" id="2_amuq4"]
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_amuq4"]
+_data = {
+&"fast_run": ExtResource("2_amuq4")
+}
+
+[node name="Kuno1_02" unique_id=956632295 instance=ExtResource("1_ahwvb")]
+
+[node name="Skeleton" parent="アーマチュア" parent_id_path=PackedInt32Array(1250815191) index="0" unique_id=1583555307]
+bones/0/position = Vector3(-0.00037228322, 0.6683254, 0.013345846)
+bones/0/rotation = Quaternion(0.16066155, -0.11859268, -0.007118977, 0.9798331)
+bones/1/rotation = Quaternion(0.05345774, 0.056871813, -0.00031756752, 0.99694926)
+bones/2/rotation = Quaternion(0.035076994, 0.02305209, 0.00016541197, 0.9991187)
+bones/3/rotation = Quaternion(-0.05446469, 0.0027101575, 0.0030046653, 0.9985075)
+bones/4/rotation = Quaternion(-0.14674608, 0.022789603, -0.010532359, 0.98885554)
+bones/6/rotation = Quaternion(0.48613647, 0.4852388, 0.6144784, -0.38811213)
+bones/7/rotation = Quaternion(-0.012239546, 0.77608734, -0.48829928, -0.39887664)
+bones/8/rotation = Quaternion(0.22637318, -0.66989213, 0.22637229, 0.669892)
+bones/9/rotation = Quaternion(0.0050934358, 0.48803145, 0.0055832667, 0.8727934)
+bones/10/rotation = Quaternion(0.76658726, -0.05555667, -0.17954428, 0.6140205)
+bones/11/rotation = Quaternion(0.5059035, -1.3411045e-07, -0.051843464, 0.86103076)
+bones/12/rotation = Quaternion(0.41209862, 2.9802322e-08, -0.042230576, 0.91016006)
+bones/14/rotation = Quaternion(0.6729904, -0.025443291, -0.07140928, 0.7357563)
+bones/15/rotation = Quaternion(0.5047041, -2.9802322e-08, -0.0517205, 0.8617418)
+bones/16/rotation = Quaternion(0.40323055, -7.4505806e-08, -0.041321844, 0.914165)
+bones/18/rotation = Quaternion(0.67498046, -0.027747128, -0.06918194, 0.7340609)
+bones/19/rotation = Quaternion(0.49663246, -8.195639e-08, -0.050893277, 0.86646765)
+bones/20/rotation = Quaternion(0.41142726, -2.9802322e-08, -0.042161793, 0.91046697)
+bones/22/rotation = Quaternion(0.6683493, -0.017534673, -0.0530793, 0.7417442)
+bones/23/rotation = Quaternion(0.49518457, -1.4901161e-07, -0.0507451, 0.86730456)
+bones/24/rotation = Quaternion(0.41175103, 1.0430813e-07, -0.042194903, 0.91031903)
+bones/26/rotation = Quaternion(-0.24196956, 0.6827025, 0.16686898, 0.6689715)
+bones/27/rotation = Quaternion(0.19172, 0.12075326, 0.01825902, 0.9738217)
+bones/28/rotation = Quaternion(0.13897428, 0.0053430498, -0.11354953, 0.9837501)
+bones/30/rotation = Quaternion(0.40412867, -0.5521587, -0.6276171, -0.37134552)
+bones/31/rotation = Quaternion(-0.21117003, 0.8131102, -0.5088122, -0.18806697)
+bones/32/rotation = Quaternion(0.41529763, 0.57230103, -0.41529626, 0.57230103)
+bones/33/rotation = Quaternion(0.068266384, -0.5371552, -0.17127457, 0.82308507)
+bones/34/rotation = Quaternion(0.7190093, 0.038048998, 0.16946182, 0.67294925)
+bones/35/rotation = Quaternion(0.50687397, 8.195639e-08, 0.041291088, 0.8610307)
+bones/36/rotation = Quaternion(0.41288903, 1.04308114e-07, 0.033634957, 0.91016006)
+bones/38/rotation = Quaternion(0.69870365, 0.0025371688, 0.082652606, 0.71061623)
+bones/39/rotation = Quaternion(0.50570905, -7.450581e-09, 0.041196346, 0.86171997)
+bones/40/rotation = Quaternion(0.4040026, -8.940697e-08, 0.032911092, 0.9141657)
+bones/42/rotation = Quaternion(0.6714957, 0.027221143, 0.05413133, 0.7385272)
+bones/43/rotation = Quaternion(0.49758476, -2.2351738e-08, 0.040534463, 0.8664677)
+bones/44/rotation = Quaternion(0.41221684, 4.4703476e-08, 0.03358039, 0.91046673)
+bones/46/rotation = Quaternion(0.6640593, 0.011050515, 0.044788986, 0.7462554)
+bones/47/rotation = Quaternion(0.49613416, 1.4901159e-08, 0.040416267, 0.8673046)
+bones/48/rotation = Quaternion(0.41254056, 5.9604645e-08, 0.033606708, 0.9103192)
+bones/50/rotation = Quaternion(-0.28547516, -0.66588026, -0.19135743, 0.6621856)
+bones/51/rotation = Quaternion(0.20758992, -0.12722774, -0.0153569, 0.96978545)
+bones/52/rotation = Quaternion(0.11855453, -0.004644468, 0.11036445, 0.98678416)
+bones/58/rotation = Quaternion(0.12285441, 0.6069508, 0.779663, -0.09296882)
+bones/59/rotation = Quaternion(-0.05981235, 0.47704464, -0.8764065, 0.027614966)
+bones/60/rotation = Quaternion(0.036573157, 0.91622853, -0.39766762, -0.032378778)
+bones/61/rotation = Quaternion(-3.161014e-08, 0.9998512, 0.01725212, 2.1073426e-08)
+bones/65/rotation = Quaternion(-0.050122034, 0.121179044, 0.9904605, -0.042325076)
+bones/66/rotation = Quaternion(-0.021492822, 0.9623475, -0.26666638, 0.048108842)
+bones/67/rotation = Quaternion(-0.0062666684, 0.5225612, -0.8477448, 0.09066025)
+bones/68/rotation = Quaternion(-4.214685e-08, 0.9924207, 0.12288763, -5.268355e-09)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="1" unique_id=755629954]
+libraries/ = SubResource("AnimationLibrary_amuq4")
+]]>
+    </file>
+
+    <file path="TetrisBackpack/MainScene.tscn" priority="NORMAL">
+<![CDATA[
+[gd_scene format=3 uid="uid://duilxcd3om5ga"]
+
+[ext_resource type="Script" uid="uid://bd046eokvcnu2" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="1_rpqi1"]
+[ext_resource type="PackedScene" uid="uid://b7tj281abbry8" path="res://Scenes/csg_combiner.tscn" id="2_uxrcv"]
+[ext_resource type="PackedScene" uid="uid://bykk4hu8cfy4" path="res://Scenes/Player3D.tscn" id="3_rf2cd"]
+
+[node name="Node3D" type="Node3D" unique_id=775918063]
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1751981658]
+physics_interpolation_mode = 1
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6539233, 1.7352716, 4)
+top_level = true
+
+[node name="PhantomCameraHost" type="Node" parent="Camera3D" unique_id=587082377]
+process_priority = 300
+process_physics_priority = 300
+script = ExtResource("1_rpqi1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=215282030]
+transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 5, 0)
+shadow_enabled = true
+
+[node name="Door" parent="." unique_id=2132034882 instance=ExtResource("2_uxrcv")]
+transform = Transform3D(1, 0, 0, 0, 1.9260569, 0, 0, 0, 2.3893514, 0, 0.38452387, 0.73649216)
+
+[node name="CharacterBody3D" parent="." unique_id=25344383 instance=ExtResource("3_rf2cd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6539233, 1.1352715, 0)
+
+[node name="CSGCombiner3D" type="CSGCombiner3D" parent="." unique_id=1748586005]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7023537, -1.9443369, 0.51831055)
+use_collision = true
+
+[node name="CSGBox3D3_Ground" type="CSGBox3D" parent="CSGCombiner3D" unique_id=1513348533]
+use_collision = true
+size = Vector3(14.346719, 1.305, 14.263)
+]]>
+    </file>
+
     <file path="TetrisBackpack/README.md" priority="NORMAL">
 <![CDATA[
 # Godot 4 C# 3D Practice Project
@@ -25565,79 +25918,6 @@ public partial class HealthComponent : Node
 ]]>
     </file>
 
-    <file path="TetrisBackpack/Scenes\Kuno1.02\kuno_1_02.tscn" priority="NORMAL">
-<![CDATA[
-[gd_scene format=3 uid="uid://djlw4y8gso2b3"]
-
-[ext_resource type="PackedScene" uid="uid://xxhfxr6ofo6u" path="res://Scenes/Kuno1.02/Kuno1.02.fbx" id="1_ahwvb"]
-[ext_resource type="Animation" path="res://Animations/AnimationRes/fast_run.res" id="2_amuq4"]
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_amuq4"]
-_data = {
-&"fast_run": ExtResource("2_amuq4")
-}
-
-[node name="Kuno1_02" unique_id=956632295 instance=ExtResource("1_ahwvb")]
-
-[node name="Skeleton" parent="アーマチュア" parent_id_path=PackedInt32Array(1250815191) index="0" unique_id=1583555307]
-bones/0/position = Vector3(-0.00037228322, 0.6683254, 0.013345846)
-bones/0/rotation = Quaternion(0.16066155, -0.11859268, -0.007118977, 0.9798331)
-bones/1/rotation = Quaternion(0.05345774, 0.056871813, -0.00031756752, 0.99694926)
-bones/2/rotation = Quaternion(0.035076994, 0.02305209, 0.00016541197, 0.9991187)
-bones/3/rotation = Quaternion(-0.05446469, 0.0027101575, 0.0030046653, 0.9985075)
-bones/4/rotation = Quaternion(-0.14674608, 0.022789603, -0.010532359, 0.98885554)
-bones/6/rotation = Quaternion(0.48613647, 0.4852388, 0.6144784, -0.38811213)
-bones/7/rotation = Quaternion(-0.012239546, 0.77608734, -0.48829928, -0.39887664)
-bones/8/rotation = Quaternion(0.22637318, -0.66989213, 0.22637229, 0.669892)
-bones/9/rotation = Quaternion(0.0050934358, 0.48803145, 0.0055832667, 0.8727934)
-bones/10/rotation = Quaternion(0.76658726, -0.05555667, -0.17954428, 0.6140205)
-bones/11/rotation = Quaternion(0.5059035, -1.3411045e-07, -0.051843464, 0.86103076)
-bones/12/rotation = Quaternion(0.41209862, 2.9802322e-08, -0.042230576, 0.91016006)
-bones/14/rotation = Quaternion(0.6729904, -0.025443291, -0.07140928, 0.7357563)
-bones/15/rotation = Quaternion(0.5047041, -2.9802322e-08, -0.0517205, 0.8617418)
-bones/16/rotation = Quaternion(0.40323055, -7.4505806e-08, -0.041321844, 0.914165)
-bones/18/rotation = Quaternion(0.67498046, -0.027747128, -0.06918194, 0.7340609)
-bones/19/rotation = Quaternion(0.49663246, -8.195639e-08, -0.050893277, 0.86646765)
-bones/20/rotation = Quaternion(0.41142726, -2.9802322e-08, -0.042161793, 0.91046697)
-bones/22/rotation = Quaternion(0.6683493, -0.017534673, -0.0530793, 0.7417442)
-bones/23/rotation = Quaternion(0.49518457, -1.4901161e-07, -0.0507451, 0.86730456)
-bones/24/rotation = Quaternion(0.41175103, 1.0430813e-07, -0.042194903, 0.91031903)
-bones/26/rotation = Quaternion(-0.24196956, 0.6827025, 0.16686898, 0.6689715)
-bones/27/rotation = Quaternion(0.19172, 0.12075326, 0.01825902, 0.9738217)
-bones/28/rotation = Quaternion(0.13897428, 0.0053430498, -0.11354953, 0.9837501)
-bones/30/rotation = Quaternion(0.40412867, -0.5521587, -0.6276171, -0.37134552)
-bones/31/rotation = Quaternion(-0.21117003, 0.8131102, -0.5088122, -0.18806697)
-bones/32/rotation = Quaternion(0.41529763, 0.57230103, -0.41529626, 0.57230103)
-bones/33/rotation = Quaternion(0.068266384, -0.5371552, -0.17127457, 0.82308507)
-bones/34/rotation = Quaternion(0.7190093, 0.038048998, 0.16946182, 0.67294925)
-bones/35/rotation = Quaternion(0.50687397, 8.195639e-08, 0.041291088, 0.8610307)
-bones/36/rotation = Quaternion(0.41288903, 1.04308114e-07, 0.033634957, 0.91016006)
-bones/38/rotation = Quaternion(0.69870365, 0.0025371688, 0.082652606, 0.71061623)
-bones/39/rotation = Quaternion(0.50570905, -7.450581e-09, 0.041196346, 0.86171997)
-bones/40/rotation = Quaternion(0.4040026, -8.940697e-08, 0.032911092, 0.9141657)
-bones/42/rotation = Quaternion(0.6714957, 0.027221143, 0.05413133, 0.7385272)
-bones/43/rotation = Quaternion(0.49758476, -2.2351738e-08, 0.040534463, 0.8664677)
-bones/44/rotation = Quaternion(0.41221684, 4.4703476e-08, 0.03358039, 0.91046673)
-bones/46/rotation = Quaternion(0.6640593, 0.011050515, 0.044788986, 0.7462554)
-bones/47/rotation = Quaternion(0.49613416, 1.4901159e-08, 0.040416267, 0.8673046)
-bones/48/rotation = Quaternion(0.41254056, 5.9604645e-08, 0.033606708, 0.9103192)
-bones/50/rotation = Quaternion(-0.28547516, -0.66588026, -0.19135743, 0.6621856)
-bones/51/rotation = Quaternion(0.20758992, -0.12722774, -0.0153569, 0.96978545)
-bones/52/rotation = Quaternion(0.11855453, -0.004644468, 0.11036445, 0.98678416)
-bones/58/rotation = Quaternion(0.12285441, 0.6069508, 0.779663, -0.09296882)
-bones/59/rotation = Quaternion(-0.05981235, 0.47704464, -0.8764065, 0.027614966)
-bones/60/rotation = Quaternion(0.036573157, 0.91622853, -0.39766762, -0.032378778)
-bones/61/rotation = Quaternion(-3.161014e-08, 0.9998512, 0.01725212, 2.1073426e-08)
-bones/65/rotation = Quaternion(-0.050122034, 0.121179044, 0.9904605, -0.042325076)
-bones/66/rotation = Quaternion(-0.021492822, 0.9623475, -0.26666638, 0.048108842)
-bones/67/rotation = Quaternion(-0.0062666684, 0.5225612, -0.8477448, 0.09066025)
-bones/68/rotation = Quaternion(-4.214685e-08, 0.9924207, 0.12288763, -5.268355e-09)
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="1" unique_id=755629954]
-libraries/ = SubResource("AnimationLibrary_amuq4")
-]]>
-    </file>
-
     <file path="TetrisBackpack/Scenes\Player3D.tscn" priority="NORMAL">
 <![CDATA[
 [gd_scene format=3 uid="uid://bykk4hu8cfy4"]
@@ -25645,10 +25925,9 @@ libraries/ = SubResource("AnimationLibrary_amuq4")
 [ext_resource type="Script" uid="uid://yhmx8fery0rh" path="res://B1Scripts/Player3D.cs" id="1_player"]
 [ext_resource type="Script" uid="uid://jvlxnylo7us3" path="res://addons/A1MyAddon/CoreComponents/FlyMovementComponent.cs" id="2_fly_movement"]
 [ext_resource type="Script" uid="uid://qmkylfkevs6i" path="res://addons/A1MyAddon/CoreComponents/GroundMovementComponent.cs" id="2_ground_movement"]
+[ext_resource type="Script" uid="uid://dehxl23t0rr5j" path="res://addons/A1MyAddon/CoreComponents/Animation/AnimationControllerComponent.cs" id="3_a8kom"]
 [ext_resource type="Script" uid="uid://rsqf1fe43hno" path="res://addons/A1MyAddon/CoreComponents/PlayerInputComponent.cs" id="3_input"]
-[ext_resource type="Script" uid="uid://7xt4lw7fgw6r" path="res://addons/A1MyAddon/CoreComponents/AnimationControllerComponent.cs" id="4_animation"]
-[ext_resource type="PackedScene" uid="uid://djlw4y8gso2b3" path="res://Scenes/Kuno1.02/kuno_1_02.tscn" id="5_kuno"]
-[ext_resource type="Resource" uid="uid://cwx7kss3kbl0g" path="res://Animations/Player_CharacterAnimationConfig.tres" id="5_ykoex"]
+[ext_resource type="PackedScene" uid="uid://djlw4y8gso2b3" path="res://Kuno1.02/kuno_1_02.tscn" id="5_kuno"]
 [ext_resource type="Script" uid="uid://cu08gpa84apih" path="res://addons/A1MyAddon/CoreComponents/CharacterRotationComponent.cs" id="6_rotation"]
 [ext_resource type="Script" uid="uid://u8l0r7f2nkdv" path="res://addons/A1MyAddon/CoreComponents/CameraControlComponent.cs" id="7_camera"]
 [ext_resource type="Script" uid="uid://csjccrhj5wnx7" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_3d.gd" id="8_pcam"]
@@ -25674,9 +25953,7 @@ metadata/_edit_group_ = true
 script = ExtResource("3_input")
 
 [node name="AnimationControllerComponent" type="Node" parent="." unique_id=1140034643]
-script = ExtResource("4_animation")
-AnimationBlendTime = 0.3
-AnimConfig = ExtResource("5_ykoex")
+script = ExtResource("3_a8kom")
 
 [node name="CharacterRotationComponent" type="Node" parent="." unique_id=1956804117]
 script = ExtResource("6_rotation")
@@ -25702,9 +25979,6 @@ follow_distance = 4.0
 spring_length = 4.0
 shape = SubResource("SphereShape3D_pcam")
 margin = 0.5
-align_transform_with_view = Callable()
-align_position_with_view = Callable()
-align_rotation_with_view = Callable()
 
 [node name="StateChart" type="Node" parent="." unique_id=491642213]
 unique_name_in_owner = true
@@ -25832,46 +26106,6 @@ size = Vector3(1.0075684, 1.1631446, 1.0039575)
                       ReferenceOutputAssembly="false" />
   </ItemGroup>
 </Project>
-]]>
-    </file>
-
-    <file path="TetrisBackpack/TetrisBackpack.tscn" priority="NORMAL">
-<![CDATA[
-[gd_scene format=3 uid="uid://duilxcd3om5ga"]
-
-[ext_resource type="PackedScene" uid="uid://b7tj281abbry8" path="res://Scenes/csg_combiner.tscn" id="1_oaaoo"]
-[ext_resource type="PackedScene" uid="uid://bykk4hu8cfy4" path="res://Scenes/Player3D.tscn" id="2_t0ae4"]
-[ext_resource type="Script" uid="uid://bd046eokvcnu2" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="3_pcam_host"]
-
-[node name="Node3D" type="Node3D" unique_id=775918063]
-
-[node name="Camera3D" type="Camera3D" parent="." unique_id=1751981658]
-physics_interpolation_mode = 1
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6539233, 1.7352716, 4)
-top_level = true
-
-[node name="PhantomCameraHost" type="Node" parent="Camera3D" unique_id=587082377]
-process_priority = 300
-process_physics_priority = 300
-script = ExtResource("3_pcam_host")
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=215282030]
-transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 5, 0)
-shadow_enabled = true
-
-[node name="Door" parent="." unique_id=2132034882 instance=ExtResource("1_oaaoo")]
-transform = Transform3D(1, 0, 0, 0, 1.9260569, 0, 0, 0, 2.3893514, 0, 0.38452387, 0.73649216)
-
-[node name="CharacterBody3D" parent="." unique_id=1927585716 instance=ExtResource("2_t0ae4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6539233, 1.1352715, 0)
-
-[node name="CSGCombiner3D" type="CSGCombiner3D" parent="." unique_id=1748586005]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7023537, -1.9443369, 0.51831055)
-use_collision = true
-
-[node name="CSGBox3D3_Ground" type="CSGBox3D" parent="CSGCombiner3D" unique_id=1513348533]
-use_collision = true
-size = Vector3(14.346719, 1.305, 14.263)
 ]]>
     </file>
 
@@ -32141,6 +32375,172 @@ rendering_device/driver.windows="d3d12"
 # 🔄 CRITICAL AI_Context_Changes.md — AI Context 变更历史
 
 <RECENT_CHANGES>
+## 📅 20260504_071437
+- ➕ 新增: 0 | 📝 修改: 2 | ❌ 删除: 0
+
+#### TetrisBackpack/addons\A1Sprite3D\Example\TestEnemyConfig.tres
+```diff
+--- 
++++ 
+@@ -1,10 +1,10 @@
+ [gd_resource type="Resource" load_steps=5 format=3]
+ 
+ [ext_resource type="Script" path="res://addons/A1Sprite3D/BillboardAnimEntry.cs" id="1_entry"]
+ [ext_resource type="Script" path="res://addons/A1Sprite3D/BillboardAnimConfig.cs" id="2_config"]
+-[ext_resource type="Texture2D" uid="uid://c6328" path="res://icon.svg" id="3_tex"]
++[ext_resource type="Texture2D" path="res://A1UIResources/Sample.png" id="3_tex"]
+ 
+ [sub_resource type="Resource" id="Resource_walk"]
+ script = ExtResource("1_entry")
+ AnimationName = "Walk"
+ StartFrame = 0
+```
+#### TetrisBackpack/addons\A1Sprite3D\Example\ExampleScene.tscn
+```diff
+--- 
++++ 
+@@ -1,9 +1,9 @@
+ [gd_scene load_steps=7 format=3 uid="uid://test_a1sprite_scene"]
+ 
+ [ext_resource type="Script" path="res://addons/A1Sprite3D/Example/TestEnemyEntity.cs" id="1_entity"]
+-[ext_resource type="Texture2D" uid="uid://c6328" path="res://icon.svg" id="2_tex"]
++[ext_resource type="Texture2D" path="res://A1UIResources/Sample.png" id="2_tex"]
+ [ext_resource type="Script" path="res://addons/A1Sprite3D/BillboardAnimator.cs" id="3_animator"]
+ [ext_resource type="Resource" path="res://addons/A1Sprite3D/Example/TestEnemyConfig.tres" id="4_config"]
+ [ext_resource type="Script" path="res://addons/A1Sprite3D/Example/ExampleCombatComponent.cs" id="5_combat"]
+ 
+ [node name="ExampleScene" type="Node3D"]
+```
+
+---
+## 📅 20260504_070658
+- ➕ 新增: 3 | 📝 修改: 0 | ❌ 删除: 0
+---
+## 📅 20260504_064652
+- ➕ 新增: 4 | 📝 修改: 2 | ❌ 删除: 2
+
+#### TetrisBackpack/A1TesseractBackpack\GVSR_BackgroundGridVisuals.tres
+```diff
+--- 
++++ 
+@@ -1,8 +1,6 @@
+ [gd_resource type="Resource" script_class="GridVisualSettingsResource" format=3 uid="uid://cboscusg2x03w"]
+ 
+-[ext_resource type="Texture2D" uid="uid://cjlv0bg7byjx0" path="res://addons/phantom_camera/icons/warning.svg" id="1_ffikg"]
+ [ext_resource type="Script" uid="uid://d0vrm5aorkhxs" path="res://addons/A1TetrisBackpack/UI/GridVisualSettingsResource.cs" id="2_siqs0"]
+ 
+ [resource]
+ script = ExtResource("2_siqs0")
+-CellTexture = ExtResource("1_ffikg")
+```
+#### TetrisBackpack/Scenes\Player3D.tscn
+```diff
+--- 
++++ 
+@@ -1,14 +1,13 @@
+ [gd_scene format=3 uid="uid://bykk4hu8cfy4"]
+ 
+ [ext_resource type="Script" uid="uid://yhmx8fery0rh" path="res://B1Scripts/Player3D.cs" id="1_player"]
+ [ext_resource type="Script" uid="uid://jvlxnylo7us3" path="res://addons/A1MyAddon/CoreComponents/FlyMovementComponent.cs" id="2_fly_movement"]
+ [ext_resource type="Script" uid="uid://qmkylfkevs6i" path="res://addons/A1MyAddon/CoreComponents/GroundMovementComponent.cs" id="2_ground_movement"]
++[ext_resource type="Script" uid="uid://dehxl23t0rr5j" path="res://addons/A1MyAddon/CoreComponents/Animation/AnimationControllerComponent.cs" id="3_a8kom"]
+ [ext_resource type="Script" uid="uid://rsqf1fe43hno" path="res://addons/A1MyAddon/CoreComponents/PlayerInputComponent.cs" id="3_input"]
+-[ext_resource type="Script" uid="uid://7xt4lw7fgw6r" path="res://addons/A1MyAddon/CoreComponents/AnimationControllerComponent.cs" id="4_animation"]
+-[ext_resource type="PackedScene" uid="uid://djlw4y8gso2b3" path="res://Scenes/Kuno1.02/kuno_1_02.tscn" id="5_kuno"]
+-[ext_resource type="Resource" uid="uid://cwx7kss3kbl0g" path="res://Animations/Player_CharacterAnimationConfig.tres" id="5_ykoex"]
++[ext_resource type="PackedScene" uid="uid://djlw4y8gso2b3" path="res://Kuno1.02/kuno_1_02.tscn" id="5_kuno"]
+ [ext_resource type="Script" uid="uid://cu08gpa84apih" path="res://addons/A1MyAddon/CoreComponents/CharacterRotationComponent.cs" id="6_rotation"]
+ [ext_resource type="Script" uid="uid://u8l0r7f2nkdv" path="res://addons/A1MyAddon/CoreComponents/CameraControlComponent.cs" id="7_camera"]
+ [ext_resource type="Script" uid="uid://csjccrhj5wnx7" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_3d.gd" id="8_pcam"]
+ [ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="10_r8rhd"]
+ [ext_resource type="Script" uid="uid://couw105c3bde4" path="res://addons/godot_state_charts/state_chart.gd" id="11_gk2qc"]
+@@ -30,13 +29,11 @@
+ 
+ [node name="PlayerInputComponent" type="Node" parent="." unique_id=851278383]
+ script = ExtResource("3_input")
+ 
+ [node name="AnimationControllerComponent" type="Node" parent="." unique_id=1140034643]
+-script = ExtResource("4_animation")
+-AnimationBlendTime = 0.3
+-AnimConfig = ExtResource("5_ykoex")
++script = ExtResource("3_a8kom")
+ 
+ [node name="CharacterRotationComponent" type="Node" parent="." unique_id=1956804117]
+ script = ExtResource("6_rotation")
+ 
+ [node name="CameraControlComponent" type="Node" parent="." unique_id=910192160]
+@@ -58,13 +55,10 @@
+ follow_offset = Vector3(0, 0.6, 0)
+ follow_distance = 4.0
+ spring_length = 4.0
+ shape = SubResource("SphereShape3D_pcam")
+ margin = 0.5
+-align_transform_with_view = Callable()
+-align_position_with_view = Callable()
+-align_rotation_with_view = Callable()
+ 
+ [node name="StateChart" type="Node" parent="." unique_id=491642213]
+ unique_name_in_owner = true
+ script = ExtResource("11_gk2qc")
+ 
+```
+---
+## 📅 20260504_051644
+- ➕ 新增: 7 | 📝 修改: 3 | ❌ 删除: 1
+
+#### AISpace/rules_ide\Codex\AGENTS.md
+```diff
+--- 
++++ 
+@@ -59,10 +59,11 @@
+   </rules>
+ </complex_pattern>
+ 
+ ### Component & R3 Cheat Sheet
+ - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
++- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use R3 `Subject<T>` and expose as `Observable<T>`.
+ - **Memory**: `CompositeDisposable _disposables` -> Dispose in `_ExitTree()`.
+ - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
+ - **Streams**:
+   - Physics (Velocity): `Observable.EveryPhysicsUpdate()`
+   - UI Updates: Append `.ObserveOn(GodotProvider.MainThread)`
+```
+#### TetrisBackpack/A1TesseractBackpack\TSItem.tscn
+```diff
+--- 
++++ 
+@@ -90,10 +90,12 @@
+ [node name="UITweenInteractComponent" type="Node" parent="." unique_id=987654321 node_paths=PackedStringArray("InteractionArea", "VisualTarget")]
+ unique_name_in_owner = true
+ script = ExtResource("tween_script")
+ InteractionArea = NodePath("../PhysicsProxy/InteractionArea")
+ VisualTarget = NodePath("../PhysicsProxy/InteractionArea")
++HoverScale = Vector2(5, 5)
++PressScale = Vector2(0.5, 0.95)
+ 
+ [node name="InteractionArea#ItemIcon" type="TextureRect" parent="." unique_id=1600377566]
+ layout_mode = 1
+ anchors_preset = 15
+ anchor_right = 1.0
+```
+#### AISpace/rules_global\Always\AGENTS.md
+```diff
+--- 
++++ 
+@@ -59,10 +59,11 @@
+   </rules>
+ </complex_pattern>
+ 
+ ### Component & R3 Cheat Sheet
+ - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
++- **Events**: NEVER use Godot Signals (`[Signal]`). ALWAYS use R3 `Subject<T>` and expose as `Observable<T>`.
+ - **Memory**: `CompositeDisposable _disposables` -> Dispose in `_ExitTree()`.
+ - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
+ - **Streams**:
+   - Physics (Velocity): `Observable.EveryPhysicsUpdate()`
+   - UI Updates: Append `.ObserveOn(GodotProvider.MainThread)`
+```
+---
 ## 📅 20260503_074050
 - ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
 
@@ -32162,7 +32562,6 @@ rendering_device/driver.windows="d3d12"
  ### Component & R3 Cheat Sheet
  - **Structure**: Entities = Mediators (NO logic). NO sibling cross-referencing.
 ```
-
 ---
 ## 📅 20260503_074009
 - ➕ 新增: 1 | 📝 修改: 1 | ❌ 删除: 1
@@ -32612,543 +33011,6 @@ rendering_device/driver.windows="d3d12"
      // 统一处理 2D / 3D 节点的可见性
      private static void SetVisible(Node node, bool visible)
      {
-```
----
-## 📅 20260503_070940
-- ➕ 新增: 0 | 📝 修改: 4 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1ObjectPool\IPoolable.cs
-```diff
---- 
-+++ 
-@@ -1,37 +1,16 @@
- using Godot;
- 
- // ReSharper disable All
- 
--/// <summary>
--/// 对象池生命周期接口。
--/// 所有需要池化管理的节点必须实现此接口。
--/// PoolManager 在 Rent / Return 时自动调用 OnRent / OnReturn。
--/// </summary>
-+// 对象池生命周期接口。所有需要池化管理的节点必须实现此接口。
- public interface IPoolable
- {
--    /// <summary>
--    /// 此对象所属的 PackedScene（用于 PoolManager 内部寻址）。
--    /// 业务类通常用 static readonly 字段缓存场景引用，然后在此属性中返回。
--    /// <example>
--    /// <code>
--    /// private static readonly PackedScene _scene = GD.Load&lt;PackedScene&gt;("res://Scenes/Bullet.tscn");
--    /// public PackedScene PoolScene => _scene;
--    /// </code>
--    /// </example>
--    /// </summary>
-+    // 此对象所属的 PackedScene，用于 PoolManager 内部寻址。
-     PackedScene PoolScene { get; }
- 
--    /// <summary>
--    /// 从池中借出时调用。在此方法中重置所有运行时状态。
--    /// 例如：重置位置、速度、HP、启用碰撞、重置动画等。
--    /// PoolManager 会在设置 Visible=true 和 ProcessMode=Inherit 之后调用此方法。
--    /// </summary>
-+    // 从池中借出时调用，用于重置运行时状态（位置、速度、HP、碰撞等）。
-     void OnRent();
- 
--    /// <summary>
--    /// 归还到池中时调用。在此方法中清理运行时引用。
--    /// 例如：停止计时器、断开临时信号连接、清除目标引用等。
--    /// PoolManager 会在调用此方法之后设置 Visible=false 和 ProcessMode=Disabled。
--    /// </summary>
-+    // 归还到池中时调用，用于清理运行时引用（停止计时器、断开信号等）。
-     void OnReturn();
- }
-```
-#### TetrisBackpack/addons\A1ObjectPool\PoolManager.cs
-```diff
---- 
-+++ 
-@@ -1,35 +1,15 @@
- using System.Collections.Generic;
- using Godot;
- 
- // ReSharper disable All
- 
--/// <summary>
--/// 全局对象池管理器（Autoload 单例）。
--/// 提供泛型 Rent&lt;T&gt; / Return API，内部使用 PackedScene 作为唯一 Key 寻址。
--/// <para>
--/// 注册方式：Project Settings → Autoload → 添加此脚本，名称设为 "PoolManager"。
--/// </para>
--/// <para>
--/// 使用示例：
--/// <code>
--/// // 预注册（关卡 _Ready 中）
--/// PoolManager.Instance.Register(bulletScene, prewarmCount: 64);
--///
--/// // 借出
--/// Bullet b = PoolManager.Instance.Rent&lt;Bullet&gt;(bulletScene);
--///
--/// // 归还（推荐使用扩展方法 .Despawn()）
--/// b.Despawn();
--/// </code>
--/// </para>
--/// </summary>
-+// 全局对象池管理器（Autoload 单例）。
-+// 提供泛型 Rent<T> / Return API，内部使用 PackedScene 作为唯一 Key 寻址。
- public partial class PoolManager : Node
- {
--    /// <summary>
--    /// 全局单例实例。在 _Ready 中自动赋值（Autoload 保证唯一）。
--    /// </summary>
-+    // 全局单例实例。
-     public static PoolManager Instance { get; private set; }
- 
-     // 内部桶字典：PackedScene → PoolBucket
-     private readonly Dictionary<PackedScene, PoolBucket> _buckets = new();
- 
-@@ -48,16 +28,11 @@
-         AddChild(_poolRoot);
-     }
- 
-     #region 公共 API
- 
--    /// <summary>
--    /// 预注册一个池。可指定预热数量，在战斗开始前一次性实例化。
--    /// 如果该 PackedScene 已经注册过，则仅补充预热。
--    /// </summary>
--    /// <param name="scene">要池化的 PackedScene 资源。</param>
--    /// <param name="prewarmCount">预热数量（默认 0，即懒加载模式）。</param>
-+    // 预注册一个池。可指定预热数量（默认懒加载）。
-     public void Register(PackedScene scene, int prewarmCount = 0)
-     {
-         if (!_buckets.TryGetValue(scene, out PoolBucket bucket))
-         {
-             bucket = new PoolBucket(scene, _poolRoot);
-@@ -66,21 +41,11 @@
- 
-         if (prewarmCount > 0)
-             bucket.Prewarm(prewarmCount);
-     }
- 
--    /// <summary>
--    /// 从池中借出一个强类型对象。
--    /// 如果该 PackedScene 尚未注册，会自动注册（懒加载）。
--    /// 返回的对象已经 Visible=true、ProcessMode=Inherit，且 OnRent() 已被调用。
--    /// <para>
--    /// 注意：借出的节点仍挂在池容器下。调用方需要自行 Reparent 或 AddChild 到目标父节点。
--    /// </para>
--    /// </summary>
--    /// <typeparam name="T">目标节点类型，必须是 Node 且实现 IPoolable。</typeparam>
--    /// <param name="scene">对应的 PackedScene。</param>
--    /// <returns>已激活的强类型节点实例。</returns>
-+    // 从池中借出一个强类型对象（支持懒加载）。
-     public T Rent<T>(PackedScene scene) where T : Node, IPoolable
-     {
-         if (!_buckets.TryGetValue(scene, out PoolBucket bucket))
-         {
-             bucket = new PoolBucket(scene, _poolRoot);
-@@ -88,16 +53,11 @@
-         }
- 
-         return (T)bucket.Rent();
-     }
- 
--    /// <summary>
--    /// 将对象归还到池中。
--    /// 通过 IPoolable.PoolScene 自动寻址到对应的桶，调用方无需记住 PackedScene。
--    /// OnReturn() 会被自动调用，节点随后被隐藏并禁用处理。
--    /// </summary>
--    /// <param name="poolable">要归还的池化对象。</param>
-+    // 将对象归还到池中，自动通过 IPoolable.PoolScene 寻址。
-     public void Return(IPoolable poolable)
-     {
-         if (poolable is not Node node)
-         {
-             GD.PushError("[A1ObjectPool] Return 失败：IPoolable 实例不是 Node 类型。");
-@@ -119,26 +79,21 @@
-         }
- 
-         bucket.Return(node);
-     }
- 
--    /// <summary>
--    /// 清空指定 PackedScene 对应的池（释放所有空闲节点）。
--    /// 适用于关卡卸载时回收特定类型的资源。
--    /// </summary>
-+    // 清空指定 PackedScene 对应的池。
-     public void Clear(PackedScene scene)
-     {
-         if (_buckets.TryGetValue(scene, out PoolBucket bucket))
-         {
-             bucket.Clear();
-             _buckets.Remove(scene);
-         }
-     }
- 
--    /// <summary>
--    /// 清空所有池。适用于场景切换时的全局清理。
--    /// </summary>
-+    // 清空所有池。
-     public void ClearAll()
-     {
-         foreach (var bucket in _buckets.Values)
-             bucket.Clear();
- 
-@@ -147,24 +102,20 @@
- 
-     #endregion
- 
-     #region 调试 API
- 
--    /// <summary>
--    /// 获取指定池的状态信息（调试用）。
--    /// </summary>
-+    // 获取指定池的状态信息。
-     public (int available, int totalCreated) GetPoolStats(PackedScene scene)
-     {
-         if (_buckets.TryGetValue(scene, out PoolBucket bucket))
-             return (bucket.AvailableCount, bucket.TotalCreated);
- 
-         return (0, 0);
-     }
- 
--    /// <summary>
--    /// 打印所有池的状态到 Godot 控制台（调试用）。
--    /// </summary>
-+    // 打印所有池的状态到控制台。
-     public void PrintAllStats()
-     {
-         GD.Print("=== [A1ObjectPool] 池状态 ===");
-         foreach (var (scene, bucket) in _buckets)
-         {
-```
-#### TetrisBackpack/addons\A1ObjectPool\NodePoolExtensions.cs
-```diff
---- 
-+++ 
-@@ -1,28 +1,14 @@
- using Godot;
- 
- // ReSharper disable All
- 
--/// <summary>
--/// Node 扩展方法：提供统一的销毁入口 .Despawn()。
--/// <para>
--/// 如果节点实现了 IPoolable，则自动归还到 PoolManager 的池中复用。
--/// 如果节点没有实现 IPoolable，则退化为普通的 QueueFree()。
--/// </para>
--/// <para>
--/// 团队约定：在所有需要销毁节点的地方，统一使用 .Despawn() 替代 .QueueFree()。
--/// 这样无论节点是否被池化管理，都能正确处理。
--/// </para>
--/// </summary>
-+// Node 扩展方法：提供统一的销毁入口 .Despawn()。
-+// 如果节点实现 IPoolable 则归还池中，否则直接 QueueFree()。
- public static class NodePoolExtensions
- {
--    /// <summary>
--    /// 统一销毁/回收入口。
--    /// 池化对象 → 归还到池中复用。
--    /// 普通节点 → 正常 QueueFree() 销毁。
--    /// </summary>
--    /// <param name="node">要销毁或回收的节点。</param>
-+    // 统一销毁/回收入口。
-     public static void Despawn(this Node node)
-     {
-         if (node is IPoolable poolable && PoolManager.Instance != null)
-         {
-             PoolManager.Instance.Return(poolable);
-```
-#### TetrisBackpack/addons\A1ObjectPool\PoolBucket.cs
-```diff
---- 
-+++ 
-@@ -1,15 +1,12 @@
- using System.Collections.Generic;
- using Godot;
- 
- // ReSharper disable All
- 
--/// <summary>
--/// 内部池桶，每个 PackedScene 对应一个 PoolBucket 实例。
--/// 负责实际的节点实例化、栈管理、激活/休眠切换。
--/// 此类不对外公开，仅由 PoolManager 内部使用。
--/// </summary>
-+// 内部池桶，每个 PackedScene 对应一个 PoolBucket 实例。
-+// 负责实际的节点实例化、栈管理、激活/休眠切换。
- internal sealed class PoolBucket
- {
-     private readonly PackedScene _scene;
-     private readonly Stack<Node> _available; // 空闲节点栈
-     private readonly Node _container;        // 隐藏容器节点，所有休眠对象挂在这里
-@@ -26,14 +23,11 @@
-         _container = new Node();
-         _container.Name = scene.ResourcePath.GetFile().GetBaseName() + "_Pool";
-         poolRoot.AddChild(_container);
-     }
- 
--    /// <summary>
--    /// 预热：提前实例化指定数量的节点并放入空闲栈。
--    /// 推荐在关卡 _Ready 中调用，避免战斗时首次实例化的卡顿。
--    /// </summary>
-+    // 预热：提前实例化指定数量的节点并放入空闲栈，避免战斗时卡顿。
-     public void Prewarm(int count)
-     {
-         for (int i = 0; i < count; i++)
-         {
-             Node node = _scene.Instantiate();
-@@ -49,15 +43,11 @@
-             _available.Push(node);
-             _totalCreated++;
-         }
-     }
- 
--    /// <summary>
--    /// 借出一个节点。如果栈中有空闲的则弹出复用，否则新实例化一个。
--    /// 激活节点：设置 Visible=true，ProcessMode=Inherit。
--    /// 如果节点实现了 IPoolable，会自动调用 OnRent()。
--    /// </summary>
-+    // 借出节点：复用空闲栈或新实例化，并激活节点生命周期。
-     public Node Rent()
-     {
-         Node node;
- 
-         if (_available.Count > 0)
-@@ -88,15 +78,11 @@
-             poolable.OnRent();
- 
-         return node;
-     }
- 
--    /// <summary>
--    /// 归还一个节点到池中。
--    /// 调用 IPoolable.OnReturn() 后，隐藏节点并禁用处理。
--    /// 如果节点当前不在容器下（比如被 AddChild 到了其他父节点），会自动 Reparent 回来。
--    /// </summary>
-+    // 归还节点到池中并休眠。
-     public void Return(Node node)
-     {
-         // 调用生命周期钩子
-         if (node is IPoolable poolable)
-             poolable.OnReturn();
-@@ -110,13 +96,11 @@
-             node.Reparent(_container);
- 
-         _available.Push(node);
-     }
- 
--    /// <summary>
--    /// 清空此池：释放所有节点（包括空闲的和正在使用的都无法追踪，只清空闲的）。
--    /// </summary>
-+    // 清空此池中所有的空闲节点。
-     public void Clear()
-     {
-         while (_available.Count > 0)
-         {
-             Node node = _available.Pop();
-@@ -124,18 +108,14 @@
-         }
- 
-         _totalCreated = 0;
-     }
- 
--    /// <summary>
--    /// 当前空闲节点数量（调试用）。
--    /// </summary>
-+    // 当前空闲节点数量。
-     public int AvailableCount => _available.Count;
- 
--    /// <summary>
--    /// 总共创建的实例数量（调试用）。
--    /// </summary>
-+    // 总共创建的实例数量。
-     public int TotalCreated => _totalCreated;
- 
-     // 统一处理 2D / 3D 节点的可见性
-     private static void SetVisible(Node node, bool visible)
-     {
-```
----
-## 📅 20260503_070705
-- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
-
-#### AISpace/AGENTS.md
-```diff
---- 
-+++ 
-@@ -91,7 +91,10 @@
- 
- ### Component & Node Access
- - **Nodes Lookup**: Use `%Name` -> `GetNodeOrNull<T>("%Name")` + `GD.PushError`.
- 
- ### Documentation Rules
--- **FORBIDDEN**: XML comments (`/// <summary>`) or inline comments for standard Godot lifecycle (`_Ready`, `_Process`).
--- **MANDATORY**: Inline `//` comments (in Chinese) explaining WHY for custom Rx streams, math formulas, and complex logic.
-+- **FORBIDDEN (NO BOILERPLATE)**: 
-+  1. **STRICTLY FORBIDDEN**: XML comments (`/// <summary>`), class/method headers, or any "Summary" blocks.
-+  2. **STRICTLY FORBIDDEN**: Redundant comments for standard Godot lifecycle methods (`_Ready`, `_Process`, etc.).
-+  3. **STRICTLY FORBIDDEN**: Any AI-style preamble or file-level "This script handles..." summaries.
-+- **MANDATORY**: Inline `//` comments (in Chinese) explaining WHY for custom Rx streams, math formulas, and complex logic. NO "how" or "what" comments unless logic is extremely non-obvious.
-```
----
-## 📅 20260503_060934
-- ➕ 新增: 7 | 📝 修改: 3 | ❌ 删除: 0
-
-#### TetrisBackpack/addons\A1TetrisBackpack\Items\GridShapeUIComponent.cs
-```diff
---- 
-+++ 
-@@ -47,14 +47,14 @@
- 
- 	private bool _isDragging = false;
- 
- 	/// 是否正在拖拽
- 	/// 【架构升级】设置时自动同步 ZIndex (视觉置顶)，并作为悬停逻辑屏蔽的状态锁
--	public bool IsDragging 
-+	public bool IsDragging
- 	{
- 		get => _isDragging;
--		set 
-+		set
- 		{
- 			if (_isDragging == value) return;
- 			_isDragging = value;
- 			OnDraggingStateChanged(_isDragging);
- 		}
-@@ -148,11 +148,11 @@
- 		if (_cells.Count > 0 && _cells.Count == _gridShapeComp.CurrentLocalCells.Length)
- 		{
- 			for (int i = 0; i < _cells.Count; i++)
- 			{
- 				_cells[i].Position = new Vector2(
--					_gridShapeComp.CurrentLocalCells[i].X * CellSize, 
-+					_gridShapeComp.CurrentLocalCells[i].X * CellSize,
- 					_gridShapeComp.CurrentLocalCells[i].Y * CellSize
- 				);
- 				_cells[i].CellIndex = i; // 确保索引同步
- 			}
- 			return;
-@@ -172,14 +172,14 @@
- 		// 3. 遍历局部坐标生成GridCellUI
- 		int cellIndex = 0;
- 		foreach (Vector2I cellPos in _gridShapeComp.CurrentLocalCells)
- 		{
- 			var gridCellUI = CreateCell();
--			
-+
- 			// 分配视觉设置
- 			gridCellUI.VisualSettings = ItemVisualSettings;
--			
-+
- 			gridCellUI.Size = new Vector2(CellSize, CellSize);
- 			gridCellUI.Position = new Vector2(cellPos.X * CellSize, cellPos.Y * CellSize);
- 			gridCellUI.Name = $"GridCell_{cellIndex}";
- 			gridCellUI.MouseFilter = Control.MouseFilterEnum.Pass;
- 			gridCellUI.CellIndex = cellIndex;
-@@ -224,17 +224,17 @@
- 
- 	/// 接收来自 Controller 的状态数组，逐个更新自身格子的颜色
- 	public void UpdateCellsVisualState(GridCellUI.CellState[] states)
- 	{
- 		if (_cells == null || _cells.Count == 0) return;
--		
-+
- 		for (int i = 0; i < _cells.Count && i < states.Length; i++)
- 		{
- 			// 视觉优化：如果格子是有效的 (Valid)，物品自身保持 Normal (白光)
- 			// 只有在无效 (Invalid) 时才变红，避免背景绿+物品绿导致的视觉杂乱
- 			var finalState = states[i] == GridCellUI.CellState.Valid ? GridCellUI.CellState.Normal : states[i];
--			_cells[i].SetState(finalState); 
-+			_cells[i].SetState(finalState);
- 		}
- 	}
- 
- 	/// 重置整组单元格状态为Normal
- 	public void ResetGroupState()
-```
-#### TetrisBackpack/TetrisBackpack.csproj
-```diff
---- 
-+++ 
-@@ -15,10 +15,14 @@
-     <!-- 关闭 XML 文档生成（开发阶段不需要） -->
-     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-     <!-- 关闭 nullable 警告提示（可选，减少编译检查量） -->
-     <!-- <Nullable>disable</Nullable> -->
-   </PropertyGroup>
-+  <ItemGroup>
-+    <!-- 排除 Analyzer 子项目的源码（它有自己的 csproj，由 Roslyn 独立编译） -->
-+    <Compile Remove="addons\A1ObjectPool\Analyzers\**" />
-+  </ItemGroup>
-   <ItemGroup>
-     <PackageReference Include="Chickensoft.AutoInject" Version="2.12.7" />
-     <PackageReference Include="Chickensoft.GodotNodeInterfaces" Version="2.4.26" />
-     <PackageReference Include="Chickensoft.Introspection" Version="3.0.2" />
-     <PackageReference Include="Chickensoft.Introspection.Generator" Version="3.0.2" />
-@@ -36,6 +40,12 @@
-     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
-       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-       <PrivateAssets>all</PrivateAssets>
-     </PackageReference>
-   </ItemGroup>
-+  <ItemGroup>
-+    <!-- A1ObjectPool Roslyn Analyzer: 编译期禁止对 IPoolable 对象调用 QueueFree/Free -->
-+    <ProjectReference Include="addons\A1ObjectPool\Analyzers\A1ObjectPool.Analyzers.csproj"
-+                      OutputItemType="Analyzer"
-+                      ReferenceOutputAssembly="false" />
-+  </ItemGroup>
- </Project>```
-#### TetrisBackpack/project.godot
-```diff
---- 
-+++ 
-@@ -17,10 +17,11 @@
- [autoload]
- 
- PhantomCameraManager="*uid://duq6jhf6unyis"
- FrameProviderDispatcher="*uid://crtk7e8scthbv"
- ObservableTrackerRuntimeHook="*uid://c3ycqt6dt1pfq"
-+PoolManager="*res://addons/A1ObjectPool/PoolManager.cs"
- 
- [debug]
- 
- file_logging/enable_file_logging=true
- 
-```
----
-## 📅 20260503_051700
-- ➕ 新增: 0 | 📝 修改: 1 | ❌ 删除: 0
-
-#### AISpace/AGENTS.md
-```diff
---- 
-+++ 
-@@ -36,17 +36,18 @@
- </system_reminder>
- 
- ## 4. Architecture & R3 Strictness
- 
- <prime_directive>
--  <description>CRITICAL: Clean Code, Generality & Cross-Project Reuse vs. KISS</description>
--  <rationale>Core systems must be clean, universal, and ready for cross-project reuse. However, simple requirements MUST NOT be over-complicated. The most effective, simplest code is always the best.</rationale>
-+  <description>CRITICAL: Clean Architecture, Cross-Project Generality & Pragmatic KISS</description>
-+  <rationale>Core systems (like Object Pools) must be designed as pristine, decoupled, and generic frameworks ready for drop-in reuse in future projects. However, this generality must NOT infect simple, domain-specific logic. Do not over-engineer what should be a simple script.</rationale>
-   <rules>
--    1. GENERALITY & REUSE: Design core architecture (e.g., Object Pools, Managers) to be clean, generic, and decoupled so they can be directly used in the next project.
--    2. ELEGANT SIMPLICITY (KISS): Never over-engineer simple features. Simple problems demand the most direct, straightforward, and simple code possible.
--    3. COMPONENT STRICTNESS: Composition > Inheritance. Components do ONE thing.
--    4. NAMING ENFORCEMENT: Injected component variables MUST match their Type names.
-+    1. CORE FRAMEWORK GENERALITY: Global systems, managers, and architectural foundations MUST use generic (`T`), type-safe, and highly decoupled code to ensure 100% cross-project reusability. Keep the core perfectly clean.
-+    2. PRAGMATIC SIMPLICITY (KISS): For everyday game logic and simple requirements, the most effective and direct code is the best. Do not invent abstractions or premature generalizations (like unnecessary `[Export]` vars) unless specifically commanded.
-+    3. COMPONENT STRICTNESS: Composition > Inheritance. Components do EXACTLY ONE thing. Entities are just mediators.
-+    4. NAMING ENFORCEMENT: Injected component variables MUST match their Type names (e.g., `NodePath_InitPoint`).
-+    5. EXACT BLUEPRINT OBEDIENCE: Execute bug fixes and hotfixes EXACTLY as diagnosed. Do not silently refactor or "generalize" unrelated code during a fix.
-   </rules>
- </prime_directive>
- 
- <complex_pattern>
-   <description>CRITICAL: Godot Lifecycle (_EnterTree vs _Ready) & Initialization</description>
 ```
 </RECENT_CHANGES>
     ]]>

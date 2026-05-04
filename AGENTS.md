@@ -16,7 +16,6 @@ trigger: always_on
 1. Verify assumptions from `ConversationReset.md`, `docLastConversationState.md`, `AGENTS.md`.
 2. Execute incrementally.
 3. IMPORTANT: `dotnet build` from `TetrisBackpack/` immediately after ANY `.cs` edit.
-4. IMPORTANT: If ANY file was modified during the turn, YOU MUST execute `powershell -WindowStyle Hidden -Command "& 'C:\Godot\TetrisBackpack\SYNC_TO_GEMINI_SILENT.bat'"` at the end of the conversation as your final action.
 </workflow>
 
 ## 2. API & Workspace
