@@ -55,7 +55,7 @@ trigger: always_on
   <rules>
     1. R3 EVENTS: Use `[R3Event]` instead of manual `Subject<T>`. It lazy-initializes on first access, making it safe and ensuring correct initialization order for children to subscribe during their `_Ready()`.
     2. CORE DATA: Instantiate `ReactiveProperty<T>` or simple collections inline (e.g., `= new()`) rather than inside lifecycle methods.
-    3. TIMING: Use `await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);` instead of `CallDeferred`.
+    3. TIMING (Physics Nodes): ALWAYS delay physics initialization by 1 frame to sync with C++ backend. Use `Observable.NextFrame(GodotFrameProvider.PhysicsProcess).Subscribe(_ => Init()).AddTo(this);`. NEVER use `async void _Ready`.
   </rules>
 </complex_pattern>
 
@@ -73,6 +73,7 @@ trigger: always_on
 - **Memory**: Use `.AddTo(this)` -> Automatically disposes when node enters `TreeExiting`.
 - **Perf**: `ValueTuples (a, b)` in `EveryUpdate` to prevent GC.
 - **Streams**:
+  - Delay 1 Physics Frame: `Observable.NextFrame(GodotFrameProvider.PhysicsProcess)`
   - Physics (Velocity): `Observable.EveryPhysicsUpdate()`
   - UI Updates: Append `.ObserveOn(GodotProvider.MainThread)`
   - Button Clicks: `.ThrottleFirst(TimeSpan)` (NEVER `.Throttle()`)
